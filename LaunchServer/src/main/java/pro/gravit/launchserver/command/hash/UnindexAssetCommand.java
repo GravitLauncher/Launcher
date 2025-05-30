@@ -14,6 +14,7 @@ import java.io.BufferedReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 public final class UnindexAssetCommand extends Command {
@@ -39,10 +40,8 @@ public final class UnindexAssetCommand extends Command {
         String inputAssetDirName = IOHelper.verifyFileName(args[0]);
         String indexFileName = IOHelper.verifyFileName(args[1]);
         String outputAssetDirName = IOHelper.verifyFileName(args[2]);
-        Path inputAssetDir = server.updatesDir.resolve(inputAssetDirName);
-        Path outputAssetDir = server.updatesDir.resolve(outputAssetDirName);
-        if (outputAssetDir.equals(inputAssetDir))
-            throw new CommandException("Indexed and unindexed asset dirs can't be same");
+        var updatesDir = server.config.updatesProvider.getUpdatesDir(inputAssetDirName);
+        Path outputAssetDir = Path.of(outputAssetDirName);
 
         // Create new asset dir
         logger.info("Creating unindexed asset dir: '{}'", outputAssetDirName);
@@ -51,7 +50,8 @@ public final class UnindexAssetCommand extends Command {
         // Read JSON file
         JsonObject objects;
         logger.info("Reading asset index file: '{}'", indexFileName);
-        try (BufferedReader reader = IOHelper.newReader(IndexAssetCommand.resolveIndexFile(inputAssetDir, indexFileName))) {
+        Path indexFilePath = IndexAssetCommand.resolveIndexFile(Path.of(""), indexFileName);
+        try (BufferedReader reader = IOHelper.newReader(server.config.updatesProvider.download(inputAssetDirName, indexFilePath.toString()))) {
             objects = JsonParser.parseReader(reader).getAsJsonObject().get("objects").getAsJsonObject();
         }
 
@@ -63,12 +63,12 @@ public final class UnindexAssetCommand extends Command {
 
             // Copy hashed file to target
             String hash = member.getValue().getAsJsonObject().get("hash").getAsString();
-            Path source = IndexAssetCommand.resolveObjectFile(inputAssetDir, hash);
-            IOHelper.copy(source, outputAssetDir.resolve(name));
+            Path source = IndexAssetCommand.resolveObjectFile(Path.of(""), hash);
+            server.config.updatesProvider.download(inputAssetDirName, Map.of(source.toString(), outputAssetDir.resolve(name)));
         }
 
         // Finished
         server.syncUpdatesDir(Collections.singleton(outputAssetDirName));
-        logger.info("Asset successfully unindexed: '{}'", inputAssetDirName);
+        logger.info("Asset successfully unindexed: '{}'", outputAssetDir.toAbsolutePath().toString());
     }
 }

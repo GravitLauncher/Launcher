@@ -295,6 +295,10 @@ public final class HashedDir extends HashedEntry {
             this.entry = entry;
             this.name = name;
         }
+
+        public boolean isFound() {
+            return entry != null;
+        }
     }
 
     public static final class Diff {

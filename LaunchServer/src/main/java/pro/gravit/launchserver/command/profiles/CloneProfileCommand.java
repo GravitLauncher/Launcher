@@ -48,17 +48,7 @@ public class CloneProfileCommand extends Command {
             profile.getServers().getFirst().name = args[1];
         }
         logger.info("Copy {} to {}", profile.getDir(), args[1]);
-        var src = server.updatesDir.resolve(profile.getDir());
-        var dest = server.updatesDir.resolve(args[1]);
-        try (Stream<Path> stream = Files.walk(src)) {
-            stream.forEach(source -> {
-                try {
-                    IOHelper.copy(source, dest.resolve(src.relativize(source)));
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-            });
-        }
+        server.config.updatesProvider.copy(profile.getDir(), args[1]);
         builder.setDir(args[1]);
         profile = builder.createClientProfile();
         server.config.profileProvider.addProfile(profile);

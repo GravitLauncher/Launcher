@@ -42,7 +42,7 @@ public final class DownloadClientCommand extends Command {
         //Version version = Version.byName(args[0]);
         String versionName = args[0];
         String dirName = IOHelper.verifyFileName(args[1] != null ? args[1] : args[0]);
-        Path clientDir = server.updatesDir.resolve(dirName);
+        Path clientDir = server.createTempDirectory("client");
 
         boolean isMirrorClientDownload = false;
         if (args.length > 2) {
@@ -97,6 +97,7 @@ public final class DownloadClientCommand extends Command {
             }
         }
         server.config.profileProvider.addProfile(clientProfile);
+        server.config.updatesProvider.upload(dirName, clientDir, true);
 
         // Finished
         server.syncProfilesDir();

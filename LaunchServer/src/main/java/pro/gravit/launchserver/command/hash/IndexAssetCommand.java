@@ -19,6 +19,8 @@ import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 public final class IndexAssetCommand extends Command {
     public static final String INDEXES_DIR = "indexes";
@@ -54,24 +56,21 @@ public final class IndexAssetCommand extends Command {
         String inputAssetDirName = IOHelper.verifyFileName(args[0]);
         String indexFileName = IOHelper.verifyFileName(args[1]);
         String outputAssetDirName = IOHelper.verifyFileName(args[2]);
-        Path inputAssetDir = server.updatesDir.resolve(inputAssetDirName);
-        Path outputAssetDir = server.updatesDir.resolve(outputAssetDirName);
-        if (outputAssetDir.equals(inputAssetDir))
-            throw new CommandException("Unindexed and indexed asset dirs can't be same");
-
-        // Create new asset dir
-        logger.info("Creating indexed asset dir: '{}'", outputAssetDirName);
-        Files.createDirectory(outputAssetDir);
+        Path inputAssetDir = Path.of(inputAssetDirName);
+        Map<String, Path> uploadMap = new HashMap<>();
 
         // Index objects
         JsonObject objects = new JsonObject();
         logger.info("Indexing objects");
-        IOHelper.walk(inputAssetDir, new IndexAssetVisitor(objects, inputAssetDir, outputAssetDir), false);
+        IOHelper.walk(inputAssetDir, new IndexAssetVisitor(objects, inputAssetDir, uploadMap), false);
+        server.config.updatesProvider.upload(outputAssetDirName, uploadMap, false);
 
         // Write index file
         logger.info("Writing asset index file: '{}'", indexFileName);
 
-        try (BufferedWriter writer = IOHelper.newWriter(resolveIndexFile(outputAssetDir, indexFileName))) {
+        var indexFile = resolveIndexFile(Path.of(""), indexFileName);
+
+        try (BufferedWriter writer = IOHelper.newWriter(server.config.updatesProvider.upload(outputAssetDirName, indexFile.toString()))) {
             JsonObject result = new JsonObject();
             result.add("objects", objects);
             writer.write(Launcher.gsonManager.gson.toJson(result));
@@ -95,12 +94,12 @@ public final class IndexAssetCommand extends Command {
     private final class IndexAssetVisitor extends SimpleFileVisitor<Path> {
         private final JsonObject objects;
         private final Path inputAssetDir;
-        private final Path outputAssetDir;
+        private final Map<String, Path> uploadMap;
 
-        private IndexAssetVisitor(JsonObject objects, Path inputAssetDir, Path outputAssetDir) {
+        private IndexAssetVisitor(JsonObject objects, Path inputAssetDir, Map<String, Path> uploadMap) {
             this.objects = objects;
             this.inputAssetDir = inputAssetDir;
-            this.outputAssetDir = outputAssetDir;
+            this.uploadMap = uploadMap;
         }
 
         @Override
@@ -112,7 +111,7 @@ public final class IndexAssetCommand extends Command {
             String digest = SecurityHelper.toHex(SecurityHelper.digest(DigestAlgorithm.SHA1, file));
             IndexObject obj = new IndexObject(attrs.size(), digest);
             objects.add(name, Launcher.gsonManager.gson.toJsonTree(obj));
-            IOHelper.copy(file, resolveObjectFile(outputAssetDir, digest));
+            uploadMap.put(resolveObjectFile(Path.of(""), digest).toString(), file);
 
             // Continue visiting
             return super.visitFile(file, attrs);

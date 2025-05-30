@@ -9,7 +9,7 @@ import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.modules.events.LaunchServerUpdatesSyncEvent;
 import pro.gravit.utils.helper.IOHelper;
 
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -154,6 +154,14 @@ public class LocalUpdatesProvider extends UpdatesProvider {
     }
 
     @Override
+    public OutputStream upload(String updateName, String file) throws IOException {
+        var path = resolveUpdateName(updateName);
+        var target = path.resolve(file);
+        IOHelper.createParentDirs(target);
+        return new FileOutputStream(target.toFile());
+    }
+
+    @Override
     public Map<String, Path> download(String updateName, List<String> files) {
         var path = resolveUpdateName(updateName);
         Map<String, Path> map = new HashMap<>();
@@ -161,6 +169,39 @@ public class LocalUpdatesProvider extends UpdatesProvider {
             map.put(e, path.resolve(e));
         }
         return map;
+    }
+
+    @Override
+    public void download(String updateName, Map<String, Path> files) throws IOException {
+        var path = resolveUpdateName(updateName);
+        for(var e : files.entrySet()) {
+            var source = path.resolve(e.getKey());
+            var target = e.getValue();
+            IOHelper.copy(source, target);
+        }
+    }
+
+    @Override
+    public InputStream download(String updateName, String path) throws IOException {
+        return new FileInputStream(resolveUpdateName(updateName).resolve(path).toFile());
+    }
+
+    @Override
+    public void move(Map<UpdateNameAndFile, UpdateNameAndFile> files) throws IOException {
+        for(var e : files.entrySet()) {
+            var source = resolveUpdateName(e.getKey().updateName()).resolve(e.getKey().path());
+            var target = resolveUpdateName(e.getValue().updateName()).resolve(e.getValue().path());
+            IOHelper.move(source, target);
+        }
+    }
+
+    @Override
+    public void copy(Map<UpdateNameAndFile, UpdateNameAndFile> files) throws IOException {
+        for(var e : files.entrySet()) {
+            var source = resolveUpdateName(e.getKey().updateName()).resolve(e.getKey().path());
+            var target = resolveUpdateName(e.getValue().updateName()).resolve(e.getValue().path());
+            IOHelper.copy(source, target);
+        }
     }
 
     @Override

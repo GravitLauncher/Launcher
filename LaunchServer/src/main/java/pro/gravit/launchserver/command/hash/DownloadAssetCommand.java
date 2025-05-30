@@ -44,7 +44,8 @@ public final class DownloadAssetCommand extends Command {
         String versionName = args[0];
         String dirName = IOHelper.verifyFileName(args.length > 1 ? args[1] : "assets");
         String type = args.length > 2 ? args[2] : "mojang";
-        Path assetDir = server.updatesDir.resolve(dirName);
+        Path assetDir = server.createTempDirectory("assets");
+        var updatesDir = server.config.updatesProvider.getUpdatesDir(dirName);
 
         // Create asset dir
         if (Files.notExists(assetDir)) {
@@ -91,14 +92,8 @@ public final class DownloadAssetCommand extends Command {
                 hash = hash.substring(0, 2) + "/" + hash;
                 var size = value.get("size").getAsLong();
                 var path = "objects/" + hash;
-                var target = assetDir.resolve(path);
-                if (Files.exists(target)) {
-                    long fileSize = Files.size(target);
-                    if (fileSize != size) {
-                        logger.warn("File {} corrupted. Size {}, expected {}", target, size, fileSize);
-                    } else {
-                        continue;
-                    }
+                if (updatesDir.findRecursive(path).isFound()) {
+                    continue;
                 }
                 toDownload.add(new Downloader.SizedFile(hash, path, size));
             }
@@ -111,6 +106,8 @@ public final class DownloadAssetCommand extends Command {
             //HttpDownloader.downloadZip(server.mirrorManager.getDefaultMirror().getAssetsURL(version.name), assetDir);
             server.mirrorManager.downloadZip(assetDir, "assets/%s.zip", versionName);
         }
+
+        server.config.updatesProvider.upload(dirName, assetDir, true);
 
         // Finished
         server.syncUpdatesDir(Collections.singleton(dirName));

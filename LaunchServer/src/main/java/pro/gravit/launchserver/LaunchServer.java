@@ -27,6 +27,7 @@ import pro.gravit.utils.command.Command;
 import pro.gravit.utils.command.CommandHandler;
 import pro.gravit.utils.command.SubCommand;
 import pro.gravit.utils.helper.CommonHelper;
+import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.JVMHelper;
 import pro.gravit.utils.helper.SecurityHelper;
 
@@ -303,6 +304,12 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
         } catch (Throwable e) {
             logger.error("Can't get certificate expire date", e);
         }
+    }
+
+    public Path createTempDirectory(String name) throws IOException {
+        var path = tmpDir.resolve(String.format("launchserver-%s-%s", name, SecurityHelper.randomStringToken()));
+        Files.createDirectories(path);
+        return path;
     }
 
     private LauncherBinary binary() {
