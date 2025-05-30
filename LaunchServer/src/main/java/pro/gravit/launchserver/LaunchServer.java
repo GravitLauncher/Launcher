@@ -226,8 +226,15 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
         if(!type.equals(ReloadType.NO_AUTH)) {
             nettyServerSocketHandler.nettyServer.service.forEachActiveChannels((channel, wsHandler) -> {
                 Client client = wsHandler.getClient();
-                if(client.auth != null) {
+                var lock = client.writeLock();
+                lock.lock();
+                try {
+                    if (client.auth_id == null) {
+                        return;
+                    }
                     client.auth = config.getAuthProviderPair(client.auth_id);
+                } finally {
+                    lock.unlock();
                 }
             });
         }
