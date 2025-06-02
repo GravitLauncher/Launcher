@@ -20,6 +20,8 @@ public final class HashedFile extends HashedEntry {
     public final long size;
     @LauncherNetworkAPI
     private final byte[] digest;
+    @LauncherNetworkAPI
+    public final String url;
 
 
     public HashedFile(HInput input) throws IOException {
@@ -30,6 +32,13 @@ public final class HashedFile extends HashedEntry {
     public HashedFile(long size, byte[] digest) {
         this.size = VerifyHelper.verifyLong(size, VerifyHelper.L_NOT_NEGATIVE, "Illegal size: " + size);
         this.digest = digest == null ? null : DIGEST_ALGO.verify(digest).clone();
+        this.url = null;
+    }
+
+    public HashedFile(long size, byte[] digest, String url) {
+        this.size = VerifyHelper.verifyLong(size, VerifyHelper.L_NOT_NEGATIVE, "Illegal size: " + size);
+        this.digest = digest == null ? null : DIGEST_ALGO.verify(digest).clone();
+        this.url = url;
     }
 
 
