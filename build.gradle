@@ -1,5 +1,5 @@
 plugins {
-    id 'com.github.johnrengelman.shadow' version '8.1.1' apply false
+    id 'com.gradleup.shadow' version '9.0.0-beta15' apply false
     id 'maven-publish'
     id 'signing'
     id 'org.openjfx.javafxplugin' version '0.1.0' apply false
@@ -29,13 +29,6 @@ configure(subprojects.findAll { it.name != 'modules' }) {
         }
         maven {
             url "https://jitpack.io/"
-        }
-        maven {
-            url 'https://maven.gravit-support.ru/repository/jitpack'
-            credentials {
-                username = 'gravitlauncher'
-                password = 'gravitlauncher'
-            }
         }
     }
 
@@ -71,6 +64,10 @@ if (hasProperty('mavenUsername') && hasProperty('mavenPassword') && hasProperty(
         repositories {
             maven {
                 url = version.endsWith('SNAPSHOT') ? getProperty('mavenSnapshotRepository') : getProperty('mavenReleaseRepository')
+                credentials {
+                    username getProperty('mavenUsername')
+                    password getProperty('mavenPassword')
+                }
             }
         }
     }

@@ -8,8 +8,8 @@ repositories {
         url "https://repo.spring.io/plugins-release/"
     }
 }
-sourceCompatibility = '17'
-targetCompatibility = '17'
+sourceCompatibility = '21'
+targetCompatibility = '21'
 
 jar {
     archiveClassifier.set('clean')

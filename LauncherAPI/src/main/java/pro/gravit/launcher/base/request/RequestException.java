@@ -2,7 +2,7 @@ package pro.gravit.launcher.base.request;
 
 import java.io.IOException;
 
-public final class RequestException extends IOException {
+public final class RequestException extends RuntimeException {
 
 
     public RequestException(String message) {

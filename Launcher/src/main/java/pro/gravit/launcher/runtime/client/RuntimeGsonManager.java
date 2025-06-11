@@ -1,6 +1,7 @@
 package pro.gravit.launcher.runtime.client;
 
 import com.google.gson.GsonBuilder;
+import pro.gravit.launcher.core.backend.UserSettings;
 import pro.gravit.launcher.start.RuntimeModuleManager;
 import pro.gravit.launcher.core.managers.GsonManager;
 import pro.gravit.launcher.base.modules.events.PreGsonPhase;

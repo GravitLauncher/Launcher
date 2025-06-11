@@ -2,6 +2,7 @@ package pro.gravit.launcher.runtime.client;
 
 import pro.gravit.launcher.base.Launcher;
 import pro.gravit.launcher.base.LauncherConfig;
+import pro.gravit.launcher.base.events.request.AuthRequestEvent;
 import pro.gravit.launcher.client.ClientLauncherEntryPoint;
 import pro.gravit.launcher.client.ClientParams;
 import pro.gravit.launcher.runtime.LauncherEngine;
@@ -69,6 +70,12 @@ public class ClientLauncherProcess {
     public ClientLauncherProcess(Path clientDir, Path assetDir, JavaHelper.JavaVersion javaVersion, Path resourcePackDir,
                                  ClientProfile profile, PlayerProfile playerProfile, OptionalView view, String accessToken,
                                  HashedDir clientHDir, HashedDir assetHDir, HashedDir jvmHDir) {
+        this(clientDir, assetDir, javaVersion, resourcePackDir, profile, playerProfile, view, accessToken, clientHDir, assetHDir, jvmHDir, null, null);
+    }
+
+    public ClientLauncherProcess(Path clientDir, Path assetDir, JavaHelper.JavaVersion javaVersion, Path resourcePackDir,
+                                 ClientProfile profile, PlayerProfile playerProfile, OptionalView view, String accessToken,
+                                 HashedDir clientHDir, HashedDir assetHDir, HashedDir jvmHDir, AuthRequestEvent.OAuthRequestEvent oAuthRequestEvent, String authId) {
         this.javaVersion = javaVersion;
         this.workDir = clientDir.toAbsolutePath();
         this.executeFile = IOHelper.resolveJavaBin(this.javaVersion.jvmDir);
@@ -77,6 +84,8 @@ public class ClientLauncherProcess {
         this.params.resourcePackDir = resourcePackDir.toAbsolutePath().toString();
         this.params.assetDir = assetDir.toAbsolutePath().toString();
         this.params.timestamp = System.currentTimeMillis();
+        this.params.oauth = oAuthRequestEvent;
+        this.params.authId = authId;
         Path nativesPath;
         if(profile.hasFlag(ClientProfile.CompatibilityFlags.LEGACY_NATIVES_DIR)) {
             nativesPath = workDir.resolve("natives");
@@ -119,10 +128,8 @@ public class ClientLauncherProcess {
         if (params.ram > 0) {
             this.jvmArgs.add("-Xmx" + params.ram + 'M');
         }
-        this.params.oauth = Request.getOAuth();
         if (this.params.oauth == null) {
-            throw new UnsupportedOperationException("Legacy session not supported");
-        } else {
+            this.params.oauth = Request.getOAuth();
             this.params.authId = Request.getAuthId();
             this.params.oauthExpiredTime = Request.getTokenExpiredTime();
             this.params.extendedTokens = Request.getExtendedTokens();

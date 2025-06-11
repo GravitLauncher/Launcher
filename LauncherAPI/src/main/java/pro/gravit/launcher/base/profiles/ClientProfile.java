@@ -6,6 +6,7 @@ import pro.gravit.launcher.core.hasher.FileNameMatcher;
 import pro.gravit.launcher.base.profiles.optional.OptionalDepend;
 import pro.gravit.launcher.base.profiles.optional.OptionalFile;
 import pro.gravit.launcher.base.profiles.optional.triggers.OptionalTrigger;
+import pro.gravit.launcher.core.api.features.ProfileFeatureAPI;
 import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.VerifyHelper;
 import pro.gravit.utils.launch.LaunchOptions;
@@ -13,8 +14,9 @@ import pro.gravit.utils.launch.LaunchOptions;
 import java.lang.reflect.Type;
 import java.net.InetSocketAddress;
 import java.util.*;
+import java.util.stream.Collectors;
 
-public final class ClientProfile implements Comparable<ClientProfile> {
+public final class ClientProfile implements Comparable<ClientProfile>, ProfileFeatureAPI.ClientProfile {
     private static final FileNameMatcher ASSET_MATCHER = new FileNameMatcher(
             new String[0], new String[]{"indexes", "objects"}, new String[0]);
     @LauncherNetworkAPI
@@ -284,8 +286,23 @@ public final class ClientProfile implements Comparable<ClientProfile> {
         return String.format("%s (%s)", title, uuid);
     }
 
+    @Override
+    public String getName() {
+        return title;
+    }
+
     public UUID getUUID() {
         return uuid;
+    }
+
+    @Override
+    public String getDescription() {
+        return info;
+    }
+
+    @Override
+    public List<ProfileFeatureAPI.OptionalMod> getOptionalMods() {
+        return updateOptional.stream().collect(Collectors.toUnmodifiableList());
     }
 
     public boolean hasFlag(CompatibilityFlags flag) {
@@ -359,6 +376,11 @@ public final class ClientProfile implements Comparable<ClientProfile> {
 
     public Map<String, String> getProperties() {
         return Collections.unmodifiableMap(properties);
+    }
+
+    @Override
+    public ServerInfo getServer() {
+        return getDefaultServerProfile();
     }
 
     public List<String> getCompatClasses() {
@@ -498,7 +520,7 @@ public final class ClientProfile implements Comparable<ClientProfile> {
         }
     }
 
-    public static class ServerProfile {
+    public static class ServerProfile implements ServerInfo {
         public String name;
         public String serverAddress;
         public int serverPort;
@@ -524,6 +546,16 @@ public final class ClientProfile implements Comparable<ClientProfile> {
 
         public InetSocketAddress toSocketAddress() {
             return InetSocketAddress.createUnresolved(serverAddress, serverPort);
+        }
+
+        @Override
+        public String getAddress() {
+            return serverAddress;
+        }
+
+        @Override
+        public int getPort() {
+            return serverPort;
         }
     }
 

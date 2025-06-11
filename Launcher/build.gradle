@@ -1,4 +1,4 @@
-apply plugin: 'com.github.johnrengelman.shadow'
+apply plugin: 'com.gradleup.shadow'
 
 String mainClassName = "pro.gravit.launcher.start.ClientLauncherWrapper"
 
@@ -7,8 +7,8 @@ repositories {
         url "https://repo.spring.io/plugins-release/"
     }
 }
-sourceCompatibility = '17'
-targetCompatibility = '17'
+sourceCompatibility = '21'
+targetCompatibility = '21'
 
 configurations {
     bundle

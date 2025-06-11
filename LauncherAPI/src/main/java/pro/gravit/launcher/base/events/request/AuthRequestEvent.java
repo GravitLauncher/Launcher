@@ -1,6 +1,7 @@
 package pro.gravit.launcher.base.events.request;
 
 import pro.gravit.launcher.base.ClientPermissions;
+import pro.gravit.launcher.core.api.features.AuthFeatureAPI;
 import pro.gravit.launcher.core.LauncherNetworkAPI;
 import pro.gravit.launcher.base.events.RequestEvent;
 import pro.gravit.launcher.base.profiles.PlayerProfile;
@@ -67,7 +68,15 @@ public class AuthRequestEvent extends RequestEvent {
         return "auth";
     }
 
-    public static class OAuthRequestEvent {
+    public CurrentUserRequestEvent.UserInfo makeUserInfo() {
+        var userInfo = new CurrentUserRequestEvent.UserInfo();
+        userInfo.accessToken = accessToken;
+        userInfo.permissions = permissions;
+        userInfo.playerProfile = playerProfile;
+        return userInfo;
+    }
+
+    public static class OAuthRequestEvent implements AuthFeatureAPI.AuthToken {
         public final String accessToken;
         public final String refreshToken;
         public final long expire;
@@ -76,6 +85,27 @@ public class AuthRequestEvent extends RequestEvent {
             this.accessToken = accessToken;
             this.refreshToken = refreshToken;
             this.expire = expire;
+        }
+
+        public OAuthRequestEvent(AuthFeatureAPI.AuthToken token) {
+            this.accessToken = token.getAccessToken();
+            this.refreshToken = token.getRefreshToken();
+            this.expire = token.getExpire();
+        }
+
+        @Override
+        public String getAccessToken() {
+            return accessToken;
+        }
+
+        @Override
+        public String getRefreshToken() {
+            return refreshToken;
+        }
+
+        @Override
+        public long getExpire() {
+            return expire;
         }
     }
 }

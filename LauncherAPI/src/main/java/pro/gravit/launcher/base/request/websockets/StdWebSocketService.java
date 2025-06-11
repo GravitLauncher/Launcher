@@ -97,10 +97,14 @@ public class StdWebSocketService extends ClientWebSocketService implements Reque
         processEventHandlers(webSocketEvent);
     }
 
-    public <T extends WebSocketEvent> CompletableFuture<T> request(Request<T> request) throws IOException {
+    public <T extends WebSocketEvent> CompletableFuture<T> request(Request<T> request) {
         CompletableFuture<T> result = new CompletableFuture<>();
         futureMap.put(request.requestUUID, result);
-        sendObject(request, WebSocketRequest.class);
+        try {
+            sendObject(request, WebSocketRequest.class);
+        } catch (IOException e) {
+            return CompletableFuture.failedFuture(e);
+        }
         return result;
     }
 
@@ -114,18 +118,14 @@ public class StdWebSocketService extends ClientWebSocketService implements Reque
         eventHandlers.remove(handler);
     }
 
-    public <T extends WebSocketEvent> T requestSync(Request<T> request) throws IOException {
+    public <T extends WebSocketEvent> T requestSync(Request<T> request) {
         try {
             return request(request).get();
         } catch (InterruptedException e) {
             throw new RequestException("Request interrupted");
         } catch (ExecutionException e) {
             Throwable cause = e.getCause();
-            if (cause instanceof IOException)
-                throw (IOException) e.getCause();
-            else {
-                throw new RequestException(cause);
-            }
+            throw new RequestException(cause);
         }
     }
 

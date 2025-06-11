@@ -1,4 +1,4 @@
-apply plugin: 'com.github.johnrengelman.shadow'
+apply plugin: 'com.gradleup.shadow'
 
 String mainClassName = "pro.gravit.launcher.server.ServerWrapper"
 String mainAgentName = "pro.gravit.launcher.server.ServerAgent"
@@ -14,8 +14,8 @@ repositories {
     }
 }
 
-sourceCompatibility = '17'
-targetCompatibility = '17'
+sourceCompatibility = '21'
+targetCompatibility = '21'
 
 jar {
     archiveClassifier.set('clean')

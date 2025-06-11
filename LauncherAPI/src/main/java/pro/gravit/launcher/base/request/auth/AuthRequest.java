@@ -5,6 +5,7 @@ import pro.gravit.launcher.base.events.request.AuthRequestEvent;
 import pro.gravit.launcher.base.request.Request;
 import pro.gravit.launcher.base.request.auth.password.*;
 import pro.gravit.launcher.base.request.websockets.WebSocketRequest;
+import pro.gravit.launcher.core.api.method.AuthMethodPassword;
 import pro.gravit.utils.ProviderMap;
 
 public final class AuthRequest extends Request<AuthRequestEvent> implements WebSocketRequest {
@@ -64,7 +65,7 @@ public final class AuthRequest extends Request<AuthRequestEvent> implements WebS
         API
     }
 
-    public interface AuthPasswordInterface {
+    public interface AuthPasswordInterface extends AuthMethodPassword {
         boolean check();
 
         default boolean isAllowSave() {

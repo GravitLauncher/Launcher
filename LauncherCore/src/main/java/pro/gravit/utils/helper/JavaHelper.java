@@ -1,5 +1,7 @@
 package pro.gravit.utils.helper;
 
+import pro.gravit.launcher.core.backend.LauncherBackendAPI;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -186,7 +188,7 @@ public class JavaHelper {
         }
     }
 
-    public static class JavaVersion {
+    public static class JavaVersion implements LauncherBackendAPI.Java {
         public final Path jvmDir;
         public final int version;
         public final int build;
@@ -300,6 +302,16 @@ public class JavaHelper {
             Path jdkPath = jvmDir.resolve("jre").resolve("lib").resolve("ext").resolve(name.concat(".jar"));
             Path jdkPathLin = jvmDir.resolve("jre").resolve("lib").resolve(name.concat(".jar"));
             return IOHelper.isFile(jrePath) || IOHelper.isFile(jdkPath) || IOHelper.isFile(jdkPathLin) || IOHelper.isFile(jrePathLin);
+        }
+
+        @Override
+        public int getMajorVersion() {
+            return version;
+        }
+
+        @Override
+        public Path getPath() {
+            return jvmDir;
         }
     }
 }
