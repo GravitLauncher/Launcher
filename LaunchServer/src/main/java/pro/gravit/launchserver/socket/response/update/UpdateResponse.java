@@ -3,7 +3,6 @@ package pro.gravit.launchserver.socket.response.update;
 import io.netty.channel.ChannelHandlerContext;
 import pro.gravit.launcher.base.events.request.UpdateRequestEvent;
 import pro.gravit.launcher.core.hasher.HashedDir;
-import pro.gravit.launchserver.auth.protect.interfaces.ProfilesProtectHandler;
 import pro.gravit.launchserver.config.LaunchServerConfig;
 import pro.gravit.launchserver.socket.Client;
 import pro.gravit.launchserver.socket.response.SimpleResponse;
@@ -19,15 +18,22 @@ public class UpdateResponse extends SimpleResponse {
 
     @Override
     public void execute(ChannelHandlerContext ctx, Client client) {
-        if (server.config.protectHandler instanceof ProfilesProtectHandler profilesProtectHandler && !profilesProtectHandler.canGetUpdates(dirName, client)) {
-            sendError("Access denied");
-            return;
-        }
         if (dirName == null) {
             sendError("Invalid request");
             return;
         }
-        HashedDir dir = server.updatesManager.getUpdate(dirName);
+        if(client.profile == null) {
+            sendError("Profile not setted");
+            return;
+        }
+        HashedDir dir = null;
+        if(dirName.equals(client.profile.getProfile().getDir())) {
+            dir = client.profile.getClientDir();
+        } else if(dirName.equals(client.profile.getProfile().getAssetDir())) {
+            dir = client.profile.getAssetDir();
+        } else {
+            dir = server.config.profilesProvider.getUnconnectedDirectory(dirName);
+        }
         if (dir == null) {
             sendError("Directory %s not found".formatted(dirName));
             return;

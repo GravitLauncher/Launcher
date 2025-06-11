@@ -106,7 +106,6 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
     public final ConfigManager configManager;
     public final FeaturesManager featuresManager;
     public final KeyAgreementManager keyAgreementManager;
-    public final UpdatesManager updatesManager;
     // HWID ban + anti-brutforce
     public final CertificateManager certificateManager;
     // Server
@@ -162,7 +161,6 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
         configManager = new ConfigManager();
         featuresManager = new FeaturesManager(this);
         authManager = new AuthManager(this);
-        updatesManager = new UpdatesManager(this);
         RestoreResponse.registerProviders(this);
 
         config.init(ReloadType.FULL);
@@ -179,7 +177,6 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
 
         launcherBinary.init();
         launcherEXEBinary.init();
-        syncLauncherBinaries();
         launcherModuleLoader = new LauncherModuleLoader(this);
         if (config.components != null) {
             logger.debug("Init components");
@@ -340,11 +337,6 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
     }
 
     @Deprecated
-    public Set<ClientProfile> getProfiles() {
-        return config.profileProvider.getProfiles();
-    }
-
-    @Deprecated
     public void setProfiles(Set<ClientProfile> profilesList) {
         throw new UnsupportedOperationException();
     }
@@ -370,21 +362,6 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
             }));
             CommonHelper.newThread("Command Thread", true, commandHandler).start();
             CommonHelper.newThread("Socket Command Thread", true, socketCommandServer).start();
-            // Sync updates dir
-            CommonHelper.newThread("Profiles and updates sync", true, () -> {
-                try {
-                    // Sync profiles dir
-                    syncProfilesDir();
-
-                    // Sync updates dir
-                    config.updatesProvider.syncInitially();
-
-
-                    modulesManager.invokeEvent(new LaunchServerProfilesSyncEvent(this));
-                } catch (IOException e) {
-                    logger.error("Updates/Profiles not synced", e);
-                }
-            }).start();
         }
         if (config.netty != null)
             rebindNettyServerSocket();
@@ -396,47 +373,6 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
             logger.error("LaunchServer startup failed", e);
             JVMHelper.RUNTIME.exit(-1);
         }
-    }
-
-    public void syncLauncherBinaries() throws IOException {
-        logger.info("Syncing launcher binaries");
-
-        // Syncing launcher binary
-        logger.info("Syncing launcher binary file");
-        if (!launcherBinary.sync()) logger.warn("Missing launcher binary file");
-
-        // Syncing launcher EXE binary
-        logger.info("Syncing launcher EXE binary file");
-        if (!launcherEXEBinary.sync())
-            logger.warn("Missing launcher EXE binary file");
-
-    }
-
-    public void syncProfilesDir() throws IOException {
-        logger.info("Syncing profiles dir");
-        config.profileProvider.sync();
-        if (config.netty.sendProfileUpdatesEvent) {
-            sendUpdateProfilesEvent();
-        }
-    }
-
-    private void sendUpdateProfilesEvent() {
-        if (nettyServerSocketHandler == null || nettyServerSocketHandler.nettyServer == null || nettyServerSocketHandler.nettyServer.service == null) {
-            return;
-        }
-        nettyServerSocketHandler.nettyServer.service.forEachActiveChannels((ch, handler) -> {
-            Client client = handler.getClient();
-            if (client == null || !client.isAuth) {
-                return;
-            }
-            ProfilesRequestEvent event = new ProfilesRequestEvent(config.profileProvider.getProfiles(client));
-            event.requestUUID = RequestEvent.eventUUID;
-            handler.service.sendObject(ch, event);
-        });
-    }
-
-    public void syncUpdatesDir(Collection<String> dirs) throws IOException {
-        updatesManager.syncUpdatesDir(dirs);
     }
 
     public void registerObject(String name, Object object) {

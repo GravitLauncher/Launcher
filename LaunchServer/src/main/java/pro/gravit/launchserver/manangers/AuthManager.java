@@ -191,7 +191,7 @@ public class AuthManager {
         playerProfile = getPlayerProfile(client.auth, user);
         if (playerProfile != null) return playerProfile;
         if (client.auth.textureProvider != null) {
-            return getPlayerProfile(client.uuid, client.username, client.profile == null ? null : client.profile.getTitle(), client.auth.textureProvider, new HashMap<>());
+            return getPlayerProfile(client.uuid, client.username, client.profile == null ? null : client.profile.getName(), client.auth.textureProvider, new HashMap<>());
         }
         // Return combined profile
         return new PlayerProfile(client.uuid, client.username, new HashMap<>(), new HashMap<>());

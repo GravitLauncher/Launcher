@@ -21,6 +21,5 @@ public final class BuildCommand extends Command {
     @Override
     public void invoke(String... args) throws Exception {
         server.buildLauncherBinaries();
-        server.syncLauncherBinaries();
     }
 }

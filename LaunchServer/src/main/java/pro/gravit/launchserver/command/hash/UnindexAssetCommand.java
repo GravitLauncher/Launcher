@@ -37,7 +37,7 @@ public final class UnindexAssetCommand extends Command {
 
     @Override
     public void invoke(String... args) throws Exception {
-        verifyArgs(args, 3);
+        /*verifyArgs(args, 3);
         String inputAssetDirName = IOHelper.verifyFileName(args[0]);
         String indexFileName = IOHelper.verifyFileName(args[1]);
         String outputAssetDirName = IOHelper.verifyFileName(args[2]);
@@ -73,6 +73,6 @@ public final class UnindexAssetCommand extends Command {
 
         // Finished
         server.syncUpdatesDir(Collections.singleton(outputAssetDirName));
-        logger.info("Asset successfully unindexed: '{}'", outputAssetDir.toAbsolutePath().toString());
+        logger.info("Asset successfully unindexed: '{}'", outputAssetDir.toAbsolutePath().toString());*/
     }
 }

@@ -2,6 +2,7 @@ package pro.gravit.launchserver.binary;
 
 import pro.gravit.launcher.base.Launcher;
 import pro.gravit.launchserver.LaunchServer;
+import pro.gravit.launchserver.auth.updates.UpdatesProvider;
 import pro.gravit.launchserver.binary.tasks.*;
 
 import java.io.IOException;
@@ -23,7 +24,7 @@ public final class JARLauncherBinary extends LauncherBinary {
     public final Map<String, Path> files;
 
     public JARLauncherBinary(LaunchServer server) throws IOException {
-        super(server, resolve(server, ".jar"), "Launcher-%s.jar");
+        super(server, "Launcher-%s.jar");
         count = new AtomicLong(0);
         runtimeDir = server.dir.resolve(Launcher.RUNTIME_DIR);
         buildDir = server.dir.resolve("build");
@@ -34,6 +35,11 @@ public final class JARLauncherBinary extends LauncherBinary {
             Files.deleteIfExists(buildDir);
             Files.createDirectory(buildDir);
         }
+    }
+
+    @Override
+    public UpdatesProvider.UpdateVariant getVariant() {
+        return UpdatesProvider.UpdateVariant.JAR;
     }
 
     @Override

@@ -1,6 +1,7 @@
 package pro.gravit.launchserver.binary;
 
 import pro.gravit.launchserver.LaunchServer;
+import pro.gravit.launchserver.auth.updates.UpdatesProvider;
 import pro.gravit.launchserver.binary.tasks.LauncherBuildTask;
 import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.SecurityHelper;
@@ -12,13 +13,10 @@ import java.util.Map;
 
 public abstract class LauncherBinary extends BinaryPipeline {
     public final LaunchServer server;
-    public final Path syncBinaryFile;
-    private volatile byte[] digest;
 
-    protected LauncherBinary(LaunchServer server, Path binaryFile, String nameFormat) {
+    protected LauncherBinary(LaunchServer server, String nameFormat) {
         super(server.tmpDir.resolve("build"), nameFormat);
         this.server = server;
-        syncBinaryFile = binaryFile;
     }
 
     public static Path resolve(LaunchServer server, String ext) {
@@ -40,30 +38,17 @@ public abstract class LauncherBinary extends BinaryPipeline {
             logger.info("Task {} processed from {} millis", task.getName(), time_task);
         }
         long time_end = System.currentTimeMillis();
-        server.config.updatesProvider.upload(null, Map.of(syncBinaryFile.toString(), thisPath), true);
+        if(thisPath != null) {
+            server.config.updatesProvider.pushUpdate(Map.of(getVariant(), thisPath));
+        } else {
+            logger.warn("Missing {} binary file", getVariant());
+        }
         IOHelper.deleteDir(buildDir, false);
         logger.info("Build successful from {} millis", time_end - time_start);
     }
 
-    public final boolean exists() {
-        return syncBinaryFile != null && IOHelper.isFile(syncBinaryFile);
-    }
-
-    public final byte[] getDigest() {
-        return digest;
-    }
+    public abstract UpdatesProvider.UpdateVariant getVariant();
 
     public void init() {
-    }
-
-    public final boolean sync() {
-        try {
-            var target = syncBinaryFile.toString();
-            var path = server.config.updatesProvider.download(null, List.of(target)).get(target);
-            digest = SecurityHelper.digest(SecurityHelper.DigestAlgorithm.SHA512, IOHelper.read(path));
-            return true;
-        } catch (Throwable e) {
-            return false;
-        }
     }
 }

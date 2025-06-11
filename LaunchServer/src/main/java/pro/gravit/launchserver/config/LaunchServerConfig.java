@@ -8,8 +8,8 @@ import pro.gravit.launcher.base.LauncherConfig;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.auth.AuthProviderPair;
 import pro.gravit.launchserver.auth.core.RejectAuthCoreProvider;
-import pro.gravit.launchserver.auth.profiles.LocalProfileProvider;
-import pro.gravit.launchserver.auth.profiles.ProfileProvider;
+import pro.gravit.launchserver.auth.profiles.LocalProfilesProvider;
+import pro.gravit.launchserver.auth.profiles.ProfilesProvider;
 import pro.gravit.launchserver.auth.protect.ProtectHandler;
 import pro.gravit.launchserver.auth.protect.StdProtectHandler;
 import pro.gravit.launchserver.auth.texture.RequestTextureProvider;
@@ -39,7 +39,7 @@ public final class LaunchServerConfig {
     // Handlers & Providers
     public ProtectHandler protectHandler;
     public Map<String, Component> components;
-    public ProfileProvider profileProvider = new LocalProfileProvider();
+    public ProfilesProvider profilesProvider = new LocalProfilesProvider();
     public UpdatesProvider updatesProvider = new LocalUpdatesProvider();
     public NettyConfig netty;
     public LauncherConf launcher;
@@ -85,7 +85,8 @@ public final class LaunchServerConfig {
         newConfig.components.put("authLimiter", authLimiterComponent);
         ProGuardComponent proGuardComponent = new ProGuardComponent();
         newConfig.components.put("proguard", proGuardComponent);
-        newConfig.profileProvider = new LocalProfileProvider();
+        newConfig.profilesProvider = new LocalProfilesProvider();
+        newConfig.updatesProvider = new LocalUpdatesProvider();
         return newConfig;
     }
 
@@ -167,9 +168,9 @@ public final class LaunchServerConfig {
             server.registerObject("protectHandler", protectHandler);
             protectHandler.init(server);
         }
-        if(profileProvider != null) {
-            server.registerObject("profileProvider", profileProvider);
-            profileProvider.init(server);
+        if(profilesProvider != null) {
+            server.registerObject("profileProvider", profilesProvider);
+            profilesProvider.init(server);
         }
         if(updatesProvider != null) {
             server.registerObject("updatesProvider", updatesProvider);
@@ -215,9 +216,9 @@ public final class LaunchServerConfig {
             server.unregisterObject("protectHandler", protectHandler);
             protectHandler.close();
         }
-        if(profileProvider != null) {
-            server.unregisterObject("profileProvider", profileProvider);
-            profileProvider.close();
+        if(profilesProvider != null) {
+            server.unregisterObject("profilesProvider", profilesProvider);
+            profilesProvider.close();
         }
         if(updatesProvider != null) {
             server.unregisterObject("updatesProvider", updatesProvider);

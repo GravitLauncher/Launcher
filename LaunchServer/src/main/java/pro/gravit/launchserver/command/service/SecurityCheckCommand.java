@@ -149,8 +149,8 @@ public class SecurityCheckCommand extends Command {
             case PROD -> printCheckResult("env", "", true);
         }
 
-        //Profiles
-        for (ClientProfile profile : server.getProfiles()) {
+        //Profiles TODO: Implement
+        /*for (ClientProfile profile : server.config.profilesProvider.getProfiles(null)) {
             boolean bad = false;
             String profileModuleName = "profiles.%s".formatted(profile.getTitle());
             for (String exc : profile.getUpdateExclusions()) {
@@ -177,7 +177,7 @@ public class SecurityCheckCommand extends Command {
             }
             if (!bad)
                 printCheckResult(profileModuleName, "", true);
-        }
+        }*/
 
         //Linux permissions check
         if (JVMHelper.OS_TYPE == JVMHelper.OS.LINUX) {

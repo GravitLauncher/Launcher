@@ -6,6 +6,7 @@ import org.apache.logging.log4j.Logger;
 import pro.gravit.launcher.base.profiles.ClientProfile;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.auth.AuthProviderPair;
+import pro.gravit.launchserver.auth.profiles.ProfilesProvider;
 import pro.gravit.launchserver.command.Command;
 import pro.gravit.utils.command.SubCommand;
 
@@ -28,9 +29,9 @@ public class TokenCommand extends Command {
             public void invoke(String... args) {
                 AuthProviderPair pair = args.length > 1 ? server.config.getAuthProviderPair(args[1]) : server.config.getAuthProviderPair();
                 boolean publicOnly = args.length <= 2 || Boolean.parseBoolean(args[2]);
-                ClientProfile profile = null;
-                for (ClientProfile p : server.getProfiles()) {
-                    if (p.getTitle().equals(args[0]) || p.getUUID().toString().equals(args[0])) {
+                ProfilesProvider.UncompletedProfile profile = null;
+                for (var p : server.config.profilesProvider.getProfiles(null)) {
+                    if (p.getName().equals(args[0]) || p.getUuid().toString().equals(args[0])) {
                         profile = p;
                         break;
                     }
@@ -42,7 +43,7 @@ public class TokenCommand extends Command {
                     logger.error("AuthId {} not found", args[1]);
                     return;
                 }
-                String token = server.authManager.newCheckServerToken(profile != null ? profile.getUUID().toString() : args[0], pair.name, publicOnly);
+                String token = server.authManager.newCheckServerToken(profile != null ? profile.getUuid().toString() : args[0], pair.name, publicOnly);
                 logger.info("Server token {} authId {}: {}", args[0], pair.name, token);
             }
         });

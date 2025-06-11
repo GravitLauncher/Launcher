@@ -6,12 +6,21 @@ import pro.gravit.launcher.base.profiles.ClientProfile;
 import pro.gravit.launcher.base.request.Request;
 import pro.gravit.launcher.base.request.websockets.WebSocketRequest;
 
+import java.util.UUID;
+
 public class SetProfileRequest extends Request<SetProfileRequestEvent> implements WebSocketRequest {
     @LauncherNetworkAPI
-    public final String client;
+    public final UUID uuid;
+    public final String tag;
+
+    public SetProfileRequest(UUID uuid, String tag) {
+        this.uuid = uuid;
+        this.tag = tag;
+    }
 
     public SetProfileRequest(ClientProfile profile) {
-        this.client = profile.getTitle();
+        this.uuid = profile.getUUID();
+        this.tag = null;
     }
 
     @Override

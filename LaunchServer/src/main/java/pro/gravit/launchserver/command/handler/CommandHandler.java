@@ -33,10 +33,8 @@ public abstract class CommandHandler extends pro.gravit.utils.command.CommandHan
 
         // Register sync commands
         BaseCommandCategory updates = new BaseCommandCategory();
-        updates.registerCommand("indexAsset", new IndexAssetCommand(server));
-        updates.registerCommand("unindexAsset", new UnindexAssetCommand(server));
-        updates.registerCommand("downloadAsset", new DownloadAssetCommand(server));
-        updates.registerCommand("downloadClient", new DownloadClientCommand(server));
+        //updates.registerCommand("indexAsset", new IndexAssetCommand(server));
+        //updates.registerCommand("unindexAsset", new UnindexAssetCommand(server));
         updates.registerCommand("sync", new SyncCommand(server));
         updates.registerCommand("profile", new ProfilesCommand(server));
         Category updatesCategory = new Category(updates, "updates", "Update and Sync Management");

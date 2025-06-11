@@ -12,9 +12,17 @@ public class SetProfileRequestEvent extends RequestEvent {
     private static final UUID uuid = UUID.fromString("08c0de9e-4364-4152-9066-8354a3a48541");
     @LauncherNetworkAPI
     public final ClientProfile newProfile;
+    @LauncherNetworkAPI
+    public final String tag;
 
     public SetProfileRequestEvent(ClientProfile newProfile) {
         this.newProfile = newProfile;
+        this.tag = null;
+    }
+
+    public SetProfileRequestEvent(ClientProfile newProfile, String tag) {
+        this.newProfile = newProfile;
+        this.tag = tag;
     }
 
     @Override

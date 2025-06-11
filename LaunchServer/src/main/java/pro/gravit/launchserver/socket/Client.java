@@ -5,6 +5,7 @@ import pro.gravit.launcher.base.profiles.ClientProfile;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.auth.AuthProviderPair;
 import pro.gravit.launchserver.auth.core.interfaces.UserHardware;
+import pro.gravit.launchserver.auth.profiles.ProfilesProvider;
 import pro.gravit.launchserver.socket.response.auth.AuthResponse;
 
 import java.util.HashMap;
@@ -19,7 +20,7 @@ public class Client {
     public String auth_id;
     public long timestamp;
     public AuthResponse.ConnectTypes type;
-    public ClientProfile profile;
+    public ProfilesProvider.CompletedProfile profile;
     public boolean isAuth;
     public boolean checkSign;
     public ClientPermissions permissions;

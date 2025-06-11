@@ -6,8 +6,7 @@ import pro.gravit.launchserver.command.Command;
 public class ProfilesCommand extends Command {
     public ProfilesCommand(LaunchServer server) {
         super(server);
-        this.childCommands.put("make", new MakeProfileCommand(server));
-        this.childCommands.put("save", new SaveProfilesCommand(server));
+        this.childCommands.put("create", new CreateProfileCommand(server));
         this.childCommands.put("clone", new CloneProfileCommand(server));
         this.childCommands.put("list", new ListProfilesCommand(server));
         this.childCommands.put("delete", new DeleteProfileCommand(server));

@@ -4,6 +4,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import pro.gravit.launcher.base.profiles.ClientProfile;
 import pro.gravit.launchserver.LaunchServer;
+import pro.gravit.launchserver.auth.profiles.ProfilesProvider;
 import pro.gravit.launchserver.command.Command;
 
 import java.util.UUID;
@@ -27,24 +28,18 @@ public class DeleteProfileCommand extends Command {
     @Override
     public void invoke(String... args) throws Exception {
         verifyArgs(args, 1);
-        ClientProfile profile;
+        ProfilesProvider.CompletedProfile profile;
         try {
             UUID uuid = UUID.fromString(args[0]);
-            profile = server.config.profileProvider.getProfile(uuid);
+            profile = server.config.profilesProvider.get(uuid, null);
         } catch (IllegalArgumentException ex) {
-            profile = server.config.profileProvider.getProfile(args[0]);
+            profile = server.config.profilesProvider.get(args[0], null);
         }
         if(profile == null) {
             logger.error("Profile {} not found", args[0]);
             return;
         }
-        logger.warn("THIS ACTION DELETE PROFILE AND ALL FILES IN {}", profile.getDir());
-        if(!showApplyDialog("Continue?")) {
-            return;
-        }
-        logger.info("Delete {} ({})", profile.getTitle(), profile.getUUID());
-        server.config.profileProvider.deleteProfile(profile);
-        logger.info("Delete {}", profile.getDir());
-        server.config.updatesProvider.delete(profile.getDir());
+        logger.info("Delete {}", args[0]);
+        server.config.profilesProvider.delete(profile);
     }
 }
