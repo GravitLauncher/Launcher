@@ -237,6 +237,9 @@ public class LocalProfilesProvider extends ProfilesProvider implements Reconfigu
     @Override
     public void init(LaunchServer server) {
         super.init(server);
+        if(server.env == LaunchServer.LaunchServerEnv.TEST) {
+            return;
+        }
         try {
             if (!IOHelper.isDir(Path.of(updatesDir)))
                 Files.createDirectory(Path.of(updatesDir));
