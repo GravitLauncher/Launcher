@@ -59,6 +59,7 @@ public interface LauncherBackendAPI {
         boolean hasFlag(Flag flag);
         void addFlag(Flag flag);
         void removeFlag(Flag flag);
+        Set<ProfileFeatureAPI.OptionalMod> getAllOptionals();
         Set<ProfileFeatureAPI.OptionalMod> getEnabledOptionals();
         void enableOptional(ProfileFeatureAPI.OptionalMod mod, ChangedOptionalStatusCallback callback);
         void disableOptional(ProfileFeatureAPI.OptionalMod mod, ChangedOptionalStatusCallback callback);

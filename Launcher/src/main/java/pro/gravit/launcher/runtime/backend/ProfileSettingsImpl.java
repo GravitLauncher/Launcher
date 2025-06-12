@@ -102,6 +102,12 @@ public class ProfileSettingsImpl implements LauncherBackendAPI.ClientProfileSett
 
     @SuppressWarnings({"unchecked", "rawtypes"})
     @Override
+    public Set<ProfileFeatureAPI.OptionalMod> getAllOptionals() {
+        return (Set) view.all;
+    }
+
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    @Override
     public Set<ProfileFeatureAPI.OptionalMod> getEnabledOptionals() {
         return (Set) view.enabled;
     }

@@ -188,8 +188,10 @@ public class LauncherBackendImpl implements LauncherBackendAPI {
             settings.backend = this;
             settings.updateEnabledMods();
         } else {
+            if(settings.backend == null) {
+                settings.initAfterGson((ClientProfile) profile, this);
+            }
             settings = settings.copy();
-            //settings.initAfterGson((ClientProfile) profile, this);
         }
         return settings;
     }

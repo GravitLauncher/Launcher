@@ -64,10 +64,6 @@ if (hasProperty('mavenUsername') && hasProperty('mavenPassword') && hasProperty(
         repositories {
             maven {
                 url = version.endsWith('SNAPSHOT') ? getProperty('mavenSnapshotRepository') : getProperty('mavenReleaseRepository')
-                credentials {
-                    username getProperty('mavenUsername')
-                    password getProperty('mavenPassword')
-                }
             }
         }
     }
