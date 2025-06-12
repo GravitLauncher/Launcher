@@ -3,6 +3,7 @@ package pro.gravit.launchserver.socket.response.auth;
 import io.netty.channel.ChannelHandlerContext;
 import pro.gravit.launcher.base.events.request.CurrentUserRequestEvent;
 import pro.gravit.launchserver.LaunchServer;
+import pro.gravit.launchserver.auth.core.UserSession;
 import pro.gravit.launchserver.socket.Client;
 import pro.gravit.launchserver.socket.response.SimpleResponse;
 
@@ -12,6 +13,13 @@ public class CurrentUserResponse extends SimpleResponse {
         CurrentUserRequestEvent.UserInfo result = new CurrentUserRequestEvent.UserInfo();
         if (client.auth != null && client.isAuth && client.username != null) {
             result.playerProfile = server.authManager.getPlayerProfile(client);
+            if(server.config.protectHandler.allowGetAccessToken(new AuthResponse.AuthContext(client, client.username,
+                    null, null, client.type, client.auth))) {
+                UserSession session = client.sessionObject;
+                if(session != null) {
+                    result.accessToken = session.getMinecraftAccessToken();
+                }
+            }
         }
         result.permissions = client.permissions;
         return result;
