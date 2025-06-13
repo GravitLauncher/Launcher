@@ -8,6 +8,7 @@ import pro.gravit.launcher.core.api.LauncherAPI;
 import pro.gravit.launcher.core.api.LauncherAPIHolder;
 import pro.gravit.launcher.core.api.features.AuthFeatureAPI;
 import pro.gravit.launcher.core.api.features.ProfileFeatureAPI;
+import pro.gravit.launcher.core.api.features.TextureUploadFeatureAPI;
 import pro.gravit.launcher.core.api.features.UserFeatureAPI;
 import pro.gravit.launcher.core.backend.LauncherBackendAPIHolder;
 import pro.gravit.launcher.runtime.backend.LauncherBackendImpl;
@@ -256,7 +257,8 @@ public class LauncherEngine {
             return new LauncherAPI(Map.of(
                     AuthFeatureAPI.class, impl,
                     UserFeatureAPI.class, impl,
-                    ProfileFeatureAPI.class, impl));
+                    ProfileFeatureAPI.class, impl,
+                    TextureUploadFeatureAPI.class, impl));
         });
         LauncherBackendAPIHolder.setApi(new LauncherBackendImpl());
         //

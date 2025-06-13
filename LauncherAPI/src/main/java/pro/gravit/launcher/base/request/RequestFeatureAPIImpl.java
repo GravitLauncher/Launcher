@@ -4,11 +4,15 @@ import pro.gravit.launcher.base.Launcher;
 import pro.gravit.launcher.base.profiles.ClientProfile;
 import pro.gravit.launcher.base.request.auth.*;
 import pro.gravit.launcher.base.request.auth.password.*;
+import pro.gravit.launcher.base.request.cabinet.AssetUploadInfoRequest;
+import pro.gravit.launcher.base.request.cabinet.GetAssetUploadUrl;
 import pro.gravit.launcher.base.request.update.ProfilesRequest;
 import pro.gravit.launcher.base.request.update.UpdateRequest;
 import pro.gravit.launcher.base.request.uuid.ProfileByUUIDRequest;
 import pro.gravit.launcher.base.request.uuid.ProfileByUsernameRequest;
+import pro.gravit.launcher.core.LauncherNetworkAPI;
 import pro.gravit.launcher.core.api.features.AuthFeatureAPI;
+import pro.gravit.launcher.core.api.features.TextureUploadFeatureAPI;
 import pro.gravit.launcher.core.api.features.UserFeatureAPI;
 import pro.gravit.launcher.core.api.features.ProfileFeatureAPI;
 import pro.gravit.launcher.core.api.method.AuthMethodPassword;
@@ -17,19 +21,27 @@ import pro.gravit.launcher.core.api.method.password.AuthOAuthPassword;
 import pro.gravit.launcher.core.api.method.password.AuthPlainPassword;
 import pro.gravit.launcher.core.api.method.password.AuthTotpPassword;
 import pro.gravit.launcher.core.api.model.SelfUser;
+import pro.gravit.launcher.core.api.model.Texture;
 import pro.gravit.launcher.core.api.model.User;
 import pro.gravit.launcher.core.hasher.HashedDir;
 import pro.gravit.utils.helper.SecurityHelper;
 
+import java.io.*;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
-public class RequestFeatureAPIImpl implements AuthFeatureAPI, UserFeatureAPI, ProfileFeatureAPI {
+public class RequestFeatureAPIImpl implements AuthFeatureAPI, UserFeatureAPI, ProfileFeatureAPI, TextureUploadFeatureAPI {
     private final RequestService request;
     private final String authId;
+    private final HttpClient client = HttpClient.newBuilder().build();
 
     public RequestFeatureAPIImpl(RequestService request, String authId) {
         this.request = request;
@@ -177,6 +189,66 @@ public class RequestFeatureAPIImpl implements AuthFeatureAPI, UserFeatureAPI, Pr
         return request.request(new UpdateRequest(dirName)).thenApply(response -> new UpdateInfoData(response.hdir, response.url));
     }
 
+    @Override
+    public CompletableFuture<TextureUploadInfo> fetchInfo() {
+        return request.request(new AssetUploadInfoRequest()).thenApply(response -> response);
+    }
+
+    @Override
+    public CompletableFuture<Texture> upload(String name, byte[] bytes, UploadSettings settings) {
+        return request.request(new GetAssetUploadUrl(name)).thenCompose((response) -> {
+            String accessToken = response.token == null ? Request.getAccessToken() : response.token.accessToken;
+            String boundary = SecurityHelper.toHex(SecurityHelper.randomBytes(32));
+            String jsonOptions = settings == null ? "{}" : Launcher.gsonManager.gson.toJson(new TextureUploadOptions(settings.slim()));
+            byte[] preFileData;
+            try(ByteArrayOutputStream output = new ByteArrayOutputStream(256)) {
+                output.write("--".getBytes(StandardCharsets.UTF_8));
+                output.write(boundary.getBytes(StandardCharsets.UTF_8));
+                output.write("\r\nContent-Disposition: form-data; name=\"options\"\r\nContent-Type: application/json\r\n\r\n".getBytes(StandardCharsets.UTF_8));
+                output.write(jsonOptions.getBytes(StandardCharsets.UTF_8));
+                output.write("\r\n--".getBytes(StandardCharsets.UTF_8));
+                output.write(boundary.getBytes(StandardCharsets.UTF_8));
+                output.write("\r\nContent-Disposition: form-data; name=\"file\"; filename=\"file\"\r\nContent-Type: image/png\r\n\r\n".getBytes(StandardCharsets.UTF_8));
+                preFileData = output.toByteArray();
+            } catch (IOException ex) {
+                return CompletableFuture.failedFuture(ex);
+            }
+            byte[] postFileData;
+            try(ByteArrayOutputStream output = new ByteArrayOutputStream(128)) {
+                output.write("\r\n--".getBytes(StandardCharsets.UTF_8));
+                output.write(boundary.getBytes(StandardCharsets.UTF_8));
+                output.write("--\r\n".getBytes(StandardCharsets.UTF_8));
+                postFileData = output.toByteArray();
+            } catch (IOException ex) {
+                return CompletableFuture.failedFuture(ex);
+            }
+            return client.sendAsync(HttpRequest.newBuilder()
+                    .uri(URI.create(response.url))
+                    .POST(HttpRequest.BodyPublishers.concat(HttpRequest.BodyPublishers.ofByteArray(preFileData),
+                            HttpRequest.BodyPublishers.ofByteArray(bytes),
+                            HttpRequest.BodyPublishers.ofByteArray(postFileData)))
+                    .header("Authorization", "Bearer "+accessToken)
+                    .header("Content-Type", "multipart/form-data; boundary=\""+boundary+"\"")
+                    .header("Accept", "application/json")
+                    .build(), HttpResponse.BodyHandlers.ofByteArray());
+        }).thenCompose((response) -> {
+            if(response.statusCode() >= 200 && response.statusCode() < 300) {
+                try (Reader reader = new InputStreamReader(new ByteArrayInputStream(response.body()))) {
+                    return CompletableFuture.completedFuture(Launcher.gsonManager.gson.fromJson(reader, UserTexture.class).toLauncherTexture());
+                } catch (Throwable e) {
+                    return CompletableFuture.failedFuture(e);
+                }
+            } else {
+                try(Reader reader = new InputStreamReader(new ByteArrayInputStream(response.body()))) {
+                    UploadError error = Launcher.gsonManager.gson.fromJson(reader, UploadError.class);
+                    return CompletableFuture.failedFuture(new RequestException(error.error()));
+                } catch (Exception ex) {
+                    return CompletableFuture.failedFuture(ex);
+                }
+            }
+        });
+    }
+
     public record UpdateInfoData(HashedDir hdir, String url) implements ProfileFeatureAPI.UpdateInfo {
         @Override
         public HashedDir getHashedDir() {
@@ -187,5 +259,20 @@ public class RequestFeatureAPIImpl implements AuthFeatureAPI, UserFeatureAPI, Pr
         public String getUrl() {
             return url;
         }
+    }
+
+    public record TextureUploadOptions(boolean modelSlim) {
+
+    }
+
+    public record UserTexture(@LauncherNetworkAPI String url, @LauncherNetworkAPI String digest, @LauncherNetworkAPI Map<String, String> metadata) {
+
+        Texture toLauncherTexture() {
+            return new pro.gravit.launcher.base.profiles.Texture(url, SecurityHelper.fromHex(digest), metadata);
+        }
+    }
+
+    public record UploadError(@LauncherNetworkAPI String error) {
+
     }
 }

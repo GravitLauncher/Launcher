@@ -5,7 +5,8 @@ import pro.gravit.launcher.core.api.model.Texture;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
-public interface TextureUploadFeatureAPI {
+public interface TextureUploadFeatureAPI extends FeatureAPI {
+    String FEATURE_NAME = "assetupload";
     CompletableFuture<TextureUploadInfo> fetchInfo();
     CompletableFuture<Texture> upload(String name, byte[] bytes, UploadSettings settings);
 

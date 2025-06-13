@@ -6,6 +6,7 @@ import pro.gravit.launcher.core.api.LauncherAPIHolder;
 import pro.gravit.launcher.core.api.features.AuthFeatureAPI;
 import pro.gravit.launcher.core.api.features.CoreFeatureAPI;
 import pro.gravit.launcher.core.api.features.ProfileFeatureAPI;
+import pro.gravit.launcher.core.api.features.TextureUploadFeatureAPI;
 import pro.gravit.launcher.core.api.method.AuthMethod;
 import pro.gravit.launcher.core.api.method.AuthMethodPassword;
 import pro.gravit.launcher.core.api.model.SelfUser;
@@ -15,6 +16,7 @@ import pro.gravit.launcher.core.backend.LauncherBackendAPI;
 import pro.gravit.launcher.core.backend.UserSettings;
 import pro.gravit.launcher.core.backend.exceptions.LauncherBackendException;
 import pro.gravit.launcher.core.backend.extensions.Extension;
+import pro.gravit.launcher.core.backend.extensions.TextureUploadExtension;
 import pro.gravit.launcher.runtime.NewLauncherSettings;
 import pro.gravit.launcher.runtime.client.DirBridge;
 import pro.gravit.launcher.runtime.client.ServerPinger;
@@ -39,7 +41,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.Function;
 
-public class LauncherBackendImpl implements LauncherBackendAPI {
+public class LauncherBackendImpl implements LauncherBackendAPI, TextureUploadExtension {
     private final ClientDownloadImpl clientDownloadImpl = new ClientDownloadImpl(this);
     private volatile MainCallback callback;
     ExecutorService executorService;
@@ -285,8 +287,14 @@ public class LauncherBackendImpl implements LauncherBackendAPI {
         }
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public <T extends Extension> T getExtension(Class<T> clazz) {
+        if(clazz == TextureUploadExtension.class) {
+            if(authMethod != null && authMethod.getFeatures().contains(TextureUploadFeatureAPI.FEATURE_NAME)) {
+                return (T) this;
+            }
+        }
         return null;
     }
 
@@ -302,5 +310,15 @@ public class LauncherBackendImpl implements LauncherBackendAPI {
                 LogHelper.error("Config not saved", e);
             }
         }
+    }
+
+    @Override
+    public CompletableFuture<TextureUploadFeatureAPI.TextureUploadInfo> fetchTextureUploadInfo() {
+        return LauncherAPIHolder.get().get(TextureUploadFeatureAPI.class).fetchInfo();
+    }
+
+    @Override
+    public CompletableFuture<Texture> uploadTexture(String name, byte[] bytes, TextureUploadFeatureAPI.UploadSettings settings) {
+        return LauncherAPIHolder.get().get(TextureUploadFeatureAPI.class).upload(name, bytes, settings);
     }
 }
