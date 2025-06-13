@@ -26,7 +26,7 @@ public class ProfileSettingsImpl implements LauncherBackendAPI.ClientProfileSett
     @LauncherNetworkAPI
     private String saveJavaPath;
     transient OptionalView view;
-    transient JavaHelper.JavaVersion selectedJava;
+    transient volatile JavaHelper.JavaVersion selectedJava;
 
     public ProfileSettingsImpl() {
     }
@@ -202,6 +202,22 @@ public class ProfileSettingsImpl implements LauncherBackendAPI.ClientProfileSett
                 continue;
             }
             enableOptional(opt, (var1, var2) -> {});
+        }
+        if(this.saveJavaPath != null) {
+            backend.getAvailableJava().thenAccept((javas) -> {
+                for(var java : javas) {
+                    if(!isCompatible(java)) {
+                        continue;
+                    }
+                    if(java.getPath() == null) {
+                        continue;
+                    }
+                    if(java.getPath().toAbsolutePath().toString().equals(this.saveJavaPath)) {
+                        this.selectedJava = (JavaHelper.JavaVersion) java;
+                        return;
+                    }
+                }
+            });
         }
     }
 }

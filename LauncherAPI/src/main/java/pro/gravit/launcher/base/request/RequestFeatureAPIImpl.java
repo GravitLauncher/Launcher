@@ -1,6 +1,7 @@
 package pro.gravit.launcher.base.request;
 
 import pro.gravit.launcher.base.Launcher;
+import pro.gravit.launcher.base.events.request.AuthRequestEvent;
 import pro.gravit.launcher.base.events.request.VerifySecureLevelKeyRequestEvent;
 import pro.gravit.launcher.base.profiles.ClientProfile;
 import pro.gravit.launcher.base.request.auth.*;
@@ -62,7 +63,10 @@ public class RequestFeatureAPIImpl implements AuthFeatureAPI, UserFeatureAPI, Pr
             connectType = AuthRequest.ConnectTypes.CLIENT;
         }
         return request.request(new AuthRequest(login, convertAuthPasswordAll(password), authId, false, connectType))
-                .thenApply(response -> new AuthResponse(response.makeUserInfo(), response.oauth));
+                .thenApply(response -> {
+                    Request.setOAuth(authId, response.oauth);
+                    return new AuthResponse(response.makeUserInfo(), response.oauth);
+                });
     }
 
     private AuthRequest.AuthPasswordInterface convertAuthPasswordAll(AuthMethodPassword password) {
@@ -166,6 +170,7 @@ public class RequestFeatureAPIImpl implements AuthFeatureAPI, UserFeatureAPI, Pr
         }
         return request.request(new RestoreRequest(authId, accessToken, extended, fetchUser)).thenApply(e -> {
             // TODO: invalidToken process
+            Request.setOAuth(authId, new AuthRequestEvent.OAuthRequestEvent(accessToken, null, 0));
             return e.userInfo;
         });
     }
