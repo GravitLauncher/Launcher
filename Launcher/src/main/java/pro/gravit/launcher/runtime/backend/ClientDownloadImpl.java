@@ -115,6 +115,9 @@ public class ClientDownloadImpl {
         return CompletableFuture.supplyAsync(() -> {
             try {
                 callback.onStage(LauncherBackendAPI.DownloadCallback.STAGE_HASHING);
+                if(!Files.exists(targetDir)) {
+                    Files.createDirectories(targetDir);
+                }
                 HashedDir realFiles = new HashedDir(targetDir, matcher, false, true);
                 callback.onStage(LauncherBackendAPI.DownloadCallback.STAGE_DIFF);
                 return updateInfo.getHashedDir().diff(realFiles, matcher);
