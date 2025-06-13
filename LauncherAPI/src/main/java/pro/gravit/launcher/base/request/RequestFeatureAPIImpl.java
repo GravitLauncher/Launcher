@@ -1,20 +1,21 @@
 package pro.gravit.launcher.base.request;
 
 import pro.gravit.launcher.base.Launcher;
+import pro.gravit.launcher.base.events.request.VerifySecureLevelKeyRequestEvent;
 import pro.gravit.launcher.base.profiles.ClientProfile;
 import pro.gravit.launcher.base.request.auth.*;
 import pro.gravit.launcher.base.request.auth.password.*;
 import pro.gravit.launcher.base.request.cabinet.AssetUploadInfoRequest;
 import pro.gravit.launcher.base.request.cabinet.GetAssetUploadUrl;
+import pro.gravit.launcher.base.request.secure.GetSecureLevelInfoRequest;
+import pro.gravit.launcher.base.request.secure.HardwareReportRequest;
+import pro.gravit.launcher.base.request.secure.VerifySecureLevelKeyRequest;
 import pro.gravit.launcher.base.request.update.ProfilesRequest;
 import pro.gravit.launcher.base.request.update.UpdateRequest;
 import pro.gravit.launcher.base.request.uuid.ProfileByUUIDRequest;
 import pro.gravit.launcher.base.request.uuid.ProfileByUsernameRequest;
 import pro.gravit.launcher.core.LauncherNetworkAPI;
-import pro.gravit.launcher.core.api.features.AuthFeatureAPI;
-import pro.gravit.launcher.core.api.features.TextureUploadFeatureAPI;
-import pro.gravit.launcher.core.api.features.UserFeatureAPI;
-import pro.gravit.launcher.core.api.features.ProfileFeatureAPI;
+import pro.gravit.launcher.core.api.features.*;
 import pro.gravit.launcher.core.api.method.AuthMethodPassword;
 import pro.gravit.launcher.core.api.method.password.AuthChainPassword;
 import pro.gravit.launcher.core.api.method.password.AuthOAuthPassword;
@@ -32,13 +33,14 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
+import java.security.PublicKey;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
-public class RequestFeatureAPIImpl implements AuthFeatureAPI, UserFeatureAPI, ProfileFeatureAPI, TextureUploadFeatureAPI {
+public class RequestFeatureAPIImpl implements AuthFeatureAPI, UserFeatureAPI, ProfileFeatureAPI, TextureUploadFeatureAPI, HardwareVerificationFeatureAPI {
     private final RequestService request;
     private final String authId;
     private final HttpClient client = HttpClient.newBuilder().build();
@@ -247,6 +249,40 @@ public class RequestFeatureAPIImpl implements AuthFeatureAPI, UserFeatureAPI, Pr
                 }
             }
         });
+    }
+
+    @Override
+    public CompletableFuture<SecurityLevelInfo> getSecurityInfo() {
+        return request.request(new GetSecureLevelInfoRequest()).thenApply(response -> response);
+    }
+
+    @Override
+    public CompletableFuture<SecurityLevelVerification> privateKeyVerification(PublicKey publicKey, byte[] signature) {
+        return request.request(new VerifySecureLevelKeyRequest(publicKey.getEncoded(), signature)).thenApply(response -> response);
+    }
+
+    @Override
+    public CompletableFuture<Void> sendHardwareInfo(HardwareStatisticData statisticData, HardwareIdentifyData identifyData) {
+        if(statisticData == null && identifyData == null) { // Hardware info token special
+            return request.request(new HardwareReportRequest()).thenApply(response -> null);
+        } else {
+            var hardwareInfo = new HardwareReportRequest.HardwareInfo();
+            if(statisticData != null) {
+                hardwareInfo.bitness = statisticData.arch() == Arch.X86 || statisticData.arch() == Arch.ARM32 ? 32 : 64;
+                hardwareInfo.totalMemory = statisticData.totalPhysicalMemory();
+                hardwareInfo.logicalProcessors = statisticData.logicalProcessors();
+                hardwareInfo.physicalProcessors = statisticData.physicalProcessors();
+                hardwareInfo.processorMaxFreq = statisticData.processorMaxFreq();
+                hardwareInfo.battery = statisticData.battery();
+                hardwareInfo.graphicCard = statisticData.graphicCard();
+            }
+            if(identifyData != null) {
+                hardwareInfo.hwDiskId = identifyData.persistentStorageId();
+                hardwareInfo.displayId = identifyData.edid();
+                hardwareInfo.baseboardSerialNumber = identifyData.baseboardSerialNumber();
+            }
+            return request.request(new HardwareReportRequest(hardwareInfo)).thenApply(response -> null);
+        }
     }
 
     public record UpdateInfoData(HashedDir hdir, String url) implements ProfileFeatureAPI.UpdateInfo {

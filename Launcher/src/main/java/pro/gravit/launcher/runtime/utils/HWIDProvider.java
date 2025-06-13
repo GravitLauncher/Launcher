@@ -4,6 +4,8 @@ import oshi.SystemInfo;
 import oshi.hardware.*;
 import oshi.software.os.OperatingSystem;
 import pro.gravit.launcher.base.request.secure.HardwareReportRequest;
+import pro.gravit.launcher.core.api.features.HardwareVerificationFeatureAPI;
+import pro.gravit.utils.helper.JVMHelper;
 
 import java.util.List;
 
@@ -102,6 +104,27 @@ public class HWIDProvider {
 
     public String getBaseboardSerialNumber() {
         return hardware.getComputerSystem().getBaseboard().getSerialNumber();
+    }
+
+    public HardwareVerificationFeatureAPI.HardwareStatisticData getStatisticData() {
+        return new HardwareVerificationFeatureAPI.HardwareStatisticData(
+                JVMHelper.ARCH.toHardwareFeatureArch(JVMHelper.ARCH_TYPE),
+                JVMHelper.OS.toHardwareFeatureOs(JVMHelper.OS_TYPE),
+                getTotalMemory(),
+                getProcessorLogicalCount(),
+                getProcessorPhysicalCount(),
+                getProcessorMaxFreq(),
+                isBattery(),
+                getGraphicCardName()
+        );
+    }
+
+    public HardwareVerificationFeatureAPI.HardwareIdentifyData getIdentifyData() {
+        return new HardwareVerificationFeatureAPI.HardwareIdentifyData(
+                getBaseboardSerialNumber(),
+                getHWDiskID(),
+                getDisplayID()
+        );
     }
 
     public HardwareReportRequest.HardwareInfo getHardwareInfo(boolean needSerial) {

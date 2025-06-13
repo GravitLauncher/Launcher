@@ -3,10 +3,7 @@ package pro.gravit.launcher.runtime.backend;
 import pro.gravit.launcher.base.ClientPermissions;
 import pro.gravit.launcher.base.profiles.ClientProfile;
 import pro.gravit.launcher.core.api.LauncherAPIHolder;
-import pro.gravit.launcher.core.api.features.AuthFeatureAPI;
-import pro.gravit.launcher.core.api.features.CoreFeatureAPI;
-import pro.gravit.launcher.core.api.features.ProfileFeatureAPI;
-import pro.gravit.launcher.core.api.features.TextureUploadFeatureAPI;
+import pro.gravit.launcher.core.api.features.*;
 import pro.gravit.launcher.core.api.method.AuthMethod;
 import pro.gravit.launcher.core.api.method.AuthMethodPassword;
 import pro.gravit.launcher.core.api.model.SelfUser;
@@ -17,14 +14,17 @@ import pro.gravit.launcher.core.backend.UserSettings;
 import pro.gravit.launcher.core.backend.exceptions.LauncherBackendException;
 import pro.gravit.launcher.core.backend.extensions.Extension;
 import pro.gravit.launcher.core.backend.extensions.TextureUploadExtension;
+import pro.gravit.launcher.runtime.LauncherEngine;
 import pro.gravit.launcher.runtime.NewLauncherSettings;
 import pro.gravit.launcher.runtime.client.DirBridge;
 import pro.gravit.launcher.runtime.client.ServerPinger;
 import pro.gravit.launcher.runtime.debug.DebugMain;
 import pro.gravit.launcher.runtime.managers.SettingsManager;
+import pro.gravit.launcher.runtime.utils.HWIDProvider;
 import pro.gravit.launcher.runtime.utils.LauncherUpdater;
 import pro.gravit.utils.helper.JavaHelper;
 import pro.gravit.utils.helper.LogHelper;
+import pro.gravit.utils.helper.SecurityHelper;
 
 import java.io.IOException;
 import java.net.URI;
@@ -50,12 +50,15 @@ public class LauncherBackendImpl implements LauncherBackendAPI, TextureUploadExt
     private SettingsManager settingsManager;
     private NewLauncherSettings allSettings;
     private BackendSettings backendSettings;
+    // Hardware
+    private volatile ECKeyHolder ecKeyHolder;
     // Data
     private volatile List<ProfileFeatureAPI.ClientProfile> profiles;
     private volatile UserPermissions permissions;
     private volatile SelfUser selfUser;
     private volatile List<Java> availableJavas;
     private volatile CompletableFuture<List<Java>> availableJavasFuture;
+    private volatile CompletableFuture<Void> processHardwareFuture;
     private final Map<UUID, CompletableFuture<ServerPingInfo>> pingFutures = new ConcurrentHashMap<>();
 
     @Override
@@ -76,6 +79,8 @@ public class LauncherBackendImpl implements LauncherBackendAPI, TextureUploadExt
         allSettings = settingsManager.getConfig();
         backendSettings = (BackendSettings) getUserSettings("backend", (k) -> new BackendSettings());
         permissions = new ClientPermissions();
+        ecKeyHolder = new ECKeyHolder();
+        ecKeyHolder.readKeys();
         DirBridge.dirUpdates = DirBridge.defaultUpdatesDir;
     }
 
@@ -159,6 +164,9 @@ public class LauncherBackendImpl implements LauncherBackendAPI, TextureUploadExt
         this.selfUser = selfUser;
         permissions = selfUser.getPermissions();
         callback.onAuthorize(selfUser);
+        if(processHardwareFuture == null) {
+            processHardwareFuture = processHardware();
+        }
     }
 
     @Override
@@ -320,5 +328,34 @@ public class LauncherBackendImpl implements LauncherBackendAPI, TextureUploadExt
     @Override
     public CompletableFuture<Texture> uploadTexture(String name, byte[] bytes, TextureUploadFeatureAPI.UploadSettings settings) {
         return LauncherAPIHolder.get().get(TextureUploadFeatureAPI.class).upload(name, bytes, settings);
+    }
+
+    public CompletableFuture<Void> processHardware() {
+        HardwareVerificationFeatureAPI featureAPI = LauncherAPIHolder.get().get(HardwareVerificationFeatureAPI.class);
+        if(featureAPI == null) {
+            return CompletableFuture.completedFuture(null);
+        }
+        return featureAPI.getSecurityInfo().thenCompose((response) -> {
+            if(!response.isRequired()) {
+                return CompletableFuture.completedFuture(null);
+            }
+            byte[] signature = SecurityHelper.sign(response.getSignData(), ecKeyHolder.privateKey);
+            return featureAPI.privateKeyVerification(ecKeyHolder.publicKey, signature);
+        }).thenCompose((response) -> {
+            switch (response.getHardwareCollectLevel()) {
+                case NONE -> {
+                    return featureAPI.sendHardwareInfo(null, null);
+                }
+                case ONLY_STATISTIC -> {
+                    HWIDProvider hwidProvider = new HWIDProvider();
+                    return featureAPI.sendHardwareInfo(hwidProvider.getStatisticData(), null);
+                }
+                case ALL -> {
+                    HWIDProvider hwidProvider = new HWIDProvider();
+                    return featureAPI.sendHardwareInfo(hwidProvider.getStatisticData(), hwidProvider.getIdentifyData());
+                }
+            }
+            return CompletableFuture.failedFuture(new UnsupportedOperationException());
+        });
     }
 }

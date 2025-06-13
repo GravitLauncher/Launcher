@@ -8,6 +8,13 @@ import java.util.Base64;
 public class HardwareReportRequest extends Request<HardwareReportRequestEvent> {
     public HardwareInfo hardware;
 
+    public HardwareReportRequest() {
+    }
+
+    public HardwareReportRequest(HardwareInfo hardware) {
+        this.hardware = hardware;
+    }
+
     @Override
     public String getType() {
         return "hardwareReport";

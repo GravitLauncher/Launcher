@@ -2,8 +2,9 @@ package pro.gravit.launcher.base.events.request;
 
 import pro.gravit.launcher.base.events.ExtendedTokenRequestEvent;
 import pro.gravit.launcher.base.events.RequestEvent;
+import pro.gravit.launcher.core.api.features.HardwareVerificationFeatureAPI;
 
-public class VerifySecureLevelKeyRequestEvent extends RequestEvent implements ExtendedTokenRequestEvent {
+public class VerifySecureLevelKeyRequestEvent extends RequestEvent implements ExtendedTokenRequestEvent, HardwareVerificationFeatureAPI.SecurityLevelVerification {
     public boolean needHardwareInfo;
     public boolean onlyStatisticInfo;
     public String extendedToken;
@@ -41,5 +42,18 @@ public class VerifySecureLevelKeyRequestEvent extends RequestEvent implements Ex
     @Override
     public long getExtendedTokenExpire() {
         return expire;
+    }
+
+    @Override
+    public HardwareCollectLevel getHardwareCollectLevel() {
+        if(needHardwareInfo) {
+            if(onlyStatisticInfo) {
+                return HardwareCollectLevel.ONLY_STATISTIC;
+            } else {
+                return HardwareCollectLevel.ALL;
+            }
+        } else {
+            return HardwareCollectLevel.NONE;
+        }
     }
 }
