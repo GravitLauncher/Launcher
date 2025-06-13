@@ -21,6 +21,7 @@ public interface ProfileFeatureAPI extends FeatureAPI {
     interface ClientProfile {
         String getName();
         UUID getUUID();
+        String getMinecraftVersion();
         String getDescription();
         List<OptionalMod> getOptionalMods();
         String getProperty(String name);
