@@ -28,7 +28,7 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 public final class LaunchServerConfig {
     private final static List<String> oldMirrorList = List.of("https://mirror.gravit.pro/5.2.x/", "https://mirror.gravit.pro/5.3.x/",
             "https://mirror.gravitlauncher.com/5.2.x/", "https://mirror.gravitlauncher.com/5.3.x/", "https://mirror.gravitlauncher.com/5.4.x/",
-            "https://mirror.gravitlauncher.com/5.5.x/");
+            "https://mirror.gravitlauncher.com/5.5.x/", "https://mirror.gravitlauncher.com/5.6.x/");
     private transient final Logger logger = LogManager.getLogger();
     public String projectName;
     public String[] mirrors;
@@ -49,7 +49,7 @@ public final class LaunchServerConfig {
 
     public static LaunchServerConfig getDefault(LaunchServer.LaunchServerEnv env) {
         LaunchServerConfig newConfig = new LaunchServerConfig();
-        newConfig.mirrors = new String[]{"https://mirror.gravitlauncher.com/5.6.x/", "https://gravit-launcher-mirror.storage.googleapis.com/"};
+        newConfig.mirrors = new String[]{"https://mirror.gravitlauncher.com/5.7.x/"};
         newConfig.env = LauncherConfig.LauncherEnvironment.STD;
         newConfig.auth = new HashMap<>();
         AuthProviderPair a = new AuthProviderPair(new RejectAuthCoreProvider(),
@@ -152,7 +152,7 @@ public final class LaunchServerConfig {
                 for (int i = 0; i < mirrors.length; ++i) {
                     if (mirrors[i] != null && oldMirrorList.contains(mirrors[i])) {
                         logger.warn("Replace mirror '{}' to 'https://mirror.gravitlauncher.com/5.6.x/'. If you really need to use original url, use '-Dlaunchserver.config.disableUpdateMirror=true'", mirrors[i]);
-                        mirrors[i] = "https://mirror.gravitlauncher.com/5.6.x/";
+                        mirrors[i] = "https://mirror.gravitlauncher.com/5.7.x/";
                     }
                 }
             }
