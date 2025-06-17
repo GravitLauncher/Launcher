@@ -39,7 +39,8 @@ public abstract class LauncherBinary extends BinaryPipeline {
         }
         long time_end = System.currentTimeMillis();
         if(thisPath != null) {
-            server.config.updatesProvider.pushUpdate(Map.of(getVariant(), thisPath));
+            // TODO fix me
+            server.config.updatesProvider.pushUpdate(List.of(new UpdatesProvider.UpdateUploadInfo(thisPath, getVariant(), new UpdatesProvider.BuildSecrets(server.runtime.clientCheckSecret, null))));
         } else {
             logger.warn("Missing {} binary file", getVariant());
         }

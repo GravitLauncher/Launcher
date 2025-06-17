@@ -2,10 +2,14 @@ package pro.gravit.launchserver.auth.updates;
 
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.utils.ProviderMap;
+import pro.gravit.utils.helper.SecurityHelper;
 
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Path;
+import java.util.Arrays;
+import java.util.Base64;
+import java.util.List;
 import java.util.Map;
 
 public abstract class UpdatesProvider {
@@ -25,8 +29,16 @@ public abstract class UpdatesProvider {
         this.server = server;
     }
 
-    public abstract void pushUpdate(Map<UpdateVariant, Path> files) throws IOException;
-    public abstract UpdateInfo checkUpdates(UpdateVariant variant, byte[] digest);
+    public abstract void pushUpdate(List<UpdateUploadInfo> files) throws IOException;
+    public abstract UpdateInfo checkUpdates(UpdateVariant variant, BuildSecretsCheck buildSecretsCheck);
+
+    protected boolean checkSecureHash(String secureHash, String secureSalt, String privateSecureToken) {
+        if (secureHash == null || secureSalt == null) return false;
+        byte[] normal_hash = SecurityHelper.digest(SecurityHelper.DigestAlgorithm.SHA256,
+                privateSecureToken.concat(".").concat(secureSalt));
+        byte[] launcher_hash = Base64.getDecoder().decode(secureHash);
+        return Arrays.equals(normal_hash, launcher_hash);
+    }
 
     public void close() {
     }
@@ -36,6 +48,18 @@ public abstract class UpdatesProvider {
     }
 
     public record UpdateInfo(String url) {
+
+    }
+
+    public record UpdateUploadInfo(Path path, UpdateVariant variant, BuildSecrets secrets) {
+
+    }
+
+    public record BuildSecrets(String secureToken, byte[] digest) {
+
+    }
+
+    public record BuildSecretsCheck(String secureHash, String secureSalt, byte[] digest) {
 
     }
 }

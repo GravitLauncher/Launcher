@@ -49,10 +49,7 @@ public class LauncherResponse extends SimpleResponse {
             variant = UpdatesProvider.UpdateVariant.EXE;
         }
         byte[] hashToCheck = bytes;
-        if(!checkSecure(secureHash, secureSalt)) {
-            hashToCheck = null; // Always need update
-        }
-        UpdatesProvider.UpdateInfo info = server.config.updatesProvider.checkUpdates(variant, hashToCheck);
+        UpdatesProvider.UpdateInfo info = server.config.updatesProvider.checkUpdates(variant, new UpdatesProvider.BuildSecretsCheck(secureHash, secureSalt, hashToCheck));
         if (info != null) {
             sendResult(new LauncherRequestEvent(true, info.url()));
         } else {

@@ -2,6 +2,8 @@ package pro.gravit.launchserver.auth.updates;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import pro.gravit.launcher.base.config.JsonConfigurable;
+import pro.gravit.launcher.base.config.SimpleConfigurable;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.SecurityHelper;
@@ -9,23 +11,33 @@ import pro.gravit.utils.helper.SecurityHelper;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class LocalUpdatesProvider extends UpdatesProvider {
     private transient final Logger logger = LogManager.getLogger();
     public String updatesDir = "updates";
     public String binaryName = "Launcher";
+    public String buildSecretsFile = "build-secrets.json";
     public Map<UpdateVariant, String> urls = new HashMap<>(Map.of(
             UpdateVariant.JAR, "http://localhost:9274/Launcher.jar",
             UpdateVariant.EXE, "http://localhost:9274/Launcher.exe"
     ));
+    public transient JsonConfigurable<BuildSecretsInfo> buildSecretsJson;
     private final transient Map<UpdateVariant, byte[]> hashMap = new HashMap<>();
 
     @Override
     public void init(LaunchServer server) {
         super.init(server);
+        buildSecretsJson = new SimpleConfigurable<>(BuildSecretsInfo.class, Path.of(buildSecretsFile));
+        if(server.env == LaunchServer.LaunchServerEnv.TEST) {
+            return;
+        }
+        try {
+            buildSecretsJson.generateConfigIfNotExists();
+            buildSecretsJson.loadConfig();
+        } catch (Exception e) {
+            buildSecretsJson.setConfig(buildSecretsJson.getDefaultConfig());
+        }
         try {
             sync(UpdateVariant.JAR);
             sync(UpdateVariant.EXE);
@@ -35,11 +47,13 @@ public class LocalUpdatesProvider extends UpdatesProvider {
     }
 
     @Override
-    public void pushUpdate(Map<UpdateVariant, Path> files) throws IOException {
-        for(var e : files.entrySet()) {
-            IOHelper.copy(e.getValue(), getUpdate(e.getKey()));
-            sync(e.getKey());
+    public void pushUpdate(List<UpdateUploadInfo> files) throws IOException {
+        for(var e : files) {
+            IOHelper.copy(e.path(), getUpdate(e.variant()));
+            buildSecretsJson.getConfig().secrets().put(e.variant(), e.secrets());
+            sync(e.variant());
         }
+        buildSecretsJson.saveConfig();
     }
 
     public void sync(UpdateVariant variant) throws IOException {
@@ -69,14 +83,32 @@ public class LocalUpdatesProvider extends UpdatesProvider {
     }
 
     @Override
-    public UpdateInfo checkUpdates(UpdateVariant variant, byte[] digest) {
+    public UpdateInfo checkUpdates(UpdateVariant variant, BuildSecretsCheck buildSecretsCheck) {
         byte[] hash = hashMap.get(variant);
         if (hash == null) {
             return null; // We dont have this file
         }
-        if(Arrays.equals(digest, hash)) {
+        if(checkSecureHash(buildSecretsCheck.secureHash(), buildSecretsCheck.secureSalt(), buildSecretsJson.getConfig().secrets().get(variant).secureToken()) && Arrays.equals(buildSecretsCheck.digest(), hash)) {
             return null; // Launcher already updated
         }
         return new UpdateInfo(urls.get(variant));
     }
+
+    public static final class BuildSecretsInfo {
+        private Map<UpdateVariant, BuildSecrets> secrets = new HashMap<>();
+
+        public BuildSecretsInfo(Map<UpdateVariant, BuildSecrets> secrets) {
+            this.secrets = secrets;
+        }
+
+        public BuildSecretsInfo() {
+
+        }
+
+        public Map<UpdateVariant, BuildSecrets> secrets() {
+            return secrets;
+        }
+
+
+        }
 }
