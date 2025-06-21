@@ -166,7 +166,7 @@ public class ClientLauncherEntryPoint {
         }
         Set<Path> ignoredPath = new HashSet<>();
         if(options.moduleConf != null && options.moduleConf.modulePath != null) {
-            List<Path> resolvedModulePath = resolveClassPath(ignoredPath, clientDir, null, params.profile).toList();
+            List<Path> resolvedModulePath = resolveClassPathStream(ignoredPath, clientDir, options.moduleConf.modulePath).toList();
         }
         List<Path> classpath = resolveClassPath(ignoredPath, clientDir, params.actions, params.profile)
                 .collect(Collectors.toCollection(ArrayList::new));
