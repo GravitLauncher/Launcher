@@ -316,7 +316,7 @@ public final class ClientProfile implements Comparable<ClientProfile>, ProfileFe
 
     public void verify() {
         // Version
-        getVersion();
+        getMinecraftVersion();
         IOHelper.verifyFileName(getAssetIndex());
 
         // Client

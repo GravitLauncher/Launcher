@@ -40,6 +40,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public class LauncherBackendImpl implements LauncherBackendAPI, TextureUploadExtension {
     private final ClientDownloadImpl clientDownloadImpl = new ClientDownloadImpl(this);
@@ -53,7 +54,7 @@ public class LauncherBackendImpl implements LauncherBackendAPI, TextureUploadExt
     // Hardware
     private volatile ECKeyHolder ecKeyHolder;
     // Data
-    private volatile List<ProfileFeatureAPI.ClientProfile> profiles;
+    private volatile Map<UUID, ProfileFeatureAPI.ClientProfile> profiles;
     private volatile UserPermissions permissions;
     private volatile SelfUser selfUser;
     private volatile List<Java> availableJavas;
@@ -184,10 +185,21 @@ public class LauncherBackendImpl implements LauncherBackendAPI, TextureUploadExt
     @Override
     public CompletableFuture<List<ProfileFeatureAPI.ClientProfile>> fetchProfiles() {
         return LauncherAPIHolder.profile().getProfiles().thenApply((profiles) -> {
-            this.profiles = profiles;
+            onProfiles(profiles);
             callback.onProfiles(profiles);
             return profiles;
         });
+    }
+
+    private void onProfiles(List<ProfileFeatureAPI.ClientProfile> profiles) {
+        this.profiles = profiles.stream().collect(Collectors.toMap(ProfileFeatureAPI.ClientProfile::getUUID, x -> x));
+        for(var e : backendSettings.settings.entrySet()) {
+            ClientProfile profile = (ClientProfile) this.profiles.get(e.getKey());
+            if(profile == null) {
+                continue;
+            }
+            e.getValue().initAfterGson(profile, this);
+        }
     }
 
     @Override

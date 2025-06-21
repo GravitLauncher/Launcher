@@ -5,7 +5,12 @@ import pro.gravit.launcher.base.LauncherConfig;
 import pro.gravit.launcher.base.api.AuthService;
 import pro.gravit.launcher.base.api.ClientService;
 import pro.gravit.launcher.base.api.KeyService;
+import pro.gravit.launcher.base.request.*;
 import pro.gravit.launcher.client.events.*;
+import pro.gravit.launcher.core.api.LauncherAPI;
+import pro.gravit.launcher.core.api.LauncherAPIHolder;
+import pro.gravit.launcher.core.api.features.*;
+import pro.gravit.launcher.core.backend.LauncherBackendAPIHolder;
 import pro.gravit.launcher.core.hasher.FileNameMatcher;
 import pro.gravit.launcher.core.hasher.HashedDir;
 import pro.gravit.launcher.core.hasher.HashedEntry;
@@ -15,9 +20,6 @@ import pro.gravit.launcher.base.profiles.ClientProfileVersions;
 import pro.gravit.launcher.base.profiles.optional.actions.OptionalAction;
 import pro.gravit.launcher.base.profiles.optional.actions.OptionalActionClassPath;
 import pro.gravit.launcher.base.profiles.optional.actions.OptionalActionClientArgs;
-import pro.gravit.launcher.base.request.Request;
-import pro.gravit.launcher.base.request.RequestException;
-import pro.gravit.launcher.base.request.RequestService;
 import pro.gravit.launcher.base.request.websockets.StdWebSocketService;
 import pro.gravit.launcher.core.serialize.HInput;
 import pro.gravit.launcher.client.utils.DirWatcher;
@@ -138,6 +140,19 @@ public class ClientLauncherEntryPoint {
                 }
             };
         }
+        // Init New API
+        LauncherAPIHolder.setCoreAPI(new RequestCoreFeatureAPIImpl(Request.getRequestService()));
+        LauncherAPIHolder.setCreateApiFactory((authId) -> {
+            var impl = new RequestFeatureAPIImpl(Request.getRequestService(), authId);
+            return new LauncherAPI(Map.of(
+                    AuthFeatureAPI.class, impl,
+                    UserFeatureAPI.class, impl,
+                    ProfileFeatureAPI.class, impl,
+                    TextureUploadFeatureAPI.class, impl,
+                    HardwareVerificationFeatureAPI.class, impl));
+        });
+        LauncherAPIHolder.changeAuthId(params.authId);
+        //
         LogHelper.debug("Natives dir %s", params.nativesDir);
         ClientProfile.ClassLoaderConfig classLoaderConfig = profile.getClassLoaderConfig();
         LaunchOptions options = new LaunchOptions();

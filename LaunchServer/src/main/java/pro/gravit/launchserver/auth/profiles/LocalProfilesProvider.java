@@ -343,9 +343,9 @@ public class LocalProfilesProvider extends ProfilesProvider implements Reconfigu
     }
 
     public class LocalProfile implements CompletedProfile {
-        private ClientProfile profile;
-        private HashedDir clientDir;
-        private HashedDir assetDir;
+        private volatile ClientProfile profile;
+        private volatile HashedDir clientDir;
+        private volatile HashedDir assetDir;
         private Path configPath;
 
         public LocalProfile(ClientProfile profile, HashedDir clientDir, HashedDir assetDir) {
