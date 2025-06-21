@@ -15,7 +15,7 @@ public class AssetsDirHelper {
 
     public static List<Downloader.SizedFile> makeToDownloadFiles(AssetInfo assetInfo, HashedDir updatesDir) {
         List<Downloader.SizedFile> toDownload = new ArrayList<>(128);
-        for (var e : assetInfo.assets.entrySet()) {
+        for (var e : assetInfo.assets.getAsJsonObject("objects").entrySet()) {
             var value = e.getValue().getAsJsonObject();
             var hash = value.get("hash").getAsString();
             hash = hash.substring(0, 2) + "/" + hash;
