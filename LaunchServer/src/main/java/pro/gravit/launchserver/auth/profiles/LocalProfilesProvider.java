@@ -60,12 +60,7 @@ public class LocalProfilesProvider extends ProfilesProvider implements Reconfigu
                     .setAssetDir("assets")
                     .createClientProfile(), null, getUpdatesDir("assets"));
         }
-        profilesMap.put(profile.getUuid(), profile);
-        try(Writer writer = IOHelper.newWriter(profile.getConfigPath())) {
-            Launcher.gsonManager.configGson.toJson(profile.profile, writer);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        pushProfileAndSave(profile);
         return profile;
     }
 
@@ -103,8 +98,17 @@ public class LocalProfilesProvider extends ProfilesProvider implements Reconfigu
             execute(localProfile.clientDir, clientDir, clientActions);
             localProfile.clientDir = new HashedDir(clientDir, null, true, true);
         }
-        profilesMap.put(localProfile.getUuid(), localProfile);
+        pushProfileAndSave(localProfile);
         return localProfile;
+    }
+
+    private void pushProfileAndSave(LocalProfile localProfile) {
+        profilesMap.put(localProfile.getUuid(), localProfile);
+        try(Writer writer = IOHelper.newWriter(localProfile.getConfigPath())) {
+            Launcher.gsonManager.configGson.toJson(localProfile.profile, writer);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
