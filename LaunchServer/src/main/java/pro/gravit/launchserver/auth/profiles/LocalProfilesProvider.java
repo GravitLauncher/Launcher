@@ -320,7 +320,7 @@ public class LocalProfilesProvider extends ProfilesProvider implements Reconfigu
                         try {
                             if (!IOHelper.isDir(Path.of(updatesDir)))
                                 Files.createDirectory(Path.of(updatesDir));
-                            readUpdatesDir();
+                            sync(null);
                         } catch (IOException e) {
                             logger.error("Updates not synced", e);
                         }
