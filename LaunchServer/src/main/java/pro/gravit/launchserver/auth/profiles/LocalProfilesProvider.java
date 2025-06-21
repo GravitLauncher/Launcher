@@ -348,7 +348,7 @@ public class LocalProfilesProvider extends ProfilesProvider implements Reconfigu
             this.profile = profile;
             this.clientDir = clientDir;
             this.assetDir = assetDir;
-            this.configPath = Path.of(profilesDir).resolve(profile.getDir());
+            this.configPath = Path.of(profilesDir).resolve(profile.getDir().concat(".json"));
         }
 
         public LocalProfile(ClientProfile profile, HashedDir clientDir, HashedDir assetDir, Path configPath) {
