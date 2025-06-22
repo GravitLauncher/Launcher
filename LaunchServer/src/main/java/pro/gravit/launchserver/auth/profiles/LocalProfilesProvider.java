@@ -79,7 +79,25 @@ public class LocalProfilesProvider extends ProfilesProvider implements Reconfigu
 
     @Override
     public Set<UncompletedProfile> getProfiles(Client client) {
-        return new HashSet<>(profilesMap.values());
+        if(client == null) {
+            return new HashSet<>(profilesMap.values());
+        }
+        if(!client.isAuth) {
+            return new HashSet<>();
+        }
+        Set<UncompletedProfile> profiles = new HashSet<>();
+        for(var p : profilesMap.entrySet()) {
+            var uuid = p.getKey();
+            var profile = p.getValue();
+            if(profile.getProfile() != null && profile.getProfile().isLimited()) {
+                if(client.isAuth && client.permissions != null && client.permissions.hasPerm(String.format("launchserver.profile.%s.show", uuid))) {
+                    profiles.add(profile);
+                }
+            } else {
+                profiles.add(profile);
+            }
+        }
+        return profiles;
     }
 
     @Override
