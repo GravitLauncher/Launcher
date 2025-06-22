@@ -1,7 +1,12 @@
 package pro.gravit.launcher.runtime.backend;
 
 import pro.gravit.launcher.base.ClientPermissions;
+import pro.gravit.launcher.base.Launcher;
 import pro.gravit.launcher.base.profiles.ClientProfile;
+import pro.gravit.launcher.base.vfs.Vfs;
+import pro.gravit.launcher.base.vfs.directory.FileVfsDirectory;
+import pro.gravit.launcher.base.vfs.file.CachedVfsFile;
+import pro.gravit.launcher.base.vfs.file.UrlVfsFile;
 import pro.gravit.launcher.core.api.LauncherAPIHolder;
 import pro.gravit.launcher.core.api.features.*;
 import pro.gravit.launcher.core.api.method.AuthMethod;
@@ -22,12 +27,15 @@ import pro.gravit.launcher.runtime.debug.DebugMain;
 import pro.gravit.launcher.runtime.managers.SettingsManager;
 import pro.gravit.launcher.runtime.utils.HWIDProvider;
 import pro.gravit.launcher.runtime.utils.LauncherUpdater;
+import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.JavaHelper;
 import pro.gravit.utils.helper.LogHelper;
 import pro.gravit.utils.helper.SecurityHelper;
 
 import java.io.IOException;
 import java.net.URI;
+import java.nio.file.NoSuchFileException;
+import java.nio.file.Path;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
@@ -369,5 +377,35 @@ public class LauncherBackendImpl implements LauncherBackendAPI, TextureUploadExt
             }
             return CompletableFuture.failedFuture(new UnsupportedOperationException());
         });
+    }
+
+    public Path initVfsDirectory() {
+        Path defaultPath = Path.of("runtime");
+        if(isTestMode()) {
+            Vfs.get().put(defaultPath, new FileVfsDirectory(defaultPath));
+        } else {
+            var encryptKey = Launcher.getConfig().runtimeEncryptKey;
+            if(encryptKey == null) {
+                for(var e : Launcher.getConfig().runtime.entrySet()) {
+                    var realPath = e.getKey();
+                    var encodedName = "runtime/" + realPath;
+                    try {
+                        Vfs.get().put(defaultPath.resolve(realPath), new UrlVfsFile(IOHelper.getResourceURL(encodedName)));
+                    } catch (NoSuchFileException ignored) {
+                    }
+                }
+            } else {
+                for(var e : Launcher.getConfig().runtime.entrySet()) {
+                    var realPath = e.getKey();
+                    var hash = e.getValue();
+                    var encodedName = "runtime/" + SecurityHelper.toHex(hash);
+                    try {
+                        Vfs.get().put(defaultPath.resolve(realPath), new CachedVfsFile(new EncryptedVfsFile(new UrlVfsFile(IOHelper.getResourceURL(encodedName)))));
+                    } catch (NoSuchFileException ignored) {
+                    }
+                }
+            }
+        }
+        return defaultPath;
     }
 }
