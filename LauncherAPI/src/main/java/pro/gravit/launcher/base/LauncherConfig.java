@@ -1,5 +1,6 @@
 package pro.gravit.launcher.base;
 
+import pro.gravit.launcher.core.BuildInParams;
 import pro.gravit.launcher.core.LauncherInject;
 import pro.gravit.launcher.core.LauncherInjectionConstructor;
 import pro.gravit.launcher.core.LauncherTrustManager;
@@ -8,6 +9,7 @@ import pro.gravit.launcher.base.modules.LauncherModulesManager;
 import pro.gravit.launcher.core.serialize.HInput;
 import pro.gravit.launcher.core.serialize.HOutput;
 import pro.gravit.launcher.core.serialize.stream.StreamObject;
+import pro.gravit.utils.Version;
 import pro.gravit.utils.helper.JVMHelper;
 import pro.gravit.utils.helper.LogHelper;
 import pro.gravit.utils.helper.SecurityHelper;
@@ -120,6 +122,12 @@ public final class LauncherConfig extends StreamObject {
         secureCheckHash = null;
         passwordEncryptKey = null;
         runtimeEncryptKey = null;
+    }
+
+    public void apply() {
+        Version version = Version.getVersion();
+        BuildInParams.setVersion(new Version(version.major, version.minor, version.patch, (int) buildNumber));
+        BuildInParams.setProjectName(projectName);
     }
 
     public static void initModules(LauncherModulesManager modulesManager) {

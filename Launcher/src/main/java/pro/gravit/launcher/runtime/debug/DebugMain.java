@@ -50,6 +50,7 @@ public class DebugMain {
         config.unlockSecret = DebugProperties.UNLOCK_SECRET;
         Launcher.setConfig(config);
         Launcher.applyLauncherEnv(DebugProperties.ENV);
+        config.apply();
         LauncherEngine.modulesManager = new RuntimeModuleManager();
         LauncherEngine.modulesManager.loadModule(new RuntimeLauncherCoreModule());
         for (String moduleClassName : DebugProperties.MODULE_CLASSES) {

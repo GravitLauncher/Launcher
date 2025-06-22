@@ -170,6 +170,8 @@ public class LauncherEngine {
     }
 
     public void start(String... args) throws Throwable {
+        var config = Launcher.getConfig();
+        config.apply();
         //Launcher.modulesManager = new ClientModuleManager(this);
         ClientPreGuiPhase event = new ClientPreGuiPhase(null);
         LauncherEngine.modulesManager.invokeEvent(event);
@@ -178,7 +180,7 @@ public class LauncherEngine {
         runtimeProvider.init(clientInstance);
         //runtimeProvider.preLoad();
         if (!Request.isAvailable()) {
-            String address = Launcher.getConfig().address;
+            String address = config.address;
             LogHelper.debug("Start async connection to %s", address);
             RequestService service;
             try {

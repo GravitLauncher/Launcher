@@ -119,12 +119,14 @@ public class ClientLauncherEntryPoint {
         // Verify ClientLauncher sign and classpath
         LogHelper.debug("Verifying ClientLauncher sign and classpath");
         // Start client with WatchService monitoring
+        var config = Launcher.getConfig();
+        config.apply();
         RequestService service;
         if (params.offlineMode) {
             service = ClientLauncherMethods.initOffline(modulesManager, params);
             Request.setRequestService(service);
         } else {
-            service = StdWebSocketService.initWebSockets(Launcher.getConfig().address).get();
+            service = StdWebSocketService.initWebSockets(config.address).get();
             Request.setRequestService(service);
             LogHelper.debug("Restore sessions");
             Request.restore(false, false, true);
