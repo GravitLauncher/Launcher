@@ -4,6 +4,7 @@ package pro.gravit.launcher.base.vfs.directory;
 import pro.gravit.launcher.base.vfs.VfsDirectory;
 import pro.gravit.launcher.base.vfs.VfsEntry;
 
+import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Stream;
@@ -15,6 +16,30 @@ public class SimpleVfsDirectory extends VfsDirectory {
         return map.get(name);
     }
 
+    @Override
+    public VfsEntry resolve(Path path)  {
+        if(path == null) {
+            return null;
+        }
+
+        VfsDirectory current = this;
+        for(int i=0;i<path.getNameCount();++i) {
+            String s = path.getName(i).toString();
+            VfsEntry entity = current.find(s);
+            if(entity instanceof VfsDirectory newDir) {
+                if(entity instanceof SimpleVfsDirectory) {
+                    current = newDir;
+                } else {
+                    Path newPath = path.subpath(i+1, path.getNameCount());
+                    return newDir.resolve(newPath);
+                }
+            } else {
+                return entity;
+            }
+        }
+        return null;
+    }
+
     public VfsEntry remove(String name) {
         return map.remove(name);
     }
@@ -24,7 +49,7 @@ public class SimpleVfsDirectory extends VfsDirectory {
     }
 
     @Override
-    protected Stream<String> getFiles() {
+    public Stream<String> getFiles() {
         return map.keySet().stream();
     }
 }

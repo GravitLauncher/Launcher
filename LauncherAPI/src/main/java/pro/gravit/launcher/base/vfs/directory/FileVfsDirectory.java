@@ -30,9 +30,25 @@ public class FileVfsDirectory extends VfsDirectory {
         return null;
     }
 
+    @Override
+    public VfsEntry resolve(Path path) {
+        if(path == null) {
+            return null;
+        }
+
+        Path target = path.resolve(path);
+        if(Files.exists(target)) {
+            if(Files.isDirectory(target)) {
+                return new FileVfsDirectory(target);
+            }
+            return new FileVfsFile(target);
+        }
+        return null;
+    }
+
     @SuppressWarnings("resource")
     @Override
-    protected Stream<String> getFiles() {
+    public Stream<String> getFiles() {
         try {
             return Files.list(path).map(Path::getFileName).map(Path::toString);
         } catch (IOException e) {
