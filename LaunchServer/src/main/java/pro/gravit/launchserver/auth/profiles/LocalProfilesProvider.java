@@ -106,6 +106,15 @@ public class LocalProfilesProvider extends ProfilesProvider implements Reconfigu
         LocalProfile localProfile = (LocalProfile) profile;
         localProfile = new LocalProfile(clientProfile, localProfile.clientDir, localProfile.assetDir);
         localProfile.profile = clientProfile;
+        if(flags.contains(UpdateFlag.USE_DEFAULT_ASSETS)) {
+            if(getUpdatesDir("assets") == null) {
+                Path assetDirPath = updatesDirPath.resolve("assets");
+                if(!Files.exists(assetDirPath)) {
+                    Files.createDirectories(assetDirPath);
+                }
+                updatesDirMap.put("assets", new HashedDir(assetDirPath, null, true, true));
+            }
+        }
         if(assetActions != null && !assetActions.isEmpty()) {
             Path assetDir = updatesDirPath.resolve(clientProfile.getAssetDir());
             execute(localProfile.assetDir, assetDir, assetActions);
