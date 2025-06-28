@@ -297,6 +297,9 @@ public final class ClientProfile implements Comparable<ClientProfile>, ProfileFe
 
     @Override
     public String getMinecraftVersion() {
+        if(version == null) {
+            return null;
+        }
         return version.toString();
     }
 
