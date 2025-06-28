@@ -206,7 +206,7 @@ public class SecurityCheckCommand extends Command {
                     logger.warn("Write access to LaunchServer.jar. Please use 'chmod 755 LaunchServer.jar'");
                 }
                 if (Files.exists(server.dir.resolve(".keys")) && checkOtherReadOrWriteAccess(server.dir.resolve(".keys"))) {
-                    logger.warn("Write or read access to .keys directory. Please use 'chmod -R 600 .keys'");
+                    logger.warn("Write or read access to .keys directory. Please use 'find .keys -type d -exec chmod 700 {} \; && find .keys -type f -exec chmod 600 {} \;'");
                 }
                 if (Files.exists(server.dir.resolve("LaunchServerConfig.json")) && checkOtherReadOrWriteAccess(server.dir.resolve("LaunchServerConfig.json"))) {
                     logger.warn("Write or read access to LaunchServerConfig.json. Please use 'chmod 600 LaunchServerConfig.json'");
