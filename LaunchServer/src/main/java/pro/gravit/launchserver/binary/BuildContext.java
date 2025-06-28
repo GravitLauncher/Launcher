@@ -5,6 +5,7 @@ import org.apache.logging.log4j.Logger;
 import pro.gravit.launcher.base.Launcher;
 import pro.gravit.launcher.core.serialize.HOutput;
 import pro.gravit.launcher.core.serialize.stream.StreamObject;
+import pro.gravit.launchserver.asm.InjectClassAcceptor;
 import pro.gravit.launchserver.binary.tasks.MainBuildTask;
 import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.SecurityHelper;
@@ -27,9 +28,7 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Predicate;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
@@ -40,16 +39,20 @@ import java.util.zip.ZipOutputStream;
 import static pro.gravit.utils.helper.IOHelper.newZipEntry;
 
 public class BuildContext {
+    public final PipelineContext pipelineContext;
     public final ZipOutputStream output;
     public final List<JarFile> readerClassPath;
     public final MainBuildTask task;
     public final HashSet<String> fileList;
     public final HashSet<String> clientModules;
     public final HashSet<String> legacyClientModules;
+    public final Map<String, Object> properties;
+    public final List<MainBuildTask.Transformer> transformers = new ArrayList<>();
     private Path runtimeDir;
     private boolean deleteRuntimeDir;
 
-    public BuildContext(ZipOutputStream output, List<JarFile> readerClassPath, MainBuildTask task, Path runtimeDir) {
+    public BuildContext(PipelineContext pipelineContext, ZipOutputStream output, List<JarFile> readerClassPath, MainBuildTask task, Path runtimeDir) {
+        this.pipelineContext = pipelineContext;
         this.output = output;
         this.readerClassPath = readerClassPath;
         this.task = task;
@@ -57,6 +60,9 @@ public class BuildContext {
         fileList = new HashSet<>(1024);
         clientModules = new HashSet<>();
         legacyClientModules = new HashSet<>();
+        properties = new HashMap<>();
+        InjectClassAcceptor injectClassAcceptor = new InjectClassAcceptor(properties);
+        transformers.add(injectClassAcceptor);
     }
 
     public void pushFile(String filename, InputStream inputStream) throws IOException {

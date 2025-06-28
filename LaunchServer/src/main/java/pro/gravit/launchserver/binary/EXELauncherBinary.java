@@ -10,7 +10,7 @@ import java.nio.file.Files;
 public class EXELauncherBinary extends LauncherBinary {
 
     public EXELauncherBinary(LaunchServer server) {
-        super(server, "Launcher-%s.exe");
+        super(server);
     }
 
     @Override
@@ -19,7 +19,8 @@ public class EXELauncherBinary extends LauncherBinary {
     }
 
     @Override
-    public void build() throws IOException {
+    public PipelineContext build() throws IOException {
+        return new PipelineContext(server);
     }
 
 }

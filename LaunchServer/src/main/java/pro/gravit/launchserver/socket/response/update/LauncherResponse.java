@@ -67,14 +67,6 @@ public class LauncherResponse extends SimpleResponse {
                 .compact();
     }
 
-    private boolean checkSecure(String hash, String salt) {
-        if (hash == null || salt == null) return false;
-        byte[] normal_hash = SecurityHelper.digest(SecurityHelper.DigestAlgorithm.SHA256,
-                server.runtime.clientCheckSecret.concat(".").concat(salt));
-        byte[] launcher_hash = Base64.getDecoder().decode(hash);
-        return Arrays.equals(normal_hash, launcher_hash);
-    }
-
     public static class LauncherTokenVerifier implements RestoreResponse.ExtendedTokenProvider {
         private final JwtParser parser;
         private final Logger logger = LogManager.getLogger();

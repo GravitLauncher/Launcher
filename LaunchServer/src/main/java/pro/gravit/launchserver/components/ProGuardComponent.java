@@ -4,6 +4,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.Reconfigurable;
+import pro.gravit.launchserver.binary.PipelineContext;
 import pro.gravit.launchserver.binary.tasks.LauncherBuildTask;
 import pro.gravit.utils.command.Command;
 import pro.gravit.utils.command.SubCommand;
@@ -137,19 +138,18 @@ public class ProGuardComponent extends Component implements AutoCloseable, Recon
         }
 
         @Override
-        public Path process(Path inputFile) throws IOException {
+        public Path process(PipelineContext context) throws IOException {
             if (!component.enabled) {
-                return inputFile;
+                return null;
             }
-            LauncherBuildTask task = server.launcherBinary.getTaskBefore((x) -> proguardTaskName.equals(x.getName())).get();
-            Path lastPath = server.launcherBinary.nextPath(task);
+            Path lastPath = context.getLastest();
             if(Files.notExists(lastPath)) {
                 logger.error("{} not exist. Multi-Release JAR fix not applied!", lastPath);
-                return inputFile;
+                return null;
             }
-            Path outputPath = server.launcherBinary.nextPath(this);
+            Path outputPath = context.makeTempPath("multirelease-fix", "jar");
             try(ZipOutputStream output = new ZipOutputStream(new FileOutputStream(outputPath.toFile()))) {
-                try(ZipInputStream input = new ZipInputStream(new FileInputStream(inputFile.toFile()))) {
+                try(ZipInputStream input = new ZipInputStream(new FileInputStream(lastPath.toFile()))) {
                     ZipEntry entry = input.getNextEntry();
                     while(entry != null) {
                         ZipEntry newEntry = new ZipEntry(entry.getName());
@@ -193,8 +193,8 @@ public class ProGuardComponent extends Component implements AutoCloseable, Recon
         }
 
         @Override
-        public Path process(Path inputFile) throws IOException {
-            Path outputJar = server.launcherBinary.nextLowerPath(this);
+        public Path process(PipelineContext context) throws IOException {
+            Path outputJar = context.makeTempPath("proguard", "jar");
             if (component.enabled) {
                 if (!checkJMods(IOHelper.JVM_DIR.resolve("jmods"))) {
                     throw new RuntimeException("Java path: %s is not JDK! Please install JDK".formatted(IOHelper.JVM_DIR));
@@ -221,7 +221,7 @@ public class ProGuardComponent extends Component implements AutoCloseable, Recon
                         );
                     }
                     args.add("proguard.ProGuard");
-                    proguardConf.buildConfig(args, inputFile, outputJar, jfxPath == null ? new Path[0] : new Path[]{jfxPath});
+                    proguardConf.buildConfig(args, context.getLastest(), outputJar, jfxPath == null ? new Path[0] : new Path[]{jfxPath});
 
                     Process process = new ProcessBuilder()
                             .command(args)
@@ -240,8 +240,9 @@ public class ProGuardComponent extends Component implements AutoCloseable, Recon
                 } catch (Exception e) {
                     logger.error(e);
                 }
-            } else
-                IOHelper.copy(inputFile, outputJar);
+            } else {
+                return null;
+            }
             return outputJar;
         }
     }

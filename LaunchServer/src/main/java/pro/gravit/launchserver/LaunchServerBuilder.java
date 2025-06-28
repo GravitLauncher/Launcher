@@ -1,7 +1,6 @@
 package pro.gravit.launchserver;
 
 import pro.gravit.launchserver.config.LaunchServerConfig;
-import pro.gravit.launchserver.config.LaunchServerRuntimeConfig;
 import pro.gravit.launchserver.manangers.CertificateManager;
 import pro.gravit.launchserver.manangers.KeyAgreementManager;
 import pro.gravit.launchserver.modules.impl.LaunchServerModulesManager;
@@ -11,7 +10,6 @@ import java.nio.file.Path;
 
 public class LaunchServerBuilder {
     private LaunchServerConfig config;
-    private LaunchServerRuntimeConfig runtimeConfig;
     private CommandHandler commandHandler;
     private LaunchServer.LaunchServerEnv env;
     private LaunchServerModulesManager modulesManager;
@@ -33,11 +31,6 @@ public class LaunchServerBuilder {
 
     public LaunchServerBuilder setModulesManager(LaunchServerModulesManager modulesManager) {
         this.modulesManager = modulesManager;
-        return this;
-    }
-
-    public LaunchServerBuilder setRuntimeConfig(LaunchServerRuntimeConfig runtimeConfig) {
-        this.runtimeConfig = runtimeConfig;
         return this;
     }
 
@@ -77,7 +70,7 @@ public class LaunchServerBuilder {
         if(shardId == null) {
             shardId = Integer.parseInt(System.getProperty("launchserver.shardId", "0"));
         }
-        return new LaunchServer(directories, env, config, runtimeConfig, launchServerConfigManager, modulesManager, keyAgreementManager, commandHandler, certificateManager, shardId);
+        return new LaunchServer(directories, env, config, launchServerConfigManager, modulesManager, keyAgreementManager, commandHandler, certificateManager, shardId);
     }
 
     public LaunchServerBuilder setCertificateManager(CertificateManager certificateManager) {
@@ -96,17 +89,7 @@ public class LaunchServerBuilder {
         }
 
         @Override
-        public LaunchServerRuntimeConfig readRuntimeConfig() {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
         public void writeConfig(LaunchServerConfig config) {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public void writeRuntimeConfig(LaunchServerRuntimeConfig config) {
             throw new UnsupportedOperationException();
         }
     }

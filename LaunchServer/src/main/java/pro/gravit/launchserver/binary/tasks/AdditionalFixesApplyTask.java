@@ -6,6 +6,7 @@ import org.objectweb.asm.tree.ClassNode;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.asm.ClassMetadataReader;
 import pro.gravit.launchserver.asm.SafeClassWriter;
+import pro.gravit.launchserver.binary.PipelineContext;
 import pro.gravit.utils.helper.IOHelper;
 
 import java.io.IOException;
@@ -66,8 +67,9 @@ public class AdditionalFixesApplyTask implements LauncherBuildTask {
     }
 
     @Override
-    public Path process(Path inputFile) throws IOException {
-        Path out = server.launcherBinary.nextPath("post-fixed");
+    public Path process(PipelineContext context) throws IOException {
+        Path inputFile = context.getLastest();
+        Path out = context.makeTempPath("post-fixed", ".jar");
         try (ZipOutputStream output = new ZipOutputStream(IOHelper.newOutput(out))) {
             apply(inputFile, inputFile, output, server, (e) -> false, true);
         }

@@ -2,17 +2,16 @@ package pro.gravit.launchserver;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import pro.gravit.launcher.base.events.RequestEvent;
-import pro.gravit.launcher.base.events.request.ProfilesRequestEvent;
 import pro.gravit.launcher.base.modules.events.ClosePhase;
 import pro.gravit.launcher.base.profiles.ClientProfile;
 import pro.gravit.launchserver.auth.AuthProviderPair;
 import pro.gravit.launchserver.auth.core.RejectAuthCoreProvider;
+import pro.gravit.launchserver.auth.updates.UpdatesProvider;
 import pro.gravit.launchserver.binary.EXELauncherBinary;
 import pro.gravit.launchserver.binary.JARLauncherBinary;
 import pro.gravit.launchserver.binary.LauncherBinary;
+import pro.gravit.launchserver.binary.PipelineContext;
 import pro.gravit.launchserver.config.LaunchServerConfig;
-import pro.gravit.launchserver.config.LaunchServerRuntimeConfig;
 import pro.gravit.launchserver.helper.SignHelper;
 import pro.gravit.launchserver.launchermodules.LauncherModuleLoader;
 import pro.gravit.launchserver.manangers.*;
@@ -85,10 +84,6 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
     public final Path controlFile;
     public final Path proguardDir;
     /**
-     * This object contains runtime configuration
-     */
-    public final LaunchServerRuntimeConfig runtime;
-    /**
      * Pipeline for building JAR
      */
     public final JARLauncherBinary launcherBinary;
@@ -119,7 +114,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
     public final int shardId;
     public LaunchServerConfig config;
 
-    public LaunchServer(LaunchServerDirectories directories, LaunchServerEnv env, LaunchServerConfig config, LaunchServerRuntimeConfig runtimeConfig, LaunchServerConfigManager launchServerConfigManager, LaunchServerModulesManager modulesManager, KeyAgreementManager keyAgreementManager, CommandHandler commandHandler, CertificateManager certificateManager, int shardId) throws IOException {
+    public LaunchServer(LaunchServerDirectories directories, LaunchServerEnv env, LaunchServerConfig config, LaunchServerConfigManager launchServerConfigManager, LaunchServerModulesManager modulesManager, KeyAgreementManager keyAgreementManager, CommandHandler commandHandler, CertificateManager certificateManager, int shardId) throws IOException {
         this.dir = directories.dir;
         this.tmpDir = directories.tmpDir;
         this.env = env;
@@ -129,7 +124,6 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
         this.updatesDir = directories.updatesDir;
         this.keyAgreementManager = keyAgreementManager;
         this.commandHandler = commandHandler;
-        this.runtime = runtimeConfig;
         this.certificateManager = certificateManager;
         this.service = Executors.newScheduledThreadPool(config.netty.performance.schedulerThread);
         launcherLibraries = directories.launcherLibrariesDir;
@@ -151,7 +145,6 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
 
         // Print keypair fingerprints
 
-        runtime.verify();
         config.verify();
 
         // build hooks, anti-brutforce and other
@@ -260,7 +253,6 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
             @Override
             public void invoke(String... args) throws Exception {
                 launchServerConfigManager.writeConfig(config);
-                launchServerConfigManager.writeRuntimeConfig(runtime);
                 logger.info("LaunchServerConfig saved");
             }
         };
@@ -309,6 +301,12 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
         return path;
     }
 
+    public Path createTempFilePath(String name, String ext) throws IOException {
+        var path = tmpDir.resolve(String.format("launchserver-%s-%s.%s", name, SecurityHelper.randomStringToken(), ext));
+        IOHelper.createParentDirs(path);
+        return path;
+    }
+
     private LauncherBinary binary() {
         LaunchServerLauncherExeInit event = new LaunchServerLauncherExeInit(this, null);
         modulesManager.invokeEvent(event);
@@ -319,8 +317,20 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
     }
 
     public void buildLauncherBinaries() throws IOException {
-        launcherBinary.build();
-        launcherEXEBinary.build();
+        PipelineContext launcherContext = launcherBinary.build();
+        PipelineContext exeContext = launcherEXEBinary.build();
+        UpdatesProvider.UpdateUploadInfo jarInfo = launcherContext.makeUploadInfo(UpdatesProvider.UpdateVariant.JAR);
+        UpdatesProvider.UpdateUploadInfo exeInfo = exeContext.makeUploadInfo(UpdatesProvider.UpdateVariant.EXE);
+        List<UpdatesProvider.UpdateUploadInfo> list = new ArrayList<>(2);
+        if(jarInfo != null) {
+            list.add(jarInfo);
+        }
+        if(exeInfo != null) {
+            list.add(exeInfo);
+        }
+        config.updatesProvider.pushUpdate(list);
+        launcherContext.clear();
+        exeContext.clear();
     }
 
     public void close() throws Exception {
@@ -330,8 +340,6 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
         // Close handlers & providers
         config.close(ReloadType.FULL);
         modulesManager.invokeEvent(new ClosePhase());
-        logger.info("Save LaunchServer runtime config");
-        launchServerConfigManager.writeRuntimeConfig(runtime);
         // Print last message before death :(
         logger.info("LaunchServer stopped");
     }
@@ -404,11 +412,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
     public interface LaunchServerConfigManager {
         LaunchServerConfig readConfig() throws IOException;
 
-        LaunchServerRuntimeConfig readRuntimeConfig() throws IOException;
-
         void writeConfig(LaunchServerConfig config) throws IOException;
-
-        void writeRuntimeConfig(LaunchServerRuntimeConfig config) throws IOException;
     }
 
     public static class LaunchServerDirectories {

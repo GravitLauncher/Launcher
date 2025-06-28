@@ -19,7 +19,6 @@ import pro.gravit.launchserver.auth.texture.TextureProvider;
 import pro.gravit.launchserver.auth.updates.UpdatesProvider;
 import pro.gravit.launchserver.components.Component;
 import pro.gravit.launchserver.config.LaunchServerConfig;
-import pro.gravit.launchserver.config.LaunchServerRuntimeConfig;
 import pro.gravit.launchserver.manangers.CertificateManager;
 import pro.gravit.launchserver.manangers.LaunchServerGsonManager;
 import pro.gravit.launchserver.modules.impl.LaunchServerModulesManager;
@@ -32,7 +31,6 @@ import pro.gravit.utils.helper.JVMHelper;
 import pro.gravit.utils.helper.LogHelper;
 
 import java.io.*;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.Security;
 import java.security.cert.CertificateException;
@@ -49,7 +47,7 @@ public class LaunchServerStarter {
         LogHelper.printVersion("LaunchServer");
         LogHelper.printLicense("LaunchServer");
         Path dir = IOHelper.WORKING_DIR;
-        Path configFile, runtimeConfigFile;
+        Path configFile;
         try {
             Class.forName("org.bouncycastle.jce.provider.BouncyCastleProvider");
             Security.addProvider(new BouncyCastleProvider());
@@ -80,7 +78,6 @@ public class LaunchServerStarter {
             }
         }
 
-        LaunchServerRuntimeConfig runtimeConfig;
         LaunchServerConfig config;
         LaunchServer.LaunchServerEnv env = LaunchServer.LaunchServerEnv.PRODUCTION;
         LaunchServerModulesManager modulesManager = new LaunchServerModulesManager(directories.modules, dir.resolve("config"), certificateManager.trustManager);
@@ -93,11 +90,6 @@ public class LaunchServerStarter {
             configFile = dir.resolve("LaunchServer.conf");
         } else {
             configFile = dir.resolve("LaunchServer.json");
-        }
-        if (IOHelper.exists(dir.resolve("RuntimeLaunchServer.conf"))) {
-            runtimeConfigFile = dir.resolve("RuntimeLaunchServer.conf");
-        } else {
-            runtimeConfigFile = dir.resolve("RuntimeLaunchServer.json");
         }
         CommandHandler localCommandHandler;
         try {
@@ -116,23 +108,12 @@ public class LaunchServerStarter {
         try (BufferedReader reader = IOHelper.newReader(configFile)) {
             config = Launcher.gsonManager.gson.fromJson(reader, LaunchServerConfig.class);
         }
-        if (!Files.exists(runtimeConfigFile)) {
-            logger.info("Reset LaunchServer runtime config file");
-            runtimeConfig = new LaunchServerRuntimeConfig();
-            runtimeConfig.reset();
-        } else {
-            logger.info("Reading LaunchServer runtime config file");
-            try (BufferedReader reader = IOHelper.newReader(runtimeConfigFile)) {
-                runtimeConfig = Launcher.gsonManager.gson.fromJson(reader, LaunchServerRuntimeConfig.class);
-            }
-        }
 
-        LaunchServer.LaunchServerConfigManager launchServerConfigManager = new BasicLaunchServerConfigManager(configFile, runtimeConfigFile);
+        LaunchServer.LaunchServerConfigManager launchServerConfigManager = new BasicLaunchServerConfigManager(configFile);
         LaunchServer server = new LaunchServerBuilder()
                 .setDirectories(directories)
                 .setEnv(env)
                 .setCommandHandler(localCommandHandler)
-                .setRuntimeConfig(runtimeConfig)
                 .setConfig(config)
                 .setModulesManager(modulesManager)
                 .setLaunchServerConfigManager(launchServerConfigManager)
@@ -270,11 +251,9 @@ public class LaunchServerStarter {
 
     private static class BasicLaunchServerConfigManager implements LaunchServer.LaunchServerConfigManager {
         private final Path configFile;
-        private final Path runtimeConfigFile;
 
-        public BasicLaunchServerConfigManager(Path configFile, Path runtimeConfigFile) {
+        public BasicLaunchServerConfigManager(Path configFile) {
             this.configFile = configFile;
-            this.runtimeConfigFile = runtimeConfigFile;
         }
 
         @Override
@@ -282,15 +261,6 @@ public class LaunchServerStarter {
             LaunchServerConfig config1;
             try (BufferedReader reader = IOHelper.newReader(configFile)) {
                 config1 = Launcher.gsonManager.gson.fromJson(reader, LaunchServerConfig.class);
-            }
-            return config1;
-        }
-
-        @Override
-        public LaunchServerRuntimeConfig readRuntimeConfig() throws IOException {
-            LaunchServerRuntimeConfig config1;
-            try (BufferedReader reader = IOHelper.newReader(runtimeConfigFile)) {
-                config1 = Launcher.gsonManager.gson.fromJson(reader, LaunchServerRuntimeConfig.class);
             }
             return config1;
         }
@@ -308,22 +278,6 @@ public class LaunchServerStarter {
             byte[] bytes = output.toByteArray();
             if(bytes.length > 0) {
                 IOHelper.write(configFile, bytes);
-            }
-        }
-
-        @Override
-        public void writeRuntimeConfig(LaunchServerRuntimeConfig config) throws IOException {
-            ByteArrayOutputStream output = new ByteArrayOutputStream();
-            try (Writer writer = IOHelper.newWriter(output)) {
-                if (Launcher.gsonManager.configGson != null) {
-                    Launcher.gsonManager.configGson.toJson(config, writer);
-                } else {
-                    logger.error("Error writing LaunchServer runtime config file. Gson is null");
-                }
-            }
-            byte[] bytes = output.toByteArray();
-            if(bytes.length > 0) {
-                IOHelper.write(runtimeConfigFile, bytes);
             }
         }
     }

@@ -3,6 +3,7 @@ package pro.gravit.launchserver.binary.tasks;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import pro.gravit.launchserver.LaunchServer;
+import pro.gravit.launchserver.binary.PipelineContext;
 import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.UnpackHelper;
 
@@ -29,7 +30,7 @@ public class PrepareBuildTask implements LauncherBuildTask {
     }
 
     @Override
-    public Path process(Path inputFile) throws IOException {
+    public Path process(PipelineContext context) throws IOException {
         server.launcherBinary.coreLibs.clear();
         server.launcherBinary.addonLibs.clear();
         server.launcherBinary.files.clear();

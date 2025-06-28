@@ -6,6 +6,7 @@ import org.bouncycastle.cms.CMSException;
 import org.bouncycastle.cms.CMSSignedDataGenerator;
 import org.bouncycastle.operator.OperatorCreationException;
 import pro.gravit.launchserver.LaunchServer;
+import pro.gravit.launchserver.binary.PipelineContext;
 import pro.gravit.launchserver.binary.SignerJar;
 import pro.gravit.launchserver.config.LaunchServerConfig;
 import pro.gravit.launchserver.helper.SignHelper;
@@ -52,8 +53,9 @@ public class SignJarTask implements LauncherBuildTask {
     }
 
     @Override
-    public Path process(Path inputFile) throws IOException {
-        Path toRet = srv.launcherBinary.nextPath("signed");
+    public Path process(PipelineContext context) throws IOException {
+        Path inputFile = context.getLastest();
+        Path toRet = context.makeTempPath("signed", ".jar");
         sign(config, inputFile, toRet);
         return toRet;
     }

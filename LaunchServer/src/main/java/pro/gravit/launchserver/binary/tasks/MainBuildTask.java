@@ -15,6 +15,7 @@ import pro.gravit.launchserver.asm.ClassMetadataReader;
 import pro.gravit.launchserver.asm.InjectClassAcceptor;
 import pro.gravit.launchserver.asm.SafeClassWriter;
 import pro.gravit.launchserver.binary.BuildContext;
+import pro.gravit.launchserver.binary.PipelineContext;
 import pro.gravit.utils.HookException;
 import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.SecurityHelper;
@@ -30,18 +31,14 @@ import java.util.zip.ZipOutputStream;
 public class MainBuildTask implements LauncherBuildTask {
     public final ClassMetadataReader reader;
     public final Set<String> blacklist = new HashSet<>();
-    public final List<Transformer> transformers = new ArrayList<>();
     public final IOHookSet<BuildContext> preBuildHook = new IOHookSet<>();
     public final IOHookSet<BuildContext> postBuildHook = new IOHookSet<>();
-    public final Map<String, Object> properties = new HashMap<>();
     private final LaunchServer server;
     private transient final Logger logger = LogManager.getLogger();
 
     public MainBuildTask(LaunchServer srv) {
         server = srv;
         reader = new ClassMetadataReader();
-        InjectClassAcceptor injectClassAcceptor = new InjectClassAcceptor(properties);
-        transformers.add(injectClassAcceptor);
     }
 
     @Override
@@ -50,15 +47,16 @@ public class MainBuildTask implements LauncherBuildTask {
     }
 
     @Override
-    public Path process(Path inputJar) throws IOException {
-        Path outputJar = server.launcherBinary.nextPath(this);
+    public Path process(PipelineContext pipelineContext) throws IOException {
+        Path inputJar = pipelineContext.getLastest();
+        Path outputJar = pipelineContext.makeTempPath("main", ".jar");
         try (ZipOutputStream output = new ZipOutputStream(IOHelper.newOutput(outputJar))) {
-            BuildContext context = new BuildContext(output, reader.getCp(), this, server.launcherBinary.runtimeDir);
-            initProps();
+            BuildContext context = new BuildContext(pipelineContext, output, reader.getCp(), this, server.launcherBinary.runtimeDir);
+            initProps(context);
             preBuildHook.hook(context);
-            properties.put("launcher.legacymodules", context.legacyClientModules.stream().map(e -> Type.getObjectType(e.replace('.', '/'))).collect(Collectors.toList()));
-            properties.put("launcher.modules", context.clientModules.stream().map(e -> Type.getObjectType(e.replace('.', '/'))).collect(Collectors.toList()));
-            postInitProps();
+            context.properties.put("launcher.legacymodules", context.legacyClientModules.stream().map(e -> Type.getObjectType(e.replace('.', '/'))).collect(Collectors.toList()));
+            context.properties.put("launcher.modules", context.clientModules.stream().map(e -> Type.getObjectType(e.replace('.', '/'))).collect(Collectors.toList()));
+            postInitProps(context);
             reader.getCp().add(new JarFile(inputJar.toFile()));
             for (Path e : server.launcherBinary.coreLibs) {
                 reader.getCp().add(new JarFile(e.toFile()));
@@ -69,7 +67,8 @@ public class MainBuildTask implements LauncherBuildTask {
             Map<String, byte[]> runtime = new HashMap<>(256);
             // Write launcher guard dir
             if (server.config.launcher.encryptRuntime) {
-                context.pushEncryptedDir(context.getRuntimeDir(), Launcher.RUNTIME_DIR, server.runtime.runtimeEncryptKey, runtime, false);
+                String runtimeEncryptKey = context.pipelineContext.getProperty("runtimeEncryptKey");
+                context.pushEncryptedDir(context.getRuntimeDir(), Launcher.RUNTIME_DIR, runtimeEncryptKey, runtime, false);
             } else {
                 context.pushDir(context.getRuntimeDir(), Launcher.RUNTIME_DIR, runtime, false);
             }
@@ -85,7 +84,7 @@ public class MainBuildTask implements LauncherBuildTask {
         return outputJar;
     }
 
-    protected void postInitProps() {
+    protected void postInitProps(BuildContext context) {
         List<byte[]> certificates = Arrays.stream(server.certificateManager.trustManager.getTrusted()).map(e -> {
             try {
                 return e.getEncoded();
@@ -102,41 +101,42 @@ public class MainBuildTask implements LauncherBuildTask {
                 throw new InternalError(e);
             }
         }
-        properties.put("launchercore.certificates", certificates);
+        context.properties.put("launchercore.certificates", certificates);
     }
 
-    protected void initProps() {
-        properties.clear();
-        properties.put("launcher.address", server.config.netty.address);
-        properties.put("launcher.projectName", server.config.projectName);
-        properties.put("runtimeconfig.secretKeyClient", SecurityHelper.randomStringAESKey());
-        properties.put("launcher.port", 32148 + SecurityHelper.newRandom().nextInt(512));
-        properties.put("launchercore.env", server.config.env);
-        properties.put("launcher.memory", server.config.launcher.memoryLimit);
-        properties.put("launcher.customJvmOptions", server.config.launcher.customJvmOptions);
+    protected void initProps(BuildContext context) {
+        context.properties.clear();
+        context.properties.put("launcher.address", server.config.netty.address);
+        context.properties.put("launcher.projectName", server.config.projectName);
+        context.properties.put("runtimeconfig.secretKeyClient", SecurityHelper.randomStringAESKey());
+        context.properties.put("launcher.port", 32148 + SecurityHelper.newRandom().nextInt(512));
+        context.properties.put("launchercore.env", server.config.env);
+        context.properties.put("launcher.memory", server.config.launcher.memoryLimit);
+        context.properties.put("launcher.customJvmOptions", server.config.launcher.customJvmOptions);
         if (server.config.launcher.encryptRuntime) {
-            if (server.runtime.runtimeEncryptKey == null)
-                server.runtime.runtimeEncryptKey = SecurityHelper.randomStringToken();
-            properties.put("runtimeconfig.runtimeEncryptKey", server.runtime.runtimeEncryptKey);
+            String runtimeEncryptKey = SecurityHelper.randomStringToken();
+            context.pipelineContext.putProperty("runtimeEncryptKey", runtimeEncryptKey);
+            context.properties.put("runtimeconfig.runtimeEncryptKey", runtimeEncryptKey);
         }
-        properties.put("launcher.certificatePinning", server.config.launcher.certificatePinning);
-        properties.put("runtimeconfig.passwordEncryptKey", server.runtime.passwordEncryptKey);
+        context.properties.put("launcher.certificatePinning", server.config.launcher.certificatePinning);
+        String checkClientSecret = SecurityHelper.randomStringToken();
+        context.pipelineContext.putProperty("checkClientSecret", checkClientSecret);
         String launcherSalt = SecurityHelper.randomStringToken();
         byte[] launcherSecureHash = SecurityHelper.digest(SecurityHelper.DigestAlgorithm.SHA256,
-                server.runtime.clientCheckSecret.concat(".").concat(launcherSalt));
-        properties.put("runtimeconfig.secureCheckHash", Base64.getEncoder().encodeToString(launcherSecureHash));
-        properties.put("runtimeconfig.secureCheckSalt", launcherSalt);
-        if (server.runtime.unlockSecret == null) server.runtime.unlockSecret = SecurityHelper.randomStringToken();
-        properties.put("runtimeconfig.unlockSecret", server.runtime.unlockSecret);
-        server.runtime.buildNumber++;
-        properties.put("runtimeconfig.buildNumber", server.runtime.buildNumber);
+                checkClientSecret.concat(".").concat(launcherSalt));
+        context.properties.put("runtimeconfig.secureCheckHash", Base64.getEncoder().encodeToString(launcherSecureHash));
+        context.properties.put("runtimeconfig.secureCheckSalt", launcherSalt);
+        String unlockSecret = SecurityHelper.randomStringToken();
+        context.pipelineContext.putProperty("unlockSecret", unlockSecret);
+        context.properties.put("runtimeconfig.unlockSecret", unlockSecret);
+        context.properties.put("runtimeconfig.buildNumber", 1);
     }
 
     public byte[] transformClass(byte[] bytes, String classname, BuildContext context) {
         byte[] result = bytes;
         ClassWriter writer;
         ClassNode cn = null;
-        for (Transformer t : transformers) {
+        for (Transformer t : context.transformers) {
             if (t instanceof ASMTransformer asmTransformer) {
                 if (cn == null) {
                     ClassReader cr = new ClassReader(result);

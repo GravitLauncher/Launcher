@@ -24,7 +24,7 @@ public final class JARLauncherBinary extends LauncherBinary {
     public final Map<String, Path> files;
 
     public JARLauncherBinary(LaunchServer server) throws IOException {
-        super(server, "Launcher-%s.jar");
+        super(server);
         count = new AtomicLong(0);
         runtimeDir = server.dir.resolve(Launcher.RUNTIME_DIR);
         buildDir = server.dir.resolve("build");

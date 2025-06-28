@@ -1,6 +1,7 @@
 package pro.gravit.launchserver.binary.tasks;
 
 import pro.gravit.launchserver.LaunchServer;
+import pro.gravit.launchserver.binary.PipelineContext;
 import pro.gravit.utils.helper.IOHelper;
 
 import java.io.IOException;
@@ -32,8 +33,9 @@ public class AttachJarsTask implements LauncherBuildTask {
     }
 
     @Override
-    public Path process(Path inputFile) throws IOException {
-        Path outputFile = srv.launcherBinary.nextPath("attached");
+    public Path process(PipelineContext context) throws IOException {
+        Path inputFile = context.getLastest();
+        Path outputFile = context.makeTempPath("attached", ".jar");
         try (ZipInputStream input = IOHelper.newZipInput(inputFile);
              ZipOutputStream output = new ZipOutputStream(IOHelper.newOutput(outputFile))) {
             ZipEntry e = input.getNextEntry();

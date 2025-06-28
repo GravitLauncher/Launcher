@@ -18,6 +18,7 @@ import org.bouncycastle.operator.ContentSigner;
 import org.bouncycastle.operator.OperatorCreationException;
 import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
 import pro.gravit.launchserver.LaunchServer;
+import pro.gravit.launchserver.binary.PipelineContext;
 import pro.gravit.launchserver.helper.SignHelper;
 
 import java.io.IOException;
@@ -49,8 +50,8 @@ public class CertificateAutogenTask implements LauncherBuildTask {
     }
 
     @Override
-    public Path process(Path inputFile) throws IOException {
-        if (signedDataGenerator != null) return inputFile;
+    public Path process(PipelineContext context) throws IOException {
+        if (signedDataGenerator != null) return null;
         try {
             logger.warn("You are using an auto-generated certificate (sign.enabled false). It is not good");
             logger.warn("It is highly recommended that you use the correct certificate (sign.enabled true)");
@@ -79,6 +80,6 @@ public class CertificateAutogenTask implements LauncherBuildTask {
         } catch (OperatorCreationException | CMSException | CertificateException e) {
             logger.error("Certificate generate failed", e);
         }
-        return inputFile;
+        return null;
     }
 }

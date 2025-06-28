@@ -47,7 +47,7 @@ public class LauncherModuleLoader {
         MainBuildTask mainTask = server.launcherBinary.getTaskByClass(MainBuildTask.class).get();
         mainTask.preBuildHook.registerHook((buildContext) -> {
             for (ModuleEntity e : launcherModules) {
-                if (e.propertyMap != null) buildContext.task.properties.putAll(e.propertyMap);
+                if (e.propertyMap != null) buildContext.properties.putAll(e.propertyMap);
                 if(e.modernModule) {
                     buildContext.clientModules.add(e.moduleMainClass);
                 } else {

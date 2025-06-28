@@ -14,14 +14,7 @@ import java.util.stream.Collectors;
 
 public abstract class BinaryPipeline {
     public final List<LauncherBuildTask> tasks = new ArrayList<>();
-    public final Path buildDir;
-    public final String nameFormat;
     protected transient final Logger logger = LogManager.getLogger();
-
-    public BinaryPipeline(Path buildDir, String nameFormat) {
-        this.buildDir = buildDir;
-        this.nameFormat = nameFormat;
-    }
 
     public void addCounted(int count, Predicate<LauncherBuildTask> pred, LauncherBuildTask taskAdd) {
         List<LauncherBuildTask> indexes = new ArrayList<>();
@@ -76,21 +69,5 @@ public abstract class BinaryPipeline {
             last = e;
         }
         return Optional.empty();
-    }
-
-    public String nextName(String taskName) {
-        return nameFormat.formatted(taskName);
-    }
-
-    public Path nextPath(String taskName) {
-        return buildDir.resolve(nextName(taskName));
-    }
-
-    public Path nextPath(LauncherBuildTask task) {
-        return nextPath(task.getName());
-    }
-
-    public Path nextLowerPath(LauncherBuildTask task) {
-        return nextPath(CommonHelper.low(task.getName()));
     }
 }

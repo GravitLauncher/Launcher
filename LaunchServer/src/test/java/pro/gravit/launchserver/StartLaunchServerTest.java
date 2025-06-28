@@ -7,7 +7,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import pro.gravit.launcher.base.Launcher;
 import pro.gravit.launchserver.config.LaunchServerConfig;
-import pro.gravit.launchserver.config.LaunchServerRuntimeConfig;
 import pro.gravit.launchserver.impl.TestLaunchServerConfigManager;
 import pro.gravit.launchserver.manangers.CertificateManager;
 import pro.gravit.launchserver.manangers.LaunchServerGsonManager;
@@ -33,12 +32,10 @@ public class StartLaunchServerTest {
         LaunchServerConfig config = LaunchServerConfig.getDefault(LaunchServer.LaunchServerEnv.TEST);
         Launcher.gsonManager = new LaunchServerGsonManager(modulesManager);
         Launcher.gsonManager.initGson();
-        LaunchServerRuntimeConfig runtimeConfig = new LaunchServerRuntimeConfig();
         LaunchServerBuilder builder = new LaunchServerBuilder();
         builder.setDir(dir)
                 .setEnv(LaunchServer.LaunchServerEnv.TEST)
                 .setConfig(config)
-                .setRuntimeConfig(runtimeConfig)
                 .setCertificateManager(new CertificateManager())
                 .setLaunchServerConfigManager(new TestLaunchServerConfigManager())
                 .setModulesManager(modulesManager)

@@ -282,14 +282,6 @@ public class AuthManager {
     }
 
     private AuthRequest.AuthPasswordInterface tryDecryptPasswordPlain(AuthRequest.AuthPasswordInterface password) throws AuthException {
-        if (password instanceof AuthAESPassword authAESPassword) {
-            try {
-                return new AuthPlainPassword(IOHelper.decode(SecurityHelper.decrypt(server.runtime.passwordEncryptKey
-                        , authAESPassword.password)));
-            } catch (Exception ignored) {
-                throw new AuthException("Password decryption error");
-            }
-        }
         if (password instanceof AuthRSAPassword authRSAPassword) {
             try {
                 Cipher cipher = SecurityHelper.newRSADecryptCipher(server.keyAgreementManager.rsaPrivateKey);

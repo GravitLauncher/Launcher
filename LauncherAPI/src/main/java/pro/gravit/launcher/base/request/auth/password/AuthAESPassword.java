@@ -3,6 +3,7 @@ package pro.gravit.launcher.base.request.auth.password;
 import pro.gravit.launcher.core.LauncherNetworkAPI;
 import pro.gravit.launcher.base.request.auth.AuthRequest;
 
+@Deprecated
 public class AuthAESPassword implements AuthRequest.AuthPasswordInterface {
     @LauncherNetworkAPI
     public final byte[] password;
