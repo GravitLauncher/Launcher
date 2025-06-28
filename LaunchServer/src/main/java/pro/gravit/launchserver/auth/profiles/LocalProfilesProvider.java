@@ -182,7 +182,7 @@ public class LocalProfilesProvider extends ProfilesProvider implements Reconfigu
     }
 
     private void readCache(Path file) throws IOException {
-        Map<String, HashedDir> updatesDirMap = new HashMap<>(16);
+        Map<String, HashedDir> updatesDirMap = new ConcurrentHashMap<>(16);
         try (HInput input = new HInput(IOHelper.newInput(file))) {
             int size = input.readLength(0);
             for (int i = 0; i < size; ++i) {
@@ -192,7 +192,7 @@ public class LocalProfilesProvider extends ProfilesProvider implements Reconfigu
             }
         }
         logger.debug("Found {} updates from cache", updatesDirMap.size());
-        this.updatesDirMap = Collections.unmodifiableMap(updatesDirMap);
+        this.updatesDirMap = updatesDirMap;
     }
 
     public void readProfilesDir() throws IOException {
@@ -248,7 +248,7 @@ public class LocalProfilesProvider extends ProfilesProvider implements Reconfigu
                 newUpdatesDirMap.put(name, updateHDir);
             }
         }
-        updatesDirMap = Collections.unmodifiableMap(newUpdatesDirMap);
+        updatesDirMap = newUpdatesDirMap;
         if (cacheUpdates) {
             try {
                 writeCache(Path.of(cacheFile));
