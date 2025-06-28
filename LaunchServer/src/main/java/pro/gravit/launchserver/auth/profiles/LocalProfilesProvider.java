@@ -113,7 +113,9 @@ public class LocalProfilesProvider extends ProfilesProvider implements Reconfigu
                 if(!Files.exists(assetDirPath)) {
                     Files.createDirectories(assetDirPath);
                 }
-                updatesDirMap.put("assets", new HashedDir(assetDirPath, null, true, true));
+                var assetsHDir = new HashedDir(assetDirPath, null, true, true);
+                updatesDirMap.put("assets", assetsHDir);
+                localProfile.assetDir = assetsHDir;
             }
         }
         if(assetActions != null && !assetActions.isEmpty()) {
