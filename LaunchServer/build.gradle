@@ -129,7 +129,7 @@ tasks.register('dumpLibs', Copy) {
 
 tasks.register('dumpProguard', Copy) {
     duplicatesStrategy = 'EXCLUDE'
-    into "$buildDir/libs/proguard"
+    into "$buildDir/libs/proguard-libraries"
     from configurations.proguardPack
 }
 
