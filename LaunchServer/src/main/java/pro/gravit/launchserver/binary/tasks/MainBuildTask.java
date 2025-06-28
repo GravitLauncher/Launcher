@@ -129,7 +129,6 @@ public class MainBuildTask implements LauncherBuildTask {
         String unlockSecret = SecurityHelper.randomStringToken();
         context.pipelineContext.putProperty("unlockSecret", unlockSecret);
         context.properties.put("runtimeconfig.unlockSecret", unlockSecret);
-        context.properties.put("runtimeconfig.buildNumber", 1);
     }
 
     public byte[] transformClass(byte[] bytes, String classname, BuildContext context) {
