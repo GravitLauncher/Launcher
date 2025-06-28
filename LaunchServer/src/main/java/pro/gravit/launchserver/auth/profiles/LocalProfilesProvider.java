@@ -23,6 +23,7 @@ import java.io.Writer;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
 
 public class LocalProfilesProvider extends ProfilesProvider implements Reconfigurable {
@@ -196,7 +197,7 @@ public class LocalProfilesProvider extends ProfilesProvider implements Reconfigu
 
     public void readProfilesDir() throws IOException {
         Path profilesDirPath = Path.of(profilesDir);
-        Map<UUID, LocalProfile> newProfiles = new HashMap<>();
+        Map<UUID, LocalProfile> newProfiles = new ConcurrentHashMap<>();
         IOHelper.walk(profilesDirPath, new ProfilesFileVisitor(newProfiles), false);
         profilesMap = newProfiles;
     }
@@ -218,7 +219,7 @@ public class LocalProfilesProvider extends ProfilesProvider implements Reconfigu
 
     public void sync(Collection<String> dirs) throws IOException {
         logger.info("Syncing updates dir");
-        Map<String, HashedDir> newUpdatesDirMap = new HashMap<>(16);
+        Map<String, HashedDir> newUpdatesDirMap = new ConcurrentHashMap<>(16);
         try (DirectoryStream<Path> dirStream = Files.newDirectoryStream(Path.of(updatesDir))) {
             for (final Path updateDir : dirStream) {
                 if (Files.isHidden(updateDir))
