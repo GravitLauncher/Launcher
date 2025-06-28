@@ -319,8 +319,6 @@ public final class ClientProfile implements Comparable<ClientProfile>, ProfileFe
 
     public void verify() {
         // Version
-        getMinecraftVersion();
-        IOHelper.verifyFileName(getAssetIndex());
 
         // Client
         VerifyHelper.verify(getTitle(), VerifyHelper.NOT_EMPTY, "Profile title can't be empty");
