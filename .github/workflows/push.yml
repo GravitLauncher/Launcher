@@ -35,7 +35,6 @@ jobs:
         run: |
           mkdir -p artifacts/modules
           cd LaunchServer/build/libs
-          mv proguard proguard-libraries
           zip -r -9 ../../../artifacts/libraries.zip * -x "LaunchServer.jar" -x "LaunchServer-clean.jar"
           cp LaunchServer.jar ../../../artifacts/LaunchServer.jar
           cd ../../..
