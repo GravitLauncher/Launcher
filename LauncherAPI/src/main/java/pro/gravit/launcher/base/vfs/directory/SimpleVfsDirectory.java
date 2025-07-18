@@ -19,7 +19,7 @@ public class SimpleVfsDirectory extends VfsDirectory {
     @Override
     public VfsEntry resolve(Path path)  {
         if(path == null) {
-            return null;
+            return this;
         }
 
         VfsDirectory current = this;
@@ -30,6 +30,9 @@ public class SimpleVfsDirectory extends VfsDirectory {
                 if(entity instanceof SimpleVfsDirectory) {
                     current = newDir;
                 } else {
+                    if (i+1 >= path.getNameCount()) {
+                        return newDir;
+                    }
                     Path newPath = path.subpath(i+1, path.getNameCount());
                     return newDir.resolve(newPath);
                 }

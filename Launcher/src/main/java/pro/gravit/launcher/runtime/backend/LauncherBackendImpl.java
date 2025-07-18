@@ -68,6 +68,7 @@ public class LauncherBackendImpl implements LauncherBackendAPI, TextureUploadExt
     private volatile List<Java> availableJavas;
     private volatile CompletableFuture<List<Java>> availableJavasFuture;
     private volatile CompletableFuture<Void> processHardwareFuture;
+    private volatile Path vfsRootPath;
     private final Map<UUID, CompletableFuture<ServerPingInfo>> pingFutures = new ConcurrentHashMap<>();
 
     @Override
@@ -313,6 +314,14 @@ public class LauncherBackendImpl implements LauncherBackendAPI, TextureUploadExt
         } catch (Throwable ex) {
             return false;
         }
+    }
+
+    @Override
+    public ResourceLayer makeResourceLayer(List<Path> overlayList) {
+        if(vfsRootPath == null) {
+            vfsRootPath = initVfsDirectory();
+        }
+        return new ResourceLayerImpl(vfsRootPath, overlayList);
     }
 
     @SuppressWarnings("unchecked")

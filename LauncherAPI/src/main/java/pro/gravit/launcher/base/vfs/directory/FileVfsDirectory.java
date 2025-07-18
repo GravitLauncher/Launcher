@@ -33,10 +33,10 @@ public class FileVfsDirectory extends VfsDirectory {
     @Override
     public VfsEntry resolve(Path path) {
         if(path == null) {
-            return null;
+            return this;
         }
 
-        Path target = path.resolve(path);
+        Path target = this.path.resolve(path);
         if(Files.exists(target)) {
             if(Files.isDirectory(target)) {
                 return new FileVfsDirectory(target);

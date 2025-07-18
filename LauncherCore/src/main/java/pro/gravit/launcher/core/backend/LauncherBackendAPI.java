@@ -9,6 +9,8 @@ import pro.gravit.launcher.core.api.model.Texture;
 import pro.gravit.launcher.core.api.model.UserPermissions;
 import pro.gravit.launcher.core.backend.extensions.Extension;
 
+import java.io.IOException;
+import java.net.URL;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Set;
@@ -38,6 +40,7 @@ public interface LauncherBackendAPI {
     String getUsername();
     SelfUser getSelfUser();
     boolean isTestMode();
+    ResourceLayer makeResourceLayer(List<Path> overlayList);
     // Extensions
     <T extends Extension> T getExtension(Class<T> clazz);
     void shutdown();
@@ -172,5 +175,9 @@ public interface LauncherBackendAPI {
         int getMaxOnline();
         int getOnline();
         List<String> getPlayerNames();
+    }
+
+    interface ResourceLayer {
+        URL getURL(Path path) throws IOException;
     }
 }
