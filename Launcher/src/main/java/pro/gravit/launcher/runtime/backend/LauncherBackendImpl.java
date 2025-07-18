@@ -415,6 +415,9 @@ public class LauncherBackendImpl implements LauncherBackendAPI, TextureUploadExt
                 }
             }
         }
+        if(LogHelper.isDevEnabled()) {
+            Vfs.get().debugPrint(LogHelper.Level.DEV);
+        }
         return defaultPath;
     }
 }

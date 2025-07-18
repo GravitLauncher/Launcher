@@ -40,7 +40,7 @@ public class SimpleVfsDirectory extends VfsDirectory {
                 return entity;
             }
         }
-        return null;
+        return current;
     }
 
     public VfsEntry remove(String name) {
