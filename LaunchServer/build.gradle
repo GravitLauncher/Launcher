@@ -22,8 +22,11 @@ repositories {
     }
 }
 
-sourceCompatibility = '21'
-targetCompatibility = '21'
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
 
 configurations {
     bundleOnly
@@ -112,6 +115,7 @@ dependencies {
     bundle group: 'com.google.code.gson', name: 'gson', version: rootProject['verGson']
     annotationProcessor(group: 'org.apache.logging.log4j', name: 'log4j-core', version: rootProject['verLog4j'])
     testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter', version: rootProject['verJunit']
+    testRuntimeOnly "org.junit.platform:junit-platform-launcher"
 
     bundle 'io.micrometer:micrometer-core:1.14.4'
     bundle('com.zaxxer:HikariCP:6.2.1') {

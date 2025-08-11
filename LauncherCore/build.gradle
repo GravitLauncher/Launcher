@@ -1,5 +1,8 @@
-sourceCompatibility = '21'
-targetCompatibility = '21'
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
 
 dependencies {
     compileOnly group: 'org.fusesource.jansi', name: 'jansi', version: rootProject['verJansi']
@@ -12,6 +15,7 @@ dependencies {
     testImplementation group: 'org.jline', name: 'jline', version: rootProject['verJline']
     testImplementation group: 'org.jline', name: 'jline-reader', version: rootProject['verJline']
     testImplementation group: 'org.jline', name: 'jline-terminal', version: rootProject['verJline']
+    testRuntimeOnly "org.junit.platform:junit-platform-launcher"
 }
 
 test {

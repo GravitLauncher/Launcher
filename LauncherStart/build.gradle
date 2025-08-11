@@ -8,8 +8,11 @@ repositories {
         url "https://repo.spring.io/plugins-release/"
     }
 }
-sourceCompatibility = '21'
-targetCompatibility = '21'
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
 
 jar {
     archiveClassifier.set('clean')
@@ -31,6 +34,7 @@ tasks.register('javadocJar', Jar) {
 dependencies {
     implementation project(':LauncherAPI')
     implementation project(':LauncherClient')
+    testRuntimeOnly "org.junit.platform:junit-platform-launcher"
 }
 
 publishing {

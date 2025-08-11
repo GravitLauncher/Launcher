@@ -1,9 +1,13 @@
-sourceCompatibility = '21'
-targetCompatibility = '21'
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
 
 dependencies {
     api project(':LauncherCore')
     testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter', version: rootProject['verJunit']
+    testRuntimeOnly "org.junit.platform:junit-platform-launcher"
 }
 
 test {

@@ -14,8 +14,11 @@ repositories {
     }
 }
 
-sourceCompatibility = '21'
-targetCompatibility = '21'
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
 
 jar {
     archiveClassifier.set('clean')
