@@ -130,8 +130,12 @@ public class ClientLauncherProcess {
         }
         if (this.params.oauth == null) {
             this.params.oauth = Request.getOAuth();
+        }
+        if(this.params.authId == null) {
             this.params.authId = Request.getAuthId();
             this.params.oauthExpiredTime = Request.getTokenExpiredTime();
+        }
+        if(this.params.extendedTokens == null) {
             this.params.extendedTokens = Request.getExtendedTokens();
         }
         LauncherEngine.modulesManager.invokeEvent(new ClientProcessBuilderCreateEvent(this));

@@ -13,10 +13,15 @@ import pro.gravit.launcher.base.profiles.ClientProfile;
 import pro.gravit.launcher.base.profiles.optional.actions.OptionalAction;
 import pro.gravit.launcher.base.profiles.optional.triggers.OptionalTrigger;
 import pro.gravit.launcher.base.request.Request;
+import pro.gravit.launcher.base.request.RequestCoreFeatureAPIImpl;
+import pro.gravit.launcher.base.request.RequestFeatureAPIImpl;
 import pro.gravit.launcher.base.request.auth.AuthRequest;
 import pro.gravit.launcher.base.request.auth.GetAvailabilityAuthRequest;
 import pro.gravit.launcher.base.request.update.ProfilesRequest;
 import pro.gravit.launcher.base.request.websockets.StdWebSocketService;
+import pro.gravit.launcher.core.api.LauncherAPI;
+import pro.gravit.launcher.core.api.LauncherAPIHolder;
+import pro.gravit.launcher.core.api.features.*;
 import pro.gravit.launcher.server.authlib.InstallAuthlib;
 import pro.gravit.launcher.server.setup.ServerWrapperSetup;
 import pro.gravit.utils.helper.IOHelper;
@@ -129,6 +134,27 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
             }
         };
         Request.setRequestService(service);
+        LauncherAPIHolder.setCoreAPI(new RequestCoreFeatureAPIImpl(Request.getRequestService()));
+        LauncherAPIHolder.setCreateApiFactory((authId) -> {
+            var impl = new RequestFeatureAPIImpl(Request.getRequestService(), authId);
+            return new LauncherAPI(Map.of(
+                    AuthFeatureAPI.class, impl,
+                    UserFeatureAPI.class, impl,
+                    ProfileFeatureAPI.class, impl,
+                    TextureUploadFeatureAPI.class, impl,
+                    HardwareVerificationFeatureAPI.class, impl));
+        });
+        if(config.authId != null) {
+            LauncherAPIHolder.changeAuthId(config.authId);
+        } else {
+            var impl = new RequestFeatureAPIImpl(Request.getRequestService(), null);
+            LauncherAPIHolder.setApi(new LauncherAPI(Map.of(
+                    AuthFeatureAPI.class, impl,
+                    UserFeatureAPI.class, impl,
+                    ProfileFeatureAPI.class, impl,
+                    TextureUploadFeatureAPI.class, impl,
+                    HardwareVerificationFeatureAPI.class, impl)));
+        }
         if (config.logFile != null) LogHelper.addOutput(IOHelper.newWriter(Paths.get(config.logFile), true));
         {
             restore();
