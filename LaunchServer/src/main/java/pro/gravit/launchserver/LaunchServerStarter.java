@@ -34,6 +34,7 @@ import java.io.*;
 import java.nio.file.Path;
 import java.security.Security;
 import java.security.cert.CertificateException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class LaunchServerStarter {
@@ -122,19 +123,19 @@ public class LaunchServerStarter {
         List<String> allArgs = List.of(args);
         boolean isPrepareMode = prepareMode || allArgs.contains("--prepare");
         boolean isRunCommand = false;
-        String runCommand = null;
+        List<String> runCommand = new ArrayList<>();
         for(var e : allArgs) {
             if(e.equals("--run")) {
                 isRunCommand = true;
                 continue;
             }
             if(isRunCommand) {
-                runCommand = e;
+                runCommand.add(e);
                 isRunCommand = false;
             }
         }
-        if(runCommand != null) {
-            localCommandHandler.eval(runCommand, false);
+        for(var cmd : runCommand) {
+            localCommandHandler.eval(cmd, false);
         }
         if (!isPrepareMode) {
             server.run();
