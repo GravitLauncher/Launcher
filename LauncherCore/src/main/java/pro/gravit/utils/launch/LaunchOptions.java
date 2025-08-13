@@ -9,6 +9,7 @@ public class LaunchOptions {
 
 
     public static final class ModuleConf {
+        public boolean enableModularClassTransform = true;
         public List<String> modules = new ArrayList<>();
         public List<String> modulePath = new ArrayList<>();
         public Map<String, String> exports = new HashMap<>();

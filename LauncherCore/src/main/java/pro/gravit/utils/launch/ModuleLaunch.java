@@ -5,21 +5,26 @@ import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.JVMHelper;
 import pro.gravit.utils.helper.LogHelper;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
-import java.lang.module.Configuration;
-import java.lang.module.ModuleFinder;
+import java.lang.module.*;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.nio.ByteBuffer;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class ModuleLaunch implements Launch {
     private ModuleClassLoader moduleClassLoader;
@@ -59,6 +64,10 @@ public class ModuleLaunch implements Launch {
             if(options.moduleConf != null) {
                 // Create Module Layer
                 moduleFinder = ModuleFinder.of(options.moduleConf.modulePath.stream().map(Paths::get).map(Path::toAbsolutePath).toArray(Path[]::new));
+                if(options.moduleConf.enableModularClassTransform) {
+                    AtomicReference<ModuleClassLoader> clRef = new AtomicReference<>(moduleClassLoader);
+                    moduleFinder = new CustomModuleFinder(moduleFinder, clRef);
+                }
                 ModuleLayer bootLayer = ModuleLayer.boot();
                 if(options.moduleConf.modules.contains("ALL-MODULE-PATH")) {
                     var set = moduleFinder.findAll();
@@ -182,6 +191,105 @@ public class ModuleLaunch implements Launch {
         return clazz;
     }
 
+    private class CustomModuleFinder implements ModuleFinder {
+        private final ModuleFinder delegate;
+        private AtomicReference<ModuleClassLoader> cl;
+
+        public CustomModuleFinder(ModuleFinder delegate, AtomicReference<ModuleClassLoader> cl) {
+            this.delegate = delegate;
+            this.cl = cl;
+        }
+
+        @Override
+        public Optional<ModuleReference> find(String name) {
+            return delegate.find(name).map(this::makeModuleReference);
+        }
+
+        @Override
+        public Set<ModuleReference> findAll() {
+            return delegate.findAll().stream()
+                    .map(this::makeModuleReference)
+                    .collect(Collectors.toSet());
+        }
+
+        private CustomModuleReference makeModuleReference(ModuleReference x) {
+            return new CustomModuleReference(x.descriptor(), x.location().orElse(null), x, cl);
+        }
+    }
+
+    private class CustomModuleReference extends ModuleReference {
+        private final ModuleReference delegate;
+        private final AtomicReference<ModuleClassLoader> cl;
+
+        public CustomModuleReference(ModuleDescriptor descriptor, URI location, ModuleReference delegate, AtomicReference<ModuleClassLoader> cl) {
+            super(descriptor, location);
+            this.delegate = delegate;
+            this.cl = cl;
+        }
+
+        @Override
+        public ModuleReader open() throws IOException {
+            return new CustomModuleReader(delegate.open(), cl, descriptor());
+        }
+    }
+
+    private class CustomModuleReader implements ModuleReader {
+        private final ModuleReader delegate;
+        private final AtomicReference<ModuleClassLoader> cl;
+        private final ModuleDescriptor descriptor;
+
+        public CustomModuleReader(ModuleReader delegate, AtomicReference<ModuleClassLoader> cl, ModuleDescriptor descriptor) {
+            this.delegate = delegate;
+            this.cl = cl;
+            this.descriptor = descriptor;
+        }
+
+        @Override
+        public Optional<URI> find(String name) throws IOException {
+            return delegate.find(name);
+        }
+
+        @Override
+        public Optional<InputStream> open(String name) throws IOException {
+            ModuleClassLoader classLoader = cl.get();
+            if(classLoader == null || !name.endsWith(".class")) {
+                return delegate.open(name);
+            }
+            var inputOptional = delegate.open(name);
+            if(inputOptional.isEmpty()) {
+                return inputOptional;
+            }
+            try(ByteArrayOutputStream output = new ByteArrayOutputStream()) {
+                inputOptional.get().transferTo(output);
+                var realClassName = name.replace("/", ".").substring(0, name.length()-".class".length()-1);
+                byte[] bytes = classLoader.transformClass(descriptor.name(), realClassName, output.toByteArray());
+                return Optional.of(new ByteArrayInputStream(bytes));
+            }
+        }
+
+        @Override
+        public Optional<ByteBuffer> read(String name) throws IOException {
+            // TODO class transformation unimplemented
+            return delegate.read(name);
+        }
+
+        @Override
+        public void release(ByteBuffer bb) {
+            // TODO class transformation unimplemented
+            delegate.release(bb);
+        }
+
+        @Override
+        public Stream<String> list() throws IOException {
+            return delegate.list();
+        }
+
+        @Override
+        public void close() throws IOException {
+            delegate.close();
+        }
+    }
+
     private class ModuleClassLoader extends URLClassLoader {
         private final ClassLoader SYSTEM_CLASS_LOADER = ClassLoader.getSystemClassLoader();
         private final List<ClassLoaderControl.ClassTransformer> transformers = new ArrayList<>();
@@ -251,9 +359,7 @@ public class ModuleLaunch implements Launch {
                     String rawClassName = name.replace(".", "/").concat(".class");
                     try(InputStream input = getResourceAsStream(rawClassName)) {
                         byte[] bytes = IOHelper.read(input);
-                        for(ClassLoaderControl.ClassTransformer t : transformers) {
-                            bytes = t.transform(moduleName, name, null, bytes);
-                        }
+                        bytes = transformClass(moduleName, name, bytes);
                         clazz = defineClass(name, bytes, 0, bytes.length);
                     } catch (IOException e) {
                         return null;
@@ -284,6 +390,16 @@ public class ModuleLaunch implements Launch {
             } else {
                 return null;
             }
+        }
+
+        private byte[] transformClass(String moduleName, String name, byte[] bytes) {
+            for(ClassLoaderControl.ClassTransformer t : transformers) {
+                if(!t.filter(moduleName, name)) {
+                    continue;
+                }
+                bytes = t.transform(moduleName, name, null, bytes);
+            }
+            return bytes;
         }
 
         @Override
