@@ -84,6 +84,12 @@ public class MakeProfileHelper {
         } else if (version.compareTo(ClientProfileVersions.MINECRAFT_1_18) <= 0) { // 1.13 - 1.16.5
             jvmArgs.add("-XX:+UseG1GC");
             jvmArgs.add("-XX:+UnlockExperimentalVMOptions");
+            jvmArgs.add("--add-exports");
+            jvmArgs.add("java.base/sun.security.util=ALL-UNNAMED");
+            jvmArgs.add("--add-opens");
+            jvmArgs.add("java.base/sun.security.util=ALL-UNNAMED");
+            jvmArgs.add("--add-opens");
+            jvmArgs.add("java.base/java.util.jar=ALL-UNNAMED");
         } else {
         }
         // -----------
