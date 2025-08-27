@@ -451,6 +451,14 @@ public final class ClientProfile implements Comparable<ClientProfile>, ProfileFe
             this.isObjectSerialized = isObjectSerialized;
         }
 
+        public int length() {
+            return data.length;
+        }
+
+        public long get(int i) {
+            return data[i];
+        }
+
         @Override
         public int compareTo(Version some) {
             int result = 0;
