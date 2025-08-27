@@ -61,7 +61,7 @@ public class MainBuildTask implements LauncherBuildTask {
             for (Path e : server.launcherBinary.coreLibs) {
                 reader.getCp().add(new JarFile(e.toFile()));
             }
-            context.pushJarFile(inputJar, (e) -> blacklist.contains(e.getName()) || e.getName().startsWith("pro/gravit/launcher/debug/"), (e) -> true);
+            context.pushJarFile(inputJar, (e) -> blacklist.contains(e.getName()) || e.getName().startsWith("pro/gravit/launcher/runtime/debug/"), (e) -> true);
 
             // map for guard
             Map<String, byte[]> runtime = new HashMap<>(256);
