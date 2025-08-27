@@ -31,9 +31,6 @@ public class MakeProfileHelper {
         builder.setUpdateVerify(List.of("libraries", "natives", "mods", "minecraft.jar", "forge.jar", "liteloader.jar"));
         {
             List<String> classPath = new ArrayList<>(5);
-            if(findOption(options, MakeProfileOptionLaunchWrapper.class).isPresent()) {
-                classPath.add("libraries/net/minecraft/launchwrapper/1.12/launchwrapper-1.12.jar");
-            }
             classPath.add("libraries");
             classPath.add("minecraft.jar");
             if (version.compareTo(ClientProfileVersions.MINECRAFT_1_12_2) <= 0) {
