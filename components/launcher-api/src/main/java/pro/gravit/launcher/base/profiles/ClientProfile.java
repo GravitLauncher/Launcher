@@ -423,7 +423,7 @@ public final class ClientProfile implements Comparable<ClientProfile>, ProfileFe
     }
 
     public enum CompatibilityFlags {
-        LEGACY_NATIVES_DIR, CLASS_CONTROL_API, ENABLE_HACKS, WAYLAND_USE_CUSTOM_GLFW
+        LEGACY_NATIVES_DIR, CLASS_CONTROL_API, ENABLE_HACKS, WAYLAND_USE_CUSTOM_GLFW, DONT_ADD_YOURSELF_TO_CLASSPATH_PROPERTY
     }
 
     public static class Version implements Comparable<Version> {
