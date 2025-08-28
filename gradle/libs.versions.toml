@@ -1,0 +1,45 @@
+[versions]
+gson = "2.13.1"
+jline = "3.30.5"
+jansi = "2.4.2"
+slf4j = "2.0.17"
+oshi = "6.8.3"
+# LaunchServer libraries
+log4j = "2.25.1"
+netty = "4.2.4.Final"
+bouncycastle = "1.81"
+jjwt = "0.13.0"
+progressbar = "0.10.1"
+asm = "9.8"
+# Database libraries
+hikari = "3.3.0"
+postgresql = "42.7.7"
+mysql = "9.4.0"
+mariadb = "3.5.5"
+h2 = "2.3.232"
+
+[libraries]
+gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
+jline-terminal = { module = "org.jline:jline-terminal", version.ref = "jline" }
+jline-reader = { module = "org.jline:jline-reader", version.ref = "jline" }
+jansi = { module = "org.fusesource.jansi:jansi", version.ref = "jansi" }
+slf4j = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }
+oshi = { module = "com.github.oshi:oshi-core", version.ref = "oshi" }
+# LaunchServer libraries
+log4j-api = { module = "org.apache.logging.log4j:log4j-api", version.ref = "log4j" }
+log4j-core = { module = "org.apache.logging.log4j:log4j-core", version.ref = "log4j" }
+netty-codec-http = { module = "io.netty:netty-codec-http", version.ref = "netty" }
+netty-transport-epoll = { module = "io.netty:netty-transport-native-epoll", version.ref = "netty" }
+netty-transport-io-uring = { module = "io.netty:netty-transport-native-io_uring", version.ref = "netty" }
+bouncycastle-bcpkix = { module = "org.bouncycastle:bcpkix-jdk18on", version.ref = "bouncycastle" }
+jjwt-api = { module = "io.jsonwebtoken:jjwt-api", version.ref = "jjwt" }
+jjwt-impl = { module = "io.jsonwebtoken:jjwt-impl", version.ref = "jjwt" }
+jjwt-gson = { module = "io.jsonwebtoken:jjwt-gson", version.ref = "jjwt" }
+progressbar = { module = "me.tongfei:progressbar", version.ref = "progressbar" }
+asm = { module = "org.ow2.asm:asm", version.ref = "asm" }
+asm-tree = { module = "org.ow2.asm:asm-tree", version.ref = "asm" }
+db-hikari = { module = "hikari-cp:hikari-cp", version.ref = "hikari" }
+db-postgresql = { module = "org.postgresql:postgresql", version.ref = "postgresql" }
+db-mysql = { module = "com.mysql:mysql-connector-j", version.ref = "mysql" }
+db-mariadb = { module = "org.mariadb.jdbc:mariadb-java-client", version.ref = "mariadb" }
+db-h2 = { module = "com.h2database:h2", version.ref = "h2" }
