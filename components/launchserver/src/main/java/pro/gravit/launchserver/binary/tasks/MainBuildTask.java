@@ -113,6 +113,8 @@ public class MainBuildTask implements LauncherBuildTask {
         context.properties.put("launchercore.env", server.config.env);
         context.properties.put("launcher.memory", server.config.launcher.memoryLimit);
         context.properties.put("launcher.customJvmOptions", server.config.launcher.customJvmOptions);
+        context.properties.put("runtimeconfig.customJavaDownload", server.config.launcher.customJavaDownload);
+        context.properties.put("runtimeconfig.forceUseCustomJava", server.config.launcher.forceUseCustomJava);
         if (server.config.launcher.encryptRuntime) {
             String runtimeEncryptKey = SecurityHelper.randomStringToken();
             context.pipelineContext.putProperty("runtimeEncryptKey", runtimeEncryptKey);

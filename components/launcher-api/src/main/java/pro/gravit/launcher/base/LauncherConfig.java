@@ -56,6 +56,10 @@ public final class LauncherConfig extends StreamObject {
     public LauncherEnvironment environment;
     @LauncherInject("runtimeconfig.buildNumber")
     public long buildNumber;
+    @LauncherInject("runtimeconfig.customJavaDownload")
+    public Map<String, String> customJavaDownload;
+    @LauncherInject("runtimeconfig.forceUseCustomJava")
+    public boolean forceUseCustomJava;
 
     private static class ModernModulesClass {
         @LauncherInject("launcher.modules")

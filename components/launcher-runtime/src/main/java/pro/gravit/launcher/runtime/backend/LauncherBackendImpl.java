@@ -27,10 +27,7 @@ import pro.gravit.launcher.runtime.debug.DebugMain;
 import pro.gravit.launcher.runtime.managers.SettingsManager;
 import pro.gravit.launcher.runtime.utils.HWIDProvider;
 import pro.gravit.launcher.runtime.utils.LauncherUpdater;
-import pro.gravit.utils.helper.IOHelper;
-import pro.gravit.utils.helper.JavaHelper;
-import pro.gravit.utils.helper.LogHelper;
-import pro.gravit.utils.helper.SecurityHelper;
+import pro.gravit.utils.helper.*;
 
 import java.io.IOException;
 import java.net.URI;
@@ -40,6 +37,7 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -48,6 +46,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.Function;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class LauncherBackendImpl implements LauncherBackendAPI, TextureUploadExtension {
@@ -244,13 +244,16 @@ public class LauncherBackendImpl implements LauncherBackendAPI, TextureUploadExt
         return CompletableFuture.failedFuture(new UnsupportedOperationException());
     }
 
-    @SuppressWarnings({"rawtypes", "unchecked"})
     @Override
     public CompletableFuture<List<Java>> getAvailableJava() {
         if(availableJavas == null) {
             if(availableJavasFuture == null) {
                 availableJavasFuture = CompletableFuture.supplyAsync(() -> {
-                    return (List) JavaHelper.findJava(); // TODO: Custom Java
+                    List<Java> javas = getCustomJava();
+                    if(!Launcher.getConfig().forceUseCustomJava && !javas.isEmpty()) {
+                        javas.addAll(JavaHelper.findJava());
+                    }
+                    return javas;
                 }, executorService).thenApply(e -> {
                     availableJavas = e;
                     return e;
@@ -259,6 +262,54 @@ public class LauncherBackendImpl implements LauncherBackendAPI, TextureUploadExt
             return availableJavasFuture;
         }
         return CompletableFuture.completedFuture(availableJavas);
+    }
+
+    private static final Pattern JAVA_VERSION_PATTERN = Pattern.compile(
+            "Java (?<version>.+) b(?<build>.+) (?<os>.+) (?<arch>.+) javafx (?<javafx>.+)");
+
+    public List<Java> getCustomJava() {
+        List<Java> versions = new ArrayList<>();
+        for (Map.Entry<String, String> entry : Launcher.getConfig().customJavaDownload.entrySet()) {
+            String javaDir = entry.getKey();
+            String javaVersionString = entry.getValue();
+            Matcher matcher = JAVA_VERSION_PATTERN.matcher(javaVersionString);
+            if (matcher.matches()) {
+                String os = matcher.group("os");
+                int version = Integer.parseInt(matcher.group("version"));
+                int build = Integer.parseInt(matcher.group("build"));
+                JVMHelper.ARCH arch = JVMHelper.ARCH.valueOf(matcher.group("arch"));
+                boolean javafx = Boolean.parseBoolean(matcher.group("javafx"));
+                if (!isArchAvailable(arch)) {
+                    continue;
+                }
+                if (!JVMHelper.OS_TYPE.name.equals(os)) {
+                    continue;
+                }
+                Path javaDirectory = DirBridge.dirUpdates.resolve(javaDir);
+                LogHelper.debug("In-Launcher Java Version found: Java %d b%d %s javafx %s", version, build,
+                        arch.name, Boolean.toString(javafx));
+                JavaHelper.JavaVersion javaVersion = new JavaHelper.JavaVersion(javaDirectory, version, build,
+                        arch, javafx);
+                versions.add(javaVersion);
+            } else {
+                LogHelper.warning("Java Version: %s does not match", javaVersionString);
+            }
+        }
+        return versions;
+    }
+
+    public boolean isArchAvailable(JVMHelper.ARCH arch) {
+        if (JVMHelper.ARCH_TYPE == arch) {
+            return true;
+        }
+        if (arch == JVMHelper.ARCH.X86_64 && JVMHelper.OS_TYPE == JVMHelper.OS.MUSTDIE
+                && ((JVMHelper.ARCH_TYPE == JVMHelper.ARCH.X86 && !JVMHelper.isJVMMatchesSystemArch())
+                || JVMHelper.ARCH_TYPE == JVMHelper.ARCH.ARM64)) {
+            return true;
+        }
+        return arch == JVMHelper.ARCH.X86_64
+                && JVMHelper.OS_TYPE == JVMHelper.OS.MACOSX
+                && JVMHelper.ARCH_TYPE == JVMHelper.ARCH.ARM64;
     }
 
     @Override

@@ -124,6 +124,9 @@ public class ProfileSettingsImpl implements LauncherBackendAPI.ClientProfileSett
 
     @Override
     public JavaHelper.JavaVersion getSelectedJava() {
+        if(selectedJava == null) {
+            selectedJava = getRecommendedJava();
+        }
         return selectedJava;
     }
 

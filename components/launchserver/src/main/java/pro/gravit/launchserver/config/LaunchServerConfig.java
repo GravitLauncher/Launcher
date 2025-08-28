@@ -251,6 +251,8 @@ public final class LaunchServerConfig {
         public boolean certificatePinning;
         public boolean encryptRuntime;
         public List<String> customJvmOptions = new ArrayList<>();
+        public Map<String, String> customJavaDownload = new HashMap<>();
+        public boolean forceUseCustomJava;
         public int memoryLimit = 256;
     }
 

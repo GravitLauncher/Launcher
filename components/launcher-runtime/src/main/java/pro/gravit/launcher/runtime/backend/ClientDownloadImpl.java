@@ -43,7 +43,12 @@ public class ClientDownloadImpl {
             return downloadAsset(profile.getAssetDir(), profile.getAssetUpdateMatcher(), profile.getAssetIndex(), callback);
         })).thenCompose(assetDir -> {
             assetRef.set(assetDir);
-            return CompletableFuture.completedFuture((DownloadedDir)null); // TODO Custom Java
+            Path javaPath = settings.getSelectedJava().getPath();
+            if(javaPath.startsWith(DirBridge.dirUpdates)) {
+                String javaDirName = DirBridge.dirUpdates.relativize(javaPath).getFileName().toString();
+                return downloadDir(javaDirName, null, callback);
+            }
+            return CompletableFuture.completedFuture((DownloadedDir)null);
         }).thenCompose(javaDir -> {
             javaRef.set(javaDir);
             return CompletableFuture.completedFuture(null);
