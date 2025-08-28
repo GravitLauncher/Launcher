@@ -250,7 +250,7 @@ public class LauncherBackendImpl implements LauncherBackendAPI, TextureUploadExt
             if(availableJavasFuture == null) {
                 availableJavasFuture = CompletableFuture.supplyAsync(() -> {
                     List<Java> javas = getCustomJava();
-                    if(!Launcher.getConfig().forceUseCustomJava && !javas.isEmpty()) {
+                    if(!Launcher.getConfig().forceUseCustomJava || javas.isEmpty()) {
                         javas.addAll(JavaHelper.findJava());
                     }
                     return javas;
