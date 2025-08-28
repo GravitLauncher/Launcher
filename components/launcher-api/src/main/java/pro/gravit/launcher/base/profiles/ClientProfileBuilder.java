@@ -307,6 +307,126 @@ public class ClientProfileBuilder {
         return this;
     }
 
+    public String getTitle() {
+        return title;
+    }
+
+    public UUID getUuid() {
+        return uuid;
+    }
+
+    public ClientProfile.Version getVersion() {
+        return version;
+    }
+
+    public String getInfo() {
+        return info;
+    }
+
+    public String getDir() {
+        return dir;
+    }
+
+    public int getSortIndex() {
+        return sortIndex;
+    }
+
+    public String getAssetIndex() {
+        return assetIndex;
+    }
+
+    public String getAssetDir() {
+        return assetDir;
+    }
+
+    public List<String> getUpdate() {
+        return update;
+    }
+
+    public List<String> getUpdateExclusions() {
+        return updateExclusions;
+    }
+
+    public List<String> getUpdateVerify() {
+        return updateVerify;
+    }
+
+    public Set<OptionalFile> getUpdateOptional() {
+        return updateOptional;
+    }
+
+    public List<String> getJvmArgs() {
+        return jvmArgs;
+    }
+
+    public List<String> getClassPath() {
+        return classPath;
+    }
+
+    public List<String> getAltClassPath() {
+        return altClassPath;
+    }
+
+    public List<String> getClientArgs() {
+        return clientArgs;
+    }
+
+    public List<String> getCompatClasses() {
+        return compatClasses;
+    }
+
+    public List<String> getLoadNatives() {
+        return loadNatives;
+    }
+
+    public Map<String, String> getProperties() {
+        return properties;
+    }
+
+    public List<ClientProfile.ServerProfile> getServers() {
+        return servers;
+    }
+
+    public ClientProfile.ClassLoaderConfig getClassLoaderConfig() {
+        return classLoaderConfig;
+    }
+
+    public List<ClientProfile.CompatibilityFlags> getFlags() {
+        return flags;
+    }
+
+    public int getRecommendJavaVersion() {
+        return recommendJavaVersion;
+    }
+
+    public int getMinJavaVersion() {
+        return minJavaVersion;
+    }
+
+    public int getMaxJavaVersion() {
+        return maxJavaVersion;
+    }
+
+    public ClientProfile.ProfileDefaultSettings getSettings() {
+        return settings;
+    }
+
+    public boolean isLimited() {
+        return limited;
+    }
+
+    public String getMainClass() {
+        return mainClass;
+    }
+
+    public String getMainModule() {
+        return mainModule;
+    }
+
+    public LaunchOptions.ModuleConf getModuleConf() {
+        return moduleConf;
+    }
+
     public ClientProfile createClientProfile() {
         return new ClientProfile(title, uuid, version, info, dir, sortIndex, assetIndex, assetDir, update, updateExclusions, updateVerify, updateOptional, jvmArgs, classPath, altClassPath, clientArgs, compatClasses, loadNatives, properties, servers, classLoaderConfig, flags, recommendJavaVersion, minJavaVersion, maxJavaVersion, settings, limited, mainClass, mainModule, moduleConf);
     }
