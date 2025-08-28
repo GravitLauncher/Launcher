@@ -438,17 +438,17 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
         public void collect() {
             if (updatesDir == null) updatesDir = getPath(UPDATES_NAME);
             if (trustStore == null) trustStore = getPath(TRUSTSTORE_NAME);
-            if (launcherLibrariesDir == null) launcherLibrariesDir = getPath(LAUNCHERLIBRARIES_NAME);
+            if (launcherLibrariesDir == null) launcherLibrariesDir = getStaticPath(LAUNCHERLIBRARIES_NAME);
             if (launcherLibrariesCompileDir == null)
-                launcherLibrariesCompileDir = getPath(LAUNCHERLIBRARIESCOMPILE_NAME);
+                launcherLibrariesCompileDir = getStaticPath(LAUNCHERLIBRARIESCOMPILE_NAME);
             if (launcherPackDir == null)
                 launcherPackDir = getPath(LAUNCHERPACK_NAME);
             if (keyDirectory == null) keyDirectory = getPath(KEY_NAME);
             if (modules == null) modules = getPath(MODULES);
             if (launcherModules == null) launcherModules = getPath(LAUNCHER_MODULES);
-            if (librariesDir == null) librariesDir = getPath(LIBRARIES);
+            if (librariesDir == null) librariesDir = getStaticPath(LIBRARIES);
             if (controlFile == null) controlFile = getPath(CONTROL_FILE);
-            if (proguardDir == null) proguardDir = getPath(PROGUARD_DIR);
+            if (proguardDir == null) proguardDir = getStaticPath(PROGUARD_DIR);
             if (tmpDir == null)
                 tmpDir = Paths.get(System.getProperty("java.io.tmpdir")).resolve("launchserver-%s".formatted(SecurityHelper.randomStringToken()));
         }
@@ -456,6 +456,19 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
         private Path getPath(String dirName) {
             String property = System.getProperty("launchserver.dir." + dirName, null);
             if (property == null) return dir.resolve(dirName);
+            else return Paths.get(property);
+        }
+
+        private Path getStaticPath(String dirName) {
+            String property = System.getProperty("launchserver.dir." + dirName, null);
+            if (property == null) {
+                String appHome = System.getenv("APP_HOME");
+                if(appHome != null) {
+                    return Path.of(appHome).resolve(dirName);
+                } else {
+                    return dir.resolve(dirName);
+                }
+            }
             else return Paths.get(property);
         }
     }

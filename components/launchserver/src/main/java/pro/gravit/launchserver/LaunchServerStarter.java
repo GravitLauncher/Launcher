@@ -226,15 +226,23 @@ public class LaunchServerStarter {
             logger.error("ProjectName null. Using MineCraft");
             newConfig.projectName = "MineCraft";
         }
-        int port = 9274;
-        if(address.contains(":")) {
-            String portString = address.substring(address.indexOf(':')+1);
+        String portString = System.getenv("LISTEN_PORT");
+        if(portString == null) {
+            portString = System.getProperty("launchserver.listenport", null);
+        }
+        int port;
+        if(portString != null) {
+            port = Integer.parseInt(portString);
+        } else if(address.contains(":")) {
+            portString = address.substring(address.indexOf(':')+1);
             try {
                 port = Integer.parseInt(portString);
             } catch (NumberFormatException e) {
+                port = 9274;
                 logger.warn("Unknown port {}, using 9274", portString);
             }
         } else {
+            port = 9274;
             logger.info("Address {} doesn't contains port (you want to use nginx?)", address);
         }
         newConfig.netty.address = "ws://" + address + "/api";

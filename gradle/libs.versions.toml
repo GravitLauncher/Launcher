@@ -29,6 +29,7 @@ oshi = { module = "com.github.oshi:oshi-core", version.ref = "oshi" }
 # LaunchServer libraries
 log4j-api = { module = "org.apache.logging.log4j:log4j-api", version.ref = "log4j" }
 log4j-core = { module = "org.apache.logging.log4j:log4j-core", version.ref = "log4j" }
+log4j-slf4j-impl = { module = "org.apache.logging.log4j:log4j-slf4j2-impl", version.ref = "log4j" }
 netty-codec-http = { module = "io.netty:netty-codec-http", version.ref = "netty" }
 netty-transport-epoll = { module = "io.netty:netty-transport-native-epoll", version.ref = "netty" }
 netty-transport-io-uring = { module = "io.netty:netty-transport-native-io_uring", version.ref = "netty" }
