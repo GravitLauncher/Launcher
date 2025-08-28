@@ -11,6 +11,8 @@ java {
 }
 
 val fatJar by tasks.registering(ShadowJar::class) {
+    from(sourceSets.main.get().output)
+    configurations = listOf(project.configurations["runtimeClasspath"])
     archiveClassifier.set("all")
     exclude("module-info.class")
     manifest {
