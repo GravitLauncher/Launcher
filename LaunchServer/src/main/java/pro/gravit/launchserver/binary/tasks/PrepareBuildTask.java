@@ -48,14 +48,11 @@ public class PrepareBuildTask implements LauncherBuildTask {
             var map = stream.collect(Collectors.toMap(k -> server.launcherPack.relativize(k).toString().replace("\\", "/"), (v) -> v));
             server.launcherBinary.files.putAll(map);
         }
-        UnpackHelper.unpack(IOHelper.getResourceURL("Launcher.jar"), result);
-        tryUnpack();
+        UnpackHelper.unpack(PrepareBuildTask.class.getResource("/Launcher.jar"), result);
+        if(!Files.exists(server.launcherBinary.runtimeDir)) {
+            Files.createDirectories(server.launcherBinary.runtimeDir);
+        }
         return result;
-    }
-
-    public void tryUnpack() throws IOException {
-        logger.info("Unpacking launcher native guard list and runtime");
-        UnpackHelper.unpackZipNoCheck("runtime.zip", server.launcherBinary.runtimeDir);
     }
 
     private static final class ListFileVisitor extends SimpleFileVisitor<Path> {
