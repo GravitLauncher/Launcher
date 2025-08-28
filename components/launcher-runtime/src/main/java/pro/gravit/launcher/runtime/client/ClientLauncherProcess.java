@@ -186,9 +186,11 @@ public class ClientLauncherProcess {
                     }
                 }
             }
-            systemClassPath.addAll(ClientLauncherEntryPoint.resolveClassPath(ignorePath, workDir, params.actions, params.profile)
-                    .map(Path::toString)
-                    .toList());
+            if(!params.profile.hasFlag(ClientProfile.CompatibilityFlags.HIDE_SYSTEM_ARGS_CLASSPATH)) {
+                systemClassPath.addAll(ClientLauncherEntryPoint.resolveClassPath(ignorePath, workDir, params.actions, params.profile)
+                        .map(Path::toString)
+                        .toList());
+            }
         }
         if (Launcher.getConfig().environment != LauncherConfig.LauncherEnvironment.PROD) {
             processArgs.add(JVMHelper.jvmProperty(LogHelper.DEV_PROPERTY, String.valueOf(LogHelper.isDevEnabled())));

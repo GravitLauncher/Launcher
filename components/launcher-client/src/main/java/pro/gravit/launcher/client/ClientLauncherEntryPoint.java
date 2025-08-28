@@ -190,12 +190,7 @@ public class ClientLauncherEntryPoint {
             ClientService.baseURLs = classLoaderControl.getURLs();
         } else if (classLoaderConfig == ClientProfile.ClassLoaderConfig.SYSTEM_ARGS) {
             launch = new BasicLaunch();
-            if(profile.hasFlag(ClientProfile.CompatibilityFlags.DONT_ADD_YOURSELF_TO_CLASSPATH_PROPERTY)) {
-                List<String> split = new ArrayList<>(List.of(System.getProperty("java.class.path").split(File.pathSeparator)));
-                String pathToLauncher = IOHelper.getCodeSource(ClientLauncherEntryPoint.class).toAbsolutePath().toString();
-                split.removeIf(e -> e.equals(pathToLauncher));
-                System.setProperty("java.class.path", String.join(File.pathSeparator, split));
-            }
+            System.setProperty("java.class.path", classpath.stream().map(Path::toString).collect(Collectors.joining(File.pathSeparator)));
             classLoaderControl = launch.init(classpath, params.nativesDir, options);
             ClientService.baseURLs = classpathURLs.toArray(new URL[0]);
         } else {
