@@ -226,6 +226,22 @@ public class LaunchServerStarter {
             logger.error("ProjectName null. Using MineCraft");
             newConfig.projectName = "MineCraft";
         }
+        boolean usingHttps;
+        if(address.startsWith("ws://")) {
+            address = address.substring("ws://".length());
+            usingHttps = false;
+        } else if(address.startsWith("wss://")) {
+            address = address.substring("wss://".length());
+            usingHttps = true;
+        } else if(address.startsWith("http://")) {
+            address = address.substring("http://".length());
+            usingHttps = false;
+        } else if(address.startsWith("https://")) {
+            address = address.substring("https://".length());
+            usingHttps = true;
+        } else {
+            usingHttps = false;
+        }
         String portString = System.getenv("LISTEN_PORT");
         if(portString == null) {
             portString = System.getProperty("launchserver.listenport", null);
@@ -245,10 +261,10 @@ public class LaunchServerStarter {
             port = 9274;
             logger.info("Address {} doesn't contains port (you want to use nginx?)", address);
         }
-        newConfig.netty.address = "ws://" + address + "/api";
-        newConfig.netty.downloadURL = "http://" + address + "/%dirname%/";
-        newConfig.netty.launcherURL = "http://" + address + "/Launcher.jar";
-        newConfig.netty.launcherEXEURL = "http://" + address + "/Launcher.exe";
+        newConfig.netty.address = (usingHttps ? "wss://" : "ws://") + address + "/api";
+        newConfig.netty.downloadURL = (usingHttps ? "https://" : "http://") + address + "/%dirname%/";
+        newConfig.netty.launcherURL = (usingHttps ? "https://" : "http://") + address + "/Launcher.jar";
+        newConfig.netty.launcherEXEURL = (usingHttps ? "https://" : "http://") + address + "/Launcher.exe";
         newConfig.netty.binds[0].port = port;
 
         // Write LaunchServer config
