@@ -1,0 +1,36 @@
+package pro.gravit.launcher.impl;
+
+import org.junit.jupiter.api.Assertions;
+import pro.gravit.launcher.base.modules.LauncherInitContext;
+import pro.gravit.launcher.base.modules.LauncherModule;
+import pro.gravit.launcher.base.modules.LauncherModuleInfoBuilder;
+import pro.gravit.utils.Version;
+
+public class Depend2Module extends LauncherModule {
+    public Depend2Module() {
+        super(new LauncherModuleInfoBuilder().setName("depend2").createLauncherModuleInfo());
+    }
+
+    @Override
+    public void preInitAction() {
+        modulesManager.loadModule(new InternalModule());
+        modulesManager.loadModule(new ProvidedModule());
+    }
+
+    @Override
+    public void init(LauncherInitContext initContext) {
+        requireModule("depend1", new Version(1, 0, 0));
+        try {
+            requireModule("dependNotFound", new Version(1, 0, 0));
+            Assertions.fail("dependNotFound");
+        } catch (RuntimeException ignored) {
+
+        }
+        try {
+            requireModule("depend1", new Version(10, 0, 0));
+            Assertions.fail("depend1 high version");
+        } catch (RuntimeException ignored) {
+
+        }
+    }
+}
