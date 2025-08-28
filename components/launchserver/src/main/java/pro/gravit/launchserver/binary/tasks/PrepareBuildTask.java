@@ -2,7 +2,9 @@ package pro.gravit.launchserver.binary.tasks;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import pro.gravit.launcher.core.api.features.CoreFeatureAPI;
 import pro.gravit.launchserver.LaunchServer;
+import pro.gravit.launchserver.binary.JARLauncherBinary;
 import pro.gravit.launchserver.binary.PipelineContext;
 import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.UnpackHelper;
@@ -17,11 +19,13 @@ import java.util.stream.Stream;
 public class PrepareBuildTask implements LauncherBuildTask {
     private final LaunchServer server;
     private final Path result;
+    private final JARLauncherBinary launcherBinary;
     private transient final Logger logger = LogManager.getLogger();
 
     public PrepareBuildTask(LaunchServer server) {
         this.server = server;
-        result = server.launcherBinary.buildDir.resolve("Launcher-clean.jar");
+        launcherBinary = ((JARLauncherBinary)server.launcherBinaries.get(CoreFeatureAPI.UpdateVariant.JAR));
+        result = launcherBinary.buildDir.resolve("Launcher-clean.jar");
     }
 
     @Override
@@ -31,12 +35,12 @@ public class PrepareBuildTask implements LauncherBuildTask {
 
     @Override
     public Path process(PipelineContext context) throws IOException {
-        server.launcherBinary.coreLibs.clear();
-        server.launcherBinary.addonLibs.clear();
-        server.launcherBinary.files.clear();
-        IOHelper.walk(server.launcherLibraries, new ListFileVisitor(server.launcherBinary.coreLibs), false);
+        launcherBinary.coreLibs.clear();
+        launcherBinary.addonLibs.clear();
+        launcherBinary.files.clear();
+        IOHelper.walk(server.launcherLibraries, new ListFileVisitor(launcherBinary.coreLibs), false);
         if(Files.isDirectory(server.launcherLibrariesCompile)) {
-            IOHelper.walk(server.launcherLibrariesCompile, new ListFileVisitor(server.launcherBinary.addonLibs), false);
+            IOHelper.walk(server.launcherLibrariesCompile, new ListFileVisitor(launcherBinary.addonLibs), false);
         }
         try(Stream<Path> stream = Files.walk(server.launcherPack, FileVisitOption.FOLLOW_LINKS).filter((e) -> {
             try {
@@ -46,11 +50,11 @@ public class PrepareBuildTask implements LauncherBuildTask {
             }
         })) {
             var map = stream.collect(Collectors.toMap(k -> server.launcherPack.relativize(k).toString().replace("\\", "/"), (v) -> v));
-            server.launcherBinary.files.putAll(map);
+            launcherBinary.files.putAll(map);
         }
         UnpackHelper.unpack(PrepareBuildTask.class.getResource("/Launcher.jar"), result);
-        if(!Files.exists(server.launcherBinary.runtimeDir)) {
-            Files.createDirectories(server.launcherBinary.runtimeDir);
+        if(!Files.exists(launcherBinary.runtimeDir)) {
+            Files.createDirectories(launcherBinary.runtimeDir);
         }
         return result;
     }

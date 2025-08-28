@@ -2,6 +2,7 @@ package pro.gravit.launchserver.command.tools;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import pro.gravit.launcher.core.api.features.CoreFeatureAPI;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.binary.tasks.SignJarTask;
 import pro.gravit.launchserver.command.Command;
@@ -35,7 +36,7 @@ public class SignDirCommand extends Command {
         Path targetDir = Paths.get(args[0]);
         if (!IOHelper.isDir(targetDir))
             throw new IllegalArgumentException("%s not directory".formatted(targetDir));
-        Optional<SignJarTask> task = server.launcherBinary.getTaskByClass(SignJarTask.class);
+        Optional<SignJarTask> task = server.launcherBinaries.get(CoreFeatureAPI.UpdateVariant.JAR).getTaskByClass(SignJarTask.class);
         if (task.isEmpty()) throw new IllegalStateException("SignJarTask not found");
         IOHelper.walk(targetDir, new SignJarVisitor(task.get()), true);
         logger.info("Success signed");

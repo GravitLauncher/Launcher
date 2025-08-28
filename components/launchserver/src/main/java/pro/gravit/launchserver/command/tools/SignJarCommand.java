@@ -2,6 +2,7 @@ package pro.gravit.launchserver.command.tools;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import pro.gravit.launcher.core.api.features.CoreFeatureAPI;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.binary.tasks.SignJarTask;
 import pro.gravit.launchserver.command.Command;
@@ -38,7 +39,7 @@ public class SignJarCommand extends Command {
         else
             tmpSign = server.dir.resolve("build").resolve(target.toFile().getName());
         logger.info("Signing jar {} to {}", target.toString(), tmpSign.toString());
-        Optional<SignJarTask> task = server.launcherBinary.getTaskByClass(SignJarTask.class);
+        Optional<SignJarTask> task = server.launcherBinaries.get(CoreFeatureAPI.UpdateVariant.JAR).getTaskByClass(SignJarTask.class);
         if (task.isEmpty()) throw new IllegalStateException("SignJarTask not found");
         task.get().sign(server.config.sign, target, tmpSign);
         if (args.length == 1) {

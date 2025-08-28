@@ -8,6 +8,11 @@ subprojects {
     publishing {
         repositories {
             mavenLocal()
+            findProperty("maven.upload.repository")?.let {
+                maven {
+                    url = uri(it)
+                }
+            }
         }
         publications {
             var name = project.name

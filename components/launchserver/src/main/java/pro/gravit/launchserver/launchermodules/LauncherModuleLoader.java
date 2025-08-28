@@ -4,8 +4,10 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import pro.gravit.launcher.base.Launcher;
 import pro.gravit.launcher.core.LauncherTrustManager;
+import pro.gravit.launcher.core.api.features.CoreFeatureAPI;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.asm.InjectClassAcceptor;
+import pro.gravit.launchserver.binary.JARLauncherBinary;
 import pro.gravit.launchserver.binary.tasks.MainBuildTask;
 import pro.gravit.utils.helper.IOHelper;
 
@@ -44,7 +46,7 @@ public class LauncherModuleLoader {
                 logger.error(e);
             }
         }
-        MainBuildTask mainTask = server.launcherBinary.getTaskByClass(MainBuildTask.class).get();
+        MainBuildTask mainTask = server.launcherBinaries.get(CoreFeatureAPI.UpdateVariant.JAR).getTaskByClass(MainBuildTask.class).get();
         mainTask.preBuildHook.registerHook((buildContext) -> {
             for (ModuleEntity e : launcherModules) {
                 if (e.propertyMap != null) buildContext.properties.putAll(e.propertyMap);

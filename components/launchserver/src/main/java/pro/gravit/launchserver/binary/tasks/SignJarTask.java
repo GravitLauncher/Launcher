@@ -5,7 +5,9 @@ import org.apache.logging.log4j.Logger;
 import org.bouncycastle.cms.CMSException;
 import org.bouncycastle.cms.CMSSignedDataGenerator;
 import org.bouncycastle.operator.OperatorCreationException;
+import pro.gravit.launcher.core.api.features.CoreFeatureAPI;
 import pro.gravit.launchserver.LaunchServer;
+import pro.gravit.launchserver.binary.JARLauncherBinary;
 import pro.gravit.launchserver.binary.PipelineContext;
 import pro.gravit.launchserver.binary.SignerJar;
 import pro.gravit.launchserver.config.LaunchServerConfig;
@@ -87,7 +89,7 @@ public class SignJarTask implements LauncherBuildTask {
 
     private void autoSign(Path inputFile, Path signedFile) throws IOException {
         try (SignerJar output = new SignerJar(new ZipOutputStream(IOHelper.newOutput(signedFile)), () -> {
-            CertificateAutogenTask task = srv.launcherBinary.getTaskByClass(CertificateAutogenTask.class).get();
+            CertificateAutogenTask task = srv.launcherBinaries.get(CoreFeatureAPI.UpdateVariant.JAR).getTaskByClass(CertificateAutogenTask.class).get();
             return task.signedDataGenerator;
         },
                 "AUTOGEN.SF", "AUTOGEN.EC");

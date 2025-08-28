@@ -1,6 +1,8 @@
 package pro.gravit.launchserver.binary.tasks;
 
+import pro.gravit.launcher.core.api.features.CoreFeatureAPI;
 import pro.gravit.launchserver.LaunchServer;
+import pro.gravit.launchserver.binary.JARLauncherBinary;
 import pro.gravit.launchserver.binary.PipelineContext;
 import pro.gravit.utils.helper.IOHelper;
 
@@ -48,9 +50,9 @@ public class AttachJarsTask implements LauncherBuildTask {
                 IOHelper.transfer(input, output);
                 e = input.getNextEntry();
             }
-            attach(output, inputFile, srv.launcherBinary.coreLibs);
+            attach(output, inputFile, ((JARLauncherBinary)srv.launcherBinaries.get(CoreFeatureAPI.UpdateVariant.JAR)).coreLibs);
             attach(output, inputFile, jars);
-            for(var entry : srv.launcherBinary.files.entrySet()) {
+            for(var entry : ((JARLauncherBinary)srv.launcherBinaries.get(CoreFeatureAPI.UpdateVariant.JAR)).files.entrySet()) {
                 ZipEntry newEntry = IOHelper.newZipEntry(entry.getKey());
                 output.putNextEntry(newEntry);
                 IOHelper.transfer(entry.getValue(), output);

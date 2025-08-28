@@ -2,8 +2,10 @@ package pro.gravit.launchserver.components;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import pro.gravit.launcher.core.api.features.CoreFeatureAPI;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.Reconfigurable;
+import pro.gravit.launchserver.binary.JARLauncherBinary;
 import pro.gravit.launchserver.binary.PipelineContext;
 import pro.gravit.launchserver.binary.tasks.LauncherBuildTask;
 import pro.gravit.utils.command.Command;
@@ -84,14 +86,14 @@ public class ProGuardComponent extends Component implements AutoCloseable, Recon
         proguardConf = new ProguardConf(launchServer, this);
         this.buildTask = new ProGuardBuildTask(launchServer, proguardConf, this);
         this.fixerTask = new ProGuardMultiReleaseFixer(launchServer, this, "ProGuard.".concat(componentName));
-        launchServer.launcherBinary.addAfter((v) -> v.getName().startsWith(modeAfter), buildTask);
-        launchServer.launcherBinary.addAfter((v) -> v.getName().equals("ProGuard.".concat(componentName)), fixerTask);
+        launchServer.launcherBinaries.get(CoreFeatureAPI.UpdateVariant.JAR).addAfter((v) -> v.getName().startsWith(modeAfter), buildTask);
+        launchServer.launcherBinaries.get(CoreFeatureAPI.UpdateVariant.JAR).addAfter((v) -> v.getName().equals("ProGuard.".concat(componentName)), fixerTask);
     }
 
     @Override
     public void close() {
         if (launchServer != null && buildTask != null) {
-            launchServer.launcherBinary.tasks.remove(buildTask);
+            launchServer.launcherBinaries.get(CoreFeatureAPI.UpdateVariant.JAR).tasks.remove(buildTask);
         }
     }
 
@@ -297,11 +299,11 @@ public class ProGuardComponent extends Component implements AutoCloseable, Recon
                     confStrs.add("-libraryjars '%s'".formatted(path.toAbsolutePath()));
                 }
             }
-            srv.launcherBinary.coreLibs.stream()
+            ((JARLauncherBinary)srv.launcherBinaries.get(CoreFeatureAPI.UpdateVariant.JAR)).coreLibs.stream()
                     .map(e -> "-libraryjars '" + e.toAbsolutePath() + "'")
                     .forEach(confStrs::add);
 
-            srv.launcherBinary.addonLibs.stream()
+            ((JARLauncherBinary)srv.launcherBinaries.get(CoreFeatureAPI.UpdateVariant.JAR)).addonLibs.stream()
                     .map(e -> "-libraryjars '" + e.toAbsolutePath() + "'")
                     .forEach(confStrs::add);
             confStrs.add("-classobfuscationdictionary '" + words.toFile().getName() + "'");

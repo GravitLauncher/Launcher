@@ -10,11 +10,13 @@ import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.FieldNode;
 import pro.gravit.launcher.base.Launcher;
 import pro.gravit.launcher.base.LauncherConfig;
+import pro.gravit.launcher.core.api.features.CoreFeatureAPI;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.asm.ClassMetadataReader;
 import pro.gravit.launchserver.asm.InjectClassAcceptor;
 import pro.gravit.launchserver.asm.SafeClassWriter;
 import pro.gravit.launchserver.binary.BuildContext;
+import pro.gravit.launchserver.binary.JARLauncherBinary;
 import pro.gravit.launchserver.binary.PipelineContext;
 import pro.gravit.utils.HookException;
 import pro.gravit.utils.helper.IOHelper;
@@ -51,14 +53,14 @@ public class MainBuildTask implements LauncherBuildTask {
         Path inputJar = pipelineContext.getLastest();
         Path outputJar = pipelineContext.makeTempPath("main", ".jar");
         try (ZipOutputStream output = new ZipOutputStream(IOHelper.newOutput(outputJar))) {
-            BuildContext context = new BuildContext(pipelineContext, output, reader.getCp(), this, server.launcherBinary.runtimeDir);
+            BuildContext context = new BuildContext(pipelineContext, output, reader.getCp(), this, ((JARLauncherBinary)server.launcherBinaries.get(CoreFeatureAPI.UpdateVariant.JAR)).runtimeDir);
             initProps(context);
             preBuildHook.hook(context);
             context.properties.put("launcher.legacymodules", context.legacyClientModules.stream().map(e -> Type.getObjectType(e.replace('.', '/'))).collect(Collectors.toList()));
             context.properties.put("launcher.modules", context.clientModules.stream().map(e -> Type.getObjectType(e.replace('.', '/'))).collect(Collectors.toList()));
             postInitProps(context);
             reader.getCp().add(new JarFile(inputJar.toFile()));
-            for (Path e : server.launcherBinary.coreLibs) {
+            for (Path e : ((JARLauncherBinary)server.launcherBinaries.get(CoreFeatureAPI.UpdateVariant.JAR)).coreLibs) {
                 reader.getCp().add(new JarFile(e.toFile()));
             }
             context.pushJarFile(inputJar, (e) -> blacklist.contains(e.getName()) || e.getName().startsWith("pro/gravit/launcher/runtime/debug/"), (e) -> true);
@@ -94,7 +96,7 @@ public class MainBuildTask implements LauncherBuildTask {
             }
         }).collect(Collectors.toList());
         if (!server.config.sign.enabled) {
-            CertificateAutogenTask task = server.launcherBinary.getTaskByClass(CertificateAutogenTask.class).get();
+            CertificateAutogenTask task = server.launcherBinaries.get(CoreFeatureAPI.UpdateVariant.JAR).getTaskByClass(CertificateAutogenTask.class).get();
             try {
                 certificates.add(task.certificate.getEncoded());
             } catch (CertificateEncodingException e) {
