@@ -19,7 +19,7 @@ public class PipelineContext {
     private final LaunchServer launchServer;
     private final Map<String, Path> artifacts = new HashMap<>();
     private final Map<String, Object> properties = new HashMap<>();
-    private Set<Path> tempFiles = new HashSet<>();
+    private final Set<Path> tempFiles = new HashSet<>();
     private Path lastest;
 
     public PipelineContext(LaunchServer launchServer) {

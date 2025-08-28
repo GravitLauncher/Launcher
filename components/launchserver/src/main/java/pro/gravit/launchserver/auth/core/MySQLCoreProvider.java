@@ -267,7 +267,7 @@ public class MySQLCoreProvider extends AbstractSQLCoreProvider implements AuthSu
     }
 
     public class MySQLUserSession extends SQLUserSession implements UserSessionSupportHardware {
-        private transient MySQLUser mySQLUser;
+        private final transient MySQLUser mySQLUser;
         protected transient MySQLUserHardware hardware;
 
         public MySQLUserSession(SQLUser user) {

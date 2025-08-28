@@ -35,7 +35,6 @@ public class SecurityHelperTests {
         }
         encrypted = s.toByteArray();
         byte[] decrypted;
-        ;
         try(InputStream i = new CipherInputStream(new ByteArrayInputStream(encrypted), SecurityHelper.newAESDecryptCipher(seed))) {
             ByteArrayOutputStream s2 = new ByteArrayOutputStream();
             try(s2) {

@@ -53,7 +53,7 @@ public class WebSocketService {
     private final LaunchServer server;
     private final Gson gson;
     private transient final Logger logger = LogManager.getLogger();
-    private ExecutorService executors;
+    private final ExecutorService executors;
 
     public WebSocketService(ChannelGroup channels, LaunchServer server) {
         this.channels = channels;

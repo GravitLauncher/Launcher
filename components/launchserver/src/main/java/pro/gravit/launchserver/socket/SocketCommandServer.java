@@ -17,10 +17,10 @@ import java.nio.file.Path;
 public class SocketCommandServer implements Runnable {
     private final Logger logger = LogManager.getLogger(SocketCommandServer.class);
     private ServerSocketChannel channel;
-    private Path path;
+    private final Path path;
     private UnixDomainSocketAddress address;
     private ServerSocketChannel serverChannel;
-    private CommandHandler commandHandler;
+    private final CommandHandler commandHandler;
     private transient SocketChannel clientChannel;
 
     public SocketCommandServer(CommandHandler commandHandler, Path path) {

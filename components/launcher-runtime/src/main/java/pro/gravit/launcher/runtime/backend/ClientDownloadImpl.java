@@ -27,7 +27,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 
 public class ClientDownloadImpl {
-    private LauncherBackendImpl backend;
+    private final LauncherBackendImpl backend;
 
     ClientDownloadImpl(LauncherBackendImpl backend) {
         this.backend = backend;

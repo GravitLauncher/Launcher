@@ -88,7 +88,7 @@ public class SQLCoreProvider extends AbstractSQLCoreProvider implements AuthSupp
         hardwareInfo.hwDiskId = set.getString("hwDiskId");
         hardwareInfo.baseboardSerialNumber = set.getString("baseboardSerialNumber");
         byte[] displayId = set.getBytes("displayId");
-        hardwareInfo.displayId = displayId == null ? null : displayId;
+        hardwareInfo.displayId = displayId;
         hardwareInfo.bitness = set.getInt("bitness");
         hardwareInfo.totalMemory = set.getLong("totalMemory");
         hardwareInfo.logicalProcessors = set.getInt("logicalProcessors");
@@ -304,7 +304,7 @@ public class SQLCoreProvider extends AbstractSQLCoreProvider implements AuthSupp
     }
 
     public class SQLUserSession extends AbstractSQLCoreProvider.SQLUserSession implements UserSessionSupportHardware {
-        private transient SQLUser SQLUser;
+        private final transient SQLUser SQLUser;
         protected transient SQLUserHardware hardware;
 
         public SQLUserSession(AbstractSQLCoreProvider.SQLUser user) {

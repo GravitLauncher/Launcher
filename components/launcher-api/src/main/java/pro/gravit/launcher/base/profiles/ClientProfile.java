@@ -20,51 +20,51 @@ public final class ClientProfile implements Comparable<ClientProfile>, ProfileFe
     private static final FileNameMatcher ASSET_MATCHER = new FileNameMatcher(
             new String[0], new String[]{"indexes", "objects"}, new String[0]);
     @LauncherNetworkAPI
-    private String title;
+    private final String title;
     @LauncherNetworkAPI
-    private UUID uuid;
+    private final UUID uuid;
     @LauncherNetworkAPI
-    private Version version;
+    private final Version version;
     @LauncherNetworkAPI
-    private String info;
+    private final String info;
     @LauncherNetworkAPI
-    private String dir;
+    private final String dir;
     @LauncherNetworkAPI
-    private int sortIndex;
+    private final int sortIndex;
     @LauncherNetworkAPI
-    private String assetIndex;
+    private final String assetIndex;
     @LauncherNetworkAPI
-    private String assetDir;
+    private final String assetDir;
     //  Updater and client watch service
     @LauncherNetworkAPI
-    private List<String> update;
+    private final List<String> update;
     @LauncherNetworkAPI
-    private List<String> updateExclusions;
+    private final List<String> updateExclusions;
     @LauncherNetworkAPI
-    private List<String> updateVerify;
+    private final List<String> updateVerify;
     @LauncherNetworkAPI
-    private Set<OptionalFile> updateOptional;
+    private final Set<OptionalFile> updateOptional;
     @LauncherNetworkAPI
-    private List<String> jvmArgs;
+    private final List<String> jvmArgs;
     @LauncherNetworkAPI
-    private List<String> classPath;
+    private final List<String> classPath;
     @LauncherNetworkAPI
-    private List<String> altClassPath;
+    private final List<String> altClassPath;
     @LauncherNetworkAPI
-    private List<String> clientArgs;
+    private final List<String> clientArgs;
     @LauncherNetworkAPI
-    private List<String> compatClasses;
+    private final List<String> compatClasses;
     @LauncherNetworkAPI
-    private List<String> loadNatives;
+    private final List<String> loadNatives;
     @LauncherNetworkAPI
-    private Map<String, String> properties;
+    private final Map<String, String> properties;
     @LauncherNetworkAPI
-    private List<ServerProfile> servers;
+    private final List<ServerProfile> servers;
     @LauncherNetworkAPI
-    private ClassLoaderConfig classLoaderConfig;
+    private final ClassLoaderConfig classLoaderConfig;
 
     @LauncherNetworkAPI
-    private List<CompatibilityFlags> flags;
+    private final List<CompatibilityFlags> flags;
     @LauncherNetworkAPI
     private int recommendJavaVersion = 8;
     @LauncherNetworkAPI
@@ -74,14 +74,14 @@ public final class ClientProfile implements Comparable<ClientProfile>, ProfileFe
     @LauncherNetworkAPI
     private ProfileDefaultSettings settings = new ProfileDefaultSettings();
     @LauncherNetworkAPI
-    private boolean limited;
+    private final boolean limited;
     // Client launcher
     @LauncherNetworkAPI
-    private String mainClass;
+    private final String mainClass;
     @LauncherNetworkAPI
-    private String mainModule;
+    private final String mainModule;
     @LauncherNetworkAPI
-    private LaunchOptions.ModuleConf moduleConf;
+    private final LaunchOptions.ModuleConf moduleConf;
 
     public ClientProfile(String title, UUID uuid, Version version, String info, String dir, int sortIndex, String assetIndex, String assetDir, List<String> update, List<String> updateExclusions, List<String> updateVerify, Set<OptionalFile> updateOptional, List<String> jvmArgs, List<String> classPath, List<String> altClassPath, List<String> clientArgs, List<String> compatClasses, List<String> loadNatives, Map<String, String> properties, List<ServerProfile> servers, ClassLoaderConfig classLoaderConfig, List<CompatibilityFlags> flags, int recommendJavaVersion, int minJavaVersion, int maxJavaVersion, ProfileDefaultSettings settings, boolean limited, String mainClass, String mainModule, LaunchOptions.ModuleConf moduleConf) {
         this.title = title;

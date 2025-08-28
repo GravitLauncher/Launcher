@@ -71,15 +71,15 @@ public class RequestFeatureAPIImpl implements AuthFeatureAPI, UserFeatureAPI, Pr
 
     private AuthRequest.AuthPasswordInterface convertAuthPasswordAll(AuthMethodPassword password) {
         AuthRequest.AuthPasswordInterface requestPassword;
-        if(password instanceof AuthChainPassword chain) {
-            if(chain.list().size() == 1) {
-                requestPassword = convertAuthPassword(chain.list().get(0));
-            } else if(chain.list().size() == 2) {
-                requestPassword = new Auth2FAPassword(convertAuthPassword(chain.list().get(0)),
-                        convertAuthPassword(chain.list().get(1)));
+        if(password instanceof AuthChainPassword(List<AuthMethodPassword> list)) {
+            if(list.size() == 1) {
+                requestPassword = convertAuthPassword(list.get(0));
+            } else if(list.size() == 2) {
+                requestPassword = new Auth2FAPassword(convertAuthPassword(list.get(0)),
+                        convertAuthPassword(list.get(1)));
             } else {
                 var multi = new AuthMultiPassword();
-                for(var e : chain.list()) {
+                for(var e : list) {
                     multi.list.add(convertAuthPassword(e));
                 }
                 requestPassword = multi;
@@ -91,21 +91,21 @@ public class RequestFeatureAPIImpl implements AuthFeatureAPI, UserFeatureAPI, Pr
     }
 
     private AuthRequest.AuthPasswordInterface convertAuthPassword(AuthMethodPassword password) {
-        if(password instanceof AuthPlainPassword plain) {
+        if(password instanceof AuthPlainPassword(String value)) {
             String encryptKey = Launcher.getConfig().passwordEncryptKey;
             if(encryptKey != null) {
                 try {
-                    return new AuthAESPassword(SecurityHelper.encrypt(encryptKey, plain.value()));
+                    return new AuthAESPassword(SecurityHelper.encrypt(encryptKey, value));
                 } catch (Exception e) {
                     throw new RuntimeException(e);
                 }
             } else {
-                return new pro.gravit.launcher.base.request.auth.password.AuthPlainPassword(plain.value());
+                return new pro.gravit.launcher.base.request.auth.password.AuthPlainPassword(value);
             }
-        } else if(password instanceof AuthTotpPassword totp) {
-            return new AuthTOTPPassword(totp.value());
-        } else if(password instanceof AuthOAuthPassword oauth) {
-            return new AuthCodePassword(oauth.redirectUrl());
+        } else if(password instanceof AuthTotpPassword(String value)) {
+            return new AuthTOTPPassword(value);
+        } else if(password instanceof AuthOAuthPassword(String redirectUrl)) {
+            return new AuthCodePassword(redirectUrl);
         } else if(password instanceof AuthRequest.AuthPasswordInterface custom) {
             return custom;
         } else if(password == null) {

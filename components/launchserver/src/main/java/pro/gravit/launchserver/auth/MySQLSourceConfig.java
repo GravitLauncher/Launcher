@@ -35,7 +35,7 @@ public final class MySQLSourceConfig implements AutoCloseable, SQLSourceConfig {
     private String password;
     private String database;
     private String timezone;
-    private long hikariMaxLifetime = MINUTES.toMillis(30);
+    private final long hikariMaxLifetime = MINUTES.toMillis(30);
     private boolean useHikari;
 
     // Cache

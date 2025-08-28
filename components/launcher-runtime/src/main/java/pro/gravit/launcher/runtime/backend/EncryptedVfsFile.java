@@ -18,7 +18,7 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 
 public class EncryptedVfsFile extends VfsFile {
-    private VfsFile parent;
+    private final VfsFile parent;
     private final String alg;
     private final SecretKeySpec sKeySpec;
     private final IvParameterSpec iKeySpec;

@@ -19,12 +19,12 @@ import java.net.InetSocketAddress;
 import java.util.ArrayList;
 
 public class ReadyProfileImpl implements LauncherBackendAPI.ReadyProfile {
-    private LauncherBackendImpl backend;
+    private final LauncherBackendImpl backend;
     private ClientProfile profile;
-    private ProfileSettingsImpl settings;
-    private ClientDownloadImpl.DownloadedDir clientDir;
-    private ClientDownloadImpl.DownloadedDir assetDir;
-    private ClientDownloadImpl.DownloadedDir javaDir;
+    private final ProfileSettingsImpl settings;
+    private final ClientDownloadImpl.DownloadedDir clientDir;
+    private final ClientDownloadImpl.DownloadedDir assetDir;
+    private final ClientDownloadImpl.DownloadedDir javaDir;
     private volatile Thread writeParamsThread;
     private volatile Thread runThread;
     private volatile ClientLauncherProcess process;

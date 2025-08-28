@@ -7,7 +7,7 @@ public final class StarterAgent {
 
     public static Instrumentation inst = null;
     public static Path libraries = null;
-    private static boolean isStarted = false;
+    private static final boolean isStarted = false;
 
     public static boolean isAgentStarted() {
         return isStarted;

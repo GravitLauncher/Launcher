@@ -193,7 +193,7 @@ public class ModuleLaunch implements Launch {
 
     private class CustomModuleFinder implements ModuleFinder {
         private final ModuleFinder delegate;
-        private AtomicReference<ModuleClassLoader> cl;
+        private final AtomicReference<ModuleClassLoader> cl;
 
         public CustomModuleFinder(ModuleFinder delegate, AtomicReference<ModuleClassLoader> cl) {
             this.delegate = delegate;

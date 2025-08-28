@@ -8,12 +8,12 @@ group = "com.gravitlauncher.launcher"
 version = "5.7.0-SNAPSHOT"
 
 
-val myVersion = version;
+val myVersion = version
 subprojects {
     apply(plugin = "java")
     apply(plugin = "java-library")
 
-    project.version = myVersion;
+    project.version = myVersion
 
     java {
         withSourcesJar()

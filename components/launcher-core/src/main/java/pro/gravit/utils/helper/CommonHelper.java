@@ -273,7 +273,7 @@ public final class CommonHelper {
     }
 
     private enum PrevArgType {
-        NONE, MODULE_PATH, ADD_MODULES, ADD_OPENS, ADD_EXPORTS, ADD_READS, CLASSPATH, POST_CLASSPATH, JAR, MAINCLASS, MODULE;
+        NONE, MODULE_PATH, ADD_MODULES, ADD_OPENS, ADD_EXPORTS, ADD_READS, CLASSPATH, POST_CLASSPATH, JAR, MAINCLASS, MODULE
     }
 
     private static class ByteArrayToBase64TypeAdapter implements JsonSerializer<byte[]>, JsonDeserializer<byte[]> {

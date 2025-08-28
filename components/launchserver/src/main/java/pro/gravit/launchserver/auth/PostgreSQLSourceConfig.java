@@ -30,7 +30,7 @@ public final class PostgreSQLSourceConfig implements AutoCloseable, SQLSourceCon
     private String password;
     private String database;
 
-    private long hikariMaxLifetime = MINUTES.toMillis(30); // 30 minutes
+    private final long hikariMaxLifetime = MINUTES.toMillis(30); // 30 minutes
 
     // Cache
     private transient DataSource source;

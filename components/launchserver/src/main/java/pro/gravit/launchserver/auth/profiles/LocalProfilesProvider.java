@@ -376,7 +376,7 @@ public class LocalProfilesProvider extends ProfilesProvider implements Reconfigu
         private volatile ClientProfile profile;
         private volatile HashedDir clientDir;
         private volatile HashedDir assetDir;
-        private Path configPath;
+        private final Path configPath;
 
         public LocalProfile(ClientProfile profile, HashedDir clientDir, HashedDir assetDir) {
             this.profile = profile;
