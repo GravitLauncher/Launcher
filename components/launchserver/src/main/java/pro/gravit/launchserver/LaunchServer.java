@@ -86,11 +86,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
     /**
      * Pipeline for building JAR
      */
-    public final JARLauncherBinary launcherBinary;
-    /**
-     * Pipeline for building EXE
-     */
-    public final LauncherBinary launcherEXEBinary;
+    public final Map<UpdatesProvider.UpdateVariant, LauncherBinary> launcherBinaries;
     // Server config
     public final AuthHookManager authHookManager;
     public final LaunchServerModulesManager modulesManager;
@@ -165,11 +161,8 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
         modulesManager.invokeEvent(new LaunchServerInitPhase(this));
 
         // Set launcher EXE binary
-        launcherBinary = new JARLauncherBinary(this);
-        launcherEXEBinary = binary();
-
-        launcherBinary.init();
-        launcherEXEBinary.init();
+        launcherBinaries = new HashMap<>();
+        collectBinary();
         launcherModuleLoader = new LauncherModuleLoader(this);
         if (config.components != null) {
             logger.debug("Init components");
@@ -307,30 +300,34 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
         return path;
     }
 
-    private LauncherBinary binary() {
-        LaunchServerLauncherExeInit event = new LaunchServerLauncherExeInit(this, null);
+    private void collectBinary() throws IOException {
+        launcherBinaries.clear();
+        launcherBinaries.put(UpdatesProvider.UpdateVariant.JAR, new JARLauncherBinary(this));
+        LaunchServerLauncherBinaryInit event = new LaunchServerLauncherBinaryInit(this, launcherBinaries);
         modulesManager.invokeEvent(event);
-        if(event.binary != null) {
-            return event.binary;
+        for(var e : launcherBinaries.values()) {
+            e.init();
         }
-        return new EXELauncherBinary(this);
     }
 
     public void buildLauncherBinaries() throws IOException {
-        PipelineContext launcherContext = launcherBinary.build();
-        PipelineContext exeContext = launcherEXEBinary.build();
-        UpdatesProvider.UpdateUploadInfo jarInfo = launcherContext.makeUploadInfo(UpdatesProvider.UpdateVariant.JAR);
-        UpdatesProvider.UpdateUploadInfo exeInfo = exeContext.makeUploadInfo(UpdatesProvider.UpdateVariant.EXE);
-        List<UpdatesProvider.UpdateUploadInfo> list = new ArrayList<>(2);
-        if(jarInfo != null) {
-            list.add(jarInfo);
+        List<PipelineContext> contexts = new ArrayList<>(2);
+        try {
+            List<UpdatesProvider.UpdateUploadInfo> list = new ArrayList<>(2);
+            for(var e : launcherBinaries.entrySet()) {
+                var variant = e.getKey();
+                var binary = e.getValue();
+                var context = binary.build();
+                var info = context.makeUploadInfo(variant);
+                list.add(info);
+                contexts.add(context);
+            }
+            config.updatesProvider.pushUpdate(list);
+        } finally {
+            for(var e : contexts) {
+                e.clear();
+            }
         }
-        if(exeInfo != null) {
-            list.add(exeInfo);
-        }
-        config.updatesProvider.pushUpdate(list);
-        launcherContext.clear();
-        exeContext.clear();
     }
 
     public void close() throws Exception {
