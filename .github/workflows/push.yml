@@ -33,18 +33,10 @@ jobs:
 
       - name: Create artifacts
         run: |
-          mkdir -p artifacts/modules
-          cd LaunchServer/build/libs
-          zip -r -9 ../../../artifacts/libraries.zip * -x "LaunchServer.jar" -x "LaunchServer-clean.jar"
-          cp LaunchServer.jar ../../../artifacts/LaunchServer.jar
-          cd ../../..
-          cp ServerWrapper/build/libs/ServerWrapper.jar artifacts/ServerWrapper.jar
-          cp ServerWrapper/build/libs/ServerWrapper-inline.jar artifacts/ServerWrapperInline.jar
-          cp LauncherAuthlib/build/libs/LauncherAuthlib.jar artifacts/LauncherAuthlib.jar || true
-          cp modules/*_module/build/libs/*.jar artifacts/modules || true
-          cp modules/*_lmodule/build/libs/*.jar artifacts/modules || true
-          cp javaargs.txt artifacts/javaargs.txt || true
-          cp java24args.txt artifacts/java24args.txt || true
+          mkdir -p artifacts
+          cp LaunchServer/build/distributions/LaunchServer.zip artifacts
+          cp ServerWrapper/build/libs/ServerWrapper.jar artifacts
+          cp ServerWrapper/build/libs/ServerWrapper-inline.jar artifacts
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
@@ -60,11 +52,6 @@ jobs:
         if: startsWith(github.event.ref, 'refs/tags')
         run: |
           cd artifacts
-          zip -r -9 Release.zip *
-          zip -j -9 LaunchServerModules.zip ../modules/*_module/build/libs/*.jar
-          zip -j -9 LauncherModules.zip ../modules/*_lmodule/build/libs/*.jar
-          cd ../LaunchServer/build/libs
-          zip -r -9 ../../../artifacts/LauncherBase.zip * -x "LaunchServer-clean.jar"
 
       - name: Create release
         id: create_release
