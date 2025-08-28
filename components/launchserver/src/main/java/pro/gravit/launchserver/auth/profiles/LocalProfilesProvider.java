@@ -44,6 +44,7 @@ public class LocalProfilesProvider extends ProfilesProvider implements Reconfigu
                     .setTitle(name)
                     .setInfo(description)
                     .setDir(name)
+                    .setUuid(UUID.randomUUID())
                     .createClientProfile();
             profile = new LocalProfile(newClientProfile, ref.clientDir, ref.assetDir);
             Path updatesDirPath = Path.of(updatesDir);
@@ -105,6 +106,11 @@ public class LocalProfilesProvider extends ProfilesProvider implements Reconfigu
     public CompletedProfile pushUpdate(UncompletedProfile profile, String tag, ClientProfile clientProfile, List<ProfileAction> assetActions, List<ProfileAction> clientActions, List<UpdateFlag> flags) throws IOException {
         Path updatesDirPath = Path.of(updatesDir);
         LocalProfile localProfile = (LocalProfile) profile;
+        if(localProfile.profile != null && localProfile.getUuid() != null) {
+            clientProfile = new ClientProfileBuilder(clientProfile)
+                    .setUuid(localProfile.getUuid())
+                    .createClientProfile();
+        }
         localProfile = new LocalProfile(clientProfile, localProfile.clientDir, localProfile.assetDir);
         localProfile.profile = clientProfile;
         if(flags.contains(UpdateFlag.USE_DEFAULT_ASSETS)) {
@@ -132,7 +138,7 @@ public class LocalProfilesProvider extends ProfilesProvider implements Reconfigu
         return localProfile;
     }
 
-    private void pushProfileAndSave(LocalProfile localProfile) {
+    private void  pushProfileAndSave(LocalProfile localProfile) {
         profilesMap.put(localProfile.getUuid(), localProfile);
         try(Writer writer = IOHelper.newWriter(localProfile.getConfigPath())) {
             Launcher.gsonManager.configGson.toJson(localProfile.profile, writer);
