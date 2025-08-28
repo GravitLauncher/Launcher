@@ -11,6 +11,7 @@ bouncycastle = "1.81"
 jjwt = "0.13.0"
 progressbar = "0.10.1"
 asm = "9.8"
+proguard = "7.7.0"
 # Database libraries
 hikari = "3.3.0"
 postgresql = "42.7.7"
@@ -38,6 +39,8 @@ jjwt-gson = { module = "io.jsonwebtoken:jjwt-gson", version.ref = "jjwt" }
 progressbar = { module = "me.tongfei:progressbar", version.ref = "progressbar" }
 asm = { module = "org.ow2.asm:asm", version.ref = "asm" }
 asm-tree = { module = "org.ow2.asm:asm-tree", version.ref = "asm" }
+proguard = { module = "com.guardsquare:proguard-base", version.ref = "proguard" }
+# Database libraries
 db-hikari = { module = "hikari-cp:hikari-cp", version.ref = "hikari" }
 db-postgresql = { module = "org.postgresql:postgresql", version.ref = "postgresql" }
 db-mysql = { module = "com.mysql:mysql-connector-j", version.ref = "mysql" }

@@ -21,6 +21,10 @@ val launcherInside by configurations.creating {
     isCanBeConsumed = false; isCanBeResolved = true
 }
 
+val proguardLibrary by configurations.creating {
+    isCanBeConsumed = false; isCanBeResolved = true
+}
+
 dependencies {
     api(libs.log4j.api)
     api(libs.netty.codec.http)
@@ -44,6 +48,7 @@ dependencies {
     api(project(":LauncherAPI"))
     annotationProcessor(libs.log4j.core)
     launcherInside(project(mapOf("path" to ":Launcher", "configuration" to "shadow")))
+    proguardLibrary(libs.proguard)
 }
 
 tasks.jar {
@@ -62,6 +67,11 @@ tasks.jar {
     }
 }
 
+val copyProguardLibs by tasks.registering(Copy::class) {
+    from(proguardLibrary.resolve())
+    into(layout.buildDirectory.dir("proguard-libraries"))
+}
+
 application {
     mainClass = "pro.gravit.launchserver.LaunchServerStarter"
     mainModule = "launchserver"
@@ -76,4 +86,16 @@ application {
         "-Dlauncher.useSlf4j=true",
         "-Dio.netty.noUnsafe=true"
     )
+
+    applicationDistribution.from(project(":Launcher").tasks["copyLauncherLibs"].outputs) {
+        into("launcher-libraries")
+    }
+
+    applicationDistribution.from(tasks["copyProguardLibs"].outputs) {
+        into("proguard-libraries")
+    }
+}
+
+tasks.assemble {
+    dependsOn(copyProguardLibs)
 }
