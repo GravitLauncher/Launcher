@@ -1,10 +1,11 @@
 plugins {
     id("com.gradleup.shadow") version "9.0.2" apply false
     id("java")
+    id("maven-publish")
 }
 
 group = "com.gravitlauncher.launcher"
-version = "1.0-SNAPSHOT"
+version = "5.7.0-SNAPSHOT"
 
 
 
@@ -23,6 +24,12 @@ subprojects {
 
     tasks.test {
         useJUnitPlatform()
+    }
+
+    tasks.javadoc {
+        options {
+            (this as CoreJavadocOptions).addBooleanOption("Xdoclint:none", true)
+        }
     }
 }
 
