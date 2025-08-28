@@ -1,3 +1,4 @@
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar.Companion.shadowJar
 import java.util.jar.JarFile
 
 plugins {
@@ -73,6 +74,7 @@ val copyProguardLibs by tasks.registering(Copy::class) {
 }
 
 application {
+
     mainClass = "pro.gravit.launchserver.LaunchServerStarter"
     mainModule = "launchserver"
 
@@ -94,6 +96,21 @@ application {
     applicationDistribution.from(tasks["copyProguardLibs"].outputs) {
         into("proguard-libraries")
     }
+
+    /*applicationDistribution.from(project(":ServerWrapper").tasks["fatJar"].outputs) {
+        into("ServerWrapper.jar")
+    }
+
+    applicationDistribution.from(project(":ServerWrapper").tasks["inlineJar"].outputs) {
+        into("ServerWrapperInline.jar")
+    }*/
+}
+
+tasks.distZip {
+    dependsOn(project(":ServerWrapper").tasks["fatJar"],
+        project(":ServerWrapper").tasks["inlineJar"],
+        project(":Launcher").tasks["copyLauncherLibs"],
+        copyProguardLibs)
 }
 
 tasks.assemble {

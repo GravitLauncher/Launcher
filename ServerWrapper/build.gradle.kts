@@ -10,7 +10,7 @@ java {
     }
 }
 
-tasks.shadowJar {
+val fatJar by tasks.registering(ShadowJar::class) {
     archiveClassifier.set("all")
     exclude("module-info.class")
     manifest {
@@ -25,7 +25,7 @@ tasks.shadowJar {
     }
 }
 
-val taskInlineJar = tasks.register<ShadowJar>("inlineJar") {
+val inlineJar by tasks.registering(ShadowJar::class) {
     from(sourceSets.main.get().output)
     configurations = listOf(project.configurations["runtimeClasspath"])
     archiveClassifier.set("inline")
@@ -49,5 +49,5 @@ dependencies {
 }
 
 tasks.assemble {
-    dependsOn(tasks.shadowJar, taskInlineJar)
+    dependsOn(fatJar, inlineJar)
 }
