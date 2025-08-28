@@ -27,7 +27,7 @@ public class EncryptedVfsFile extends VfsFile {
         this.parent = parent;
         this.alg = "AES/CBC/PKCS5Padding";
         try {
-            byte[] compat = SecurityHelper.getAESKey(Launcher.getConfig().runtimeEncryptKey.getBytes(StandardCharsets.UTF_8));
+            byte[] compat = SecurityHelper.getAESKey(SecurityHelper.fromHex(Launcher.getConfig().runtimeEncryptKey));
             sKeySpec = new SecretKeySpec(compat, "AES");
             iKeySpec = new IvParameterSpec("8u3d90ikr7o67lsq".getBytes());
         } catch (Exception e) {
