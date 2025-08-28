@@ -74,6 +74,8 @@ val copyProguardLibs by tasks.registering(Copy::class) {
 }
 
 application {
+    evaluationDependsOn(":modules")
+    evaluationDependsOn(":ServerWrapper")
 
     mainClass = "pro.gravit.launchserver.LaunchServerStarter"
     mainModule = "launchserver"
@@ -89,27 +91,35 @@ application {
         "-Dio.netty.noUnsafe=true"
     )
 
-    applicationDistribution.from(project(":Launcher").tasks["copyLauncherLibs"].outputs) {
+    applicationDistribution.from(project(":Launcher").tasks.named("copyLauncherLibs").map { it.outputs.files }) {
         into("launcher-libraries")
     }
 
-    applicationDistribution.from(tasks["copyProguardLibs"].outputs) {
+    applicationDistribution.from(tasks.named("copyProguardLibs").map { it.outputs.files }) {
         into("proguard-libraries")
     }
 
-    /*applicationDistribution.from(project(":ServerWrapper").tasks["fatJar"].outputs) {
-        into("ServerWrapper.jar")
+    applicationDistribution.from(project(":modules").tasks.named("copyModules").map { it.outputs.files }) {
+        into("all-modules")
     }
 
-    applicationDistribution.from(project(":ServerWrapper").tasks["inlineJar"].outputs) {
-        into("ServerWrapperInline.jar")
-    }*/
+    applicationDistribution.from(project(":ServerWrapper").tasks.named("fatJar").map { it.outputs.files }) {
+        rename {"ServerWrapper.jar" }
+    }
+
+    applicationDistribution.from(project(":ServerWrapper").tasks.named("inlineJar").map { it.outputs.files }) {
+        rename { "ServerWrapperInline.jar" }
+    }
 }
 
 tasks.distZip {
+    from(tasks.installDist.map { it.destinationDir }) {
+        into("") // root of zip
+    }
     dependsOn(project(":ServerWrapper").tasks["fatJar"],
         project(":ServerWrapper").tasks["inlineJar"],
         project(":Launcher").tasks["copyLauncherLibs"],
+        project(":modules").tasks["copyModules"],
         copyProguardLibs)
 }
 
