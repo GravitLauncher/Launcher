@@ -8,13 +8,19 @@ group = "com.gravitlauncher.launcher"
 version = "5.7.0-SNAPSHOT"
 
 
-
+val myVersion = version;
 subprojects {
     apply(plugin = "java")
     apply(plugin = "java-library")
+
+    project.version = myVersion;
+
     java {
         withSourcesJar()
         withJavadocJar()
+    }
+    repositories {
+        mavenCentral()
     }
     dependencies {
         testRuntimeOnly("org.junit.platform:junit-platform-launcher")

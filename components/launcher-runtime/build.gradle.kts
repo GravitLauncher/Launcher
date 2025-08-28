@@ -31,8 +31,8 @@ tasks.shadowJar {
 }
 
 dependencies {
-    api(project(":LauncherClient"))
-    api(project(":LauncherStart"))
+    api(project(":components:launcher-client"))
+    api(project(":components:launcher-start"))
     optional(libs.oshi)
 }
 

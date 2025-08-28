@@ -9,5 +9,5 @@ repositories {
 }
 
 dependencies {
-    api(project(":LauncherCore"))
+    api(project(":components:launcher-api"))
 }

@@ -46,9 +46,9 @@ dependencies {
     implementation(libs.db.h2)
     implementation(libs.jline.terminal)
     implementation(libs.jline.reader)
-    api(project(":LauncherAPI"))
+    api(project(":components:launcher-api"))
     annotationProcessor(libs.log4j.core)
-    launcherInside(project(mapOf("path" to ":Launcher", "configuration" to "shadow")))
+    launcherInside(project(mapOf("path" to ":components:launcher-runtime", "configuration" to "shadow")))
     proguardLibrary(libs.proguard)
 }
 
@@ -75,7 +75,7 @@ val copyProguardLibs by tasks.registering(Copy::class) {
 
 application {
     evaluationDependsOn(":modules")
-    evaluationDependsOn(":ServerWrapper")
+    evaluationDependsOn(":components:serverwrapper")
 
     mainClass = "pro.gravit.launchserver.LaunchServerStarter"
     mainModule = "launchserver"
@@ -91,7 +91,7 @@ application {
         "-Dio.netty.noUnsafe=true"
     )
 
-    applicationDistribution.from(project(":Launcher").tasks.named("copyLauncherLibs").map { it.outputs.files }) {
+    applicationDistribution.from(project(":components:launcher-runtime").tasks.named("copyLauncherLibs").map { it.outputs.files }) {
         into("launcher-libraries")
     }
 
@@ -103,11 +103,11 @@ application {
         into("all-modules")
     }
 
-    applicationDistribution.from(project(":ServerWrapper").tasks.named("fatJar").map { it.outputs.files }) {
+    applicationDistribution.from(project(":components:serverwrapper").tasks.named("fatJar").map { it.outputs.files }) {
         rename {"ServerWrapper.jar" }
     }
 
-    applicationDistribution.from(project(":ServerWrapper").tasks.named("inlineJar").map { it.outputs.files }) {
+    applicationDistribution.from(project(":components:serverwrapper").tasks.named("inlineJar").map { it.outputs.files }) {
         rename { "ServerWrapperInline.jar" }
     }
 }
@@ -116,9 +116,9 @@ tasks.distZip {
     from(tasks.installDist.map { it.destinationDir }) {
         into("") // root of zip
     }
-    dependsOn(project(":ServerWrapper").tasks["fatJar"],
-        project(":ServerWrapper").tasks["inlineJar"],
-        project(":Launcher").tasks["copyLauncherLibs"],
+    dependsOn(project(":components:serverwrapper").tasks["fatJar"],
+        project(":components:serverwrapper").tasks["inlineJar"],
+        project(":components:launcher-runtime").tasks["copyLauncherLibs"],
         project(":modules").tasks["copyModules"],
         copyProguardLibs)
 }
