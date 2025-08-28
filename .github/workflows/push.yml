@@ -34,7 +34,7 @@ jobs:
       - name: Create artifacts
         run: |
           mkdir -p artifacts
-          cp components/launchserver/build/distributions/launchserver.zip artifacts
+          cp components/launchserver/build/distributions/launchserver*.zip artifacts
           cp components/serverwrapper/build/libs/serverwrapper.jar artifacts/ServerWrapper.jar
           cp components/serverwrapper/build/libs/serverwrapper-inline.jar artifacts/ServerWrapperInline.jar
 
