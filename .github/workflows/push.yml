@@ -34,9 +34,9 @@ jobs:
       - name: Create artifacts
         run: |
           mkdir -p artifacts
-          cp LaunchServer/build/distributions/LaunchServer.zip artifacts
-          cp ServerWrapper/build/libs/ServerWrapper.jar artifacts
-          cp ServerWrapper/build/libs/ServerWrapper-inline.jar artifacts
+          cp components/launchserver/build/distributions/launchserver.zip artifacts
+          cp components/serverwrapper/build/libs/serverwrapper.jar artifacts/ServerWrapper.jar
+          cp components/serverwrapper/build/libs/serverwrapper-inline.jar artifacts/ServerWrapperInline.jar
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
