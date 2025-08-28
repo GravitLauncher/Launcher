@@ -126,3 +126,7 @@ tasks.distZip {
 tasks.assemble {
     dependsOn(copyProguardLibs)
 }
+
+tasks.build {
+    dependsOn(tasks.distZip)
+}
