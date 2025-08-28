@@ -2,6 +2,7 @@ package pro.gravit.launchserver.binary;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import pro.gravit.launcher.core.api.features.CoreFeatureAPI;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.auth.updates.UpdatesProvider;
 import pro.gravit.utils.helper.SecurityHelper;
@@ -63,7 +64,7 @@ public class PipelineContext {
         return (T) properties.get(name);
     }
 
-    public UpdatesProvider.UpdateUploadInfo makeUploadInfo(UpdatesProvider.UpdateVariant variant) {
+    public UpdatesProvider.UpdateUploadInfo makeUploadInfo(CoreFeatureAPI.UpdateVariant variant) {
         if(getLastest() == null) {
             return null;
         }

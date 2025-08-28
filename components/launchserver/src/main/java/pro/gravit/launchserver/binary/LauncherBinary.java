@@ -1,15 +1,11 @@
 package pro.gravit.launchserver.binary;
 
+import pro.gravit.launcher.core.api.features.CoreFeatureAPI;
 import pro.gravit.launchserver.LaunchServer;
-import pro.gravit.launchserver.auth.updates.UpdatesProvider;
 import pro.gravit.launchserver.binary.tasks.LauncherBuildTask;
-import pro.gravit.utils.helper.IOHelper;
-import pro.gravit.utils.helper.SecurityHelper;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.List;
-import java.util.Map;
 
 public abstract class LauncherBinary extends BinaryPipeline {
     public final LaunchServer server;
@@ -45,7 +41,7 @@ public abstract class LauncherBinary extends BinaryPipeline {
         return this.context;
     }
 
-    public abstract UpdatesProvider.UpdateVariant getVariant();
+    public abstract CoreFeatureAPI.UpdateVariant getVariant();
 
     public void init() {
     }

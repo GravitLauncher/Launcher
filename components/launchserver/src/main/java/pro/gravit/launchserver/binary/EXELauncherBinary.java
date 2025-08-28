@@ -1,11 +1,9 @@
 package pro.gravit.launchserver.binary;
 
+import pro.gravit.launcher.core.api.features.CoreFeatureAPI;
 import pro.gravit.launchserver.LaunchServer;
-import pro.gravit.launchserver.auth.updates.UpdatesProvider;
-import pro.gravit.utils.helper.IOHelper;
 
 import java.io.IOException;
-import java.nio.file.Files;
 
 public class EXELauncherBinary extends LauncherBinary {
 
@@ -14,8 +12,8 @@ public class EXELauncherBinary extends LauncherBinary {
     }
 
     @Override
-    public UpdatesProvider.UpdateVariant getVariant() {
-        return UpdatesProvider.UpdateVariant.EXE;
+    public CoreFeatureAPI.UpdateVariant getVariant() {
+        return CoreFeatureAPI.UpdateVariant.EXE_WINDOWS_X86_64;
     }
 
     @Override

@@ -1,8 +1,8 @@
 package pro.gravit.launchserver.binary;
 
 import pro.gravit.launcher.base.Launcher;
+import pro.gravit.launcher.core.api.features.CoreFeatureAPI;
 import pro.gravit.launchserver.LaunchServer;
-import pro.gravit.launchserver.auth.updates.UpdatesProvider;
 import pro.gravit.launchserver.binary.tasks.*;
 
 import java.io.IOException;
@@ -38,8 +38,8 @@ public final class JARLauncherBinary extends LauncherBinary {
     }
 
     @Override
-    public UpdatesProvider.UpdateVariant getVariant() {
-        return UpdatesProvider.UpdateVariant.JAR;
+    public CoreFeatureAPI.UpdateVariant getVariant() {
+        return CoreFeatureAPI.UpdateVariant.JAR;
     }
 
     @Override

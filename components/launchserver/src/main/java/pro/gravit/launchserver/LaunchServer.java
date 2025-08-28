@@ -4,10 +4,10 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import pro.gravit.launcher.base.modules.events.ClosePhase;
 import pro.gravit.launcher.base.profiles.ClientProfile;
+import pro.gravit.launcher.core.api.features.CoreFeatureAPI;
 import pro.gravit.launchserver.auth.AuthProviderPair;
 import pro.gravit.launchserver.auth.core.RejectAuthCoreProvider;
 import pro.gravit.launchserver.auth.updates.UpdatesProvider;
-import pro.gravit.launchserver.binary.EXELauncherBinary;
 import pro.gravit.launchserver.binary.JARLauncherBinary;
 import pro.gravit.launchserver.binary.LauncherBinary;
 import pro.gravit.launchserver.binary.PipelineContext;
@@ -86,7 +86,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
     /**
      * Pipeline for building JAR
      */
-    public final Map<UpdatesProvider.UpdateVariant, LauncherBinary> launcherBinaries;
+    public final Map<CoreFeatureAPI.UpdateVariant, LauncherBinary> launcherBinaries;
     // Server config
     public final AuthHookManager authHookManager;
     public final LaunchServerModulesManager modulesManager;
@@ -302,7 +302,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
 
     private void collectBinary() throws IOException {
         launcherBinaries.clear();
-        launcherBinaries.put(UpdatesProvider.UpdateVariant.JAR, new JARLauncherBinary(this));
+        launcherBinaries.put(CoreFeatureAPI.UpdateVariant.JAR, new JARLauncherBinary(this));
         LaunchServerLauncherBinaryInit event = new LaunchServerLauncherBinaryInit(this, launcherBinaries);
         modulesManager.invokeEvent(event);
         for(var e : launcherBinaries.values()) {

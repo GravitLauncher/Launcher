@@ -7,6 +7,7 @@ import io.netty.channel.ChannelHandlerContext;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import pro.gravit.launcher.base.events.request.LauncherRequestEvent;
+import pro.gravit.launcher.core.api.features.CoreFeatureAPI;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.auth.AuthProviderPair;
 import pro.gravit.launchserver.auth.updates.UpdatesProvider;
@@ -15,11 +16,9 @@ import pro.gravit.launchserver.socket.response.SimpleResponse;
 import pro.gravit.launchserver.socket.response.auth.AuthResponse;
 import pro.gravit.launchserver.socket.response.auth.RestoreResponse;
 import pro.gravit.utils.Version;
-import pro.gravit.utils.helper.SecurityHelper;
 
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import java.util.Arrays;
 import java.util.Base64;
 import java.util.Date;
 
@@ -28,6 +27,7 @@ public class LauncherResponse extends SimpleResponse {
     public String hash;
     public byte[] digest;
     public int launcher_type;
+    public CoreFeatureAPI.UpdateVariant variant;
 
     public String secureHash;
     public String secureSalt;
@@ -44,9 +44,12 @@ public class LauncherResponse extends SimpleResponse {
             bytes = Base64.getDecoder().decode(hash);
         else
             bytes = digest;
-        UpdatesProvider.UpdateVariant variant = UpdatesProvider.UpdateVariant.JAR;
+        CoreFeatureAPI.UpdateVariant variant = CoreFeatureAPI.UpdateVariant.JAR;
         if(launcher_type == 2) {
-            variant = UpdatesProvider.UpdateVariant.EXE;
+            variant = CoreFeatureAPI.UpdateVariant.EXE_WINDOWS_X86_64;
+        }
+        if(this.variant != null) {
+            variant = this.variant;
         }
         byte[] hashToCheck = bytes;
         UpdatesProvider.UpdateInfo info = server.config.updatesProvider.checkUpdates(variant, new UpdatesProvider.BuildSecretsCheck(secureHash, secureSalt, hashToCheck));

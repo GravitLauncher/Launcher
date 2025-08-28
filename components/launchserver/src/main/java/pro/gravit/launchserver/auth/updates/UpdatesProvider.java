@@ -1,16 +1,15 @@
 package pro.gravit.launchserver.auth.updates;
 
+import pro.gravit.launcher.core.api.features.CoreFeatureAPI;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.utils.ProviderMap;
 import pro.gravit.utils.helper.SecurityHelper;
 
 import java.io.IOException;
-import java.net.URL;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
-import java.util.Map;
 
 public abstract class UpdatesProvider {
 
@@ -30,7 +29,7 @@ public abstract class UpdatesProvider {
     }
 
     public abstract void pushUpdate(List<UpdateUploadInfo> files) throws IOException;
-    public abstract UpdateInfo checkUpdates(UpdateVariant variant, BuildSecretsCheck buildSecretsCheck);
+    public abstract UpdateInfo checkUpdates(CoreFeatureAPI.UpdateVariant variant, BuildSecretsCheck buildSecretsCheck);
 
     protected boolean checkSecureHash(String secureHash, String secureSalt, String privateSecureToken) {
         if (secureHash == null || secureSalt == null) return false;
@@ -43,15 +42,11 @@ public abstract class UpdatesProvider {
     public void close() {
     }
 
-    public enum UpdateVariant {
-        JAR, EXE
-    }
-
     public record UpdateInfo(String url) {
 
     }
 
-    public record UpdateUploadInfo(Path path, UpdateVariant variant, BuildSecrets secrets) {
+    public record UpdateUploadInfo(Path path, CoreFeatureAPI.UpdateVariant variant, BuildSecrets secrets) {
 
     }
 
