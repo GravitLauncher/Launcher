@@ -235,6 +235,9 @@ public class Downloader {
     }
 
     public static URI makeURI(URI baseUri, String filePath) throws URISyntaxException {
+        if(filePath.startsWith("http://") || filePath.startsWith("https://")) {
+            return URI.create(filePath);
+        }
         URI uri;
         if(baseUri != null) {
             String scheme = baseUri.getScheme();

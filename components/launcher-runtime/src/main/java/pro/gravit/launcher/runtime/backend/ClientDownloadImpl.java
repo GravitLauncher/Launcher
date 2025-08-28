@@ -187,7 +187,11 @@ public class ClientDownloadImpl {
                 return HashedDir.WalkAction.CONTINUE;
             }
             String pathFixed = path.replace(File.separatorChar, '/');
-            files.add(new Downloader.SizedFile(pathFixed, pathRemapper.apply(pathFixed), entry.size()));
+            if(entry instanceof HashedFile hfile && hfile.url != null) {
+                files.add(new Downloader.SizedFile(pathFixed, hfile.url, entry.size()));
+            } else {
+                files.add(new Downloader.SizedFile(pathFixed, pathRemapper.apply(pathFixed), entry.size()));
+            }
             return HashedDir.WalkAction.CONTINUE;
         });
         return files;
