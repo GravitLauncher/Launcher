@@ -32,7 +32,7 @@ public class LauncherUpdater {
 
     }
 
-    private static Path getLauncherPath() {
+    public static Path getLauncherPath() {
         Path pathToCore = IOHelper.getCodeSource(IOHelper.class);
         Path pathToApi = IOHelper.getCodeSource(LauncherRequest.class);
         Path pathToSelf = IOHelper.getCodeSource(LauncherUpdater.class);
