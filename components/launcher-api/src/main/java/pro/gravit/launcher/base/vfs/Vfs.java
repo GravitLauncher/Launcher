@@ -5,6 +5,7 @@ import pro.gravit.launcher.base.vfs.directory.SimpleVfsDirectory;
 import pro.gravit.launcher.base.vfs.protocol.vfs.VfsURLStreamHandlerProvider;
 import pro.gravit.utils.helper.LogHelper;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -119,7 +120,11 @@ public class Vfs {
 
     public URL getURL(Path name) throws IOException {
         try (InputStream stream = getInputStream(name)) {
-            return new URI("vfs", this.name, "/"+name, null).toURL();
+            String str = name.toString();
+            if(File.separatorChar != '/') {
+                str = str.replace(File.separatorChar, '/');
+            }
+            return new URI("vfs", this.name, "/"+str, null).toURL();
         } catch (UnsupportedOperationException ex) {
             throw new FileNotFoundException(name.toString());
         } catch (URISyntaxException e) {

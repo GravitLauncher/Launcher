@@ -109,13 +109,21 @@ public class LauncherBackendImpl implements LauncherBackendAPI, TextureUploadExt
         }
         return feature.thenCombineAsync(LauncherAPIHolder.core().getAuthMethods(), (updatesInfo, authMethods) -> {
             if(updatesInfo.required()) {
+                Path tempFile;
                 try {
-                    LauncherUpdater.prepareUpdate(URI.create(updatesInfo.url()).toURL());
+                    tempFile = LauncherUpdater.prepareUpdate(URI.create(updatesInfo.url()).toURL());
                 } catch (Exception e) {
                     throw new RuntimeException(e);
                 }
                 callback.onShutdown();
-                LauncherUpdater.restart();
+                shutdown();
+                try {
+                    IOHelper.copy(tempFile, LauncherUpdater.getLauncherPath());
+                    LauncherUpdater.restart();
+                } catch (Throwable e) {
+                    LogHelper.error("Exception", e);
+                    throw new RuntimeException(e);
+                }
             }
             return new LauncherInitData(authMethods);
         }, executorService);

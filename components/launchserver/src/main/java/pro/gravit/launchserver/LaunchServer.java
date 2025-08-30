@@ -314,7 +314,17 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
         List<PipelineContext> contexts = new ArrayList<>(2);
         try {
             List<UpdatesProvider.UpdateUploadInfo> list = new ArrayList<>(2);
+            var mainJar = launcherBinaries.get(CoreFeatureAPI.UpdateVariant.JAR);
+            { // Always build JAR first
+                var context = mainJar.build();
+                var info = context.makeUploadInfo(CoreFeatureAPI.UpdateVariant.JAR);
+                list.add(info);
+                contexts.add(context);
+            }
             for(var e : launcherBinaries.entrySet()) {
+                if(e.getValue() == mainJar) {
+                    continue;
+                }
                 var variant = e.getKey();
                 var binary = e.getValue();
                 var context = binary.build();
