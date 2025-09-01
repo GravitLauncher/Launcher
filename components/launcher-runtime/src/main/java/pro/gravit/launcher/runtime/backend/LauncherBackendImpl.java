@@ -29,7 +29,7 @@ import pro.gravit.launcher.runtime.utils.HWIDProvider;
 import pro.gravit.launcher.runtime.utils.LauncherUpdater;
 import pro.gravit.utils.helper.*;
 
-import java.io.IOException;
+import java.io.*;
 import java.net.URI;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
@@ -118,6 +118,11 @@ public class LauncherBackendImpl implements LauncherBackendAPI, TextureUploadExt
                 callback.onShutdown();
                 shutdown();
                 try {
+                    try(InputStream input = IOHelper.newInput(tempFile)) {
+                        try(OutputStream output = IOHelper.newOutput(LauncherUpdater.getLauncherPath())) {
+                            input.transferTo(output);
+                        }
+                    }
                     IOHelper.copy(tempFile, LauncherUpdater.getLauncherPath());
                     LauncherUpdater.restart();
                 } catch (Throwable e) {
