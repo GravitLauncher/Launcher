@@ -282,6 +282,9 @@ public class LauncherBackendImpl implements LauncherBackendAPI, TextureUploadExt
 
     public List<Java> getCustomJava() {
         List<Java> versions = new ArrayList<>();
+        if(Launcher.getConfig().customJavaDownload == null) {
+            return versions;
+        }
         for (Map.Entry<String, String> entry : Launcher.getConfig().customJavaDownload.entrySet()) {
             String javaDir = entry.getKey();
             String javaVersionString = entry.getValue();
