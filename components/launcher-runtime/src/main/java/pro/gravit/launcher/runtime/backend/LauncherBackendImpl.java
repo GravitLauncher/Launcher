@@ -122,7 +122,6 @@ public class LauncherBackendImpl implements LauncherBackendAPI, TextureUploadExt
                         try(OutputStream output = IOHelper.newOutput(LauncherUpdater.getLauncherPath())) {
                             input.transferTo(output);
                         }
-                        IOHelper.copy(tempFile, LauncherUpdater.getLauncherPath());
                         LauncherUpdater.restart();
                     } catch (IOException e) {
                         LogHelper.error(e);
