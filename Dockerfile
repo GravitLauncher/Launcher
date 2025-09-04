@@ -1,7 +1,7 @@
 FROM azul/zulu-openjdk-debian:24-latest AS build
 WORKDIR /app
 COPY . /app
-RUN chmod +x ./gradlew && ./gradlew build --no-daemon
+RUN chmod +x ./gradlew && ./gradlew build
 FROM azul/zulu-openjdk-debian:24-latest AS prod
 RUN apt-get update && apt-get install -y --no-install-recommends \
   osslsigncode \
