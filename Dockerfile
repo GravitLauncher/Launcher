@@ -15,5 +15,5 @@ ENV APP_HOME=/app
 ENV LISTEN_PORT=9274
 EXPOSE 9274
 VOLUME /app/data
-COPY --from=build /app/components/launchserver/build/install/launchserver/* /app
+COPY --from=build /app/components/launchserver/build/install/launchserver /app
 ENTRYPOINT ["/app/bin/launchserver"]
