@@ -117,18 +117,16 @@ public class LauncherBackendImpl implements LauncherBackendAPI, TextureUploadExt
                 }
                 callback.onShutdown();
                 shutdown();
-                try {
+                Runtime.getRuntime().addShutdownHook(new Thread(() -> {
                     try(InputStream input = IOHelper.newInput(tempFile)) {
                         try(OutputStream output = IOHelper.newOutput(LauncherUpdater.getLauncherPath())) {
                             input.transferTo(output);
                         }
+                        LauncherUpdater.restart();
+                    } catch (IOException e) {
+                        LogHelper.error(e);
                     }
-                    IOHelper.copy(tempFile, LauncherUpdater.getLauncherPath());
-                    LauncherUpdater.restart();
-                } catch (Throwable e) {
-                    LogHelper.error("Exception", e);
-                    throw new RuntimeException(e);
-                }
+                }));
             }
             return new LauncherInitData(authMethods);
         }, executorService);
@@ -282,6 +280,9 @@ public class LauncherBackendImpl implements LauncherBackendAPI, TextureUploadExt
 
     public List<Java> getCustomJava() {
         List<Java> versions = new ArrayList<>();
+        if(Launcher.getConfig().customJavaDownload == null) {
+            return versions;
+        }
         for (Map.Entry<String, String> entry : Launcher.getConfig().customJavaDownload.entrySet()) {
             String javaDir = entry.getKey();
             String javaVersionString = entry.getValue();

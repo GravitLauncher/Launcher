@@ -29,23 +29,15 @@ import java.util.jar.JarFile;
 
 public class LauncherModuleLoader {
     public final List<ModuleEntity> launcherModules = new ArrayList<>();
-    public final Path modulesDir;
     private final LaunchServer server;
+    private volatile LauncherModuleClassLoader classLoader;
     private transient final Logger logger = LogManager.getLogger();
 
     public LauncherModuleLoader(LaunchServer server) {
         this.server = server;
-        modulesDir = server.launcherModulesDir;
     }
 
     public void init() {
-        if (!IOHelper.isDir(modulesDir)) {
-            try {
-                Files.createDirectories(modulesDir);
-            } catch (IOException e) {
-                logger.error(e);
-            }
-        }
         MainBuildTask mainTask = server.launcherBinaries.get(CoreFeatureAPI.UpdateVariant.JAR).getTaskByClass(MainBuildTask.class).get();
         mainTask.preBuildHook.registerHook((buildContext) -> {
             for (ModuleEntity e : launcherModules) {
@@ -65,14 +57,88 @@ public class LauncherModuleLoader {
             }
         });
         try {
-            syncModules();
+            loadLauncherModules();
         } catch (IOException e) {
             logger.error(e);
         }
     }
 
-    public void syncModules() throws IOException {
+    public void loadLauncherModules() throws IOException {
         launcherModules.clear();
+        for(var e : server.modulesConfig.loadLauncherModules) {
+            Path filePath = Path.of(e);
+            if(!e.endsWith(".jar") && !Files.isDirectory(filePath)) {
+                // It is in-bundle module
+                filePath = server.modulesDir.resolve(e+".jar");
+            }
+            if(!Files.exists(filePath)) {
+                logger.warn("Module {} not found", filePath);
+            }
+            if(Files.isDirectory(filePath)) {
+                autoload(filePath);
+            } else {
+                registerModule(filePath);
+            }
+        }
+    }
+
+    public boolean registerModule(Path file) throws IOException {
+        Attributes attributes;
+        try (JarFile f = new JarFile(file.toFile())) {
+            attributes = f.getManifest().getMainAttributes();
+        }
+        String mainClass = attributes.getValue("Module-Main-Class");
+        if (mainClass == null) {
+            logger.error("In module {} MainClass not found", file.toString());
+            return false;
+        }
+
+        if (classLoader == null)
+            classLoader = new LauncherModuleClassLoader(server.modulesManager.getModuleClassLoader());
+        classLoader.addURL(file.toUri().toURL());
+        ModuleEntity entity = new ModuleEntity();
+        entity.path = file;
+        entity.moduleMainClass = mainClass;
+        entity.moduleConfigClass = attributes.getValue("Module-Config-Class");
+        String requiredModernJava = attributes.getValue("Required-Modern-Java");
+        entity.modernModule = Boolean.parseBoolean(requiredModernJava);
+        if (entity.moduleConfigClass != null) {
+            entity.moduleConfigName = attributes.getValue("Module-Config-Name");
+            if (entity.moduleConfigName == null) {
+                logger.warn("Module-Config-Name in module {} null. Module not configured", file.toString());
+                return false;
+            } else {
+                try {
+                    Class<?> clazz = classLoader.loadClass(entity.moduleConfigClass);
+                    Path configPath = server.modulesManager.getConfigManager().getModuleConfig(entity.moduleConfigName);
+                    Object defaultConfig = MethodHandles.publicLookup().findStatic(clazz, "getDefault", MethodType.methodType(Object.class)).invoke();
+                    Object targetConfig;
+                    if (!Files.exists(configPath)) {
+                        logger.debug("Write default config for module {} to {}", file.toString(), configPath.toString());
+                        try (Writer writer = IOHelper.newWriter(configPath)) {
+                            Launcher.gsonManager.configGson.toJson(defaultConfig, writer);
+                        }
+                        targetConfig = defaultConfig;
+                    } else {
+                        try (Reader reader = IOHelper.newReader(configPath)) {
+                            targetConfig = Launcher.gsonManager.configGson.fromJson(reader, clazz);
+                        } catch (Exception e) {
+                            logger.error("Error when reading config {} in module {}: {}", configPath, file, e);
+                            return false;
+                        }
+                    }
+                    if (entity.propertyMap == null) entity.propertyMap = new HashMap<>();
+                    addClassFieldsToProperties(entity.propertyMap, "modules.".concat(entity.moduleConfigName.toLowerCase()), targetConfig, clazz);
+                } catch (Throwable e) {
+                    logger.error(e);
+                }
+            }
+        }
+        launcherModules.add(entity);
+        return true;
+    }
+
+    public void autoload(Path modulesDir) throws IOException {
         IOHelper.walk(modulesDir, new ModulesVisitor(), false);
     }
 
@@ -111,55 +177,7 @@ public class LauncherModuleLoader {
         @Override
         public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
             if (file.toFile().getName().endsWith(".jar"))
-                try (JarFile f = new JarFile(file.toFile())) {
-                    Attributes attributes = f.getManifest().getMainAttributes();
-                    String mainClass = attributes.getValue("Module-Main-Class");
-                    if (mainClass == null) {
-                        logger.error("In module {} MainClass not found", file.toString());
-                    } else {
-                        if (classLoader == null)
-                            classLoader = new LauncherModuleClassLoader(server.modulesManager.getModuleClassLoader());
-                        classLoader.addURL(file.toUri().toURL());
-                        ModuleEntity entity = new ModuleEntity();
-                        entity.path = file;
-                        entity.moduleMainClass = mainClass;
-                        entity.moduleConfigClass = attributes.getValue("Module-Config-Class");
-                        String requiredModernJava = attributes.getValue("Required-Modern-Java");
-                        entity.modernModule = Boolean.parseBoolean(requiredModernJava);
-                        if (entity.moduleConfigClass != null) {
-                            entity.moduleConfigName = attributes.getValue("Module-Config-Name");
-                            if (entity.moduleConfigName == null) {
-                                logger.warn("Module-Config-Name in module {} null. Module not configured", file.toString());
-                            } else {
-                                try {
-                                    Class<?> clazz = classLoader.loadClass(entity.moduleConfigClass);
-                                    Path configPath = server.modulesManager.getConfigManager().getModuleConfig(entity.moduleConfigName);
-                                    Object defaultConfig = MethodHandles.publicLookup().findStatic(clazz, "getDefault", MethodType.methodType(Object.class)).invoke();
-                                    Object targetConfig;
-                                    if (!Files.exists(configPath)) {
-                                        logger.debug("Write default config for module {} to {}", file.toString(), configPath.toString());
-                                        try (Writer writer = IOHelper.newWriter(configPath)) {
-                                            Launcher.gsonManager.configGson.toJson(defaultConfig, writer);
-                                        }
-                                        targetConfig = defaultConfig;
-                                    } else {
-                                        try (Reader reader = IOHelper.newReader(configPath)) {
-                                            targetConfig = Launcher.gsonManager.configGson.fromJson(reader, clazz);
-                                        } catch (Exception e) {
-                                            logger.error("Error when reading config {} in module {}: {}", configPath, file, e);
-                                            return super.visitFile(file, attrs);
-                                        }
-                                    }
-                                    if (entity.propertyMap == null) entity.propertyMap = new HashMap<>();
-                                    addClassFieldsToProperties(entity.propertyMap, "modules.".concat(entity.moduleConfigName.toLowerCase()), targetConfig, clazz);
-                                } catch (Throwable e) {
-                                    logger.error(e);
-                                }
-                            }
-                        }
-                        launcherModules.add(entity);
-                    }
-                }
+                registerModule(file);
             return super.visitFile(file, attrs);
         }
     }

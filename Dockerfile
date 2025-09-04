@@ -9,11 +9,12 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
   vim \
   rsync \
   socat \
+  git \
   && rm -rf /var/lib/apt/lists/*
 WORKDIR /app/data
 ENV APP_HOME=/app
 ENV LISTEN_PORT=9274
 EXPOSE 9274
 VOLUME /app/data
-COPY --from=build /app/components/launchserver/build/install/launchserver/* /app
+COPY --from=build /app/components/launchserver/build/install/launchserver /app
 ENTRYPOINT ["/app/bin/launchserver"]

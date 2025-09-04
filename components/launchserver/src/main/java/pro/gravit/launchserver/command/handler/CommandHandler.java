@@ -2,12 +2,9 @@ package pro.gravit.launchserver.command.handler;
 
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.command.basic.*;
-import pro.gravit.launchserver.command.hash.*;
-import pro.gravit.launchserver.command.modules.LoadModuleCommand;
 import pro.gravit.launchserver.command.modules.ModulesCommand;
 import pro.gravit.launchserver.command.profiles.ProfilesCommand;
 import pro.gravit.launchserver.command.service.*;
-import pro.gravit.launchserver.command.sync.*;
 import pro.gravit.launchserver.command.tools.SignDirCommand;
 import pro.gravit.launchserver.command.tools.SignJarCommand;
 import pro.gravit.utils.command.BaseCommandCategory;
@@ -26,7 +23,6 @@ public abstract class CommandHandler extends pro.gravit.utils.command.CommandHan
         basic.registerCommand("debug", new DebugCommand(server));
         basic.registerCommand("clear", new ClearCommand(handler));
         basic.registerCommand("gc", new GCCommand());
-        basic.registerCommand("loadModule", new LoadModuleCommand(server));
         basic.registerCommand("modules", new ModulesCommand(server));
         Category basicCategory = new Category(basic, "basic", "Base LaunchServer commands");
         handler.registerCategory(basicCategory);
@@ -35,7 +31,6 @@ public abstract class CommandHandler extends pro.gravit.utils.command.CommandHan
         BaseCommandCategory updates = new BaseCommandCategory();
         //updates.registerCommand("indexAsset", new IndexAssetCommand(server));
         //updates.registerCommand("unindexAsset", new UnindexAssetCommand(server));
-        updates.registerCommand("sync", new SyncCommand(server));
         updates.registerCommand("profile", new ProfilesCommand(server));
         Category updatesCategory = new Category(updates, "updates", "Update and Sync Management");
         handler.registerCategory(updatesCategory);

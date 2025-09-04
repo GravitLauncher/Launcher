@@ -99,7 +99,7 @@ application {
     }
 
     applicationDistribution.from(project(":modules").tasks.named("copyModules").map { it.outputs.files }) {
-        into("all-modules")
+        into("modules")
     }
 
     applicationDistribution.from(project(":components:serverwrapper").tasks.named("fatJar").map { it.outputs.files }) {
@@ -111,10 +111,15 @@ application {
     }
 }
 
-tasks.distZip {
-    from(tasks.installDist.map { it.destinationDir }) {
-        into("") // root of zip
+distributions {
+    main {
+        contents {
+            into("/")
+        }
     }
+}
+
+tasks.distZip {
     dependsOn(project(":components:serverwrapper").tasks["fatJar"],
         project(":components:serverwrapper").tasks["inlineJar"],
         project(":components:launcher-runtime").tasks["copyLauncherLibs"],

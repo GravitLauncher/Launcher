@@ -12,6 +12,7 @@ import pro.gravit.launchserver.binary.JARLauncherBinary;
 import pro.gravit.launchserver.binary.LauncherBinary;
 import pro.gravit.launchserver.binary.PipelineContext;
 import pro.gravit.launchserver.config.LaunchServerConfig;
+import pro.gravit.launchserver.config.LauncherModulesConfig;
 import pro.gravit.launchserver.helper.SignHelper;
 import pro.gravit.launchserver.launchermodules.LauncherModuleLoader;
 import pro.gravit.launchserver.manangers.*;
@@ -79,7 +80,6 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
      */
     public final Path tmpDir;
     public final Path modulesDir;
-    public final Path launcherModulesDir;
     public final Path librariesDir;
     public final Path controlFile;
     public final Path proguardDir;
@@ -109,8 +109,9 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
     private final Logger logger = LogManager.getLogger();
     public final int shardId;
     public LaunchServerConfig config;
+    public final LauncherModulesConfig modulesConfig;
 
-    public LaunchServer(LaunchServerDirectories directories, LaunchServerEnv env, LaunchServerConfig config, LaunchServerConfigManager launchServerConfigManager, LaunchServerModulesManager modulesManager, KeyAgreementManager keyAgreementManager, CommandHandler commandHandler, CertificateManager certificateManager, int shardId) throws IOException {
+    public LaunchServer(LaunchServerDirectories directories, LaunchServerEnv env, LaunchServerConfig config, LaunchServerConfigManager launchServerConfigManager, LaunchServerModulesManager modulesManager, KeyAgreementManager keyAgreementManager, CommandHandler commandHandler, CertificateManager certificateManager, int shardId, LauncherModulesConfig modulesConfig) throws IOException {
         this.dir = directories.dir;
         this.tmpDir = directories.tmpDir;
         this.env = env;
@@ -126,11 +127,11 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
         launcherLibrariesCompile = directories.launcherLibrariesCompileDir;
         launcherPack = directories.launcherPackDir;
         modulesDir = directories.modules;
-        launcherModulesDir = directories.launcherModules;
         librariesDir = directories.librariesDir;
         controlFile = directories.controlFile;
         proguardDir = directories.proguardDir;
         this.shardId = shardId;
+        this.modulesConfig = modulesConfig;
         if(!Files.isDirectory(launcherPack)) {
             Files.createDirectories(launcherPack);
         }
@@ -420,6 +421,10 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
         LaunchServerConfig readConfig() throws IOException;
 
         void writeConfig(LaunchServerConfig config) throws IOException;
+
+        LauncherModulesConfig readModulesConfig() throws IOException;
+
+        void writeModulesConfig(LauncherModulesConfig config) throws IOException;
     }
 
     public static class LaunchServerDirectories {
@@ -439,7 +444,6 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
         public Path trustStore;
         public Path tmpDir;
         public Path modules;
-        public Path launcherModules;
         public Path controlFile;
 
         public void collect() {
@@ -451,8 +455,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
             if (launcherPackDir == null)
                 launcherPackDir = getPath(LAUNCHERPACK_NAME);
             if (keyDirectory == null) keyDirectory = getPath(KEY_NAME);
-            if (modules == null) modules = getPath(MODULES);
-            if (launcherModules == null) launcherModules = getPath(LAUNCHER_MODULES);
+            if (modules == null) modules = getStaticPath(MODULES);
             if (librariesDir == null) librariesDir = getStaticPath(LIBRARIES);
             if (controlFile == null) controlFile = getPath(CONTROL_FILE);
             if (proguardDir == null) proguardDir = getStaticPath(PROGUARD_DIR);

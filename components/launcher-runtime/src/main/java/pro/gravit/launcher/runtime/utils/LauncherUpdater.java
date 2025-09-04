@@ -76,6 +76,5 @@ public class LauncherUpdater {
         } catch (IOException e) {
             LogHelper.error(e);
         }
-        LauncherEngine.forceExit(0);
     }
 }

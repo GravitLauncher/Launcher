@@ -40,6 +40,7 @@ public class ConfigurationTest {
                 .setCertificateManager(new CertificateManager())
                 .setLaunchServerConfigManager(launchServerConfigManager)
                 .setModulesManager(modulesManager)
+                .setModulesConfig(launchServerConfigManager.modulesConfig)
                 .setCommandHandler(new StdCommandHandler(false));
         launchServer = builder.build();
     }
