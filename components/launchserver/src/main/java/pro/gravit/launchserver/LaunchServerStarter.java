@@ -1,5 +1,6 @@
 package pro.gravit.launchserver;
 
+import com.google.gson.Gson;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
@@ -19,6 +20,7 @@ import pro.gravit.launchserver.auth.texture.TextureProvider;
 import pro.gravit.launchserver.auth.updates.UpdatesProvider;
 import pro.gravit.launchserver.components.Component;
 import pro.gravit.launchserver.config.LaunchServerConfig;
+import pro.gravit.launchserver.config.LauncherModulesConfig;
 import pro.gravit.launchserver.manangers.CertificateManager;
 import pro.gravit.launchserver.manangers.LaunchServerGsonManager;
 import pro.gravit.launchserver.modules.impl.LaunchServerModulesManager;
@@ -31,6 +33,7 @@ import pro.gravit.utils.helper.JVMHelper;
 import pro.gravit.utils.helper.LogHelper;
 
 import java.io.*;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.Security;
 import java.security.cert.CertificateException;
@@ -82,7 +85,9 @@ public class LaunchServerStarter {
         LaunchServerConfig config;
         LaunchServer.LaunchServerEnv env = LaunchServer.LaunchServerEnv.PRODUCTION;
         LaunchServerModulesManager modulesManager = new LaunchServerModulesManager(directories.modules, dir.resolve("config"), certificateManager.trustManager);
-        modulesManager.autoload();
+        //modulesManager.autoload();
+        Path modulesConfigFile = dir.resolve("modules.json");
+        LauncherModulesConfig modulesConfig = loadLaunchServerModules(modulesManager, modulesConfigFile, directories.modules);
         modulesManager.initModules(null);
         registerAll();
         initGson(modulesManager);
@@ -110,7 +115,7 @@ public class LaunchServerStarter {
             config = Launcher.gsonManager.gson.fromJson(reader, LaunchServerConfig.class);
         }
 
-        LaunchServer.LaunchServerConfigManager launchServerConfigManager = new BasicLaunchServerConfigManager(configFile);
+        LaunchServer.LaunchServerConfigManager launchServerConfigManager = new BasicLaunchServerConfigManager(configFile, modulesConfigFile);
         LaunchServer server = new LaunchServerBuilder()
                 .setDirectories(directories)
                 .setEnv(env)
@@ -119,6 +124,7 @@ public class LaunchServerStarter {
                 .setModulesManager(modulesManager)
                 .setLaunchServerConfigManager(launchServerConfigManager)
                 .setCertificateManager(certificateManager)
+                .setModulesConfig(modulesConfig)
                 .build();
         List<String> allArgs = List.of(args);
         boolean isPrepareMode = prepareMode || allArgs.contains("--prepare");
@@ -179,6 +185,35 @@ public class LaunchServerStarter {
         } catch (Throwable e) {
             logger.warn("Build information not found");
         }
+    }
+
+    public static LauncherModulesConfig loadLaunchServerModules(LaunchServerModulesManager modulesManager, Path modulesConfigDir, Path allModulesDir) throws IOException {
+        LauncherModulesConfig config;
+        Gson gson = new Gson();
+        if(!Files.exists(modulesConfigDir)) {
+            try(Writer writer = IOHelper.newWriter(modulesConfigDir)) {
+                gson.toJson(new LauncherModulesConfig(), writer);
+            }
+        }
+        try(Reader reader = IOHelper.newReader(modulesConfigDir)) {
+            config = gson.fromJson(reader, LauncherModulesConfig.class);
+        }
+        for(var e : config.loadModules) {
+            Path filePath = Path.of(e);
+            if(!e.endsWith(".jar") && !Files.isDirectory(filePath)) {
+                // It is in-bundle module
+                filePath = allModulesDir.resolve(e+".jar");
+            }
+            if(!Files.exists(filePath)) {
+                logger.warn("Module {} not found", filePath);
+            }
+            if(Files.isDirectory(filePath)) {
+                modulesManager.autoload(filePath);
+            } else {
+                modulesManager.loadModule(filePath);
+            }
+        }
+        return config;
     }
 
     record ExperimentalBuild(List<String> features, List<String> info) {
@@ -276,9 +311,12 @@ public class LaunchServerStarter {
 
     private static class BasicLaunchServerConfigManager implements LaunchServer.LaunchServerConfigManager {
         private final Path configFile;
+        private final Path modulesConfigFile;
+        private final Gson modulesGson = new Gson();
 
-        public BasicLaunchServerConfigManager(Path configFile) {
+        public BasicLaunchServerConfigManager(Path configFile, Path modulesConfigFile) {
             this.configFile = configFile;
+            this.modulesConfigFile = modulesConfigFile;
         }
 
         @Override
@@ -303,6 +341,27 @@ public class LaunchServerStarter {
             byte[] bytes = output.toByteArray();
             if(bytes.length > 0) {
                 IOHelper.write(configFile, bytes);
+            }
+        }
+
+        @Override
+        public LauncherModulesConfig readModulesConfig() throws IOException {
+            LauncherModulesConfig config1;
+            try (BufferedReader reader = IOHelper.newReader(modulesConfigFile)) {
+                config1 = modulesGson.fromJson(reader, LauncherModulesConfig.class);
+            }
+            return config1;
+        }
+
+        @Override
+        public void writeModulesConfig(LauncherModulesConfig config) throws IOException {
+            ByteArrayOutputStream output = new ByteArrayOutputStream();
+            try (Writer writer = IOHelper.newWriter(output)) {
+                modulesGson.toJson(config, writer);
+            }
+            byte[] bytes = output.toByteArray();
+            if(bytes.length > 0) {
+                IOHelper.write(modulesConfigFile, bytes);
             }
         }
     }

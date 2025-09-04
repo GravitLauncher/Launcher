@@ -1,11 +1,13 @@
 package pro.gravit.launchserver;
 
 import pro.gravit.launchserver.config.LaunchServerConfig;
+import pro.gravit.launchserver.config.LauncherModulesConfig;
 import pro.gravit.launchserver.manangers.CertificateManager;
 import pro.gravit.launchserver.manangers.KeyAgreementManager;
 import pro.gravit.launchserver.modules.impl.LaunchServerModulesManager;
 import pro.gravit.utils.command.CommandHandler;
 
+import java.io.IOException;
 import java.nio.file.Path;
 
 public class LaunchServerBuilder {
@@ -17,6 +19,7 @@ public class LaunchServerBuilder {
     private KeyAgreementManager keyAgreementManager;
     private CertificateManager certificateManager;
     private LaunchServer.LaunchServerConfigManager launchServerConfigManager;
+    private LauncherModulesConfig modulesConfig;
     private Integer shardId;
 
     public LaunchServerBuilder setConfig(LaunchServerConfig config) {
@@ -70,7 +73,7 @@ public class LaunchServerBuilder {
         if(shardId == null) {
             shardId = Integer.parseInt(System.getProperty("launchserver.shardId", "0"));
         }
-        return new LaunchServer(directories, env, config, launchServerConfigManager, modulesManager, keyAgreementManager, commandHandler, certificateManager, shardId);
+        return new LaunchServer(directories, env, config, launchServerConfigManager, modulesManager, keyAgreementManager, commandHandler, certificateManager, shardId, modulesConfig);
     }
 
     public LaunchServerBuilder setCertificateManager(CertificateManager certificateManager) {
@@ -78,8 +81,14 @@ public class LaunchServerBuilder {
         return this;
     }
 
-    public void setKeyAgreementManager(KeyAgreementManager keyAgreementManager) {
+    public LaunchServerBuilder setKeyAgreementManager(KeyAgreementManager keyAgreementManager) {
         this.keyAgreementManager = keyAgreementManager;
+        return this;
+    }
+
+    public LaunchServerBuilder setModulesConfig(LauncherModulesConfig modulesConfig) {
+        this.modulesConfig = modulesConfig;
+        return this;
     }
 
     private static class NullLaunchServerConfigManager implements LaunchServer.LaunchServerConfigManager {
@@ -90,6 +99,16 @@ public class LaunchServerBuilder {
 
         @Override
         public void writeConfig(LaunchServerConfig config) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public LauncherModulesConfig readModulesConfig() throws IOException {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public void writeModulesConfig(LauncherModulesConfig config) throws IOException {
             throw new UnsupportedOperationException();
         }
     }

@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import pro.gravit.launcher.base.Launcher;
 import pro.gravit.launchserver.config.LaunchServerConfig;
+import pro.gravit.launchserver.config.LauncherModulesConfig;
 import pro.gravit.launchserver.impl.TestLaunchServerConfigManager;
 import pro.gravit.launchserver.manangers.CertificateManager;
 import pro.gravit.launchserver.manangers.LaunchServerGsonManager;
@@ -30,6 +31,7 @@ public class StartLaunchServerTest {
         if (Security.getProvider("BC") == null) Security.addProvider(new BouncyCastleProvider());
         LaunchServerModulesManager modulesManager = new LaunchServerModulesManager(modulesDir, configDir, null);
         LaunchServerConfig config = LaunchServerConfig.getDefault(LaunchServer.LaunchServerEnv.TEST);
+        LauncherModulesConfig modulesConfig = new LauncherModulesConfig();
         Launcher.gsonManager = new LaunchServerGsonManager(modulesManager);
         Launcher.gsonManager.initGson();
         LaunchServerBuilder builder = new LaunchServerBuilder();
@@ -39,6 +41,7 @@ public class StartLaunchServerTest {
                 .setCertificateManager(new CertificateManager())
                 .setLaunchServerConfigManager(new TestLaunchServerConfigManager())
                 .setModulesManager(modulesManager)
+                .setModulesConfig(modulesConfig)
                 .setCommandHandler(new StdCommandHandler(false));
         launchServer = builder.build();
     }

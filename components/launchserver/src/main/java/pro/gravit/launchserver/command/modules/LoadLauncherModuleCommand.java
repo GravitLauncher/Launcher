@@ -10,10 +10,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-public class LoadModuleCommand extends Command {
+public class LoadLauncherModuleCommand extends Command {
     private transient final Logger logger = LogManager.getLogger();
 
-    public LoadModuleCommand(LaunchServer server) {
+    public LoadLauncherModuleCommand(LaunchServer server) {
         super(server);
     }
 
@@ -24,7 +24,7 @@ public class LoadModuleCommand extends Command {
 
     @Override
     public String getUsageDescription() {
-        return "Module jar file";
+        return "Launcher module jar file";
     }
 
     @Override
@@ -40,12 +40,12 @@ public class LoadModuleCommand extends Command {
             throw new FileNotFoundException(file.toString());
         }
         if(Files.isDirectory(file)) {
-            server.modulesManager.autoload(file);
+            server.launcherModuleLoader.registerModule(file);
         } else {
-            server.modulesManager.loadModule(file);
+            server.launcherModuleLoader.autoload(file);
         }
-        if(!server.modulesConfig.loadModules.contains(target)) {
-            server.modulesConfig.loadModules.add(target);
+        if(!server.modulesConfig.loadLauncherModules.contains(target)) {
+            server.modulesConfig.loadLauncherModules.add(target);
             server.launchServerConfigManager.writeModulesConfig(server.modulesConfig);
         }
     }

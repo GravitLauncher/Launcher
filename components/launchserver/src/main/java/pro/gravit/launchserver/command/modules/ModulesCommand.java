@@ -13,45 +13,27 @@ import java.security.cert.X509Certificate;
 import java.util.Arrays;
 
 public class ModulesCommand extends Command {
-    private transient final Logger logger = LogManager.getLogger();
 
     public ModulesCommand(LaunchServer server) {
         super(server);
+        childCommands.put("list", new ModulesListCommand(server));
+        childCommands.put("load", new LoadModuleCommand(server));
+        childCommands.put("launcher-load", new LoadLauncherModuleCommand(server));
+        childCommands.put("launcher-reload", new ReloadLauncherModuleCommand(server));
     }
 
     @Override
     public String getArgsDescription() {
-        return null;
+        return "[subcommand] [args...]";
     }
 
     @Override
     public String getUsageDescription() {
-        return "get all modules";
+        return "add/remove and list modules";
     }
 
     @Override
-    public void invoke(String... args) {
-        for (LauncherModule module : server.modulesManager.getModules()) {
-            LauncherModuleInfo info = module.getModuleInfo();
-            LauncherTrustManager.CheckClassResult checkStatus = module.getCheckResult();
-            logger.info("[MODULE] {} v: {} p: {} deps: {} sig: {}", info.name, info.version.getVersionString(), info.priority, Arrays.toString(info.dependencies), checkStatus == null ? "null" : checkStatus.type);
-            printCheckStatusInfo(checkStatus);
-        }
-        for (LauncherModuleLoader.ModuleEntity entity : server.launcherModuleLoader.launcherModules) {
-            LauncherTrustManager.CheckClassResult checkStatus = entity.checkResult;
-            logger.info("[LAUNCHER MODULE] {} sig: {}", entity.path.getFileName().toString(), checkStatus == null ? "null" : checkStatus.type);
-            printCheckStatusInfo(checkStatus);
-        }
-    }
-
-    private void printCheckStatusInfo(LauncherTrustManager.CheckClassResult checkStatus) {
-        if (checkStatus != null && checkStatus.endCertificate != null) {
-            X509Certificate cert = checkStatus.endCertificate;
-            logger.info("[MODULE CERT] Module signer: {}", cert.getSubjectX500Principal().getName());
-        }
-        if (checkStatus != null && checkStatus.rootCertificate != null) {
-            X509Certificate cert = checkStatus.rootCertificate;
-            logger.info("[MODULE CERT] Module signer CA: {}", cert.getSubjectX500Principal().getName());
-        }
+    public void invoke(String... args) throws Exception {
+        invokeSubcommands(args);
     }
 }
