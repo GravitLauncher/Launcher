@@ -75,6 +75,9 @@ public class OptionalFile implements ProfileFeatureAPI.OptionalMod {
 
     @Override
     public Set<ProfileFeatureAPI.OptionalMod> getDependencies() {
+        if(dependencies == null) {
+            return Set.of();
+        }
         return Set.of(dependencies);
     }
 
