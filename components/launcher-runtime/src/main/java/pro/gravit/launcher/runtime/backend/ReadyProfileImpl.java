@@ -11,6 +11,7 @@ import pro.gravit.launcher.core.backend.LauncherBackendAPI;
 import pro.gravit.launcher.runtime.client.ClientLauncherProcess;
 import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.JVMHelper;
+import pro.gravit.utils.helper.LogHelper;
 
 import java.io.EOFException;
 import java.io.IOException;
@@ -91,7 +92,9 @@ public class ReadyProfileImpl implements LauncherBackendAPI.ReadyProfile {
 
     private void readThread() {
         try {
+            LogHelper.debug("Start client %s", profile.getTitle());
             process.start(true);
+            LogHelper.debug("Start watching client IO %s", profile.getTitle());
             nativeProcess = process.getProcess();
             callback.onCanTerminate(this::terminate);
             InputStream stream = nativeProcess.getInputStream();
@@ -106,10 +109,11 @@ public class ReadyProfileImpl implements LauncherBackendAPI.ReadyProfile {
                 int code = nativeProcess.waitFor();
                 callback.onFinished(code);
             }
-        } catch (Exception e) {
+        } catch (Throwable e) {
             if(e instanceof InterruptedException) {
                 return;
             }
+            LogHelper.error(e);
             terminate();
         }
     }

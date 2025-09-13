@@ -28,6 +28,7 @@ import java.net.Socket;
 import java.net.SocketAddress;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.attribute.PosixFilePermission;
 import java.util.*;
 
 public class ClientLauncherProcess {
@@ -220,6 +221,19 @@ public class ClientLauncherProcess {
             env.put("__GL_THREADED_OPTIMIZATIONS", "0");
             if(params.lwjglGlfwWayland && !params.profile.hasFlag(ClientProfile.CompatibilityFlags.WAYLAND_USE_CUSTOM_GLFW)) {
                 env.remove("DISPLAY"); // No X11
+            }
+        }
+        if(JVMHelper.OS_TYPE != JVMHelper.OS.MUSTDIE) {
+            try {
+                var perms = Files.getPosixFilePermissions(executeFile);
+                if(!perms.contains(PosixFilePermission.OWNER_EXECUTE) || !perms.contains(PosixFilePermission.GROUP_EXECUTE)) {
+                    var newPerms = new HashSet<>(perms);
+                    newPerms.add(PosixFilePermission.GROUP_EXECUTE);
+                    newPerms.add(PosixFilePermission.OWNER_EXECUTE);
+                    Files.setPosixFilePermissions(executeFile, newPerms);
+                }
+            } catch (Throwable e) {
+                LogHelper.error(e);
             }
         }
         processBuilder.environment().put("JAVA_HOME", javaVersion.jvmDir.toAbsolutePath().toString());
