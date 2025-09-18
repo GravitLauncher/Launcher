@@ -220,7 +220,7 @@ public class ClientLauncherProcess {
             // https://github.com/Admicos/minecraft-wayland/issues/55
             env.put("__GL_THREADED_OPTIMIZATIONS", "0");
             if(params.lwjglGlfwWayland && !params.profile.hasFlag(ClientProfile.CompatibilityFlags.WAYLAND_USE_CUSTOM_GLFW)) {
-                env.remove("DISPLAY"); // No X11
+                env.putIfAbsent("GDK_BACKEND", "wayland");
             }
         }
         if(JVMHelper.OS_TYPE != JVMHelper.OS.MUSTDIE) {

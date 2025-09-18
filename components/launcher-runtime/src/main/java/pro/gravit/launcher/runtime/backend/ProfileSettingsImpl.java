@@ -44,6 +44,9 @@ public class ProfileSettingsImpl implements LauncherBackendAPI.ClientProfileSett
             this.flags.add(Flag.FULLSCREEN);
         }
         this.view = new OptionalView(profile);
+        if(JVMHelper.OS_TYPE == JVMHelper.OS.LINUX && System.getenv("WAYLAND_DISPLAY") != null) {
+            this.flags.add(Flag.LINUX_WAYLAND_SUPPORT);
+        }
     }
 
     @Override
