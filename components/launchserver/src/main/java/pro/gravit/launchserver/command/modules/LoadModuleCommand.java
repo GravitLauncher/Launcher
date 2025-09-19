@@ -32,9 +32,15 @@ public class LoadModuleCommand extends Command {
         verifyArgs(args, 1);
         Path file = Paths.get(args[0]);
         String target = args[0];
+        boolean bundled = false;
         if(!target.endsWith(".jar") && !Files.isDirectory(file)) {
             // It is in-bundle module
-            file = server.modulesDir.resolve(args[0]+".jar");
+            file = server.modulesDir.resolve(target+".jar");
+            bundled = true;
+        }
+        if(!Files.exists(file) && bundled) {
+            target = target.concat("_module");
+            file = server.modulesDir.resolve(target+".jar");
         }
         if(!Files.exists(file)) {
             throw new FileNotFoundException(file.toString());
@@ -48,5 +54,6 @@ public class LoadModuleCommand extends Command {
             server.modulesConfig.loadModules.add(target);
             server.launchServerConfigManager.writeModulesConfig(server.modulesConfig);
         }
+        logger.info("Module {} loaded from {}", target, file);
     }
 }
