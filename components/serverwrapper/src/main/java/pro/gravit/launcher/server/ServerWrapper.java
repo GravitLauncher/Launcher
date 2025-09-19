@@ -190,9 +190,15 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
             setup.run();
             System.exit(0);
         }
+        if (args.length > 2 && args[0].equalsIgnoreCase("bridge") && !disableSetup) {
+            ServerWrapperBridge bridge = new ServerWrapperBridge();
+            connect();
+            bridge.run(args[1], args[2]);
+            System.exit(0);
+        }
         if (args.length > 1 && args[0].equalsIgnoreCase("installAuthlib") && !disableSetup) {
             InstallAuthlib command = new InstallAuthlib();
-            command. run(args[1]);
+            command.run(args[1]);
             System.exit(0);
         }
         connect();

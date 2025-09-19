@@ -5,6 +5,7 @@ import pro.gravit.launcher.base.events.request.AuthRequestEvent;
 import pro.gravit.launcher.base.profiles.ClientProfile;
 import pro.gravit.launcher.base.profiles.ClientProfileBuilder;
 import pro.gravit.launcher.base.profiles.PlayerProfile;
+import pro.gravit.launcher.client.utils.MinecraftAuthlibBridge;
 import pro.gravit.launcher.core.api.LauncherAPIHolder;
 import pro.gravit.launcher.core.api.features.ProfileFeatureAPI;
 import pro.gravit.launcher.core.backend.LauncherBackendAPI;
@@ -31,6 +32,7 @@ public class ReadyProfileImpl implements LauncherBackendAPI.ReadyProfile {
     private volatile ClientLauncherProcess process;
     private volatile Process nativeProcess;
     private volatile LauncherBackendAPI.RunCallback callback;
+    private volatile MinecraftAuthlibBridge bridge;
 
     public ReadyProfileImpl(LauncherBackendImpl backend, ClientProfile profile, ProfileSettingsImpl settings, ClientDownloadImpl.DownloadedDir clientDir, ClientDownloadImpl.DownloadedDir assetDir, ClientDownloadImpl.DownloadedDir javaDir) {
         this.backend = backend;
@@ -82,9 +84,15 @@ public class ReadyProfileImpl implements LauncherBackendAPI.ReadyProfile {
         if(JVMHelper.OS_TYPE == JVMHelper.OS.LINUX) {
             process.params.lwjglGlfwWayland = settings.hasFlag(LauncherBackendAPI.ClientProfileSettings.Flag.LINUX_WAYLAND_SUPPORT);
         }
-        writeParamsThread = new Thread(this::writeParams);
-        writeParamsThread.setDaemon(true);
-        writeParamsThread.start();
+        if(process.params.profile.getClassLoaderConfig() == ClientProfile.ClassLoaderConfig.BRIDGE) {
+            writeParamsThread = new Thread(this::authlibServer);
+            writeParamsThread.setDaemon(true);
+            writeParamsThread.start();
+        } else {
+            writeParamsThread = new Thread(this::writeParams);
+            writeParamsThread.setDaemon(true);
+            writeParamsThread.start();
+        }
         runThread = new Thread(this::readThread);
         runThread.setDaemon(true);
         runThread.start();
@@ -122,6 +130,9 @@ public class ReadyProfileImpl implements LauncherBackendAPI.ReadyProfile {
         if(nativeProcess == null) {
             return;
         }
+        if(bridge != null) {
+            bridge.close();
+        }
         nativeProcess.destroyForcibly();
     }
 
@@ -132,6 +143,14 @@ public class ReadyProfileImpl implements LauncherBackendAPI.ReadyProfile {
     private void writeParams() {
         try {
             process.runWriteParams(new InetSocketAddress("127.0.0.1", Launcher.getConfig().clientPort));
+        } catch (Throwable e) {
+            terminate();
+        }
+    }
+
+    private void authlibServer() {
+        try {
+            bridge = process.runAuthlibBridgeServer(new InetSocketAddress("127.0.0.1", Launcher.getConfig().clientPort));
         } catch (Throwable e) {
             terminate();
         }

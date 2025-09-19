@@ -9,6 +9,9 @@ java {
 
 repositories {
     mavenCentral()
+    maven {
+        url = uri("https://maven.gravitlauncher.com/")
+    }
 }
 
 val optional by configurations.creating {
