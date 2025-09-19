@@ -32,8 +32,6 @@ public final class LaunchServerConfig {
     private transient final Logger logger = LogManager.getLogger();
     public String projectName;
     public String[] mirrors;
-    public String binaryName;
-    public boolean copyBinaries = true;
     public LauncherConfig.LauncherEnvironment env;
     public Map<String, AuthProviderPair> auth;
     // Handlers & Providers
@@ -58,7 +56,6 @@ public final class LaunchServerConfig {
         a.displayName = "Default";
         newConfig.auth.put("std", a);
         newConfig.protectHandler = new StdProtectHandler();
-        newConfig.binaryName = "Launcher";
 
         newConfig.netty = new NettyConfig();
         newConfig.netty.fileServerEnabled = true;
@@ -111,10 +108,6 @@ public final class LaunchServerConfig {
 
     public void setProjectName(String projectName) {
         this.projectName = projectName;
-    }
-
-    public void setBinaryName(String binaryName) {
-        this.binaryName = binaryName;
     }
 
     public void setEnv(LauncherConfig.LauncherEnvironment env) {
@@ -262,9 +255,7 @@ public final class LaunchServerConfig {
         public boolean disableWebApiInterface;
         public boolean showHiddenFiles;
         public boolean sendProfileUpdatesEvent = true;
-        public String launcherURL;
         public String downloadURL;
-        public String launcherEXEURL;
         public String address;
         public Map<String, LaunchServerConfig.NettyUpdatesBind> bindings = new HashMap<>();
         public NettyPerformanceConfig performance;
