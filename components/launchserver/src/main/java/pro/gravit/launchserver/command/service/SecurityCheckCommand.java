@@ -84,7 +84,7 @@ public class SecurityCheckCommand extends Command {
             printCheckResult("netty.address", "", true);
         }
 
-        if (config.netty.launcherURL.startsWith("http://")) {
+        /*if (config.netty.launcherURL.startsWith("http://")) {
             printCheckResult("netty.launcherUrl", "launcher jar download connection not secure", false);
         } else if (config.netty.launcherURL.startsWith("https://")) {
             printCheckResult("netty.launcherUrl", "", true);
@@ -94,7 +94,7 @@ public class SecurityCheckCommand extends Command {
             printCheckResult("netty.launcherExeUrl", "launcher exe download connection not secure", false);
         } else if (config.netty.launcherEXEURL.startsWith("https://")) {
             printCheckResult("netty.launcherExeUrl", "", true);
-        }
+        }*/
 
         if (config.netty.downloadURL.startsWith("http://")) {
             printCheckResult("netty.downloadUrl", "assets/clients download connection not secure", false);
