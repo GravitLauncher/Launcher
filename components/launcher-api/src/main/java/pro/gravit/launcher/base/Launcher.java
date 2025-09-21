@@ -95,6 +95,7 @@ public final class Launcher {
                 LogHelper.setStacktraceEnabled(true);
                 break;
             case STD:
+                LogHelper.setStacktraceEnabled(true);
                 break;
             case PROD:
                 LogHelper.setStacktraceEnabled(false);
