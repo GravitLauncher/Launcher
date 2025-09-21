@@ -124,6 +124,8 @@ public class ClientLauncherProcess {
             this.mainClass = this.params.profile.getMainClass();
             this.jvmArgs.add("-Dlauncher.authlib.host=127.0.0.1");
             this.jvmArgs.add("-Dlauncher.authlib.port="+Launcher.getConfig().clientPort);
+            this.systemClientArgs.addAll(this.params.profile.getClientArgs());
+            this.params.addClientArgs(this.systemClientArgs);
         }
         this.jvmArgs.addAll(this.params.profile.getJvmArgs());
         for (OptionalAction a : this.params.actions) {
