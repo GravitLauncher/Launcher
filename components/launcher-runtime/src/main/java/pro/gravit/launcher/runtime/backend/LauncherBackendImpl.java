@@ -213,6 +213,11 @@ public class LauncherBackendImpl implements LauncherBackendAPI, TextureUploadExt
 
     private void onProfiles(List<ProfileFeatureAPI.ClientProfile> profiles) {
         this.profiles = profiles.stream().collect(Collectors.toMap(ProfileFeatureAPI.ClientProfile::getUUID, x -> x));
+        for(var e : this.profiles.values()) {
+            if(e instanceof ClientProfile cp) {
+                cp.updateOptionalGraph();
+            }
+        }
         for(var e : backendSettings.settings.entrySet()) {
             ClientProfile profile = (ClientProfile) this.profiles.get(e.getKey());
             if(profile == null) {

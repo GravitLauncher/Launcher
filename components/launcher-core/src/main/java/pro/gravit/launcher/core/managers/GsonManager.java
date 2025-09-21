@@ -7,10 +7,10 @@ import pro.gravit.launcher.core.hasher.HashedEntryAdapter;
 import pro.gravit.utils.helper.CommonHelper;
 
 public class GsonManager {
-    public GsonBuilder gsonBuilder;
-    public Gson gson;
-    public GsonBuilder configGsonBuilder;
-    public Gson configGson;
+    public volatile GsonBuilder gsonBuilder;
+    public volatile Gson gson;
+    public volatile GsonBuilder configGsonBuilder;
+    public volatile Gson configGson;
 
     public void initGson() {
         gsonBuilder = CommonHelper.newBuilder();

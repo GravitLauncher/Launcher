@@ -17,6 +17,7 @@ public class ModulesCommand extends Command {
     public ModulesCommand(LaunchServer server) {
         super(server);
         childCommands.put("list", new ModulesListCommand(server));
+        childCommands.put("available", new ModuleAvailableListCommand(server));
         childCommands.put("load", new LoadModuleCommand(server));
         childCommands.put("launcher-load", new LoadLauncherModuleCommand(server));
         childCommands.put("launcher-reload", new ReloadLauncherModuleCommand(server));

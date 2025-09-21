@@ -5,6 +5,7 @@ import pro.gravit.launcher.base.LauncherConfig;
 import pro.gravit.launcher.base.events.request.AuthRequestEvent;
 import pro.gravit.launcher.client.ClientLauncherEntryPoint;
 import pro.gravit.launcher.client.ClientParams;
+import pro.gravit.launcher.client.utils.MinecraftAuthlibBridge;
 import pro.gravit.launcher.runtime.LauncherEngine;
 import pro.gravit.launcher.runtime.client.events.ClientProcessBuilderCreateEvent;
 import pro.gravit.launcher.runtime.client.events.ClientProcessBuilderLaunchedEvent;
@@ -28,6 +29,7 @@ import java.net.Socket;
 import java.net.SocketAddress;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.attribute.PosixFilePermission;
 import java.util.*;
 
 public class ClientLauncherProcess {
@@ -39,7 +41,7 @@ public class ClientLauncherProcess {
     public final List<String> systemClientArgs = new LinkedList<>();
     public final List<String> systemClassPath = new LinkedList<>();
     public final Map<String, String> systemEnv = new HashMap<>();
-    public final String mainClass;
+    public String mainClass;
     private final transient Boolean[] waitWriteParams = new Boolean[]{false};
     public Path executeFile;
     public Path workDir;
@@ -116,7 +118,15 @@ public class ClientLauncherProcess {
     }
 
     private void applyClientProfile() {
-        this.systemClassPath.add(IOHelper.getCodeSource(ClientLauncherEntryPoint.class).toAbsolutePath().toString());
+        if(this.params.profile.getClassLoaderConfig() != ClientProfile.ClassLoaderConfig.BRIDGE) {
+            this.systemClassPath.add(IOHelper.getCodeSource(ClientLauncherEntryPoint.class).toAbsolutePath().toString());
+        } else {
+            this.mainClass = this.params.profile.getMainClass();
+            this.jvmArgs.add("-Dlauncher.authlib.host=127.0.0.1");
+            this.jvmArgs.add("-Dlauncher.authlib.port="+Launcher.getConfig().clientPort);
+            this.systemClientArgs.addAll(this.params.profile.getClientArgs());
+            this.params.addClientArgs(this.systemClientArgs);
+        }
         this.jvmArgs.addAll(this.params.profile.getJvmArgs());
         for (OptionalAction a : this.params.actions) {
             if (a instanceof OptionalActionJvmArgs) {
@@ -152,7 +162,8 @@ public class ClientLauncherProcess {
         }
         //ADD CLASSPATH
         processArgs.add(JVMHelper.jvmProperty("java.library.path", this.params.nativesDir));
-        if (params.profile.getClassLoaderConfig() == ClientProfile.ClassLoaderConfig.SYSTEM_ARGS) {
+        if (params.profile.getClassLoaderConfig() == ClientProfile.ClassLoaderConfig.SYSTEM_ARGS ||
+                params.profile.getClassLoaderConfig() == ClientProfile.ClassLoaderConfig.BRIDGE) {
             Set<Path> ignorePath = new HashSet<>();
             var moduleConf = params.profile.getModuleConf();
             if(moduleConf != null) {
@@ -219,7 +230,20 @@ public class ClientLauncherProcess {
             // https://github.com/Admicos/minecraft-wayland/issues/55
             env.put("__GL_THREADED_OPTIMIZATIONS", "0");
             if(params.lwjglGlfwWayland && !params.profile.hasFlag(ClientProfile.CompatibilityFlags.WAYLAND_USE_CUSTOM_GLFW)) {
-                env.remove("DISPLAY"); // No X11
+                env.putIfAbsent("GDK_BACKEND", "wayland");
+            }
+        }
+        if(JVMHelper.OS_TYPE != JVMHelper.OS.MUSTDIE) {
+            try {
+                var perms = Files.getPosixFilePermissions(executeFile);
+                if(!perms.contains(PosixFilePermission.OWNER_EXECUTE) || !perms.contains(PosixFilePermission.GROUP_EXECUTE)) {
+                    var newPerms = new HashSet<>(perms);
+                    newPerms.add(PosixFilePermission.GROUP_EXECUTE);
+                    newPerms.add(PosixFilePermission.OWNER_EXECUTE);
+                    Files.setPosixFilePermissions(executeFile, newPerms);
+                }
+            } catch (Throwable e) {
+                LogHelper.error(e);
             }
         }
         processBuilder.environment().put("JAVA_HOME", javaVersion.jvmDir.toAbsolutePath().toString());
@@ -281,6 +305,15 @@ public class ClientLauncherProcess {
             }
         }
         LauncherEngine.modulesManager.invokeEvent(new ClientProcessBuilderParamsWrittedEvent(this));
+    }
+
+    public MinecraftAuthlibBridge runAuthlibBridgeServer(SocketAddress address) throws IOException {
+        MinecraftAuthlibBridge bridge = new MinecraftAuthlibBridge(address);
+        synchronized (waitWriteParams) {
+            waitWriteParams[0] = true;
+            waitWriteParams.notifyAll();
+        }
+        return bridge;
     }
 
     public Process getProcess() {

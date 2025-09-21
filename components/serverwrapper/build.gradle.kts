@@ -43,6 +43,9 @@ val inlineJar by tasks.registering(ShadowJar::class) {
 
 repositories {
     mavenCentral()
+    maven {
+        url = uri("https://maven.gravitlauncher.com/")
+    }
 }
 
 dependencies {

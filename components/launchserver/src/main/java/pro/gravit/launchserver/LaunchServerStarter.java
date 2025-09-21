@@ -11,12 +11,14 @@ import pro.gravit.launcher.base.profiles.optional.actions.OptionalAction;
 import pro.gravit.launcher.base.profiles.optional.triggers.OptionalTrigger;
 import pro.gravit.launcher.base.request.auth.AuthRequest;
 import pro.gravit.launcher.base.request.auth.GetAvailabilityAuthRequest;
+import pro.gravit.launcher.core.api.features.CoreFeatureAPI;
 import pro.gravit.launchserver.auth.core.AuthCoreProvider;
 import pro.gravit.launchserver.auth.mix.MixProvider;
 import pro.gravit.launchserver.auth.password.PasswordVerifier;
 import pro.gravit.launchserver.auth.profiles.ProfilesProvider;
 import pro.gravit.launchserver.auth.protect.ProtectHandler;
 import pro.gravit.launchserver.auth.texture.TextureProvider;
+import pro.gravit.launchserver.auth.updates.LocalUpdatesProvider;
 import pro.gravit.launchserver.auth.updates.UpdatesProvider;
 import pro.gravit.launchserver.components.Component;
 import pro.gravit.launchserver.config.LaunchServerConfig;
@@ -298,8 +300,14 @@ public class LaunchServerStarter {
         }
         newConfig.netty.address = (usingHttps ? "wss://" : "ws://") + address + "/api";
         newConfig.netty.downloadURL = (usingHttps ? "https://" : "http://") + address + "/%dirname%/";
-        newConfig.netty.launcherURL = (usingHttps ? "https://" : "http://") + address + "/Launcher.jar";
-        newConfig.netty.launcherEXEURL = (usingHttps ? "https://" : "http://") + address + "/Launcher.exe";
+        if(newConfig.updatesProvider instanceof LocalUpdatesProvider localUpdatesProvider) {
+            localUpdatesProvider.binaryName = "Launcher";
+            localUpdatesProvider.urls.put(CoreFeatureAPI.UpdateVariant.JAR,
+                    (usingHttps ? "https://" : "http://") + address + "/Launcher.jar");
+            localUpdatesProvider.urls.put(CoreFeatureAPI.UpdateVariant.EXE_WINDOWS_X86_64,
+                    (usingHttps ? "https://" : "http://") + address + "/Launcher.exe");
+
+        }
         newConfig.netty.binds[0].port = port;
 
         // Write LaunchServer config

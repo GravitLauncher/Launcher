@@ -16,10 +16,6 @@ public abstract class LauncherBinary extends BinaryPipeline {
         this.context = new PipelineContext(server);
     }
 
-    public static Path resolve(LaunchServer server, String ext) {
-        return Path.of(server.config.binaryName + ext);
-    }
-
     public PipelineContext build() throws IOException {
         logger.info("Building launcher binary file");
         long time_start = System.currentTimeMillis();

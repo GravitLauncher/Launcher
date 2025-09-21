@@ -5,6 +5,9 @@ java {
 
 repositories {
     mavenCentral()
+    maven {
+        url = uri("https://maven.gravitlauncher.com/")
+    }
 }
 
 dependencies {
