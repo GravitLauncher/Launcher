@@ -24,13 +24,13 @@ public class ResourceLayerImpl implements LauncherBackendAPI.ResourceLayer {
             return;
         }
         List<VfsDirectory> overlays = new ArrayList<>();
-        overlays.add((VfsDirectory) Vfs.get().resolve(basePath));
         for(var e : overlayList) {
             var dir = (VfsDirectory) Vfs.get().resolve(basePath.resolve(e));
             if(dir != null) {
                 overlays.add(dir);
             }
         }
+        overlays.add((VfsDirectory) Vfs.get().resolve(basePath));
         OverlayVfsDirectory directory = new OverlayVfsDirectory(overlays);
         String randomName = SecurityHelper.randomStringToken();
         vfsPath = Path.of(randomName);
