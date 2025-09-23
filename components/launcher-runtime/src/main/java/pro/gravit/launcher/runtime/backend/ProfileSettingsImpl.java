@@ -205,6 +205,7 @@ public class ProfileSettingsImpl implements LauncherBackendAPI.ClientProfileSett
         this.backend = backend;
         this.profile = profile;
         this.view = new OptionalView(profile);
+        processTriggers(profile, this.view);
         for(var e : enabled) {
             var opt = profile.getOptionalFile(e);
             if(opt == null) {
