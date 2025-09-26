@@ -4,6 +4,8 @@ import oshi.SystemInfo;
 import pro.gravit.launcher.base.profiles.ClientProfile;
 import pro.gravit.launcher.base.profiles.optional.OptionalFile;
 import pro.gravit.launcher.base.profiles.optional.OptionalView;
+import pro.gravit.launcher.base.profiles.optional.triggers.OptionalTrigger;
+import pro.gravit.launcher.base.profiles.optional.triggers.OptionalTriggerContext;
 import pro.gravit.launcher.core.LauncherNetworkAPI;
 import pro.gravit.launcher.core.api.features.ProfileFeatureAPI;
 import pro.gravit.launcher.core.backend.LauncherBackendAPI;
@@ -47,6 +49,7 @@ public class ProfileSettingsImpl implements LauncherBackendAPI.ClientProfileSett
         if(JVMHelper.OS_TYPE == JVMHelper.OS.LINUX && System.getenv("WAYLAND_DISPLAY") != null) {
             this.flags.add(Flag.LINUX_WAYLAND_SUPPORT);
         }
+        processTriggers(profile, this.view);
     }
 
     @Override
@@ -202,6 +205,7 @@ public class ProfileSettingsImpl implements LauncherBackendAPI.ClientProfileSett
         this.backend = backend;
         this.profile = profile;
         this.view = new OptionalView(profile);
+        processTriggers(profile, this.view);
         for(var e : enabled) {
             var opt = profile.getOptionalFile(e);
             if(opt == null) {
@@ -224,6 +228,65 @@ public class ProfileSettingsImpl implements LauncherBackendAPI.ClientProfileSett
                     }
                 }
             });
+        }
+    }
+
+
+
+    public void processTriggers(ClientProfile profile, OptionalView view) {
+        TriggerManagerContext context = new TriggerManagerContext(profile);
+        for (OptionalFile optional : view.all) {
+            if (optional.limited) {
+                if (!backend.hasPermission("launcher.runtime.optionals.%s.%s.show"
+                        .formatted(profile.getUUID(),
+                                optional.name.toLowerCase(Locale.ROOT)))) {
+                    view.disable(optional, null);
+                    optional.visible = false;
+                } else {
+                    optional.visible = true;
+                }
+            }
+            if (optional.triggersList == null) continue;
+            boolean isRequired = false;
+            int success = 0;
+            int fail = 0;
+            for (OptionalTrigger trigger : optional.triggersList) {
+                if (trigger.required) isRequired = true;
+                if (trigger.check(optional, context)) {
+                    success++;
+                } else {
+                    fail++;
+                }
+            }
+            if (isRequired) {
+                if (fail == 0) view.enable(optional, true, null);
+                else view.disable(optional, null);
+            } else {
+                if (success > 0) view.enable(optional, false, null);
+            }
+        }
+    }
+
+    private class TriggerManagerContext implements OptionalTriggerContext {
+        private final ClientProfile profile;
+
+        private TriggerManagerContext(ClientProfile profile) {
+            this.profile = profile;
+        }
+
+        @Override
+        public ClientProfile getProfile() {
+            return profile;
+        }
+
+        @Override
+        public String getUsername() {
+            return ProfileSettingsImpl.this.backend.getUsername();
+        }
+
+        @Override
+        public JavaHelper.JavaVersion getJavaVersion() {
+            return getSelectedJava();
         }
     }
 }
