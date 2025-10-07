@@ -11,7 +11,7 @@ bouncycastle = "1.81"
 jjwt = "0.13.0"
 progressbar = "0.10.1"
 asm = "9.8"
-proguard = "7.7.0"
+proguard = "7.8.0"
 # Database libraries
 hikari = "3.3.0"
 postgresql = "42.7.7"
