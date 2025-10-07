@@ -1,11 +1,11 @@
 plugins {
-    id("com.gradleup.shadow") version "9.0.2" apply false
+    id("com.gradleup.shadow") version "9.2.2" apply false
     id("java")
     id("maven-publish")
 }
 
 group = "com.gravitlauncher.launcher"
-version = "5.7.5"
+version = "5.7.6-SNAPSHOT"
 
 
 val myVersion = version
