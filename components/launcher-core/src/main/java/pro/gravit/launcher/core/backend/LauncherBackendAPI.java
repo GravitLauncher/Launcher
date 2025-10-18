@@ -138,6 +138,10 @@ public interface LauncherBackendAPI {
         public void onErrorOutput(byte[] buf, int offset, int size) {
 
         }
+
+        public void onReadyToExit() {
+
+        }
     }
 
     class DownloadCallback {

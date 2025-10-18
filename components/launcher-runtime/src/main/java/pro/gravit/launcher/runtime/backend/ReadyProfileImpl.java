@@ -143,6 +143,7 @@ public class ReadyProfileImpl implements LauncherBackendAPI.ReadyProfile {
     private void writeParams() {
         try {
             process.runWriteParams(new InetSocketAddress("127.0.0.1", Launcher.getConfig().clientPort));
+            callback.onReadyToExit();
         } catch (Throwable e) {
             terminate();
         }
