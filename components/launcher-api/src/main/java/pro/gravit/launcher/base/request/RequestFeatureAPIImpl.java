@@ -177,7 +177,11 @@ public class RequestFeatureAPIImpl implements AuthFeatureAPI, UserFeatureAPI, Pr
 
     @Override
     public CompletableFuture<Void> exit() {
-        return request.request(new ExitRequest()).thenApply(response -> null);
+        return request.request(new ExitRequest())
+                .thenApply(response -> {
+                    Request.setOAuth(null, null);
+                    return null;
+                });
     }
 
     @SuppressWarnings({"rawtypes", "unchecked"})
