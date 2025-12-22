@@ -121,6 +121,25 @@ distributions {
 
 tasks.distZip {
     dependsOn(project(":components:serverwrapper").tasks["fatJar"],
+        project(":components:serverwrapper").tasks["shadowJar"],
+        project(":components:serverwrapper").tasks["inlineJar"],
+        project(":components:launcher-runtime").tasks["copyLauncherLibs"],
+        project(":modules").tasks["copyModules"],
+        copyProguardLibs)
+}
+
+tasks.distTar {
+    dependsOn(project(":components:serverwrapper").tasks["fatJar"],
+        project(":components:serverwrapper").tasks["shadowJar"],
+        project(":components:serverwrapper").tasks["inlineJar"],
+        project(":components:launcher-runtime").tasks["copyLauncherLibs"],
+        project(":modules").tasks["copyModules"],
+        copyProguardLibs)
+}
+
+tasks.installDist {
+    dependsOn(project(":components:serverwrapper").tasks["fatJar"],
+        project(":components:serverwrapper").tasks["shadowJar"],
         project(":components:serverwrapper").tasks["inlineJar"],
         project(":components:launcher-runtime").tasks["copyLauncherLibs"],
         project(":modules").tasks["copyModules"],

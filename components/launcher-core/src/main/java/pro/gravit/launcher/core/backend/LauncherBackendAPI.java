@@ -23,6 +23,7 @@ public interface LauncherBackendAPI {
     void selectAuthMethod(AuthMethod method);
     CompletableFuture<SelfUser> tryAuthorize();
     CompletableFuture<SelfUser> authorize(String login, AuthMethodPassword password);
+    CompletableFuture<Void> userExit();
     CompletableFuture<List<ProfileFeatureAPI.ClientProfile>> fetchProfiles();
     ClientProfileSettings makeClientProfileSettings(ProfileFeatureAPI.ClientProfile profile);
     void saveClientProfileSettings(ClientProfileSettings settings);
@@ -113,6 +114,10 @@ public interface LauncherBackendAPI {
 
         }
 
+        public void onExit() {
+
+        }
+
         public void onShutdown() {
 
         }
@@ -136,6 +141,10 @@ public interface LauncherBackendAPI {
         }
 
         public void onErrorOutput(byte[] buf, int offset, int size) {
+
+        }
+
+        public void onReadyToExit() {
 
         }
     }

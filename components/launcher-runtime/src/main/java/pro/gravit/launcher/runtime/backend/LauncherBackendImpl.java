@@ -203,6 +203,16 @@ public class LauncherBackendImpl implements LauncherBackendAPI, TextureUploadExt
     }
 
     @Override
+    public CompletableFuture<Void> userExit() {
+        return LauncherAPIHolder.auth().exit().thenAccept((e) -> {
+            backendSettings.auth = null;
+            this.selfUser = null;
+            permissions = new ClientPermissions();
+            callback.onExit();
+        });
+    }
+
+    @Override
     public CompletableFuture<List<ProfileFeatureAPI.ClientProfile>> fetchProfiles() {
         return LauncherAPIHolder.profile().getProfiles().thenApply((profiles) -> {
             onProfiles(profiles);
