@@ -241,8 +241,7 @@ public class LauncherBackendImpl implements LauncherBackendAPI, TextureUploadExt
     public ClientProfileSettings makeClientProfileSettings(ProfileFeatureAPI.ClientProfile profile) {
         var settings = backendSettings.settings.get(profile.getUUID());
         if(settings == null) {
-            settings = new ProfileSettingsImpl((ClientProfile) profile);
-            settings.backend = this;
+            settings = new ProfileSettingsImpl((ClientProfile) profile, this);
             settings.updateEnabledMods();
         } else {
             if(settings.backend == null) {
