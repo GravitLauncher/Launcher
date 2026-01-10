@@ -191,8 +191,8 @@ public class RequestFeatureAPIImpl implements AuthFeatureAPI, UserFeatureAPI, Pr
     }
 
     @Override
-    public CompletableFuture<Void> changeCurrentProfile(ClientProfile profile) {
-        return request.request(new SetProfileRequest((pro.gravit.launcher.base.profiles.ClientProfile) profile)).thenApply(response -> null);
+    public CompletableFuture<ClientProfile> changeCurrentProfile(ClientProfile profile) {
+        return request.request(new SetProfileRequest((pro.gravit.launcher.base.profiles.ClientProfile) profile)).thenApply(response -> response.newProfile);
     }
 
     @Override
