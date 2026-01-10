@@ -4,14 +4,14 @@ import com.google.gson.JsonElement;
 import pro.gravit.launcher.base.Launcher;
 import pro.gravit.launcher.base.helper.HttpHelper;
 import pro.gravit.launcher.base.profiles.ClientProfile;
-import pro.gravit.launcher.base.request.auth.password.AuthPlainPassword;
-import pro.gravit.launcher.core.api.features.AuthFeatureAPI;
-import pro.gravit.launcher.core.api.features.CoreFeatureAPI;
-import pro.gravit.launcher.core.api.features.ProfileFeatureAPI;
-import pro.gravit.launcher.core.api.features.UserFeatureAPI;
+import pro.gravit.launcher.core.api.features.*;
 import pro.gravit.launcher.core.api.method.AuthMethod;
+import pro.gravit.launcher.core.api.method.AuthMethodDetails;
 import pro.gravit.launcher.core.api.method.AuthMethodPassword;
+import pro.gravit.launcher.core.api.method.details.AuthPasswordDetails;
+import pro.gravit.launcher.core.api.method.details.AuthTotpDetails;
 import pro.gravit.launcher.core.api.method.password.AuthChainPassword;
+import pro.gravit.launcher.core.api.method.password.AuthPlainPassword;
 import pro.gravit.launcher.core.api.method.password.AuthTotpPassword;
 import pro.gravit.launcher.core.api.model.SelfUser;
 import pro.gravit.launcher.core.api.model.Texture;
@@ -28,12 +28,13 @@ import java.net.URLEncoder;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.nio.charset.StandardCharsets;
+import java.security.PublicKey;
 import java.security.spec.InvalidKeySpecException;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicReference;
 
-public class RequestFeatureHttpAPIImpl implements AuthFeatureAPI, UserFeatureAPI, ProfileFeatureAPI, CoreFeatureAPI {
+public class RequestFeatureHttpAPIImpl implements AuthFeatureAPI, UserFeatureAPI, ProfileFeatureAPI, CoreFeatureAPI, HardwareVerificationFeatureAPI {
     private final String baseUrl;
     private final HttpClient client = HttpClient.newBuilder().build();
     private AtomicReference<HttpAuthData> authDataRef = new AtomicReference<>();
@@ -47,18 +48,19 @@ public class RequestFeatureHttpAPIImpl implements AuthFeatureAPI, UserFeatureAPI
     public CompletableFuture<SelfUser> getCurrentUser() {
         var accessToken = Optional.ofNullable(authDataRef.get()).map(e -> e.accessToken);
         if(accessToken.isEmpty()) {
-            return CompletableFuture.failedFuture(new RequestException("You are not authorized"));
+            return CompletableFuture.failedFuture(new RequestException("You are not authorized (currentuser)"));
         }
         return HttpHelper.sendAsync(client, HttpRequest.newBuilder()
                 .GET()
                 .uri(URI.create(baseUrl.concat("/auth/currentuser")))
                 .header("Authorization", "Bearer "+accessToken.get())
+                .header("Content-Type", "application/json")
                 .build(), new HttpErrorHandler<>(HttpUser.class)).thenApply(result -> {
             var res = result.result();
             HttpSelfUser httpSelfUser = new HttpSelfUser();
             httpSelfUser.username = res.getUsername();
             httpSelfUser.uuid = res.getUUID();
-            httpSelfUser.assets = res.getAssets();
+            httpSelfUser.assets = (Map) res.getAssets();
             httpSelfUser.properties = res.getProperties();
             return httpSelfUser;
         });
@@ -69,14 +71,14 @@ public class RequestFeatureHttpAPIImpl implements AuthFeatureAPI, UserFeatureAPI
         String rawPassword;
         String rawTotp;
         if (password instanceof AuthPlainPassword plain) {
-            rawPassword = plain.password;
+            rawPassword = plain.value();
             rawTotp = null;
         } else if (password instanceof AuthChainPassword(List<AuthMethodPassword> list)) {
             rawPassword = null;
             rawTotp = null;
             for (var e : list) {
                 if (e instanceof AuthPlainPassword plain) {
-                    rawPassword = plain.password;
+                    rawPassword = plain.value();
                 } else if (e instanceof AuthTotpPassword(String value)) {
                     rawTotp = value;
                 }
@@ -87,8 +89,9 @@ public class RequestFeatureHttpAPIImpl implements AuthFeatureAPI, UserFeatureAPI
         return HttpHelper.sendAsync(client, HttpRequest.newBuilder()
                 .POST(HttpHelper.jsonBodyPublisher(new HttpAuthRequest(login, rawPassword, rawTotp)))
                 .uri(URI.create(baseUrl.concat("/auth/authorize")))
+                .header("Content-Type", "application/json")
                 .build(), new HttpErrorHandler<>(HttpAuthData.class)).thenCompose(result -> {
-            authDataRef.set(result.result());
+            authDataRef.set(result.getOrThrow());
             return getCurrentUser().thenApply((selfUser) -> new AuthResponse(selfUser, result.result()));
         });
     }
@@ -98,6 +101,7 @@ public class RequestFeatureHttpAPIImpl implements AuthFeatureAPI, UserFeatureAPI
         return HttpHelper.sendAsync(client, HttpRequest.newBuilder()
                 .POST(HttpHelper.jsonBodyPublisher(new HttpRefreshRequest(refreshToken)))
                 .uri(URI.create(baseUrl.concat("/auth/refresh")))
+                .header("Content-Type", "application/json")
                 .build(), new HttpErrorHandler<>(HttpAuthData.class)).thenApply(HttpHelper.HttpOptional::getOrThrow);
     }
 
@@ -115,9 +119,13 @@ public class RequestFeatureHttpAPIImpl implements AuthFeatureAPI, UserFeatureAPI
         }
         return HttpHelper.sendAsync(client, HttpRequest.newBuilder()
                 .POST(HttpRequest.BodyPublishers.noBody())
-                .uri(URI.create(baseUrl.concat("/auth/exit")))
+                .uri(URI.create(baseUrl.concat("/auth/logout")))
+                .header("Content-Type", "application/json")
                 .header("Authorization", "Bearer "+accessToken.get())
-                .build(), new HttpErrorHandler<>(Void.class)).thenApply(HttpHelper.HttpOptional::getOrThrow);
+                .build(), new HttpErrorHandler<>(Void.class)).thenApply(HttpHelper.HttpOptional::getOrThrow).thenApply(e -> {
+                    authDataRef.set(null);
+                    return e;
+        });
     }
 
     @Override
@@ -125,6 +133,7 @@ public class RequestFeatureHttpAPIImpl implements AuthFeatureAPI, UserFeatureAPI
         return HttpHelper.sendAsync(client, HttpRequest.newBuilder()
                 .GET()
                 .uri(URI.create(baseUrl.concat("/user/by/username/").concat(URLEncoder.encode(username, StandardCharsets.UTF_8))))
+                .header("Content-Type", "application/json")
                 .build(), new HttpErrorHandler<>(HttpUser.class)).thenApply(HttpHelper.HttpOptional::getOrThrow);
     }
 
@@ -133,6 +142,7 @@ public class RequestFeatureHttpAPIImpl implements AuthFeatureAPI, UserFeatureAPI
         return HttpHelper.sendAsync(client, HttpRequest.newBuilder()
                 .GET()
                 .uri(URI.create(baseUrl.concat("/user/by/uuid/").concat(uuid.toString())))
+                .header("Content-Type", "application/json")
                 .build(), new HttpErrorHandler<>(HttpUser.class)).thenApply(HttpHelper.HttpOptional::getOrThrow);
     }
 
@@ -146,6 +156,7 @@ public class RequestFeatureHttpAPIImpl implements AuthFeatureAPI, UserFeatureAPI
                 .POST(HttpHelper.jsonBodyPublisher(new HttpJoinServerByUsernameRequest(username, serverID, accessToken)))
                 .uri(URI.create(baseUrl.concat("/auth/joinserver/username")))
                 .header("Authorization", "Bearer "+accessToken0.get())
+                        .header("Content-Type", "application/json")
                 .build(), new HttpErrorHandler<>(HttpCheckServerResponse.class))
                 .thenApply(HttpHelper.HttpOptional::getOrThrow).thenApply(e -> null);
     }
@@ -160,6 +171,7 @@ public class RequestFeatureHttpAPIImpl implements AuthFeatureAPI, UserFeatureAPI
                 .POST(HttpHelper.jsonBodyPublisher(new HttpJoinServerByUuidRequest(uuid.toString(), serverID, accessToken)))
                 .uri(URI.create(baseUrl.concat("/auth/joinserver/uuid")))
                 .header("Authorization", "Bearer "+accessToken0.get())
+                        .header("Content-Type", "application/json")
                 .build(), new HttpErrorHandler<>(HttpCheckServerResponse.class))
                 .thenApply(HttpHelper.HttpOptional::getOrThrow).thenApply(e -> null);
     }
@@ -174,6 +186,7 @@ public class RequestFeatureHttpAPIImpl implements AuthFeatureAPI, UserFeatureAPI
                 .POST(HttpHelper.jsonBodyPublisher(new HttpCheckServerRequest(username, serverID, extended)))
                 .uri(URI.create(baseUrl.concat("/auth/checkserver")))
                 .header("Authorization", "Bearer "+accessToken.get())
+                .header("Content-Type", "application/json")
                 .build(), new HttpErrorHandler<>(HttpCheckServerResponse.class))
                 .thenApply(e -> e.getOrThrow().toDefaultResult());
     }
@@ -188,6 +201,7 @@ public class RequestFeatureHttpAPIImpl implements AuthFeatureAPI, UserFeatureAPI
                 .GET()
                 .uri(URI.create(baseUrl.concat("/profile/list")))
                 .header("Authorization", "Bearer "+accessToken0.get())
+                        .header("Content-Type", "application/json")
                 .build(), new HttpErrorHandler<>(HttpListProfilesResponse.class))
                 .thenApply(e -> new ArrayList<>(e.getOrThrow().profiles()));
     }
@@ -208,13 +222,14 @@ public class RequestFeatureHttpAPIImpl implements AuthFeatureAPI, UserFeatureAPI
                 .GET()
                 .uri(URI.create(baseUrl.concat(String.format("/profile/%s/dir/%s", profileRef.get().getUUID(), dirName))))
                 .header("Authorization", "Bearer "+accessToken0.get())
+                        .header("Content-Type", "application/json")
                 .build(), new HttpErrorHandler<>(HttpUpdateInfo.class))
                 .thenApply(HttpHelper.HttpOptional::getOrThrow);
     }
 
     @Override
     public CompletableFuture<List<AuthMethod>> getAuthMethods() {
-        return null;
+        return CompletableFuture.completedFuture(List.of(new HttoAuthMethod()));
     }
 
     @Override
@@ -222,6 +237,7 @@ public class RequestFeatureHttpAPIImpl implements AuthFeatureAPI, UserFeatureAPI
         return HttpHelper.sendAsync(client, HttpRequest.newBuilder()
                 .GET()
                 .uri(URI.create(baseUrl.concat("/updates/prepare")))
+                .header("Content-Type", "application/json")
                 .build(), new HttpErrorHandler<>(HttpUpdatesPrepare.class)).thenCompose(result -> {
                     var res = result.getOrThrow();
                     try {
@@ -234,6 +250,7 @@ public class RequestFeatureHttpAPIImpl implements AuthFeatureAPI, UserFeatureAPI
                                         Base64.getEncoder().encodeToString(publicKey.getEncoded()),
                                         result.result().jwtToken())))
                                 .uri(URI.create(baseUrl.concat("/updates/check")))
+                                        .header("Content-Type", "application/json")
                                 .build(), new HttpErrorHandler<>(LauncherUpdateInfo.class))
                                 .thenApply(HttpHelper.HttpOptional::getOrThrow);
                     } catch (InvalidKeySpecException e) {
@@ -242,11 +259,67 @@ public class RequestFeatureHttpAPIImpl implements AuthFeatureAPI, UserFeatureAPI
         });
     }
 
+    @Override
+    public CompletableFuture<SecurityLevelInfo> getSecurityInfo() {
+        // TODO: Implement
+        return CompletableFuture.completedFuture(new SecurityLevelInfo() {
+            @Override
+            public boolean isRequired() {
+                return false;
+            }
+
+            @Override
+            public byte[] getSignData() {
+                return new byte[0];
+            }
+        });
+    }
+
+    @Override
+    public CompletableFuture<SecurityLevelVerification> privateKeyVerification(PublicKey publicKey, byte[] signature) {
+        // TODO: Implement
+        return CompletableFuture.failedFuture(new UnsupportedOperationException());
+    }
+
+    @Override
+    public CompletableFuture<Void> sendHardwareInfo(HardwareStatisticData statisticData, HardwareIdentifyData identifyData) {
+        // TODO: Implement
+        return CompletableFuture.failedFuture(new UnsupportedOperationException());
+    }
+
+    public record HttoAuthMethod() implements AuthMethod {
+
+        @Override
+        public List<AuthMethodDetails> getDetails() {
+            return List.of(new AuthPasswordDetails(), new AuthTotpDetails(6));
+        }
+
+        @Override
+        public String getName() {
+            return "Http";
+        }
+
+        @Override
+        public String getDisplayName() {
+            return "Http";
+        }
+
+        @Override
+        public boolean isVisible() {
+            return true;
+        }
+
+        @Override
+        public Set<String> getFeatures() {
+            return Set.of();
+        }
+    }
+
     public static class HttpUser implements User {
 
         public String username;
         public UUID uuid;
-        public Map<String, Texture> assets;
+        public Map<String, pro.gravit.launcher.base.profiles.Texture> assets;
         public Map<String, String> properties;
 
         @Override
@@ -261,7 +334,7 @@ public class RequestFeatureHttpAPIImpl implements AuthFeatureAPI, UserFeatureAPI
 
         @Override
         public Map<String, Texture> getAssets() {
-            return assets;
+            return (Map<String, Texture>) (Map) assets;
         }
 
         @Override

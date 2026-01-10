@@ -316,7 +316,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
                     logger.error("LaunchServer close error", e);
                 }
             }));
-            CommonHelper.newThread("Command Thread", true, commandHandler).start();
+            //CommonHelper.newThread("Command Thread", true, commandHandler).start();
         }
         if (config.netty != null)
             rebindNettyServerSocket();
@@ -324,6 +324,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
             modulesManager.fullInitializedLaunchServer(this);
             modulesManager.invokeEvent(new LaunchServerFullInitEvent(this));
             logger.info("LaunchServer started");
+            commandHandler.run();
         } catch (Throwable e) {
             logger.error("LaunchServer startup failed", e);
             JVMHelper.RUNTIME.exit(-1);
