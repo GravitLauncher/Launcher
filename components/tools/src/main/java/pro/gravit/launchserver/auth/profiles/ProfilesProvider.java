@@ -21,6 +21,7 @@ public abstract class ProfilesProvider {
     public static void registerProviders() {
         if (!registredProviders) {
             providers.register("local", LocalProfilesProvider.class);
+            providers.register("remote", RemoteProfilesProvider.class);
             registredProviders = true;
         }
     }
