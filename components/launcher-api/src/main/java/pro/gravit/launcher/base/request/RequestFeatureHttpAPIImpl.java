@@ -45,82 +45,60 @@ public class RequestFeatureHttpAPIImpl implements AuthFeatureAPI, UserFeatureAPI
 
     @Override
     public CompletableFuture<SelfUser> getCurrentUser() {
-        try {
-            var accessToken = Optional.ofNullable(authDataRef.get()).map(e -> e.accessToken);
-            if(accessToken.isEmpty()) {
-                return CompletableFuture.failedFuture(new RequestException("You are not authorized"));
-            }
-            var result = HttpHelper.send(client, HttpRequest.newBuilder()
-                            .GET()
-                            .uri(URI.create(baseUrl.concat("/auth/currentuser")))
-                            .header("Authorization", "Bearer "+accessToken.get())
-                    .build(), new HttpErrorHandler<>(HttpUser.class));
-            if(result.isSuccessful()) {
-                var res = result.result();
-                HttpSelfUser httpSelfUser = new HttpSelfUser();
-                httpSelfUser.username = res.getUsername();
-                httpSelfUser.uuid = res.getUUID();
-                httpSelfUser.assets = res.getAssets();
-                httpSelfUser.properties = res.getProperties();
-                return CompletableFuture.completedFuture(httpSelfUser);
-            }
-            return CompletableFuture.failedFuture(new RequestException(result.error().toString()));
-        } catch (IOException e) {
-            return CompletableFuture.failedFuture(e);
+        var accessToken = Optional.ofNullable(authDataRef.get()).map(e -> e.accessToken);
+        if(accessToken.isEmpty()) {
+            return CompletableFuture.failedFuture(new RequestException("You are not authorized"));
         }
+        return HttpHelper.sendAsync(client, HttpRequest.newBuilder()
+                .GET()
+                .uri(URI.create(baseUrl.concat("/auth/currentuser")))
+                .header("Authorization", "Bearer "+accessToken.get())
+                .build(), new HttpErrorHandler<>(HttpUser.class)).thenApply(result -> {
+            var res = result.result();
+            HttpSelfUser httpSelfUser = new HttpSelfUser();
+            httpSelfUser.username = res.getUsername();
+            httpSelfUser.uuid = res.getUUID();
+            httpSelfUser.assets = res.getAssets();
+            httpSelfUser.properties = res.getProperties();
+            return httpSelfUser;
+        });
     }
 
     @Override
     public CompletableFuture<AuthResponse> auth(String login, AuthMethodPassword password) {
-        try {
-            String rawPassword;
-            String rawTotp;
-            if(password instanceof AuthPlainPassword plain) {
-                rawPassword = plain.password;
-                rawTotp = null;
-            } else if(password instanceof AuthChainPassword chain) {
-                rawPassword = null;
-                rawTotp = null;
-                for(var e : chain.list()) {
-                    if(e instanceof AuthPlainPassword plain) {
-                        rawPassword = plain.password;
-                    } else if(e instanceof AuthTotpPassword(String value)) {
-                        rawTotp = value;
-                    }
+        String rawPassword;
+        String rawTotp;
+        if (password instanceof AuthPlainPassword plain) {
+            rawPassword = plain.password;
+            rawTotp = null;
+        } else if (password instanceof AuthChainPassword(List<AuthMethodPassword> list)) {
+            rawPassword = null;
+            rawTotp = null;
+            for (var e : list) {
+                if (e instanceof AuthPlainPassword plain) {
+                    rawPassword = plain.password;
+                } else if (e instanceof AuthTotpPassword(String value)) {
+                    rawTotp = value;
                 }
-            } else {
-                return CompletableFuture.failedFuture(new RequestException("Unknown password type"));
             }
-            var result = HttpHelper.send(client, HttpRequest.newBuilder()
-                            .POST(HttpHelper.jsonBodyPublisher(new HttpAuthRequest(login, rawPassword, rawTotp)))
-                    .uri(URI.create(baseUrl.concat("/auth/authorize")))
-                    .build(), new HttpErrorHandler<>(HttpAuthData.class));
-            if(result.isSuccessful()) {
-                authDataRef.set(result.result());
-                return getCurrentUser().thenApply((selfUser) -> {
-                    return new AuthResponse(selfUser, result.result());
-                });
-            }
-            return CompletableFuture.failedFuture(new RequestException(result.error().toString()));
-        } catch (IOException e) {
-            return CompletableFuture.failedFuture(e);
+        } else {
+            return CompletableFuture.failedFuture(new RequestException("Unknown password type"));
         }
+        return HttpHelper.sendAsync(client, HttpRequest.newBuilder()
+                .POST(HttpHelper.jsonBodyPublisher(new HttpAuthRequest(login, rawPassword, rawTotp)))
+                .uri(URI.create(baseUrl.concat("/auth/authorize")))
+                .build(), new HttpErrorHandler<>(HttpAuthData.class)).thenCompose(result -> {
+            authDataRef.set(result.result());
+            return getCurrentUser().thenApply((selfUser) -> new AuthResponse(selfUser, result.result()));
+        });
     }
 
     @Override
     public CompletableFuture<AuthToken> refreshToken(String refreshToken) {
-        try {
-            var result = HttpHelper.send(client, HttpRequest.newBuilder()
-                    .POST(HttpHelper.jsonBodyPublisher(new HttpRefreshRequest(refreshToken)))
-                    .uri(URI.create(baseUrl.concat("/auth/refresh")))
-                    .build(), new HttpErrorHandler<>(HttpAuthData.class));
-            if(result.isSuccessful()) {
-                return CompletableFuture.completedFuture(result.result());
-            }
-            return CompletableFuture.failedFuture(new RequestException(result.error().toString()));
-        } catch (IOException e) {
-            return CompletableFuture.failedFuture(e);
-        }
+        return HttpHelper.sendAsync(client, HttpRequest.newBuilder()
+                .POST(HttpHelper.jsonBodyPublisher(new HttpRefreshRequest(refreshToken)))
+                .uri(URI.create(baseUrl.concat("/auth/refresh")))
+                .build(), new HttpErrorHandler<>(HttpAuthData.class)).thenApply(HttpHelper.HttpOptional::getOrThrow);
     }
 
     @Override
@@ -131,140 +109,87 @@ public class RequestFeatureHttpAPIImpl implements AuthFeatureAPI, UserFeatureAPI
 
     @Override
     public CompletableFuture<Void> exit() {
-        try {
-            var accessToken = Optional.ofNullable(authDataRef.get()).map(e -> e.accessToken);
-            if(accessToken.isEmpty()) {
-                return CompletableFuture.failedFuture(new RequestException("You are not authorized"));
-            }
-            var result = HttpHelper.send(client, HttpRequest.newBuilder()
-                    .POST(HttpRequest.BodyPublishers.noBody())
-                    .uri(URI.create(baseUrl.concat("/auth/exit")))
-                    .header("Authorization", "Bearer "+accessToken.get())
-                    .build(), new HttpErrorHandler<>(Void.class));
-            if(result.isSuccessful()) {
-                return CompletableFuture.completedFuture(result.result());
-            }
-            return CompletableFuture.failedFuture(new RequestException(result.error().toString()));
-        } catch (IOException e) {
-            return CompletableFuture.failedFuture(e);
+        var accessToken = Optional.ofNullable(authDataRef.get()).map(e -> e.accessToken);
+        if(accessToken.isEmpty()) {
+            return CompletableFuture.failedFuture(new RequestException("You are not authorized"));
         }
+        return HttpHelper.sendAsync(client, HttpRequest.newBuilder()
+                .POST(HttpRequest.BodyPublishers.noBody())
+                .uri(URI.create(baseUrl.concat("/auth/exit")))
+                .header("Authorization", "Bearer "+accessToken.get())
+                .build(), new HttpErrorHandler<>(Void.class)).thenApply(HttpHelper.HttpOptional::getOrThrow);
     }
 
     @Override
     public CompletableFuture<User> getUserByUsername(String username) {
-        try {
-            var result = HttpHelper.send(client, HttpRequest.newBuilder()
-                    .GET()
-                    .uri(URI.create(baseUrl.concat("/user/by/username/").concat(URLEncoder.encode(username, StandardCharsets.UTF_8))))
-                    .build(), new HttpErrorHandler<>(HttpUser.class));
-            if(result.isSuccessful()) {
-                return CompletableFuture.completedFuture(result.result());
-            }
-            return CompletableFuture.failedFuture(new RequestException(result.error().toString()));
-        } catch (IOException e) {
-            return CompletableFuture.failedFuture(e);
-        }
+        return HttpHelper.sendAsync(client, HttpRequest.newBuilder()
+                .GET()
+                .uri(URI.create(baseUrl.concat("/user/by/username/").concat(URLEncoder.encode(username, StandardCharsets.UTF_8))))
+                .build(), new HttpErrorHandler<>(HttpUser.class)).thenApply(HttpHelper.HttpOptional::getOrThrow);
     }
 
     @Override
     public CompletableFuture<User> getUserByUUID(UUID uuid) {
-        try {
-            var result = HttpHelper.send(client, HttpRequest.newBuilder()
-                    .GET()
-                    .uri(URI.create(baseUrl.concat("/user/by/uuid/").concat(uuid.toString())))
-                    .build(), new HttpErrorHandler<>(HttpUser.class));
-            if(result.isSuccessful()) {
-                return CompletableFuture.completedFuture(result.result());
-            }
-            return CompletableFuture.failedFuture(new RequestException(result.error().toString()));
-        } catch (IOException e) {
-            return CompletableFuture.failedFuture(e);
-        }
+        return HttpHelper.sendAsync(client, HttpRequest.newBuilder()
+                .GET()
+                .uri(URI.create(baseUrl.concat("/user/by/uuid/").concat(uuid.toString())))
+                .build(), new HttpErrorHandler<>(HttpUser.class)).thenApply(HttpHelper.HttpOptional::getOrThrow);
     }
 
     @Override
     public CompletableFuture<Void> joinServer(String username, String accessToken, String serverID) {
-        try {
-            var accessToken0 = Optional.ofNullable(authDataRef.get()).map(e -> e.accessToken);
-            if(accessToken0.isEmpty()) {
-                return CompletableFuture.failedFuture(new RequestException("You are not authorized"));
-            }
-            var result = HttpHelper.send(client, HttpRequest.newBuilder()
-                    .POST(HttpHelper.jsonBodyPublisher(new HttpJoinServerByUsernameRequest(username, serverID, accessToken)))
-                    .uri(URI.create(baseUrl.concat("/auth/joinserver/username")))
-                    .header("Authorization", "Bearer "+accessToken0.get())
-                    .build(), new HttpErrorHandler<>(HttpCheckServerResponse.class));
-            if(result.isSuccessful()) {
-                return CompletableFuture.completedFuture(null);
-            }
-            return CompletableFuture.failedFuture(new RequestException(result.error().toString()));
-        } catch (IOException e) {
-            return CompletableFuture.failedFuture(e);
+        var accessToken0 = Optional.ofNullable(authDataRef.get()).map(e -> e.accessToken);
+        if(accessToken0.isEmpty()) {
+            return CompletableFuture.failedFuture(new RequestException("You are not authorized"));
         }
+        return HttpHelper.sendAsync(client, HttpRequest.newBuilder()
+                .POST(HttpHelper.jsonBodyPublisher(new HttpJoinServerByUsernameRequest(username, serverID, accessToken)))
+                .uri(URI.create(baseUrl.concat("/auth/joinserver/username")))
+                .header("Authorization", "Bearer "+accessToken0.get())
+                .build(), new HttpErrorHandler<>(HttpCheckServerResponse.class))
+                .thenApply(HttpHelper.HttpOptional::getOrThrow).thenApply(e -> null);
     }
 
     @Override
     public CompletableFuture<Void> joinServer(UUID uuid, String accessToken, String serverID) {
-        try {
-            var accessToken0 = Optional.ofNullable(authDataRef.get()).map(e -> e.accessToken);
-            if(accessToken0.isEmpty()) {
-                return CompletableFuture.failedFuture(new RequestException("You are not authorized"));
-            }
-            var result = HttpHelper.send(client, HttpRequest.newBuilder()
-                    .POST(HttpHelper.jsonBodyPublisher(new HttpJoinServerByUuidRequest(uuid.toString(), serverID, accessToken)))
-                    .uri(URI.create(baseUrl.concat("/auth/joinserver/uuid")))
-                    .header("Authorization", "Bearer "+accessToken0.get())
-                    .build(), new HttpErrorHandler<>(HttpCheckServerResponse.class));
-            if(result.isSuccessful()) {
-                return CompletableFuture.completedFuture(null);
-            }
-            return CompletableFuture.failedFuture(new RequestException(result.error().toString()));
-        } catch (IOException e) {
-            return CompletableFuture.failedFuture(e);
+        var accessToken0 = Optional.ofNullable(authDataRef.get()).map(e -> e.accessToken);
+        if(accessToken0.isEmpty()) {
+            return CompletableFuture.failedFuture(new RequestException("You are not authorized"));
         }
+        return HttpHelper.sendAsync(client, HttpRequest.newBuilder()
+                .POST(HttpHelper.jsonBodyPublisher(new HttpJoinServerByUuidRequest(uuid.toString(), serverID, accessToken)))
+                .uri(URI.create(baseUrl.concat("/auth/joinserver/uuid")))
+                .header("Authorization", "Bearer "+accessToken0.get())
+                .build(), new HttpErrorHandler<>(HttpCheckServerResponse.class))
+                .thenApply(HttpHelper.HttpOptional::getOrThrow).thenApply(e -> null);
     }
 
     @Override
     public CompletableFuture<CheckServerResponse> checkServer(String username, String serverID, boolean extended) {
-        try {
-            var accessToken = Optional.ofNullable(authDataRef.get()).map(e -> e.accessToken);
-            if(accessToken.isEmpty()) {
-                return CompletableFuture.failedFuture(new RequestException("You are not authorized"));
-            }
-            var result = HttpHelper.send(client, HttpRequest.newBuilder()
-                    .POST(HttpHelper.jsonBodyPublisher(new HttpCheckServerRequest(username, serverID, extended)))
-                    .uri(URI.create(baseUrl.concat("/auth/checkserver")))
-                    .header("Authorization", "Bearer "+accessToken.get())
-                    .build(), new HttpErrorHandler<>(HttpCheckServerResponse.class));
-            if(result.isSuccessful()) {
-                return CompletableFuture.completedFuture(result.result().toDefaultResult());
-            }
-            return CompletableFuture.failedFuture(new RequestException(result.error().toString()));
-        } catch (IOException e) {
-            return CompletableFuture.failedFuture(e);
+        var accessToken = Optional.ofNullable(authDataRef.get()).map(e -> e.accessToken);
+        if(accessToken.isEmpty()) {
+            return CompletableFuture.failedFuture(new RequestException("You are not authorized"));
         }
+        return HttpHelper.sendAsync(client, HttpRequest.newBuilder()
+                .POST(HttpHelper.jsonBodyPublisher(new HttpCheckServerRequest(username, serverID, extended)))
+                .uri(URI.create(baseUrl.concat("/auth/checkserver")))
+                .header("Authorization", "Bearer "+accessToken.get())
+                .build(), new HttpErrorHandler<>(HttpCheckServerResponse.class))
+                .thenApply(e -> e.getOrThrow().toDefaultResult());
     }
 
     @Override
     public CompletableFuture<List<ClientProfile>> getProfiles() {
-        try {
-            var accessToken0 = Optional.ofNullable(authDataRef.get()).map(e -> e.accessToken);
-            if(accessToken0.isEmpty()) {
-                return CompletableFuture.failedFuture(new RequestException("You are not authorized"));
-            }
-            var result = HttpHelper.send(client, HttpRequest.newBuilder()
-                    .GET()
-                    .uri(URI.create(baseUrl.concat("/profile/list")))
-                    .header("Authorization", "Bearer "+accessToken0.get())
-                    .build(), new HttpErrorHandler<>(HttpListProfilesResponse.class));
-            if(result.isSuccessful()) {
-                List<ClientProfile> profiles = new ArrayList<>(result.result().profiles());
-                return CompletableFuture.completedFuture(profiles);
-            }
-            return CompletableFuture.failedFuture(new RequestException(result.error().toString()));
-        } catch (IOException e) {
-            return CompletableFuture.failedFuture(e);
+        var accessToken0 = Optional.ofNullable(authDataRef.get()).map(e -> e.accessToken);
+        if(accessToken0.isEmpty()) {
+            return CompletableFuture.failedFuture(new RequestException("You are not authorized"));
         }
+        return HttpHelper.sendAsync(client, HttpRequest.newBuilder()
+                .GET()
+                .uri(URI.create(baseUrl.concat("/profile/list")))
+                .header("Authorization", "Bearer "+accessToken0.get())
+                .build(), new HttpErrorHandler<>(HttpListProfilesResponse.class))
+                .thenApply(e -> new ArrayList<>(e.getOrThrow().profiles()));
     }
 
     @Override
@@ -275,23 +200,16 @@ public class RequestFeatureHttpAPIImpl implements AuthFeatureAPI, UserFeatureAPI
 
     @Override
     public CompletableFuture<UpdateInfo> fetchUpdateInfo(String dirName) {
-        try {
-            var accessToken0 = Optional.ofNullable(authDataRef.get()).map(e -> e.accessToken);
-            if(accessToken0.isEmpty()) {
-                return CompletableFuture.failedFuture(new RequestException("You are not authorized"));
-            }
-            var result = HttpHelper.send(client, HttpRequest.newBuilder()
-                    .GET()
-                    .uri(URI.create(baseUrl.concat(String.format("/profile/%s/dir/%s", profileRef.get().getUUID(), dirName))))
-                    .header("Authorization", "Bearer "+accessToken0.get())
-                    .build(), new HttpErrorHandler<>(HttpUpdateInfo.class));
-            if(result.isSuccessful()) {
-                return CompletableFuture.completedFuture(result.result());
-            }
-            return CompletableFuture.failedFuture(new RequestException(result.error().toString()));
-        } catch (IOException e) {
-            return CompletableFuture.failedFuture(e);
+        var accessToken0 = Optional.ofNullable(authDataRef.get()).map(e -> e.accessToken);
+        if(accessToken0.isEmpty()) {
+            return CompletableFuture.failedFuture(new RequestException("You are not authorized"));
         }
+        return HttpHelper.sendAsync(client, HttpRequest.newBuilder()
+                .GET()
+                .uri(URI.create(baseUrl.concat(String.format("/profile/%s/dir/%s", profileRef.get().getUUID(), dirName))))
+                .header("Authorization", "Bearer "+accessToken0.get())
+                .build(), new HttpErrorHandler<>(HttpUpdateInfo.class))
+                .thenApply(HttpHelper.HttpOptional::getOrThrow);
     }
 
     @Override
@@ -301,31 +219,27 @@ public class RequestFeatureHttpAPIImpl implements AuthFeatureAPI, UserFeatureAPI
 
     @Override
     public CompletableFuture<LauncherUpdateInfo> checkUpdates() {
-        try {
-            var result = HttpHelper.send(client, HttpRequest.newBuilder()
-                    .GET()
-                    .uri(URI.create(baseUrl.concat("/updates/prepare")))
-                    .build(), new HttpErrorHandler<>(HttpUpdatesPrepare.class));
-            if(result.isSuccessful()) {
-                var privateKey = SecurityHelper.toPrivateECDSAKey(Base64.getDecoder().decode(Launcher.getConfig().ecdsaBuildPrivateKey));
-                var publicKey = SecurityHelper.toPublicECDSAKey(Base64.getDecoder().decode(Launcher.getConfig().ecdsaBuildPublicKey));
-                    var signedData = SecurityHelper.sign(Base64.getDecoder().decode(result.result().data()), privateKey);
-                var result2 = HttpHelper.send(client, HttpRequest.newBuilder()
-                        .POST(HttpHelper.jsonBodyPublisher(new HttpUpdatesCheck(
-                                Base64.getEncoder().encodeToString(signedData),
-                                Base64.getEncoder().encodeToString(publicKey.getEncoded()),
-                                result.result().jwtToken())))
-                        .uri(URI.create(baseUrl.concat("/updates/check")))
-                        .build(), new HttpErrorHandler<>(LauncherUpdateInfo.class));
-                if(result2.isSuccessful()) {
-                    return CompletableFuture.completedFuture(result2.result());
-                }
-                return CompletableFuture.failedFuture(new RequestException(result2.error().toString()));
-            }
-            return CompletableFuture.failedFuture(new RequestException(result.error().toString()));
-        } catch (IOException | InvalidKeySpecException e) {
-            return CompletableFuture.failedFuture(e);
-        }
+        return HttpHelper.sendAsync(client, HttpRequest.newBuilder()
+                .GET()
+                .uri(URI.create(baseUrl.concat("/updates/prepare")))
+                .build(), new HttpErrorHandler<>(HttpUpdatesPrepare.class)).thenCompose(result -> {
+                    var res = result.getOrThrow();
+                    try {
+                        var privateKey = SecurityHelper.toPrivateECDSAKey(Base64.getDecoder().decode(Launcher.getConfig().ecdsaBuildPrivateKey));
+                        var publicKey = SecurityHelper.toPublicECDSAKey(Base64.getDecoder().decode(Launcher.getConfig().ecdsaBuildPublicKey));
+                        var signedData = SecurityHelper.sign(Base64.getDecoder().decode(result.result().data()), privateKey);
+                        return HttpHelper.sendAsync(client, HttpRequest.newBuilder()
+                                .POST(HttpHelper.jsonBodyPublisher(new HttpUpdatesCheck(
+                                        Base64.getEncoder().encodeToString(signedData),
+                                        Base64.getEncoder().encodeToString(publicKey.getEncoded()),
+                                        result.result().jwtToken())))
+                                .uri(URI.create(baseUrl.concat("/updates/check")))
+                                .build(), new HttpErrorHandler<>(LauncherUpdateInfo.class))
+                                .thenApply(HttpHelper.HttpOptional::getOrThrow);
+                    } catch (InvalidKeySpecException e) {
+                        return CompletableFuture.failedFuture(e);
+                    }
+        });
     }
 
     public static class HttpUser implements User {
