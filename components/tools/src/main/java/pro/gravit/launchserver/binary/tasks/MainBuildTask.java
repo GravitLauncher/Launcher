@@ -135,8 +135,12 @@ public class MainBuildTask implements LauncherBuildTask {
         context.properties.put("runtimeconfig.unlockSecret", unlockSecret);
         {
             var pair = SecurityHelper.genECDSAKeyPair(SecurityHelper.newRandom());
-            context.properties.put("launcher.build.privatekey", Base64.getEncoder().encodeToString(pair.getPrivate().getEncoded()));
-            context.properties.put("launcher.build.publickey", Base64.getEncoder().encodeToString(pair.getPublic().getEncoded()));
+            String privateKey = Base64.getEncoder().encodeToString(pair.getPrivate().getEncoded());
+            String publicKey = Base64.getEncoder().encodeToString(pair.getPublic().getEncoded());
+            context.properties.put("launcher.build.privatekey", privateKey);
+            context.properties.put("launcher.build.publickey", publicKey);
+            context.pipelineContext.putProperty("build.privateKey", privateKey);
+            context.pipelineContext.putProperty("build.publicKey", publicKey);
         }
     }
 
