@@ -20,6 +20,7 @@ public abstract class UpdatesProvider {
     public static void registerProviders() {
         if (!registredProviders) {
             providers.register("local", LocalUpdatesProvider.class);
+            providers.register("remote", RemoteUpdatesProvider.class);
             registredProviders = true;
         }
     }
@@ -50,7 +51,7 @@ public abstract class UpdatesProvider {
 
     }
 
-    public record BuildSecrets(String secureToken, byte[] digest) {
+    public record BuildSecrets(String secureToken, byte[] digest, String privateKey, String publicKey) {
 
     }
 

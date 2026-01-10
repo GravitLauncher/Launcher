@@ -11,14 +11,12 @@ import pro.gravit.launcher.core.serialize.HOutput;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.Reconfigurable;
 import pro.gravit.launchserver.modules.events.LaunchServerUpdatesSyncEvent;
-import pro.gravit.launchserver.socket.Client;
 import pro.gravit.utils.command.Command;
 import pro.gravit.utils.command.SubCommand;
 import pro.gravit.utils.helper.IOHelper;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.io.Writer;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
@@ -80,24 +78,12 @@ public class LocalProfilesProvider extends ProfilesProvider implements Reconfigu
     }
 
     @Override
-    public Set<UncompletedProfile> getProfiles(Client client) {
-        if(client == null) {
-            return new HashSet<>(profilesMap.values());
-        }
-        if(!client.isAuth) {
-            return new HashSet<>();
-        }
+    public Set<UncompletedProfile> getProfiles() {
         Set<UncompletedProfile> profiles = new HashSet<>();
         for(var p : profilesMap.entrySet()) {
             var uuid = p.getKey();
             var profile = p.getValue();
-            if(profile.getProfile() != null && profile.getProfile().isLimited()) {
-                if(client.isAuth && client.permissions != null && client.permissions.hasPerm(String.format("launchserver.profile.%s.show", uuid))) {
-                    profiles.add(profile);
-                }
-            } else {
-                profiles.add(profile);
-            }
+            profiles.add(profile);
         }
         return profiles;
     }

@@ -23,7 +23,7 @@ public class ListProfilesCommand extends Command {
 
     @Override
     public void invoke(String... args) {
-        for(var profile : server.config.profilesProvider.getProfiles(null)) {
+        for(var profile : server.config.profilesProvider.getProfiles()) {
             logger.info("{} ({})", profile.getName(), profile.getUuid());
         }
     }

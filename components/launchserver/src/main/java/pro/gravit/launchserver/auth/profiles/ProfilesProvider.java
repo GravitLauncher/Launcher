@@ -3,7 +3,6 @@ package pro.gravit.launchserver.auth.profiles;
 import pro.gravit.launcher.base.profiles.ClientProfile;
 import pro.gravit.launcher.core.hasher.HashedDir;
 import pro.gravit.launchserver.LaunchServer;
-import pro.gravit.launchserver.socket.Client;
 import pro.gravit.utils.ProviderMap;
 
 import java.io.IOException;
@@ -22,6 +21,7 @@ public abstract class ProfilesProvider {
     public static void registerProviders() {
         if (!registredProviders) {
             providers.register("local", LocalProfilesProvider.class);
+            providers.register("remote", RemoteProfilesProvider.class);
             registredProviders = true;
         }
     }
@@ -32,7 +32,7 @@ public abstract class ProfilesProvider {
 
     public abstract UncompletedProfile create(String name, String description, CompletedProfile basic);
     public abstract void delete(UncompletedProfile profile);
-    public abstract Set<UncompletedProfile> getProfiles(Client client);
+    public abstract Set<UncompletedProfile> getProfiles();
     public abstract CompletedProfile pushUpdate(UncompletedProfile profile,
                                     String tag,
                                     ClientProfile clientProfile,

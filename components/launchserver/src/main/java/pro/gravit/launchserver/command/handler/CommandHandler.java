@@ -39,10 +39,7 @@ public abstract class CommandHandler extends pro.gravit.utils.command.CommandHan
         BaseCommandCategory service = new BaseCommandCategory();
         service.registerCommand("config", new ConfigCommand(server));
         service.registerCommand("serverStatus", new ServerStatusCommand(server));
-        service.registerCommand("notify", new NotifyCommand(server));
         service.registerCommand("component", new ComponentCommand(server));
-        service.registerCommand("clients", new ClientsCommand(server));
-        service.registerCommand("securitycheck", new SecurityCheckCommand(server));
         service.registerCommand("token", new TokenCommand(server));
         Category serviceCategory = new Category(service, "service", "Managing LaunchServer Components");
         handler.registerCategory(serviceCategory);

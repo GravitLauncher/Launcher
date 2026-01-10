@@ -12,12 +12,7 @@ import pro.gravit.launcher.base.profiles.optional.triggers.OptionalTrigger;
 import pro.gravit.launcher.base.request.auth.AuthRequest;
 import pro.gravit.launcher.base.request.auth.GetAvailabilityAuthRequest;
 import pro.gravit.launcher.core.api.features.CoreFeatureAPI;
-import pro.gravit.launchserver.auth.core.AuthCoreProvider;
-import pro.gravit.launchserver.auth.mix.MixProvider;
-import pro.gravit.launchserver.auth.password.PasswordVerifier;
 import pro.gravit.launchserver.auth.profiles.ProfilesProvider;
-import pro.gravit.launchserver.auth.protect.ProtectHandler;
-import pro.gravit.launchserver.auth.texture.TextureProvider;
 import pro.gravit.launchserver.auth.updates.LocalUpdatesProvider;
 import pro.gravit.launchserver.auth.updates.UpdatesProvider;
 import pro.gravit.launchserver.components.Component;
@@ -26,7 +21,6 @@ import pro.gravit.launchserver.config.LauncherModulesConfig;
 import pro.gravit.launchserver.manangers.CertificateManager;
 import pro.gravit.launchserver.manangers.LaunchServerGsonManager;
 import pro.gravit.launchserver.modules.impl.LaunchServerModulesManager;
-import pro.gravit.launchserver.socket.WebSocketService;
 import pro.gravit.utils.command.CommandHandler;
 import pro.gravit.utils.command.JLineCommandHandler;
 import pro.gravit.utils.command.StdCommandHandler;
@@ -158,17 +152,11 @@ public class LaunchServerStarter {
     }
 
     public static void registerAll() {
-        AuthCoreProvider.registerProviders();
-        PasswordVerifier.registerProviders();
-        TextureProvider.registerProviders();
         Component.registerComponents();
-        ProtectHandler.registerHandlers();
-        WebSocketService.registerResponses();
         AuthRequest.registerProviders();
         GetAvailabilityAuthRequest.registerProviders();
         OptionalAction.registerProviders();
         OptionalTrigger.registerProviders();
-        MixProvider.registerProviders();
         ProfilesProvider.registerProviders();
         UpdatesProvider.registerProviders();
     }

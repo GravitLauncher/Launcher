@@ -3,11 +3,10 @@ package pro.gravit.launchserver.command.service;
 import io.jsonwebtoken.Jwts;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import pro.gravit.launcher.base.profiles.ClientProfile;
 import pro.gravit.launchserver.LaunchServer;
-import pro.gravit.launchserver.auth.AuthProviderPair;
 import pro.gravit.launchserver.auth.profiles.ProfilesProvider;
 import pro.gravit.launchserver.command.Command;
+import pro.gravit.utils.command.CommandException;
 import pro.gravit.utils.command.SubCommand;
 
 public class TokenCommand extends Command {
@@ -26,11 +25,11 @@ public class TokenCommand extends Command {
         });
         this.childCommands.put("server", new SubCommand("[profileName] (authId) (public only)", "generate new server token") {
             @Override
-            public void invoke(String... args) {
-                AuthProviderPair pair = args.length > 1 ? server.config.getAuthProviderPair(args[1]) : server.config.getAuthProviderPair();
+            public void invoke(String... args) throws CommandException {
+                verifyArgs(args, 2);
                 boolean publicOnly = args.length <= 2 || Boolean.parseBoolean(args[2]);
                 ProfilesProvider.UncompletedProfile profile = null;
-                for (var p : server.config.profilesProvider.getProfiles(null)) {
+                for (var p : server.config.profilesProvider.getProfiles()) {
                     if (p.getName().equals(args[0]) || p.getUuid().toString().equals(args[0])) {
                         profile = p;
                         break;
@@ -39,12 +38,8 @@ public class TokenCommand extends Command {
                 if (profile == null) {
                     logger.warn("Profile {} not found", args[0]);
                 }
-                if (pair == null) {
-                    logger.error("AuthId {} not found", args[1]);
-                    return;
-                }
-                String token = server.authManager.newCheckServerToken(profile != null ? profile.getUuid().toString() : args[0], pair.name, publicOnly);
-                logger.info("Server token {} authId {}: {}", args[0], pair.name, token);
+                String token = newCheckServerToken(profile != null ? profile.getUuid().toString() : args[0], args[1], publicOnly);
+                logger.info("Server token {} authId {}: {}", args[0], args[1], token);
             }
         });
     }
@@ -62,5 +57,16 @@ public class TokenCommand extends Command {
     @Override
     public void invoke(String... args) throws Exception {
         invokeSubcommands(args);
+    }
+
+    public String newCheckServerToken(String serverName, String authId, boolean publicOnly) {
+        return Jwts.builder()
+                .issuer("LaunchServer")
+                .claim("serverName", serverName)
+                .claim("authId", authId)
+                .claim("tokenType", "checkServer")
+                .claim("isPublic", publicOnly)
+                .signWith(server.keyAgreementManager.ecdsaPrivateKey)
+                .compact();
     }
 }
