@@ -6,8 +6,10 @@ import pro.gravit.launcher.base.helper.HttpHelper;
 import pro.gravit.launcher.base.profiles.ClientProfile;
 import pro.gravit.launcher.base.request.auth.password.AuthPlainPassword;
 import pro.gravit.launcher.core.api.features.AuthFeatureAPI;
+import pro.gravit.launcher.core.api.features.CoreFeatureAPI;
 import pro.gravit.launcher.core.api.features.ProfileFeatureAPI;
 import pro.gravit.launcher.core.api.features.UserFeatureAPI;
+import pro.gravit.launcher.core.api.method.AuthMethod;
 import pro.gravit.launcher.core.api.method.AuthMethodPassword;
 import pro.gravit.launcher.core.api.method.password.AuthChainPassword;
 import pro.gravit.launcher.core.api.method.password.AuthTotpPassword;
@@ -16,6 +18,9 @@ import pro.gravit.launcher.core.api.model.Texture;
 import pro.gravit.launcher.core.api.model.User;
 import pro.gravit.launcher.core.api.model.UserPermissions;
 import pro.gravit.launcher.core.hasher.HashedDir;
+import pro.gravit.utils.helper.CommonHelper;
+import pro.gravit.utils.helper.IOHelper;
+import pro.gravit.utils.helper.SecurityHelper;
 
 import java.io.IOException;
 import java.net.URI;
@@ -23,11 +28,12 @@ import java.net.URLEncoder;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.nio.charset.StandardCharsets;
+import java.security.spec.InvalidKeySpecException;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicReference;
 
-public class RequestFeatureHttpAPIImpl implements AuthFeatureAPI, UserFeatureAPI, ProfileFeatureAPI {
+public class RequestFeatureHttpAPIImpl implements AuthFeatureAPI, UserFeatureAPI, ProfileFeatureAPI, CoreFeatureAPI {
     private final String baseUrl;
     private final HttpClient client = HttpClient.newBuilder().build();
     private AtomicReference<HttpAuthData> authDataRef = new AtomicReference<>();
@@ -288,6 +294,40 @@ public class RequestFeatureHttpAPIImpl implements AuthFeatureAPI, UserFeatureAPI
         }
     }
 
+    @Override
+    public CompletableFuture<List<AuthMethod>> getAuthMethods() {
+        return null;
+    }
+
+    @Override
+    public CompletableFuture<LauncherUpdateInfo> checkUpdates() {
+        try {
+            var result = HttpHelper.send(client, HttpRequest.newBuilder()
+                    .GET()
+                    .uri(URI.create(baseUrl.concat("/updates/prepare")))
+                    .build(), new HttpErrorHandler<>(HttpUpdatesPrepare.class));
+            if(result.isSuccessful()) {
+                var privateKey = SecurityHelper.toPrivateECDSAKey(Base64.getDecoder().decode(Launcher.getConfig().ecdsaBuildPrivateKey));
+                var publicKey = SecurityHelper.toPublicECDSAKey(Base64.getDecoder().decode(Launcher.getConfig().ecdsaBuildPublicKey));
+                    var signedData = SecurityHelper.sign(Base64.getDecoder().decode(result.result().data()), privateKey);
+                var result2 = HttpHelper.send(client, HttpRequest.newBuilder()
+                        .POST(HttpHelper.jsonBodyPublisher(new HttpUpdatesCheck(
+                                Base64.getEncoder().encodeToString(signedData),
+                                Base64.getEncoder().encodeToString(publicKey.getEncoded()),
+                                result.result().jwtToken())))
+                        .uri(URI.create(baseUrl.concat("/updates/check")))
+                        .build(), new HttpErrorHandler<>(LauncherUpdateInfo.class));
+                if(result2.isSuccessful()) {
+                    return CompletableFuture.completedFuture(result2.result());
+                }
+                return CompletableFuture.failedFuture(new RequestException(result2.error().toString()));
+            }
+            return CompletableFuture.failedFuture(new RequestException(result.error().toString()));
+        } catch (IOException | InvalidKeySpecException e) {
+            return CompletableFuture.failedFuture(e);
+        }
+    }
+
     public static class HttpUser implements User {
 
         public String username;
@@ -399,6 +439,10 @@ public class RequestFeatureHttpAPIImpl implements AuthFeatureAPI, UserFeatureAPI
     public record HttpJoinServerByUuidRequest(String uuid, String serverId, String accessToken) {
 
     }
+
+    public record HttpUpdatesPrepare(String data, String jwtToken) {}
+
+    public record HttpUpdatesCheck(String signedData, String publicKey, String jwtToken) {}
 
     public record HttpUpdateInfo(HashedDir dir, String baseUrl) implements UpdateInfo {
 

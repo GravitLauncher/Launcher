@@ -133,6 +133,11 @@ public class MainBuildTask implements LauncherBuildTask {
         String unlockSecret = SecurityHelper.randomStringToken();
         context.pipelineContext.putProperty("unlockSecret", unlockSecret);
         context.properties.put("runtimeconfig.unlockSecret", unlockSecret);
+        {
+            var pair = SecurityHelper.genECDSAKeyPair(SecurityHelper.newRandom());
+            context.properties.put("launcher.build.privatekey", Base64.getEncoder().encodeToString(pair.getPrivate().getEncoded()));
+            context.properties.put("launcher.build.publickey", Base64.getEncoder().encodeToString(pair.getPublic().getEncoded()));
+        }
     }
 
     public byte[] transformClass(byte[] bytes, String classname, BuildContext context) {

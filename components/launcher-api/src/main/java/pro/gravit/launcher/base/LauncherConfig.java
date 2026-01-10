@@ -60,6 +60,10 @@ public final class LauncherConfig extends StreamObject {
     public Map<String, String> customJavaDownload;
     @LauncherInject("runtimeconfig.forceUseCustomJava")
     public boolean forceUseCustomJava;
+    @LauncherInject("launcher.build.privatekey")
+    public String ecdsaBuildPrivateKey;
+    @LauncherInject("launcher.build.publickey")
+    public String ecdsaBuildPublicKey;
 
     private static class ModernModulesClass {
         @LauncherInject("launcher.modules")
