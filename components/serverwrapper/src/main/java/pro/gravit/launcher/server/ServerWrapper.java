@@ -15,6 +15,7 @@ import pro.gravit.launcher.base.profiles.optional.triggers.OptionalTrigger;
 import pro.gravit.launcher.base.request.Request;
 import pro.gravit.launcher.base.request.RequestCoreFeatureAPIImpl;
 import pro.gravit.launcher.base.request.RequestFeatureAPIImpl;
+import pro.gravit.launcher.base.request.RequestFeatureHttpAPIImpl;
 import pro.gravit.launcher.base.request.auth.AuthRequest;
 import pro.gravit.launcher.base.request.auth.GetAvailabilityAuthRequest;
 import pro.gravit.launcher.base.request.update.ProfilesRequest;
@@ -69,20 +70,7 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
     }
 
     public void restore() throws Exception {
-        if(config.oauth != null) {
-            Request.setOAuth(config.authId, config.oauth, config.oauthExpireTime);
-        }
-        if(config.extendedTokens != null) {
-            Request.addAllExtendedToken(config.extendedTokens);
-        }
-        Request.RequestRestoreReport report = Request.restore(config.oauth != null, false, false);
-        if(report.userInfo != null) {
-            if(report.userInfo.playerProfile != null) {
-                AuthService.username = report.userInfo.playerProfile.username;
-                AuthService.uuid = report.userInfo.playerProfile.uuid;
-            }
-            AuthService.permissions = report.userInfo.permissions;
-        }
+        LauncherAPIHolder.auth().restore(config.oauth.accessToken, true).get();
     }
 
     public void getProfiles() throws Exception {
@@ -122,38 +110,20 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
     public void connect() throws Exception {
         config.applyEnv();
         updateLauncherConfig();
-        StdWebSocketService service = StdWebSocketService.initWebSockets(config.address).get();
-        service.reconnectCallback = () ->
         {
-            LogHelper.debug("WebSocket connect closed. Try reconnect");
-            try {
-                Request.reconnect();
-                getProfiles();
-            } catch (Exception e) {
-                LogHelper.error(e);
-            }
-        };
-        Request.setRequestService(service);
-        LauncherAPIHolder.setCoreAPI(new RequestCoreFeatureAPIImpl(Request.getRequestService()));
-        LauncherAPIHolder.setCreateApiFactory((authId) -> {
-            var impl = new RequestFeatureAPIImpl(Request.getRequestService(), authId);
-            return new LauncherAPI(Map.of(
-                    AuthFeatureAPI.class, impl,
-                    UserFeatureAPI.class, impl,
-                    ProfileFeatureAPI.class, impl,
-                    TextureUploadFeatureAPI.class, impl,
-                    HardwareVerificationFeatureAPI.class, impl));
-        });
-        if(config.authId != null) {
-            LauncherAPIHolder.changeAuthId(config.authId);
-        } else {
-            var impl = new RequestFeatureAPIImpl(Request.getRequestService(), null);
-            LauncherAPIHolder.setApi(new LauncherAPI(Map.of(
-                    AuthFeatureAPI.class, impl,
-                    UserFeatureAPI.class, impl,
-                    ProfileFeatureAPI.class, impl,
-                    TextureUploadFeatureAPI.class, impl,
-                    HardwareVerificationFeatureAPI.class, impl)));
+            String address = config.address;
+            var api = new RequestFeatureHttpAPIImpl(address);
+            var launcherApi = new LauncherAPI(Map.of(
+                    AuthFeatureAPI.class, api,
+                    UserFeatureAPI.class, api,
+                    ProfileFeatureAPI.class, api,
+                    TextureUploadFeatureAPI.class, api,
+                    HardwareVerificationFeatureAPI.class, api));
+            LauncherAPIHolder.setCoreAPI(api);
+            LauncherAPIHolder.setCreateApiFactory((authId) -> {
+                        return launcherApi;
+            });
+            LauncherAPIHolder.setApi(launcherApi);
         }
         if (config.logFile != null) LogHelper.addOutput(IOHelper.newWriter(Paths.get(config.logFile), true));
         {

@@ -10,7 +10,6 @@ import pro.gravit.launcher.client.events.*;
 import pro.gravit.launcher.core.api.LauncherAPI;
 import pro.gravit.launcher.core.api.LauncherAPIHolder;
 import pro.gravit.launcher.core.api.features.*;
-import pro.gravit.launcher.core.backend.LauncherBackendAPIHolder;
 import pro.gravit.launcher.core.hasher.FileNameMatcher;
 import pro.gravit.launcher.core.hasher.HashedDir;
 import pro.gravit.launcher.core.hasher.HashedEntry;
@@ -20,7 +19,6 @@ import pro.gravit.launcher.base.profiles.ClientProfileVersions;
 import pro.gravit.launcher.base.profiles.optional.actions.OptionalAction;
 import pro.gravit.launcher.base.profiles.optional.actions.OptionalActionClassPath;
 import pro.gravit.launcher.base.profiles.optional.actions.OptionalActionClientArgs;
-import pro.gravit.launcher.base.request.websockets.StdWebSocketService;
 import pro.gravit.launcher.core.serialize.HInput;
 import pro.gravit.launcher.client.utils.DirWatcher;
 import pro.gravit.utils.helper.*;
@@ -121,38 +119,19 @@ public class ClientLauncherEntryPoint {
         // Start client with WatchService monitoring
         var config = Launcher.getConfig();
         config.apply();
-        RequestService service;
-        if (params.offlineMode) {
-            service = ClientLauncherMethods.initOffline(modulesManager, params);
-            Request.setRequestService(service);
-        } else {
-            service = StdWebSocketService.initWebSockets(config.address).get();
-            Request.setRequestService(service);
-            LogHelper.debug("Restore sessions");
-            Request.restore(false, false, true);
-            service.registerEventHandler(new BasicLauncherEventHandler());
-            ((StdWebSocketService) service).reconnectCallback = () ->
-            {
-                LogHelper.debug("WebSocket connect closed. Try reconnect");
-                try {
-                    Request.reconnect();
-                } catch (Exception e) {
-                    LogHelper.error(e);
-                    throw new RequestException("Connection failed", e);
-                }
-            };
+        {
+            String address = config.address;
+            var api = new RequestFeatureHttpAPIImpl(address);
+            LauncherAPIHolder.setCoreAPI(api);
+            LauncherAPIHolder.setCreateApiFactory((authId) -> {
+                return new LauncherAPI(Map.of(
+                        AuthFeatureAPI.class, api,
+                        UserFeatureAPI.class, api,
+                        ProfileFeatureAPI.class, api,
+                        TextureUploadFeatureAPI.class, api,
+                        HardwareVerificationFeatureAPI.class, api));
+            });
         }
-        // Init New API
-        LauncherAPIHolder.setCoreAPI(new RequestCoreFeatureAPIImpl(Request.getRequestService()));
-        LauncherAPIHolder.setCreateApiFactory((authId) -> {
-            var impl = new RequestFeatureAPIImpl(Request.getRequestService(), authId);
-            return new LauncherAPI(Map.of(
-                    AuthFeatureAPI.class, impl,
-                    UserFeatureAPI.class, impl,
-                    ProfileFeatureAPI.class, impl,
-                    TextureUploadFeatureAPI.class, impl,
-                    HardwareVerificationFeatureAPI.class, impl));
-        });
         LauncherAPIHolder.changeAuthId(params.authId);
         //
         LogHelper.debug("Natives dir %s", params.nativesDir);
