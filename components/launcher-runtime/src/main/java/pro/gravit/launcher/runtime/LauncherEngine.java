@@ -1,5 +1,7 @@
 package pro.gravit.launcher.runtime;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import pro.gravit.launcher.base.Launcher;
 import pro.gravit.launcher.base.LauncherConfig;
 import pro.gravit.launcher.base.request.*;
@@ -37,6 +39,10 @@ import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class LauncherEngine {
+
+    private static final Logger logger =
+            LoggerFactory.getLogger(LauncherEngine.class);
+
     public static ClientParams clientParams;
     public static RuntimeModuleManager modulesManager;
     public final boolean clientInstance;
@@ -131,11 +137,11 @@ public class LauncherEngine {
         try {
             newInstance(false).start(args);
         } catch (Exception e) {
-            LogHelper.error(e);
+            logger.error("", e);
             return;
         }
         long endTime = System.currentTimeMillis();
-        LogHelper.debug("Launcher started in %dms", endTime - startTime);
+        logger.debug("Launcher started in {}ms", endTime - startTime);
         LauncherEngine.exitLauncher(0);
     }
 
@@ -181,26 +187,26 @@ public class LauncherEngine {
         //runtimeProvider.preLoad();
         if (!Request.isAvailable()) {
             String address = config.address;
-            LogHelper.debug("Start async connection to %s", address);
+            logger.debug("Start async connection to {}", address);
             RequestService service;
             try {
                 service = StdWebSocketService.initWebSockets(address).get();
             } catch (Throwable e) {
-                if (LogHelper.isDebugEnabled()) {
-                    LogHelper.error(e);
+                if (true) {
+                    logger.error("", e);
                 }
-                LogHelper.warning("Launcher in offline mode");
+                logger.warn("Launcher in offline mode");
                 service = initOffline();
             }
             Request.setRequestService(service);
             if (service instanceof StdWebSocketService) {
                 ((StdWebSocketService) service).reconnectCallback = () ->
                 {
-                    LogHelper.debug("WebSocket connect closed. Try reconnect");
+                    logger.debug("WebSocket connect closed. Try reconnect");
                     try {
                         Request.reconnect();
                     } catch (Exception e) {
-                        LogHelper.error(e);
+                        logger.error("", e);
                         throw new RequestException("Connection failed", e);
                     }
                 };
@@ -227,7 +233,7 @@ public class LauncherEngine {
         registerCommands();
         LauncherEngine.modulesManager.invokeEvent(new ClientEngineInitPhase(this));
         runtimeProvider.preLoad();
-        LogHelper.debug("Dir: %s", DirBridge.dir);
+        logger.debug("Dir: {}", DirBridge.dir);
         runtimeProvider.run(args);
     }
 

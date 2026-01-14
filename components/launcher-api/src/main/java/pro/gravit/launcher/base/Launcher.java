@@ -1,5 +1,7 @@
 package pro.gravit.launcher.base;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import pro.gravit.launcher.core.managers.GsonManager;
 import pro.gravit.launcher.base.profiles.ClientProfile;
 import pro.gravit.launcher.core.serialize.HInput;
@@ -17,6 +19,10 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Pattern;
 
 public final class Launcher {
+
+    private static final Logger logger =
+            LoggerFactory.getLogger(Launcher.class);
+
 
     // Authlib constants
 

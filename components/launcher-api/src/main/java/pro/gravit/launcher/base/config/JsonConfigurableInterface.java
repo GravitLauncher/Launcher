@@ -43,13 +43,13 @@ public interface JsonConfigurableInterface<T> {
         try (BufferedReader reader = IOHelper.newReader(configPath)) {
             T value = gson.fromJson(reader, getType());
             if(value == null) {
-                LogHelper.warning("Config %s is null", configPath);
+                JsonConfigurableLoggerHolder.logger.warn("Config {} is null", configPath);
                 resetConfig(configPath);
                 return;
             }
             setConfig(value);
         } catch (Exception e) {
-            LogHelper.error(e);
+            JsonConfigurableLoggerHolder.logger.error("", e);
             resetConfig(configPath);
         }
     }

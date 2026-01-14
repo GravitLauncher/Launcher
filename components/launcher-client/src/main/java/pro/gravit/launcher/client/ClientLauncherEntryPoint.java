@@ -1,5 +1,7 @@
 package pro.gravit.launcher.client;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import pro.gravit.launcher.base.Launcher;
 import pro.gravit.launcher.base.LauncherConfig;
 import pro.gravit.launcher.base.api.AuthService;
@@ -10,7 +12,6 @@ import pro.gravit.launcher.client.events.*;
 import pro.gravit.launcher.core.api.LauncherAPI;
 import pro.gravit.launcher.core.api.LauncherAPIHolder;
 import pro.gravit.launcher.core.api.features.*;
-import pro.gravit.launcher.core.backend.LauncherBackendAPIHolder;
 import pro.gravit.launcher.core.hasher.FileNameMatcher;
 import pro.gravit.launcher.core.hasher.HashedDir;
 import pro.gravit.launcher.core.hasher.HashedEntry;
@@ -44,6 +45,10 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class ClientLauncherEntryPoint {
+
+    private static final Logger logger =
+            LoggerFactory.getLogger(ClientLauncherEntryPoint.class);
+
     public static ClientModuleManager modulesManager;
     public static ClientParams clientParams;
 
@@ -75,7 +80,7 @@ public class ClientLauncherEntryPoint {
         try {
             realMain(args);
         } catch (Throwable e) {
-            LogHelper.error(e);
+            logger.error("", e);
         }
     }
 
@@ -86,11 +91,11 @@ public class ClientLauncherEntryPoint {
         modulesManager.initModules(null);
         ClientLauncherMethods.initGson(modulesManager);
         modulesManager.invokeEvent(new PreConfigPhase());
-        LogHelper.debug("Reading ClientLauncher params");
+        logger.debug("Reading ClientLauncher params");
         ClientParams params = readParams(new InetSocketAddress("127.0.0.1", Launcher.getConfig().clientPort));
         ClientLauncherMethods.verifyNoAgent();
         if(params.timestamp > System.currentTimeMillis() || params.timestamp + 30*1000 < System.currentTimeMillis() ) {
-            LogHelper.error("Timestamp failed: current %d | params %d | diff %d", System.currentTimeMillis(), params.timestamp, System.currentTimeMillis() - params.timestamp);
+            logger.error("Timestamp failed: current {} | params {} | diff {}", System.currentTimeMillis(), params.timestamp, System.currentTimeMillis() - params.timestamp);
             ClientLauncherMethods.exitLauncher(-662);
             return;
         }
@@ -99,7 +104,7 @@ public class ClientLauncherEntryPoint {
         AuthService.profile = profile;
         clientParams = params;
         if (params.oauth != null) {
-            LogHelper.info("Using OAuth");
+            logger.info("Using OAuth");
             if (params.oauthExpiredTime != 0) {
                 Request.setOAuth(params.authId, params.oauth, params.oauthExpiredTime);
             } else {
@@ -117,7 +122,7 @@ public class ClientLauncherEntryPoint {
         Path assetDir = Paths.get(params.assetDir);
 
         // Verify ClientLauncher sign and classpath
-        LogHelper.debug("Verifying ClientLauncher sign and classpath");
+        logger.debug("Verifying ClientLauncher sign and classpath");
         // Start client with WatchService monitoring
         var config = Launcher.getConfig();
         config.apply();
@@ -128,16 +133,16 @@ public class ClientLauncherEntryPoint {
         } else {
             service = StdWebSocketService.initWebSockets(config.address).get();
             Request.setRequestService(service);
-            LogHelper.debug("Restore sessions");
+            logger.debug("Restore sessions");
             Request.restore(false, false, true);
             service.registerEventHandler(new BasicLauncherEventHandler());
             ((StdWebSocketService) service).reconnectCallback = () ->
             {
-                LogHelper.debug("WebSocket connect closed. Try reconnect");
+                logger.debug("WebSocket connect closed. Try reconnect");
                 try {
                     Request.reconnect();
                 } catch (Exception e) {
-                    LogHelper.error(e);
+                    logger.error("", e);
                     throw new RequestException("Connection failed", e);
                 }
             };
@@ -155,7 +160,7 @@ public class ClientLauncherEntryPoint {
         });
         LauncherAPIHolder.changeAuthId(params.authId);
         //
-        LogHelper.debug("Natives dir %s", params.nativesDir);
+        logger.debug("Natives dir {}", params.nativesDir);
         ClientProfile.ClassLoaderConfig classLoaderConfig = profile.getClassLoaderConfig();
         LaunchOptions options = new LaunchOptions();
         options.enableHacks = profile.hasFlag(ClientProfile.CompatibilityFlags.ENABLE_HACKS);
@@ -172,9 +177,9 @@ public class ClientLauncherEntryPoint {
         }
         List<Path> classpath = resolveClassPath(ignoredPath, clientDir, params.actions, params.profile)
                 .collect(Collectors.toCollection(ArrayList::new));
-        if(LogHelper.isDevEnabled()) {
+        if(true) {
             for(var e : classpath) {
-                LogHelper.dev("Classpath entry %s", e);
+                logger.info("Classpath entry {}", e);
             }
         }
         List<URL> classpathURLs = classpath.stream().map(IOHelper::toURL).toList();
@@ -209,7 +214,7 @@ public class ClientLauncherEntryPoint {
         KeyService.serverRsaPublicKey = Launcher.getConfig().rsaPublicKey;
         KeyService.serverEcPublicKey = Launcher.getConfig().ecdsaPublicKey;
         modulesManager.invokeEvent(new ClientProcessReadyEvent(params));
-        LogHelper.debug("Starting JVM and client WatchService");
+        logger.debug("Starting JVM and client WatchService");
         FileNameMatcher assetMatcher = profile.getAssetUpdateMatcher();
         FileNameMatcher clientMatcher = profile.getClientUpdateMatcher();
         Path javaDir = Paths.get(System.getProperty("java.home"));
@@ -247,16 +252,16 @@ public class ClientLauncherEntryPoint {
         if (!diff.mismatch.isEmpty() || (checkExtra && !diff.extra.isEmpty())) {
             diff.extra.walk(File.separator, (e, k, v) -> {
                 if (v.getType().equals(HashedEntry.Type.FILE)) {
-                    LogHelper.error("Extra file %s", e);
+                    logger.error("Extra file {}", e);
                     latestPath.set(e);
-                } else LogHelper.error("Extra %s", e);
+                } else logger.error("Extra {}", e);
                 return HashedDir.WalkAction.CONTINUE;
             });
             diff.mismatch.walk(File.separator, (e, k, v) -> {
                 if (v.getType().equals(HashedEntry.Type.FILE)) {
-                    LogHelper.error("Mismatch file %s", e);
+                    logger.error("Mismatch file {}", e);
                     latestPath.set(e);
-                } else LogHelper.error("Mismatch %s", e);
+                } else logger.error("Mismatch {}", e);
                 return HashedDir.WalkAction.CONTINUE;
             });
             throw new SecurityException(String.format("Forbidden modification: '%s' file '%s'", IOHelper.getFileName(dir), latestPath.get()));
@@ -326,7 +331,7 @@ public class ClientLauncherEntryPoint {
                 copy.set(i + 1, "censored");
             }
         }
-        LogHelper.debug("Args: " + copy);
+        logger.debug("Args: " + copy);
         // Resolve main class and method
         modulesManager.invokeEvent(new ClientProcessPreInvokeMainClassEvent(params, profile, args));
         // Invoke main method
@@ -342,9 +347,9 @@ public class ClientLauncherEntryPoint {
             Launcher.LAUNCHED.set(true);
             JVMHelper.fullGC();
             launch.launch(params.profile.getMainClass(), params.profile.getMainModule(), args);
-            LogHelper.debug("Main exit successful");
+            logger.debug("Main exit successful");
         } catch (Throwable e) {
-            LogHelper.error(e);
+            logger.error("", e);
             throw e;
         } finally {
             ClientLauncherMethods.exitLauncher(0);

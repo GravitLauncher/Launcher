@@ -1,5 +1,7 @@
 package pro.gravit.launcher.runtime.backend;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import pro.gravit.launcher.runtime.client.DirBridge;
 import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.LogHelper;
@@ -14,6 +16,10 @@ import java.security.interfaces.ECPublicKey;
 import java.security.spec.InvalidKeySpecException;
 
 public class ECKeyHolder {
+
+    private static final Logger logger =
+            LoggerFactory.getLogger(ECKeyHolder.class);
+
     public ECPublicKey publicKey;
     public ECPrivateKey privateKey;
 
@@ -31,17 +37,17 @@ public class ECKeyHolder {
         Path publicKeyFile = dir.resolve("public.key");
         Path privateKeyFile = dir.resolve("private.key");
         if (IOHelper.isFile(publicKeyFile) && IOHelper.isFile(privateKeyFile)) {
-            LogHelper.info("Reading EC keypair");
+            logger.trace("Reading EC keypair");
             publicKey = SecurityHelper.toPublicECDSAKey(IOHelper.read(publicKeyFile));
             privateKey = SecurityHelper.toPrivateECDSAKey(IOHelper.read(privateKeyFile));
         } else {
-            LogHelper.info("Generating EC keypair");
+            logger.trace("Generating EC keypair");
             KeyPair pair = SecurityHelper.genECDSAKeyPair(new SecureRandom());
             publicKey = (ECPublicKey) pair.getPublic();
             privateKey = (ECPrivateKey) pair.getPrivate();
 
             // Write key pair list
-            LogHelper.info("Writing EC keypair list");
+            logger.trace("Writing EC keypair list");
             IOHelper.write(publicKeyFile, publicKey.getEncoded());
             IOHelper.write(privateKeyFile, privateKey.getEncoded());
         }

@@ -1,5 +1,7 @@
 package pro.gravit.launcher.runtime.console;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import pro.gravit.launcher.runtime.LauncherEngine;
 import pro.gravit.launcher.runtime.managers.ConsoleManager;
 import pro.gravit.launcher.core.LauncherTrustManager;
@@ -12,6 +14,10 @@ import java.security.cert.X509Certificate;
 import java.util.Arrays;
 
 public class ModulesCommand extends Command {
+
+    private static final Logger logger =
+            LoggerFactory.getLogger(ModulesCommand.class);
+
     @Override
     public String getArgsDescription() {
         return "[]";
@@ -28,9 +34,9 @@ public class ModulesCommand extends Command {
             LauncherModuleInfo info = module.getModuleInfo();
             LauncherTrustManager.CheckClassResult checkStatus = module.getCheckResult();
             if (!ConsoleManager.isConsoleUnlock) {
-                LogHelper.info("[MODULE] %s v: %s", info.name, info.version.getVersionString());
+                logger.info("[MODULE] {} v: {}", info.name, info.version.getVersionString());
             } else {
-                LogHelper.info("[MODULE] %s v: %s p: %d deps: %s sig: %s", info.name, info.version.getVersionString(), info.priority, Arrays.toString(info.dependencies), checkStatus == null ? "null" : checkStatus.type);
+                logger.info("[MODULE] {} v: {} p: {} deps: {} sig: {}", info.name, info.version.getVersionString(), info.priority, Arrays.toString(info.dependencies), checkStatus == null ? "null" : checkStatus.type);
                 printCheckStatusInfo(checkStatus);
             }
         }
@@ -39,11 +45,11 @@ public class ModulesCommand extends Command {
     private void printCheckStatusInfo(LauncherTrustManager.CheckClassResult checkStatus) {
         if (checkStatus != null && checkStatus.endCertificate != null) {
             X509Certificate cert = checkStatus.endCertificate;
-            LogHelper.info("[MODULE CERT] Module signer: %s", cert.getSubjectX500Principal().getName());
+            logger.info("[MODULE CERT] Module signer: {}", cert.getSubjectX500Principal().getName());
         }
         if (checkStatus != null && checkStatus.rootCertificate != null) {
             X509Certificate cert = checkStatus.rootCertificate;
-            LogHelper.info("[MODULE CERT] Module signer CA: %s", cert.getSubjectX500Principal().getName());
+            logger.info("[MODULE CERT] Module signer CA: {}", cert.getSubjectX500Principal().getName());
         }
     }
 }

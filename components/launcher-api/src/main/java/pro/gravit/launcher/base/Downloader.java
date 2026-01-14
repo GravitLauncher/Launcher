@@ -1,5 +1,7 @@
 package pro.gravit.launcher.base;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import pro.gravit.launcher.core.CertificatePinningTrustManager;
 import pro.gravit.launcher.core.LauncherInject;
 import pro.gravit.utils.helper.IOHelper;
@@ -31,6 +33,10 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
 public class Downloader {
+
+    private static final Logger logger =
+            LoggerFactory.getLogger(Downloader.class);
+
     @LauncherInject("launcher.certificatePinning")
     private static boolean isCertificatePinning;
     @LauncherInject("launcher.noHttp2")
@@ -107,7 +113,7 @@ public class Downloader {
 
     public static Downloader downloadList(List<SizedFile> files, String baseURL, Path targetDir, DownloadCallback callback, ExecutorService executor, int threads) throws Exception {
         boolean closeExecutor = false;
-        LogHelper.info("Download with Java 11+ HttpClient");
+        logger.info("Download with Java 11+ HttpClient");
         if (executor == null) {
             executor = Executors.newWorkStealingPool(Math.min(3, threads));
             closeExecutor = true;
@@ -209,7 +215,7 @@ public class Downloader {
                     return null;
                 });
             } catch (Exception exception) {
-                LogHelper.error(exception);
+                logger.error("", exception);
                 future.completeExceptionally(exception);
             }
         };

@@ -1,5 +1,7 @@
 package pro.gravit.utils.command.basic;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.fusesource.jansi.Ansi;
 import pro.gravit.utils.command.Command;
 import pro.gravit.utils.command.CommandException;
@@ -11,6 +13,10 @@ import java.util.Map.Entry;
 import java.util.function.Supplier;
 
 public final class HelpCommand extends Command {
+
+    private static final Logger logger =
+            LoggerFactory.getLogger(HelpCommand.class);
+
     private final CommandHandler handler;
 
     public HelpCommand(CommandHandler handler) {
@@ -51,8 +57,8 @@ public final class HelpCommand extends Command {
     }
 
     private static void printCategory(String name, String description) {
-        if (description != null) LogHelper.info("Category: %s - %s", name, description);
-        else LogHelper.info("Category: %s", name);
+        if (description != null) logger.info("Category: {} - {}", name, description);
+        else logger.info("Category: {}", name);
     }
 
     @Override

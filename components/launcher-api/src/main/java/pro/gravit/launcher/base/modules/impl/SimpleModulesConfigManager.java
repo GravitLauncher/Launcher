@@ -1,5 +1,7 @@
 package pro.gravit.launcher.base.modules.impl;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import pro.gravit.launcher.base.config.SimpleConfigurable;
 import pro.gravit.launcher.base.modules.ModulesConfigManager;
 import pro.gravit.utils.helper.IOHelper;
@@ -10,6 +12,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 public class SimpleModulesConfigManager implements ModulesConfigManager {
+
+    private static final Logger logger =
+            LoggerFactory.getLogger(SimpleModulesConfigManager.class);
+
     public final Path configDir;
 
     public SimpleModulesConfigManager(Path configDir) {
@@ -30,7 +36,7 @@ public class SimpleModulesConfigManager implements ModulesConfigManager {
             try {
                 Files.createDirectories(configDir);
             } catch (IOException e) {
-                LogHelper.error(e);
+                logger.error("", e);
             }
         }
         return configDir.resolve(moduleName);

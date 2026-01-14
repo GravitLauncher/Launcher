@@ -1,5 +1,7 @@
 package pro.gravit.launcher.server;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.LogHelper;
 
@@ -16,17 +18,21 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.jar.JarFile;
 
 public class ServerAgent {
+
+    private static final Logger logger =
+            LoggerFactory.getLogger(ServerAgent.class);
+
     public static final Boolean isAutoloadLibraries = Boolean.getBoolean(System.getProperty("serverwrapper,agentlibrariesload", "false"));
     public static Instrumentation inst = null;
     private static boolean isAgentStarted = false;
 
     public static void addJVMClassPath(String path) throws IOException {
-        LogHelper.debug("Load %s", path);
+        logger.debug("Load {}", path);
         inst.appendToSystemClassLoaderSearch(new JarFile(path));
     }
 
     public static void addJVMClassPath(JarFile file) {
-        LogHelper.debug("Load %s", file.getName());
+        logger.debug("Load {}", file.getName());
         inst.appendToSystemClassLoaderSearch(file);
     }
 
@@ -39,7 +45,7 @@ public class ServerAgent {
     }
 
     public static void premain(String agentArgument, Instrumentation instrumentation) {
-        LogHelper.debug("Server Agent");
+        logger.debug("Server Agent");
         inst = instrumentation;
         isAgentStarted = true;
         if (isAutoloadLibraries) {
@@ -54,7 +60,7 @@ public class ServerAgent {
                 MethodHandle mainMethod = MethodHandles.publicLookup().findStatic(proxyClass, "premain", MethodType.methodType(void.class, String.class, Instrumentation.class));
                 mainMethod.invoke(agentArgument, instrumentation);
             } catch (Throwable e) {
-                LogHelper.error(e);
+                logger.error("", e);
             }
         }
     }
@@ -63,7 +69,7 @@ public class ServerAgent {
         try {
             IOHelper.walk(dir, new StarterVisitor(), true);
         } catch (IOException e) {
-            LogHelper.error(e);
+            logger.error("", e);
         }
     }
 

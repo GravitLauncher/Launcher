@@ -1,5 +1,7 @@
 package pro.gravit.launcher.start;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import pro.gravit.launcher.base.Launcher;
 import pro.gravit.launcher.base.LauncherConfig;
 import pro.gravit.launcher.core.LauncherInject;
@@ -12,6 +14,10 @@ import java.nio.file.Path;
 import java.util.*;
 
 public class ClientLauncherWrapper {
+
+    private static final Logger logger =
+            LoggerFactory.getLogger(ClientLauncherWrapper.class);
+
     public static final String MAGIC_ARG = "-Djdk.attach.allowAttachSelf";
     public static final String WAIT_PROCESS_PROPERTY = "launcher.waitProcess";
     public static final String NO_JAVA_CHECK_PROPERTY = "launcher.noJavaCheck";
@@ -41,25 +47,9 @@ public class ClientLauncherWrapper {
         LauncherConfig config = Launcher.getConfig();
         modulesManager = new RuntimeModuleManager();
         LauncherConfig.initModules(modulesManager);
-        LogHelper.info("Launcher for project %s", config.projectName);
-        if (config.environment.equals(LauncherConfig.LauncherEnvironment.PROD)) {
-            if (System.getProperty(LogHelper.DEBUG_PROPERTY) != null) {
-                LogHelper.warning("Found -Dlauncher.debug=true");
-            }
-            if (System.getProperty(LogHelper.STACKTRACE_PROPERTY) != null) {
-                LogHelper.warning("Found -Dlauncher.stacktrace=true");
-            }
-            LogHelper.info("Debug mode disabled (found env PRODUCTION)");
-        } else {
-            LogHelper.info("If need debug output use -Dlauncher.debug=true");
-            LogHelper.info("If need stacktrace output use -Dlauncher.stacktrace=true");
-            if(contains(arguments, "--debug")) {
-                LogHelper.setDebugEnabled(true);
-                LogHelper.setStacktraceEnabled(true);
-            }
-            if (LogHelper.isDebugEnabled()) waitProcess = true;
+        if(contains(arguments, "--debug")) {
+            waitProcess = true;
         }
-        LogHelper.info("Restart Launcher with JavaAgent...");
         ClientLauncherWrapperContext context = new ClientLauncherWrapperContext();
         context.processBuilder = new ProcessBuilder();
         if (waitProcess) context.processBuilder.inheritIO();
@@ -69,7 +59,7 @@ public class ClientLauncherWrapper {
             if (!noJavaCheck) {
                 List<JavaHelper.JavaVersion> javaVersions = JavaHelper.findJava();
                 for (JavaHelper.JavaVersion version : javaVersions) {
-                    LogHelper.debug("Found Java %d b%d in %s javafx %s", version.version, version.build, version.jvmDir.toString(), version.enabledJavaFX ? "supported" : "not supported");
+                    logger.debug("Found Java {} b{} in {} javafx {}", version.version, version.build, version.jvmDir.toString(), version.enabledJavaFX ? "supported" : "not supported");
                     if (context.javaVersion == null) {
                         context.javaVersion = version;
                         continue;
@@ -88,7 +78,7 @@ public class ClientLauncherWrapper {
                 }
             }
         } catch (Throwable e) {
-            LogHelper.error(e);
+            logger.error("", e);
         }
         if (context.javaVersion == null) {
             context.javaVersion = JavaHelper.JavaVersion.getCurrentJavaVersion();
@@ -96,7 +86,7 @@ public class ClientLauncherWrapper {
 
         if(context.javaVersion.version < 17) {
             String message = String.format("GravitLauncher v%s required Java 17 or higher", Version.getVersion());
-            LogHelper.error(message);
+            logger.error("", message);
             JOptionPane.showMessageDialog(null, message, "GravitLauncher", JOptionPane.ERROR_MESSAGE);
             System.exit(0);
         }
@@ -106,9 +96,6 @@ public class ClientLauncherWrapper {
         context.mainClass = "pro.gravit.launcher.runtime.LauncherEngineWrapper";
         context.memoryLimit = launcherMemoryLimit;
         context.classpath.add(pathLauncher);
-        context.jvmProperties.put(LogHelper.DEBUG_PROPERTY, Boolean.toString(LogHelper.isDebugEnabled()));
-        context.jvmProperties.put(LogHelper.STACKTRACE_PROPERTY, Boolean.toString(LogHelper.isStacktraceEnabled()));
-        context.jvmProperties.put(LogHelper.DEV_PROPERTY, Boolean.toString(LogHelper.isDevEnabled()));
         context.jvmModules.add("javafx.base");
         context.jvmModules.add("javafx.graphics");
         context.jvmModules.add("javafx.fxml");
@@ -139,7 +126,7 @@ public class ClientLauncherWrapper {
         }
         args.add(context.mainClass);
         args.addAll(context.clientArgs);
-        LogHelper.debug("Commandline: " + args);
+        logger.debug("Commandline: " + args);
         context.processBuilder.command(args);
         Process process = context.processBuilder.start();
         if (!waitProcess) {
@@ -147,11 +134,11 @@ public class ClientLauncherWrapper {
             if (!process.isAlive()) {
                 int errorcode = process.exitValue();
                 if (errorcode != 0)
-                    LogHelper.error("Process exit with error code: %d", errorcode);
+                    logger.error("Process exit with error code: {}", errorcode);
                 else
-                    LogHelper.info("Process exit with code 0");
+                    logger.info("Process exit with code 0");
             } else {
-                LogHelper.debug("Process started success");
+                logger.debug("Process started success");
             }
         } else {
             process.waitFor();

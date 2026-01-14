@@ -1,5 +1,7 @@
 package pro.gravit.launcher.server;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import pro.gravit.launcher.base.Launcher;
 import pro.gravit.launcher.base.LauncherConfig;
 import pro.gravit.launcher.base.api.AuthService;
@@ -44,6 +46,10 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
+
+    private static final Logger logger =
+            LoggerFactory.getLogger(ServerWrapper.class);
+
     public static final Path configFile = Paths.get(System.getProperty("serverwrapper.configFile", "ServerWrapperConfig.json"));
     public static final boolean disableSetup = Boolean.parseBoolean(System.getProperty("serverwrapper.disableSetup", "false"));
     public static ServerWrapper wrapper;
@@ -88,7 +94,7 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
     public void getProfiles() throws Exception {
         ProfilesRequestEvent result = new ProfilesRequest().request();
         for (ClientProfile p : result.profiles) {
-            LogHelper.debug("Get profile: %s", p.getTitle());
+            logger.debug("Get profile: {}", p.getTitle());
             boolean isFound = false;
             for (ClientProfile.ServerProfile srv : p.getServers()) {
                 if (srv != null && srv.name.equals(config.serverName)) {
@@ -96,7 +102,7 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
                     this.profile = p;
                     Launcher.profile = p;
                     AuthService.profile = p;
-                    LogHelper.debug("Found profile: %s", Launcher.profile.getTitle());
+                    logger.debug("Found profile: {}", Launcher.profile.getTitle());
                     isFound = true;
                     break;
                 }
@@ -104,7 +110,7 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
             if (isFound) break;
         }
         if (profile == null) {
-            LogHelper.warning("Not connected to ServerProfile. May be serverName incorrect?");
+            logger.warn("Not connected to ServerProfile. May be serverName incorrect?");
         }
     }
 
@@ -115,7 +121,7 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
         GetAvailabilityAuthRequest.registerProviders();
         OptionalAction.registerProviders();
         OptionalTrigger.registerProviders();
-        LogHelper.debug("Read ServerWrapperConfig.json");
+        logger.debug("Read ServerWrapperConfig.json");
         loadConfig();
     }
 
@@ -125,12 +131,12 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
         StdWebSocketService service = StdWebSocketService.initWebSockets(config.address).get();
         service.reconnectCallback = () ->
         {
-            LogHelper.debug("WebSocket connect closed. Try reconnect");
+            logger.debug("WebSocket connect closed. Try reconnect");
             try {
                 Request.reconnect();
                 getProfiles();
             } catch (Exception e) {
-                LogHelper.error(e);
+                logger.error("", e);
             }
         };
         Request.setRequestService(service);
@@ -215,11 +221,11 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
         }
         String classname = (config.mainclass == null || config.mainclass.isEmpty()) ? args[0] : config.mainclass;
         if (classname.isEmpty()) {
-            LogHelper.error("MainClass not found. Please set MainClass for ServerWrapper.json or first commandline argument");
+            logger.error("MainClass not found. Please set MainClass for ServerWrapper.json or first commandline argument");
             System.exit(-1);
         }
         if(config.oauth == null && ( config.extendedTokens == null || config.extendedTokens.isEmpty())) {
-            LogHelper.error("Auth not configured. Please use 'java -jar ServerWrapper.jar setup'");
+            logger.error("Auth not configured. Please use 'java -jar ServerWrapper.jar setup'");
             System.exit(-1);
         }
         if (config.autoloadLibraries) {
@@ -229,11 +235,11 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
             if (config.librariesDir == null)
                 throw new UnsupportedOperationException("librariesDir is null, autoloadLibraries not available");
             Path librariesDir = Paths.get(config.librariesDir);
-            LogHelper.info("Load libraries");
+            logger.info("Load libraries");
             ServerAgent.loadLibraries(librariesDir);
         }
-        LogHelper.info("ServerWrapper: LaunchServer address: %s. Title: %s", config.address, Launcher.profile != null ? Launcher.profile.getTitle() : "unknown");
-        LogHelper.info("Minecraft Version (for profile): %s", wrapper.profile == null ? "unknown" : wrapper.profile.getVersion().toString());
+        logger.info("ServerWrapper: LaunchServer address: {}. Title: {}", config.address, Launcher.profile != null ? Launcher.profile.getTitle() : "unknown");
+        logger.info("Minecraft Version (for profile): {}", wrapper.profile == null ? "unknown" : wrapper.profile.getVersion().toString());
         String[] real_args;
         if(config.args != null && !config.args.isEmpty()) {
             real_args = config.args.toArray(new String[0]);
@@ -285,13 +291,13 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
         }
         ClientService.classLoaderControl = classLoaderControl;
         ClientService.baseURLs = classLoaderControl.getURLs();
-        LogHelper.info("Start Minecraft Server");
+        logger.info("Start Minecraft Server");
         try {
             runCompatClasses();
-            LogHelper.debug("Invoke main method %s with %s", classname, launch.getClass().getName());
+            logger.debug("Invoke main method {} with {}", classname, launch.getClass().getName());
             launch.launch(config.mainclass, config.mainmodule, Arrays.asList(real_args));
         } catch (Throwable e) {
-            LogHelper.error(e);
+            logger.error("", e);
             System.exit(-1);
         }
     }

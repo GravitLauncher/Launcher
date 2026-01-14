@@ -1,5 +1,7 @@
 package pro.gravit.launcher.server.setup;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import pro.gravit.utils.command.CommandHandler;
 import pro.gravit.utils.command.JLineCommandHandler;
 import pro.gravit.utils.command.StdCommandHandler;
@@ -8,6 +10,10 @@ import pro.gravit.utils.helper.LogHelper;
 import java.io.IOException;
 
 public class ServerWrapperCommands {
+
+    private static final Logger logger =
+            LoggerFactory.getLogger(ServerWrapperCommands.class);
+
     public final CommandHandler commandHandler;
 
     public ServerWrapperCommands(CommandHandler commandHandler) {
@@ -22,10 +28,10 @@ public class ServerWrapperCommands {
 
             // JLine2 available
             localCommandHandler = new JLineCommandHandler();
-            LogHelper.info("JLine2 terminal enabled");
+            logger.info("JLine2 terminal enabled");
         } catch (ClassNotFoundException ignored) {
             localCommandHandler = new StdCommandHandler(true);
-            LogHelper.warning("JLine2 isn't in classpath, using std");
+            logger.warn("JLine2 isn't in classpath, using std");
         }
         commandHandler = localCommandHandler;
     }

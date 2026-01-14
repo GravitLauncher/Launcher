@@ -25,6 +25,7 @@ jline-terminal = { module = "org.jline:jline-terminal", version.ref = "jline" }
 jline-reader = { module = "org.jline:jline-reader", version.ref = "jline" }
 jansi = { module = "org.fusesource.jansi:jansi", version.ref = "jansi" }
 slf4j = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }
+slf4j-simple = { module = "org.slf4j:slf4j-simple", version.ref = "slf4j" }
 oshi = { module = "com.github.oshi:oshi-core", version.ref = "oshi" }
 # LaunchServer libraries
 log4j-api = { module = "org.apache.logging.log4j:log4j-api", version.ref = "log4j" }

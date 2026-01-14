@@ -1,11 +1,17 @@
 package pro.gravit.launcher.runtime.console;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import pro.gravit.launcher.runtime.managers.ConsoleManager;
 import pro.gravit.launcher.runtime.managers.SettingsManager;
 import pro.gravit.utils.command.Command;
 import pro.gravit.utils.helper.LogHelper;
 
 public class UnlockCommand extends Command {
+
+    private static final Logger logger =
+            LoggerFactory.getLogger(UnlockCommand.class);
+
     @Override
     public String getArgsDescription() {
         return "[key]";
@@ -20,15 +26,15 @@ public class UnlockCommand extends Command {
     public void invoke(String... args) throws Exception {
         verifyArgs(args, 1);
         if (ConsoleManager.checkUnlockKey(args[0])) {
-            LogHelper.info("Unlock successful");
+            logger.info("Unlock successful");
             if (!ConsoleManager.unlock()) {
-                LogHelper.error("Console unlock canceled");
+                logger.error("Console unlock canceled");
                 return;
             }
-            LogHelper.info("Write unlock key");
+            logger.info("Write unlock key");
             SettingsManager.settings.consoleUnlockKey = args[0];
         } else {
-            LogHelper.error("Unlock key incorrect");
+            logger.error("Unlock key incorrect");
         }
     }
 }

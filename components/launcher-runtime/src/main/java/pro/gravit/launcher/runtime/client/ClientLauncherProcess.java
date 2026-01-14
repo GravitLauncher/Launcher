@@ -1,5 +1,7 @@
 package pro.gravit.launcher.runtime.client;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import pro.gravit.launcher.base.Launcher;
 import pro.gravit.launcher.base.LauncherConfig;
 import pro.gravit.launcher.base.events.request.AuthRequestEvent;
@@ -33,6 +35,10 @@ import java.nio.file.attribute.PosixFilePermission;
 import java.util.*;
 
 public class ClientLauncherProcess {
+
+    private static final Logger logger =
+            LoggerFactory.getLogger(ClientLauncherProcess.class);
+
     public final List<String> pre = new LinkedList<>();
     public final ClientParams params = new ClientParams();
     public final List<String> jvmArgs = new LinkedList<>();
@@ -204,9 +210,9 @@ public class ClientLauncherProcess {
             }
         }
         if (Launcher.getConfig().environment != LauncherConfig.LauncherEnvironment.PROD) {
-            processArgs.add(JVMHelper.jvmProperty(LogHelper.DEV_PROPERTY, String.valueOf(LogHelper.isDevEnabled())));
-            processArgs.add(JVMHelper.jvmProperty(LogHelper.DEBUG_PROPERTY, String.valueOf(LogHelper.isDebugEnabled())));
-            processArgs.add(JVMHelper.jvmProperty(LogHelper.STACKTRACE_PROPERTY, String.valueOf(LogHelper.isStacktraceEnabled())));
+            processArgs.add(JVMHelper.jvmProperty(LogHelper.DEV_PROPERTY, String.valueOf(true)));
+            processArgs.add(JVMHelper.jvmProperty(LogHelper.DEBUG_PROPERTY, String.valueOf(true)));
+            processArgs.add(JVMHelper.jvmProperty(LogHelper.STACKTRACE_PROPERTY, String.valueOf(true)));
         }
         if (useLegacyJavaClassPathProperty) {
             processArgs.add("-Djava.class.path=".concat(String.join(getPathSeparator(), systemClassPath)));
@@ -221,8 +227,8 @@ public class ClientLauncherProcess {
                 waitWriteParams.wait(1000);
             }
         }
-        if (LogHelper.isDebugEnabled())
-            LogHelper.debug("Commandline: %s", Arrays.toString(processArgs.toArray()));
+        if (true)
+            logger.debug("Commandline: {}", Arrays.toString(processArgs.toArray()));
         ProcessBuilder processBuilder = new ProcessBuilder(processArgs);
         EnvHelper.addEnv(processBuilder);
         if(JVMHelper.OS_TYPE == JVMHelper.OS.LINUX){
@@ -243,7 +249,7 @@ public class ClientLauncherProcess {
                     Files.setPosixFilePermissions(executeFile, newPerms);
                 }
             } catch (Throwable e) {
-                LogHelper.error(e);
+                logger.error("", e);
             }
         }
         processBuilder.environment().put("JAVA_HOME", javaVersion.jvmDir.toAbsolutePath().toString());

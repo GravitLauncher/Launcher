@@ -58,7 +58,7 @@ public class LaunchServerStarter {
             Class.forName("org.bouncycastle.jce.provider.BouncyCastleProvider");
             Security.addProvider(new BouncyCastleProvider());
         } catch (ClassNotFoundException | NoClassDefFoundError ex) {
-            LogHelper.error("Library BouncyCastle not found! Is directory 'libraries' empty?");
+            logger.error("Library BouncyCastle not found! Is directory 'libraries' empty?");
             return;
         }
         LaunchServer.LaunchServerDirectories directories = new LaunchServer.LaunchServerDirectories();

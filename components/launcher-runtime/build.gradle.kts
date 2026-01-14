@@ -35,7 +35,10 @@ tasks.shadowJar {
 dependencies {
     api(project(":components:launcher-client"))
     api(project(":components:launcher-start"))
-    optional(libs.oshi)
+    optional(libs.slf4j.simple)
+    optional(libs.oshi) {
+        exclude(group = "org.slf4j")
+    }
 }
 
 val copyLauncherLibs by tasks.registering(Copy::class) {

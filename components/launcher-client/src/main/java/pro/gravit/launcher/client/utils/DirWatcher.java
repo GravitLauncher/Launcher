@@ -1,5 +1,7 @@
 package pro.gravit.launcher.client.utils;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import pro.gravit.launcher.client.ClientLauncherMethods;
 import pro.gravit.launcher.core.hasher.FileNameMatcher;
 import pro.gravit.launcher.core.hasher.HashedDir;
@@ -19,6 +21,10 @@ import java.util.LinkedList;
 import java.util.Objects;
 
 public final class DirWatcher implements Runnable, AutoCloseable {
+
+    private static final Logger logger =
+            LoggerFactory.getLogger(DirWatcher.class);
+
     public static final boolean FILE_TREE_SUPPORTED = JVMHelper.OS_TYPE == OS.MUSTDIE;
     public static final String IGN_OVERFLOW = "launcher.dirwatcher.ignoreOverflows";
     // Constants
@@ -46,7 +52,7 @@ public final class DirWatcher implements Runnable, AutoCloseable {
     }
 
     private static void handleError(Throwable e) {
-        LogHelper.error(e);
+        logger.error("", e);
         ClientLauncherMethods.exitLauncher(-123);
     }
 
@@ -91,10 +97,10 @@ public final class DirWatcher implements Runnable, AutoCloseable {
     }
 
     private void processLoop() throws IOException, InterruptedException {
-        LogHelper.debug("WatchService start processing");
+        logger.debug("WatchService start processing");
         while (!Thread.interrupted())
             processKey(service.take());
-        LogHelper.debug("WatchService closed");
+        logger.debug("WatchService closed");
     }
 
     @Override
@@ -103,7 +109,7 @@ public final class DirWatcher implements Runnable, AutoCloseable {
         try {
             processLoop();
         } catch (InterruptedException | ClosedWatchServiceException ignored) {
-            LogHelper.debug("WatchService closed 2");
+            logger.debug("WatchService closed 2");
             // Do nothing (closed etc)
         } catch (Throwable exc) {
             handleError(exc);

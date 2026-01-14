@@ -13,7 +13,7 @@ dependencies {
     compileOnly(libs.jline.terminal)
     compileOnly(libs.jline.reader)
     compileOnly(libs.jansi)
-    compileOnly(libs.slf4j)
+    api(libs.slf4j)
     testRuntimeOnly(libs.jline.reader)
     testRuntimeOnly(libs.jline.terminal)
 }

@@ -1,5 +1,7 @@
 package pro.gravit.launcher.core;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import pro.gravit.utils.helper.LogHelper;
 
 import javax.net.ssl.TrustManagerFactory;
@@ -16,6 +18,10 @@ import java.util.Arrays;
 import java.util.List;
 
 public final class CertificatePinningTrustManager {
+
+    private static final Logger logger =
+            LoggerFactory.getLogger(CertificatePinningTrustManager.class);
+
     @LauncherInject("launchercore.certificates")
     private static List<byte[]> secureConfigCertificates;
     private static X509Certificate[] certs = null;
@@ -33,7 +39,7 @@ public final class CertificatePinningTrustManager {
             try (InputStream input = new ByteArrayInputStream(cert)) {
                 return (X509Certificate) finalCertFactory.generateCertificate(input);
             } catch (IOException | CertificateException e) {
-                LogHelper.error(e);
+                logger.error("", e);
                 return null;
             }
         }).toArray(X509Certificate[]::new);

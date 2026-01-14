@@ -1,5 +1,8 @@
 package pro.gravit.launcher.runtime.backend;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.event.Level;
 import pro.gravit.launcher.base.ClientPermissions;
 import pro.gravit.launcher.base.Launcher;
 import pro.gravit.launcher.base.profiles.ClientProfile;
@@ -19,7 +22,6 @@ import pro.gravit.launcher.core.backend.UserSettings;
 import pro.gravit.launcher.core.backend.exceptions.LauncherBackendException;
 import pro.gravit.launcher.core.backend.extensions.Extension;
 import pro.gravit.launcher.core.backend.extensions.TextureUploadExtension;
-import pro.gravit.launcher.runtime.LauncherEngine;
 import pro.gravit.launcher.runtime.NewLauncherSettings;
 import pro.gravit.launcher.runtime.client.DirBridge;
 import pro.gravit.launcher.runtime.client.ServerPinger;
@@ -51,6 +53,10 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class LauncherBackendImpl implements LauncherBackendAPI, TextureUploadExtension {
+
+    private static final Logger logger =
+            LoggerFactory.getLogger(LauncherBackendImpl.class);
+
     private final ClientDownloadImpl clientDownloadImpl = new ClientDownloadImpl(this);
     private volatile MainCallback callback;
     ExecutorService executorService;
@@ -124,7 +130,7 @@ public class LauncherBackendImpl implements LauncherBackendAPI, TextureUploadExt
                         }
                         LauncherUpdater.restart();
                     } catch (IOException e) {
-                        LogHelper.error(e);
+                        logger.error("", e);
                     }
                 }));
             }
@@ -314,13 +320,12 @@ public class LauncherBackendImpl implements LauncherBackendAPI, TextureUploadExt
                     continue;
                 }
                 Path javaDirectory = DirBridge.dirUpdates.resolve(javaDir);
-                LogHelper.debug("In-Launcher Java Version found: Java %d b%d %s javafx %s", version, build,
-                        arch.name, Boolean.toString(javafx));
+                logger.debug("In-Launcher Java Version found: Java {} b{} {} javafx {}", version, build, arch.name, Boolean.toString(javafx));
                 JavaHelper.JavaVersion javaVersion = new JavaHelper.JavaVersion(javaDirectory, version, build,
                         arch, javafx);
                 versions.add(javaVersion);
             } else {
-                LogHelper.warning("Java Version: %s does not match", javaVersionString);
+                logger.warn("Java Version: {} does not match", javaVersionString);
             }
         }
         return versions;
@@ -423,7 +428,7 @@ public class LauncherBackendImpl implements LauncherBackendAPI, TextureUploadExt
             try {
                 settingsManager.saveConfig();
             } catch (IOException e) {
-                LogHelper.error("Config not saved", e);
+                logger.error("Config not saved", e);
             }
         }
     }
@@ -494,8 +499,8 @@ public class LauncherBackendImpl implements LauncherBackendAPI, TextureUploadExt
                 }
             }
         }
-        if(LogHelper.isDevEnabled()) {
-            Vfs.get().debugPrint(LogHelper.Level.DEV);
+        if(logger.isTraceEnabled()) {
+            Vfs.get().debugPrint(Level.TRACE);
         }
         return defaultPath;
     }

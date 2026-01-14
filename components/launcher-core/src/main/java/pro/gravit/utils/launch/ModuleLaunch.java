@@ -1,9 +1,10 @@
 package pro.gravit.utils.launch;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import pro.gravit.utils.helper.HackHelper;
 import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.JVMHelper;
-import pro.gravit.utils.helper.LogHelper;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -27,6 +28,10 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class ModuleLaunch implements Launch {
+
+    private static final Logger logger =
+            LoggerFactory.getLogger(ModuleLaunch.class);
+
     private ModuleClassLoader moduleClassLoader;
     private Configuration configuration;
     private ModuleLayer.Controller controller;
@@ -71,11 +76,11 @@ public class ModuleLaunch implements Launch {
                 ModuleLayer bootLayer = ModuleLayer.boot();
                 if(options.moduleConf.modules.contains("ALL-MODULE-PATH")) {
                     var set = moduleFinder.findAll();
-                    if(LogHelper.isDevEnabled()) {
+                    if(true) {
                         for(var m : set) {
-                            LogHelper.dev("Found module %s in %s", m.descriptor().name(), m.location().map(URI::toString).orElse("unknown"));
+                            logger.info("Found module {} in {}", m.descriptor().name(), m.location().map(URI::toString).orElse("unknown"));
                         }
-                        LogHelper.dev("Found %d modules", set.size());
+                        logger.info("Found {} modules", set.size());
                     }
                     for(var m : set) {
                         options.moduleConf.modules.add(m.descriptor().name());
@@ -91,7 +96,7 @@ public class ModuleLaunch implements Launch {
                     String[] split = e.getKey().split("/");
                     String moduleName = split[0];
                     String pkg = split[1];
-                    LogHelper.dev("Export module: %s package: %s to %s", moduleName, pkg, e.getValue());
+                    logger.info("Export module: {} package: {} to {}", moduleName, pkg, e.getValue());
                     Module source = layer.findModule(split[0]).orElse(null);
                     if(source == null) {
                         throw new RuntimeException(String.format("Module %s not found", moduleName));
@@ -110,7 +115,7 @@ public class ModuleLaunch implements Launch {
                     String[] split = e.getKey().split("/");
                     String moduleName = split[0];
                     String pkg = split[1];
-                    LogHelper.dev("Open module: %s package: %s to %s", moduleName, pkg, e.getValue());
+                    logger.info("Open module: {} package: {} to {}", moduleName, pkg, e.getValue());
                     Module source = layer.findModule(split[0]).orElse(null);
                     if(source == null) {
                         throw new RuntimeException(String.format("Module %s not found", moduleName));
@@ -126,7 +131,7 @@ public class ModuleLaunch implements Launch {
                     }
                 }
                 for(var e : options.moduleConf.reads.entrySet()) {
-                    LogHelper.dev("Read module %s to %s", e.getKey(), e.getValue());
+                    logger.info("Read module {} to {}", e.getKey(), e.getValue());
                     Module source = layer.findModule(e.getKey()).orElse(null);
                     if(source == null) {
                         throw new RuntimeException(String.format("Module %s not found", e.getKey()));
@@ -142,7 +147,7 @@ public class ModuleLaunch implements Launch {
                     }
                 }
                 for(var e : options.moduleConf.enableNativeAccess) {
-                    LogHelper.dev("Enable Native Access %s", e);
+                    logger.info("Enable Native Access {}", e);
                     Module source = layer.findModule(e).orElse(null);
                     if(source == null) {
                         throw new RuntimeException(String.format("Module %s not found", e));

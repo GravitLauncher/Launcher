@@ -1,5 +1,7 @@
 package pro.gravit.launcher.runtime.debug;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import pro.gravit.launcher.base.ClientPermissions;
 import pro.gravit.launcher.base.Launcher;
 import pro.gravit.launcher.base.LauncherConfig;
@@ -30,13 +32,17 @@ import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class DebugMain {
+
+    private static final Logger logger =
+            LoggerFactory.getLogger(DebugMain.class);
+
     public static final AtomicBoolean IS_DEBUG = new AtomicBoolean(false);
 
     public static void main(String[] args) throws Throwable {
         LogHelper.printVersion("Launcher");
         LogHelper.printLicense("Launcher");
         initialize();
-        LogHelper.debug("Initialization LauncherEngine");
+        logger.debug("Initialization LauncherEngine");
         LauncherEngine instance = LauncherEngine.newInstance(false, ClientRuntimeProvider.class);
         instance.start(args);
         LauncherEngine.exitLauncher(0);
@@ -44,8 +50,8 @@ public class DebugMain {
 
     public static void initialize() throws Exception {
         IS_DEBUG.set(true);
-        LogHelper.info("Launcher start in DEBUG mode (Only for developers)");
-        LogHelper.debug("Initialization LauncherConfig");
+        logger.info("Launcher start in DEBUG mode (Only for developers)");
+        logger.debug("Initialization LauncherConfig");
         LauncherConfig config = new LauncherConfig(DebugProperties.WEBSOCKET_URL, new HashMap<>(), DebugProperties.PROJECT_NAME, DebugProperties.ENV, new DebugLauncherTrustManager(DebugLauncherTrustManager.TrustDebugMode.TRUST_ALL));
         config.unlockSecret = DebugProperties.UNLOCK_SECRET;
         Launcher.setConfig(config);

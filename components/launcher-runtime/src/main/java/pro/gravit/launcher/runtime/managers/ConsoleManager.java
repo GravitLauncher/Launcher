@@ -1,5 +1,7 @@
 package pro.gravit.launcher.runtime.managers;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import pro.gravit.launcher.base.Launcher;
 import pro.gravit.launcher.runtime.LauncherEngine;
 import pro.gravit.launcher.client.events.ClientUnlockConsoleEvent;
@@ -19,6 +21,10 @@ import pro.gravit.utils.helper.LogHelper;
 import java.io.IOException;
 
 public class ConsoleManager {
+
+    private static final Logger logger =
+            LoggerFactory.getLogger(ConsoleManager.class);
+
     public static CommandHandler handler;
     public static Thread thread;
     public static boolean isConsoleUnlock = false;
@@ -30,10 +36,10 @@ public class ConsoleManager {
 
             // JLine2 available
             localCommandHandler = new JLineCommandHandler();
-            LogHelper.info("JLine2 terminal enabled");
+            logger.info("JLine2 terminal enabled");
         } catch (ClassNotFoundException ignored) {
             localCommandHandler = new StdCommandHandler(true);
-            LogHelper.warning("JLine2 isn't in classpath, using std");
+            logger.warn("JLine2 isn't in classpath, using std");
         }
         handler = localCommandHandler;
         registerCommands();

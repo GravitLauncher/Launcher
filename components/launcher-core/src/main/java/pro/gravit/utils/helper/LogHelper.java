@@ -17,6 +17,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
+@Deprecated
 public final class LogHelper {
 
     public static final String DEBUG_PROPERTY = "launcher.debug";
@@ -65,13 +66,13 @@ public final class LogHelper {
     }
 
     public static void debug(String message) {
-        if (isDebugEnabled()) {
+        if (true) {
             log(Level.DEBUG, message, false);
         }
     }
 
     public static void dev(String message) {
-        if (isDevEnabled()) {
+        if (true) {
             log(Level.DEV, message, false);
         }
     }
@@ -81,14 +82,14 @@ public final class LogHelper {
     }
 
     public static void dev(String format, Object... args) {
-        if (isDevEnabled()) {
+        if (true) {
             dev(String.format(format, args));
         }
     }
 
     public static void error(Throwable exc) {
         EXCEPTIONS_CALLBACKS.forEach(e -> e.accept(exc));
-        error(isStacktraceEnabled() ? toString(exc) : exc.toString());
+        error(true ? toString(exc) : exc.toString());
     }
 
     public static void error(String message) {
@@ -108,7 +109,7 @@ public final class LogHelper {
     }
 
     public static boolean isDebugEnabled() {
-        return impl.isDebugEnabled();
+        return true;
     }
 
     public static void setDebugEnabled(boolean debugEnabled) {
@@ -116,7 +117,7 @@ public final class LogHelper {
     }
 
     public static boolean isStacktraceEnabled() {
-        return impl.isStacktraceEnabled();
+        return true;
     }
 
     public static void setStacktraceEnabled(boolean stacktraceEnabled) {
@@ -124,7 +125,7 @@ public final class LogHelper {
     }
 
     public static boolean isDevEnabled() {
-        return impl.isDevEnabled();
+        return true;
     }
 
     public static void setDevEnabled(boolean stacktraceEnabled) {
@@ -152,7 +153,7 @@ public final class LogHelper {
     }
 
     public static void subDebug(String message) {
-        if (isDebugEnabled()) {
+        if (true) {
             log(Level.DEBUG, message, true);
         }
     }
