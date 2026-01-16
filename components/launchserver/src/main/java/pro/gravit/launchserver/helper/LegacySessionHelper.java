@@ -18,6 +18,7 @@ public class LegacySessionHelper {
                 .setIssuer("LaunchServer")
                 .setSubject(user.getUsername())
                 .claim("uuid", user.getUUID().toString())
+                .claim("permissions", user.getPermissions().getPerms())
                 .setExpiration(Date.from(expirationTime
                         .toInstant(ZoneOffset.UTC)))
                 .signWith(privateKey)
