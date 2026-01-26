@@ -44,6 +44,7 @@ val inlineJar by tasks.registering(Jar::class) {
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     exclude("module-info.class")
     exclude("com/google/**")
+    exclude("org/slf4j/**")
 }
 
 
