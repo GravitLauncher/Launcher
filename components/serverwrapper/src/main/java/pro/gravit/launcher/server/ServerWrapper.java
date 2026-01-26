@@ -207,7 +207,7 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
             command.run(args[1]);
             System.exit(0);
         }
-        if (args.length > 1 && args[0].equalsIgnoreCase("save") && !disableSetup) {
+        if (args.length > 0 && args[0].equalsIgnoreCase("save") && !disableSetup) {
             config.applyEnv();
             saveConfig();
             System.exit(0);
