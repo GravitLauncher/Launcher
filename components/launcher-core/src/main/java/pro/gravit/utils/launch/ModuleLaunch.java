@@ -13,6 +13,7 @@ import java.io.InputStream;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
+import java.lang.invoke.VarHandle;
 import java.lang.module.*;
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -40,6 +41,7 @@ public class ModuleLaunch implements Launch {
     private MethodHandles.Lookup hackLookup;
     private boolean disablePackageDelegateSupport;
     private static final MethodHandle ENABLE_NATIVE_ACCESS;
+    private Module ALL_UNNAMED_MODULE;
 
     static {
         MethodHandle mh;
@@ -101,7 +103,7 @@ public class ModuleLaunch implements Launch {
                     if(source == null) {
                         throw new RuntimeException(String.format("Module %s not found", moduleName));
                     }
-                    Module target = layer.findModule(e.getValue()).orElse(null);
+                    Module target = findModuleOrUnnamed(layer, e.getValue());
                     if(target == null) {
                         throw new RuntimeException(String.format("Module %s not found", e.getValue()));
                     }
@@ -120,7 +122,7 @@ public class ModuleLaunch implements Launch {
                     if(source == null) {
                         throw new RuntimeException(String.format("Module %s not found", moduleName));
                     }
-                    Module target = layer.findModule(e.getValue()).orElse(null);
+                    Module target = findModuleOrUnnamed(layer, e.getValue());
                     if(target == null) {
                         throw new RuntimeException(String.format("Module %s not found", e.getValue()));
                     }
@@ -136,7 +138,7 @@ public class ModuleLaunch implements Launch {
                     if(source == null) {
                         throw new RuntimeException(String.format("Module %s not found", e.getKey()));
                     }
-                    Module target = layer.findModule(e.getValue()).orElse(null);
+                    Module target = findModuleOrUnnamed(layer, e.getValue());
                     if(target == null) {
                         throw new RuntimeException(String.format("Module %s not found", e.getValue()));
                     }
@@ -164,6 +166,24 @@ public class ModuleLaunch implements Launch {
             }
         }
         return moduleClassLoader.makeControl();
+    }
+
+    private Module findModuleOrUnnamed(ModuleLayer layer, String name) {
+        if(name.equals("ALL-UNNAMED")) {
+            if(ALL_UNNAMED_MODULE == null && hackLookup != null) {
+                ALL_UNNAMED_MODULE = getAllUnnamedModule(hackLookup);
+            }
+            return ALL_UNNAMED_MODULE;
+        }
+        return layer.findModule(name).orElse(null);
+    }
+
+    private Module getAllUnnamedModule(MethodHandles.Lookup lookup) {
+        try {
+            return (Module) lookup.findStaticVarHandle(Module.class, "ALL_UNNAMED_MODULE", Module.class).get();
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            throw new SecurityException(e);
+        }
     }
 
     @Override
