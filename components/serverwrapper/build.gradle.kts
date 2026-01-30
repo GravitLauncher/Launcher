@@ -58,6 +58,7 @@ repositories {
 
 dependencies {
     api(project(":components:launcher-client"))
+    implementation(libs.slf4j.simple)
 }
 
 tasks.assemble {
