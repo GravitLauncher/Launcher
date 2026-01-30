@@ -1,5 +1,7 @@
 package pro.gravit.launchserver.auth.core.openid;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import pro.gravit.launcher.base.ClientPermissions;
@@ -27,6 +29,10 @@ import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 public class OpenIDAuthCoreProvider extends AuthCoreProvider {
+
+    private static final Logger logger =
+            LoggerFactory.getLogger(OpenIDAuthCoreProvider.class);
+
     private transient SQLUserStore sqlUserStore;
     private transient SQLServerSessionStore sqlSessionStore;
     private transient OpenIDAuthenticator openIDAuthenticator;
@@ -158,7 +164,7 @@ public class OpenIDAuthCoreProvider extends AuthCoreProvider {
         try {
             user = createUserFromMinecraftToken(accessToken);
         } catch (AuthException e) {
-            LogHelper.error(e);
+            logger.error("", e);
             return false;
         }
         if (!user.getUUID().equals(uuid)) {

@@ -1,5 +1,7 @@
 package pro.gravit.utils.logging;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.fusesource.jansi.Ansi;
 import org.fusesource.jansi.AnsiConsole;
 import pro.gravit.utils.helper.FormatHelper;
@@ -23,6 +25,10 @@ import java.util.function.Supplier;
 import static pro.gravit.utils.helper.LogHelper.*;
 
 public class SimpleLogHelperImpl implements LogHelperAppender {
+
+    private static final Logger logger =
+            LoggerFactory.getLogger(SimpleLogHelperImpl.class);
+
 
     private static final AtomicBoolean DEBUG_ENABLED = new AtomicBoolean(Boolean.getBoolean(DEBUG_PROPERTY));
     private static final AtomicBoolean STACKTRACE_ENABLED = new AtomicBoolean(Boolean.getBoolean(STACKTRACE_PROPERTY));

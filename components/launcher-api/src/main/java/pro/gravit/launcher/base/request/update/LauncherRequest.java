@@ -1,5 +1,7 @@
 package pro.gravit.launcher.base.request.update;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import pro.gravit.launcher.base.Launcher;
 import pro.gravit.launcher.core.LauncherNetworkAPI;
 import pro.gravit.launcher.base.events.request.LauncherRequestEvent;
@@ -16,6 +18,10 @@ import java.io.IOException;
 import java.nio.file.Path;
 
 public final class LauncherRequest extends Request<LauncherRequestEvent> implements WebSocketRequest {
+
+    private static final Logger logger =
+            LoggerFactory.getLogger(LauncherRequest.class);
+
     public static final Path BINARY_PATH = IOHelper.getCodeSource(Launcher.class);
     public static final boolean JAR_BINARY = IOHelper.hasExtension(BINARY_PATH, "jar");
     @LauncherNetworkAPI
@@ -33,7 +39,7 @@ public final class LauncherRequest extends Request<LauncherRequestEvent> impleme
         try {
             digest = SecurityHelper.digest(SecurityHelper.DigestAlgorithm.SHA512, launcherPath);
         } catch (IOException e) {
-            LogHelper.error(e);
+            logger.error("", e);
         }
         secureHash = Launcher.getConfig().secureCheckHash;
         secureSalt = Launcher.getConfig().secureCheckSalt;

@@ -15,7 +15,7 @@ repositories {
 }
 
 val optional by configurations.creating {
-    isCanBeConsumed = false; isCanBeResolved = true
+    isCanBeConsumed = false; isCanBeResolved = true;
 }
 
 configurations {
@@ -35,6 +35,7 @@ tasks.shadowJar {
 dependencies {
     api(project(":components:launcher-client"))
     api(project(":components:launcher-start"))
+    optional(libs.slf4j.simple)
     optional(libs.oshi)
 }
 

@@ -1,9 +1,10 @@
 package pro.gravit.utils.launch;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import pro.gravit.utils.helper.HackHelper;
 import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.JVMHelper;
-import pro.gravit.utils.helper.LogHelper;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -12,6 +13,7 @@ import java.io.InputStream;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
+import java.lang.invoke.VarHandle;
 import java.lang.module.*;
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -27,6 +29,10 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class ModuleLaunch implements Launch {
+
+    private static final Logger logger =
+            LoggerFactory.getLogger(ModuleLaunch.class);
+
     private ModuleClassLoader moduleClassLoader;
     private Configuration configuration;
     private ModuleLayer.Controller controller;
@@ -35,6 +41,7 @@ public class ModuleLaunch implements Launch {
     private MethodHandles.Lookup hackLookup;
     private boolean disablePackageDelegateSupport;
     private static final MethodHandle ENABLE_NATIVE_ACCESS;
+    private Module ALL_UNNAMED_MODULE;
 
     static {
         MethodHandle mh;
@@ -71,11 +78,11 @@ public class ModuleLaunch implements Launch {
                 ModuleLayer bootLayer = ModuleLayer.boot();
                 if(options.moduleConf.modules.contains("ALL-MODULE-PATH")) {
                     var set = moduleFinder.findAll();
-                    if(LogHelper.isDevEnabled()) {
+                    if(true) {
                         for(var m : set) {
-                            LogHelper.dev("Found module %s in %s", m.descriptor().name(), m.location().map(URI::toString).orElse("unknown"));
+                            logger.info("Found module {} in {}", m.descriptor().name(), m.location().map(URI::toString).orElse("unknown"));
                         }
-                        LogHelper.dev("Found %d modules", set.size());
+                        logger.info("Found {} modules", set.size());
                     }
                     for(var m : set) {
                         options.moduleConf.modules.add(m.descriptor().name());
@@ -91,12 +98,12 @@ public class ModuleLaunch implements Launch {
                     String[] split = e.getKey().split("/");
                     String moduleName = split[0];
                     String pkg = split[1];
-                    LogHelper.dev("Export module: %s package: %s to %s", moduleName, pkg, e.getValue());
+                    logger.info("Export module: {} package: {} to {}", moduleName, pkg, e.getValue());
                     Module source = layer.findModule(split[0]).orElse(null);
                     if(source == null) {
                         throw new RuntimeException(String.format("Module %s not found", moduleName));
                     }
-                    Module target = layer.findModule(e.getValue()).orElse(null);
+                    Module target = findModuleOrUnnamed(layer, e.getValue());
                     if(target == null) {
                         throw new RuntimeException(String.format("Module %s not found", e.getValue()));
                     }
@@ -110,12 +117,12 @@ public class ModuleLaunch implements Launch {
                     String[] split = e.getKey().split("/");
                     String moduleName = split[0];
                     String pkg = split[1];
-                    LogHelper.dev("Open module: %s package: %s to %s", moduleName, pkg, e.getValue());
+                    logger.info("Open module: {} package: {} to {}", moduleName, pkg, e.getValue());
                     Module source = layer.findModule(split[0]).orElse(null);
                     if(source == null) {
                         throw new RuntimeException(String.format("Module %s not found", moduleName));
                     }
-                    Module target = layer.findModule(e.getValue()).orElse(null);
+                    Module target = findModuleOrUnnamed(layer, e.getValue());
                     if(target == null) {
                         throw new RuntimeException(String.format("Module %s not found", e.getValue()));
                     }
@@ -126,12 +133,12 @@ public class ModuleLaunch implements Launch {
                     }
                 }
                 for(var e : options.moduleConf.reads.entrySet()) {
-                    LogHelper.dev("Read module %s to %s", e.getKey(), e.getValue());
+                    logger.info("Read module {} to {}", e.getKey(), e.getValue());
                     Module source = layer.findModule(e.getKey()).orElse(null);
                     if(source == null) {
                         throw new RuntimeException(String.format("Module %s not found", e.getKey()));
                     }
-                    Module target = layer.findModule(e.getValue()).orElse(null);
+                    Module target = findModuleOrUnnamed(layer, e.getValue());
                     if(target == null) {
                         throw new RuntimeException(String.format("Module %s not found", e.getValue()));
                     }
@@ -142,7 +149,7 @@ public class ModuleLaunch implements Launch {
                     }
                 }
                 for(var e : options.moduleConf.enableNativeAccess) {
-                    LogHelper.dev("Enable Native Access %s", e);
+                    logger.info("Enable Native Access {}", e);
                     Module source = layer.findModule(e).orElse(null);
                     if(source == null) {
                         throw new RuntimeException(String.format("Module %s not found", e));
@@ -159,6 +166,24 @@ public class ModuleLaunch implements Launch {
             }
         }
         return moduleClassLoader.makeControl();
+    }
+
+    private Module findModuleOrUnnamed(ModuleLayer layer, String name) {
+        if(name.equals("ALL-UNNAMED")) {
+            if(ALL_UNNAMED_MODULE == null && hackLookup != null) {
+                ALL_UNNAMED_MODULE = getAllUnnamedModule(hackLookup);
+            }
+            return ALL_UNNAMED_MODULE;
+        }
+        return layer.findModule(name).orElse(null);
+    }
+
+    private Module getAllUnnamedModule(MethodHandles.Lookup lookup) {
+        try {
+            return (Module) lookup.findStaticVarHandle(Module.class, "ALL_UNNAMED_MODULE", Module.class).get();
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            throw new SecurityException(e);
+        }
     }
 
     @Override

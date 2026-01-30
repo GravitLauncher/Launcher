@@ -1,5 +1,7 @@
 package pro.gravit.launcher.base.request.websockets;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import pro.gravit.launcher.base.Downloader;
 import pro.gravit.launcher.core.LauncherInject;
 import pro.gravit.utils.helper.LogHelper;
@@ -20,6 +22,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
 public abstract class ClientJSONPoint implements WebSocket.Listener {
+
+    private static final Logger logger =
+            LoggerFactory.getLogger(ClientJSONPoint.class);
+
     @LauncherInject("launcher.certificatePinning")
     private static boolean isCertificatePinning;
     private static final AtomicInteger counter = new AtomicInteger();
@@ -85,7 +91,7 @@ public abstract class ClientJSONPoint implements WebSocket.Listener {
             if(last) {
                 String message = builder.toString();
                 builder = new StringBuilder();
-                LogHelper.dev("Received %s", message);
+                logger.trace("Received {}", message);
                 onMessage(message);
             }
         }
@@ -111,12 +117,12 @@ public abstract class ClientJSONPoint implements WebSocket.Listener {
 
     @Override
     public void onError(WebSocket webSocket, Throwable error) {
-        LogHelper.error(error);
+        logger.error("", error);
         WebSocket.Listener.super.onError(webSocket, error);
     }
 
     public void send(String text) {
-        LogHelper.dev("Send %s", text);
+        logger.trace("Send {}", text);
         webSocket.sendText(text, true);
     }
 

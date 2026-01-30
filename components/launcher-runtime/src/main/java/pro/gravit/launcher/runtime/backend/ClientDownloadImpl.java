@@ -1,5 +1,7 @@
 package pro.gravit.launcher.runtime.backend;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import pro.gravit.launcher.base.Downloader;
 import pro.gravit.launcher.base.profiles.ClientProfile;
 import pro.gravit.launcher.base.profiles.optional.OptionalView;
@@ -27,6 +29,10 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 
 public class ClientDownloadImpl {
+
+    private static final Logger logger =
+            LoggerFactory.getLogger(ClientDownloadImpl.class);
+
     private final LauncherBackendImpl backend;
 
     ClientDownloadImpl(LauncherBackendImpl backend) {
@@ -242,7 +248,7 @@ public class ClientDownloadImpl {
             file.files.forEach((k, v) -> {
                 if (v == null || v.isEmpty()) return;
                 pathRemapper.add(new PathRemapperData(v, k)); //reverse (!)
-                LogHelper.dev("Remap prepare %s to %s", v, k);
+                logger.info("Remap prepare {} to {}", v, k);
             });
         }
         pathRemapper.sort(Comparator.comparingInt(c -> -c.key.length())); // Support deep remap

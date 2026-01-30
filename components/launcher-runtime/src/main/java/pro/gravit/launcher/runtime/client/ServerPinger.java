@@ -1,5 +1,7 @@
 package pro.gravit.launcher.runtime.client;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -24,6 +26,10 @@ import java.util.Objects;
 import java.util.regex.Pattern;
 
 public final class ServerPinger {
+
+    private static final Logger logger =
+            LoggerFactory.getLogger(ServerPinger.class);
+
 
     // Constants
     private static final String LEGACY_PING_HOST_MAGIC = "§1";
@@ -105,7 +111,7 @@ public final class ServerPinger {
 
         // Read and parse response
         String response = readUTF16String(input);
-        LogHelper.debug("Ping response (legacy): '%s'", response);
+        logger.debug("Ping response (legacy): '{}'", response);
         String[] splitted = LEGACY_PING_HOST_DELIMETER.split(response);
         if (splitted.length != 6)
             throw new IOException("Tokens count mismatch");
@@ -160,7 +166,7 @@ public final class ServerPinger {
             if (statusPacketID != 0x0)
                 throw new IOException("Illegal status packet ID: " + statusPacketID);
             response = packetInput.readString(PACKET_LENGTH);
-            LogHelper.dev("Ping response (modern): '%s'", response);
+            logger.info("Ping response (modern): '{}'", response);
         }
 
         // Parse JSON response

@@ -1,5 +1,7 @@
 package pro.gravit.launcher.base.modules.impl;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import pro.gravit.launcher.core.LauncherTrustManager;
 import pro.gravit.launcher.base.modules.*;
 import pro.gravit.utils.Version;
@@ -25,6 +27,10 @@ import java.util.function.Predicate;
 import java.util.jar.JarFile;
 
 public class SimpleModuleManager implements LauncherModulesManager {
+
+    private static final Logger logger =
+            LoggerFactory.getLogger(SimpleModuleManager.class);
+
     private static final MethodType VOID_TYPE = MethodType.methodType(void.class);
     protected final List<LauncherModule> modules = new ArrayList<>();
     protected final List<String> moduleNames = new ArrayList<>();
@@ -93,13 +99,13 @@ public class SimpleModuleManager implements LauncherModulesManager {
         for (LauncherModule module : modules) {
             if (module.getInitStatus().equals(LauncherModule.InitStatus.INIT_WAIT)) {
                 LauncherModuleInfo info = module.getModuleInfo();
-                LogHelper.warning("Module %s required %s. Cyclic dependencies?", info.name, Arrays.toString(info.dependencies));
+                logger.warn("Module {} required {}. Cyclic dependencies?", info.name, Arrays.toString(info.dependencies));
                 module.setInitStatus(LauncherModule.InitStatus.INIT);
                 module.init(initContext);
                 module.setInitStatus(LauncherModule.InitStatus.FINISH);
             } else if (module.getInitStatus().equals(LauncherModule.InitStatus.PRE_INIT_WAIT)) {
                 LauncherModuleInfo info = module.getModuleInfo();
-                LogHelper.error("Module %s skip pre-init phase. This module NOT finish loading", info.name, Arrays.toString(info.dependencies));
+                logger.error("Module {} skip pre-init phase. This module NOT finish loading", info.name, Arrays.toString(info.dependencies));
             }
         }
     }
@@ -141,7 +147,7 @@ public class SimpleModuleManager implements LauncherModulesManager {
         try (JarFile f = new JarFile(file.toFile())) {
             String moduleClass = f.getManifest() != null ? f.getManifest().getMainAttributes().getValue("Module-Main-Class") : null;
             if (moduleClass == null) {
-                LogHelper.error("In module %s Module-Main-Class not found", file.toString());
+                logger.error("In module {} Module-Main-Class not found", file.toString());
                 return null;
             }
             classLoader.addURL(file.toUri().toURL());
@@ -151,8 +157,8 @@ public class SimpleModuleManager implements LauncherModulesManager {
             try {
                 verifyClassCheckResultExceptional(result);
             } catch (Exception e) {
-                LogHelper.error(e);
-                LogHelper.error("In module %s signature check failed", file.toString());
+                logger.error("", e);
+                logger.error("In module {} signature check failed", file.toString());
                 return null;
             }
             if (!LauncherModule.class.isAssignableFrom(clazz))
@@ -167,8 +173,8 @@ public class SimpleModuleManager implements LauncherModulesManager {
             loadModule(module);
             return module;
         } catch (ClassNotFoundException | InstantiationException e) {
-            LogHelper.error(e);
-            LogHelper.error("In module %s Module-Main-Class incorrect", file.toString());
+            logger.error("", e);
+            logger.error("In module {} Module-Main-Class incorrect", file.toString());
             return null;
         }
     }

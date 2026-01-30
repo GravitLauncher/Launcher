@@ -1,5 +1,7 @@
 package pro.gravit.launcher.runtime.utils;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import pro.gravit.launcher.runtime.LauncherEngine;
 import pro.gravit.launcher.core.LauncherInject;
 import pro.gravit.launcher.base.request.update.LauncherRequest;
@@ -25,6 +27,10 @@ import java.util.List;
 import static pro.gravit.launcher.base.Downloader.makeSSLSocketFactory;
 
 public class LauncherUpdater {
+
+    private static final Logger logger =
+            LoggerFactory.getLogger(LauncherUpdater.class);
+
     @LauncherInject("launcher.certificatePinning")
     private static boolean isCertificatePinning;
 
@@ -74,7 +80,7 @@ public class LauncherUpdater {
         try {
             builder.start();
         } catch (IOException e) {
-            LogHelper.error(e);
+            logger.error("", e);
         }
     }
 }

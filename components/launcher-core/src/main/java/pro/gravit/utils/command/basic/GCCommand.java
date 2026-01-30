@@ -1,10 +1,16 @@
 package pro.gravit.utils.command.basic;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import pro.gravit.utils.command.Command;
 import pro.gravit.utils.helper.JVMHelper;
 import pro.gravit.utils.helper.LogHelper;
 
 public class GCCommand extends Command {
+
+    private static final Logger logger =
+            LoggerFactory.getLogger(GCCommand.class);
+
     @Override
     public String getArgsDescription() {
         return null;

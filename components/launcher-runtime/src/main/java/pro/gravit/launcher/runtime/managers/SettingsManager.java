@@ -1,11 +1,17 @@
 package pro.gravit.launcher.runtime.managers;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import pro.gravit.launcher.runtime.NewLauncherSettings;
 import pro.gravit.launcher.runtime.client.DirBridge;
 import pro.gravit.launcher.base.config.JsonConfigurable;
 import pro.gravit.utils.helper.LogHelper;
 
 public class SettingsManager extends JsonConfigurable<NewLauncherSettings> {
+
+    private static final Logger logger =
+            LoggerFactory.getLogger(SettingsManager.class);
+
     public static NewLauncherSettings settings;
 
 
@@ -24,7 +30,7 @@ public class SettingsManager extends JsonConfigurable<NewLauncherSettings> {
         if (settings.consoleUnlockKey != null && !ConsoleManager.isConsoleUnlock) {
             if (ConsoleManager.checkUnlockKey(settings.consoleUnlockKey)) {
                 ConsoleManager.unlock();
-                LogHelper.info("Console auto unlocked");
+                logger.info("Console auto unlocked");
             }
         }
     }

@@ -33,8 +33,9 @@ public class ProfileSettingsImpl implements LauncherBackendAPI.ClientProfileSett
     public ProfileSettingsImpl() {
     }
 
-    public ProfileSettingsImpl(ClientProfile profile) {
+    public ProfileSettingsImpl(ClientProfile profile, LauncherBackendImpl backend) {
         this.profile = profile;
+        this.backend = backend;
         var def = profile.getSettings();
         this.ram = new HashMap<>();
         this.ram.put(MemoryClass.TOTAL, ((long)def.ram) << 20);

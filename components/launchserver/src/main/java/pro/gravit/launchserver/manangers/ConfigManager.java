@@ -1,5 +1,7 @@
 package pro.gravit.launchserver.manangers;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import pro.gravit.launcher.base.config.JsonConfigurable;
 import pro.gravit.utils.helper.LogHelper;
 import pro.gravit.utils.helper.VerifyHelper;
@@ -11,6 +13,10 @@ import java.util.Objects;
 
 @SuppressWarnings("rawtypes")
 public class ConfigManager {
+
+    private static final Logger logger =
+            LoggerFactory.getLogger(ConfigManager.class);
+
     private final HashMap<String, JsonConfigurable> CONFIGURABLE = new HashMap<>();
 
     public void registerConfigurable(String name, JsonConfigurable reconfigurable) {
@@ -19,9 +25,9 @@ public class ConfigManager {
     }
 
     public void printConfigurables() {
-        LogHelper.info("Print configurables");
+        logger.info("Print configurables");
         CONFIGURABLE.forEach((k, v) -> LogHelper.subInfo(k));
-        LogHelper.info("Found %d configurables", CONFIGURABLE.size());
+        logger.info("Found {} configurables", CONFIGURABLE.size());
     }
 
     public void save(String name) throws IOException {

@@ -1,5 +1,7 @@
 package pro.gravit.launcher.runtime.debug;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import pro.gravit.launcher.base.ClientPermissions;
 import pro.gravit.launcher.base.Launcher;
 import pro.gravit.launcher.base.api.AuthService;
@@ -29,6 +31,10 @@ import java.util.List;
 import java.util.UUID;
 
 public class ClientRuntimeProvider implements RuntimeProvider {
+
+    private static final Logger logger =
+            LoggerFactory.getLogger(ClientRuntimeProvider.class);
+
 
     @Override
     public void run(String[] args) {
@@ -102,7 +108,7 @@ public class ClientRuntimeProvider implements RuntimeProvider {
                     classpath.add(Paths.get(c));
                 }
             } catch (Throwable e) {
-                LogHelper.error(e);
+                logger.error("", e);
             }
             LaunchOptions options;
             if(launcherOptionsPath != null) {
@@ -125,7 +131,7 @@ public class ClientRuntimeProvider implements RuntimeProvider {
             }
             launch.launch(mainClass, mainModule, Arrays.asList(args));
         } catch (Throwable e) {
-            LogHelper.error(e);
+            logger.error("", e);
             LauncherEngine.exitLauncher(-15);
         }
     }

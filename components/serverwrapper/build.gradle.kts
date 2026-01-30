@@ -1,4 +1,3 @@
-import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 
 plugins {
     id("com.gradleup.shadow")
@@ -9,11 +8,7 @@ java {
     targetCompatibility = JavaVersion.VERSION_21
 }
 
-val fatJar by tasks.registering(ShadowJar::class) {
-    from(sourceSets.main.get().output)
-    configurations = listOf(project.configurations["runtimeClasspath"])
-    archiveClassifier.set("all")
-    exclude("module-info.class")
+tasks.jar {
     manifest {
         attributes(
             "Main-Class" to "pro.gravit.launcher.server.ServerWrapper",
@@ -26,17 +21,30 @@ val fatJar by tasks.registering(ShadowJar::class) {
     }
 }
 
-val inlineJar by tasks.registering(ShadowJar::class) {
+val fatJar by tasks.registering(Jar::class) {
+    dependsOn(":components:launcher-core:jar")
+    dependsOn(":components:launcher-api:jar")
+    dependsOn(":components:launcher-client:jar")
+    from(project.configurations["runtimeClasspath"]
+        .map({ if (it.isDirectory) it else zipTree(it) }))
     from(sourceSets.main.get().output)
-    configurations = listOf(project.configurations["runtimeClasspath"])
+    archiveClassifier.set("all")
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    exclude("module-info.class", "META-INF/MANIFEST.SF")
+}
+
+val inlineJar by tasks.registering(Jar::class) {
+    dependsOn(":components:launcher-core:jar")
+    dependsOn(":components:launcher-api:jar")
+    dependsOn(":components:launcher-client:jar")
+    from(project.configurations["runtimeClasspath"]
+        .map({ if (it.isDirectory) it else zipTree(it) }))
+    from(sourceSets.main.get().output)
     archiveClassifier.set("inline")
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     exclude("module-info.class")
     exclude("com/google/**")
-    manifest {
-        attributes(
-            "Main-Class" to "pro.gravit.launcher.server.ServerWrapper"
-        )
-    }
+    exclude("org/slf4j/**")
 }
 
 
@@ -50,6 +58,7 @@ repositories {
 
 dependencies {
     api(project(":components:launcher-client"))
+    implementation(libs.slf4j.simple)
 }
 
 tasks.assemble {

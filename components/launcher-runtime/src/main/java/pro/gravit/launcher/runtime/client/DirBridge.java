@@ -1,5 +1,7 @@
 package pro.gravit.launcher.runtime.client;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import pro.gravit.launcher.base.Launcher;
 import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.JVMHelper;
@@ -11,6 +13,10 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 public class DirBridge {
+
+    private static final Logger logger =
+            LoggerFactory.getLogger(DirBridge.class);
+
 
     public static final String USE_CUSTOMDIR_PROPERTY = "launcher.usecustomdir";
     public static final String CUSTOMDIR_PROPERTY = "launcher.customdir";
@@ -33,20 +39,20 @@ public class DirBridge {
             DirBridge.defaultUpdatesDir = DirBridge.dir.resolve("updates");
             if (!IOHelper.exists(DirBridge.defaultUpdatesDir)) Files.createDirectories(DirBridge.defaultUpdatesDir);
         } catch (IOException e) {
-            LogHelper.error(e);
+            logger.error("", e);
         }
     }
 
     public static void move(Path newDir) throws IOException {
         if (newDir == null) {
-            LogHelper.debug("Invalid dir (null)");
-            if (LogHelper.isDevEnabled())
-                LogHelper.dev(LogHelper.toString(new Throwable("Check stack of call DirBridge with null path...")));
+            logger.debug("Invalid dir (null)");
+            if (true)
+                logger.info("", LogHelper.toString(new Throwable("Check stack of call DirBridge with null path...")));
             return;
         }
         Path oldUpdates = dirUpdates;
         dirUpdates = newDir;
-        LogHelper.dev(newDir.toString());
+        logger.info("", newDir.toString());
         IOHelper.move(oldUpdates, dirUpdates);
     }
 

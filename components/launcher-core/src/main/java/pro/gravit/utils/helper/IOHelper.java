@@ -1,5 +1,7 @@
 package pro.gravit.utils.helper;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
 import java.awt.image.BufferedImage;
@@ -25,6 +27,10 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 public final class IOHelper {
+
+    private static final Logger logger =
+            LoggerFactory.getLogger(IOHelper.class);
+
     public static final long MB32 = 1 << 25;
     public static final Charset UNICODE_CHARSET = StandardCharsets.UTF_8;
     public static final Charset ASCII_CHARSET = StandardCharsets.US_ASCII;
@@ -68,7 +74,7 @@ public final class IOHelper {
         try {
             closeable.close();
         } catch (Exception exc) {
-            LogHelper.error(exc);
+            logger.error("", exc);
         }
     }
 
@@ -448,7 +454,7 @@ public final class IOHelper {
         Path javaBinDir = (javaDir == null ? JVM_DIR : javaDir).resolve("bin");
 
         // Verify has "javaw.exe" file
-        if (!isConsole && !LogHelper.isDebugEnabled()) {
+        if (!isConsole && !true) {
             Path javawExe = javaBinDir.resolve("javaw.exe");
             if (isFile(javawExe))
                 return javawExe;

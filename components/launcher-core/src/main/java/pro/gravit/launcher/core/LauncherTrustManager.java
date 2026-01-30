@@ -1,5 +1,7 @@
 package pro.gravit.launcher.core;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import pro.gravit.utils.helper.LogHelper;
 
 import javax.net.ssl.HttpsURLConnection;
@@ -19,6 +21,10 @@ import java.security.cert.*;
 import java.util.*;
 
 public class LauncherTrustManager {
+
+    private static final Logger logger =
+            LoggerFactory.getLogger(LauncherTrustManager.class);
+
     private final X509Certificate[] trustSigners;
     private final List<X509Certificate> trustCache = new ArrayList<>();
 
@@ -38,7 +44,7 @@ public class LauncherTrustManager {
             try (InputStream input = new ByteArrayInputStream(cert)) {
                 return (X509Certificate) certFactory.generateCertificate(input);
             } catch (IOException | CertificateException e) {
-                LogHelper.error(e);
+                logger.error("", e);
                 return null;
             }
         }).toArray(X509Certificate[]::new);
@@ -73,9 +79,9 @@ public class LauncherTrustManager {
 
             // Setting the default context
             HttpsURLConnection.setDefaultSSLSocketFactory(sslContext.getSocketFactory());
-            LogHelper.info("Successfully injected certificates to truststore");
+            logger.info("Successfully injected certificates to truststore");
         } catch (NoSuchAlgorithmException | KeyManagementException | KeyStoreException | IOException | CertificateException e) {
-            LogHelper.error("Error while modify existing keystore");
+            logger.error("Error while modify existing keystore");
         }
     }
 
@@ -93,7 +99,7 @@ public class LauncherTrustManager {
             // getting all JDK/JRE certificates
             extractAllCertsAndPutInMap(keyStore, jdkTrustStore);
         } catch (KeyStoreException | IOException | NoSuchAlgorithmException | CertificateException e) {
-            LogHelper.warning("Error while loading existing keystore");
+            logger.warn("Error while loading existing keystore");
         }
         return jdkTrustStore;
     }
@@ -105,7 +111,7 @@ public class LauncherTrustManager {
         try {
             Collections.list(keyStore.aliases()).forEach(key -> extractCertAndPutInMap(keyStore, key, placeToExport));
         } catch (KeyStoreException e) {
-            LogHelper.error("Error during extraction certificates from default keystore");
+            logger.error("Error during extraction certificates from default keystore");
         }
     }
 
@@ -116,7 +122,7 @@ public class LauncherTrustManager {
         try {
             keyStore.setCertificateEntry(name, cert);
         } catch (KeyStoreException e) {
-            LogHelper.warning("Something went wrong while adding certificate " + name);
+            logger.warn("Something went wrong while adding certificate " + name);
         }
     }
 
@@ -129,7 +135,7 @@ public class LauncherTrustManager {
                 placeToExtract.put(key, keyStoreFromExtract.getCertificate(key));
             }
         } catch (KeyStoreException e) {
-            LogHelper.warning("Error while extracting certificate " + key);
+            logger.warn("Error while extracting certificate " + key);
         }
     }
 

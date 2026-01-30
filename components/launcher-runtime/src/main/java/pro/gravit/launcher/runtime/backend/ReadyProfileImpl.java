@@ -1,5 +1,7 @@
 package pro.gravit.launcher.runtime.backend;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import pro.gravit.launcher.base.Launcher;
 import pro.gravit.launcher.base.events.request.AuthRequestEvent;
 import pro.gravit.launcher.base.profiles.ClientProfile;
@@ -21,6 +23,10 @@ import java.net.InetSocketAddress;
 import java.util.ArrayList;
 
 public class ReadyProfileImpl implements LauncherBackendAPI.ReadyProfile {
+
+    private static final Logger logger =
+            LoggerFactory.getLogger(ReadyProfileImpl.class);
+
     private final LauncherBackendImpl backend;
     private ClientProfile profile;
     private final ProfileSettingsImpl settings;
@@ -100,9 +106,9 @@ public class ReadyProfileImpl implements LauncherBackendAPI.ReadyProfile {
 
     private void readThread() {
         try {
-            LogHelper.debug("Start client %s", profile.getTitle());
+            logger.debug("Start client {}", profile.getTitle());
             process.start(true);
-            LogHelper.debug("Start watching client IO %s", profile.getTitle());
+            logger.debug("Start watching client IO {}", profile.getTitle());
             nativeProcess = process.getProcess();
             callback.onCanTerminate(this::terminate);
             InputStream stream = nativeProcess.getInputStream();
@@ -121,7 +127,7 @@ public class ReadyProfileImpl implements LauncherBackendAPI.ReadyProfile {
             if(e instanceof InterruptedException) {
                 return;
             }
-            LogHelper.error(e);
+            logger.error("", e);
             terminate();
         }
     }

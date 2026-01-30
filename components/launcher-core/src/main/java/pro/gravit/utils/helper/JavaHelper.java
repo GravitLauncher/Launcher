@@ -1,5 +1,7 @@
 package pro.gravit.utils.helper;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import pro.gravit.launcher.core.backend.LauncherBackendAPI;
 
 import java.io.File;
@@ -11,6 +13,10 @@ import java.nio.file.Paths;
 import java.util.*;
 
 public class JavaHelper {
+
+    private static final Logger logger =
+            LoggerFactory.getLogger(JavaHelper.class);
+
     private static List<JavaVersion> javaVersionsCache;
     public static final List<String> javaFxModules;
 
@@ -86,7 +92,7 @@ public class JavaHelper {
             } catch (InvalidPathException | NullPointerException ignored) {
 
             } catch (IOException e) {
-                LogHelper.error(e);
+                logger.error("", e);
             }
         }
         if (JVMHelper.OS_TYPE == JVMHelper.OS.MUSTDIE) {
@@ -98,13 +104,13 @@ public class JavaHelper {
                 trySearchJava(javaPaths, result, rootDrive.resolve("Program Files").resolve("Eclipse Adoptium")); //AdoptJDK rebranding
                 trySearchJava(javaPaths, result, rootDrive.resolve("Program Files").resolve("BellSoft")); // LibericaJDK
             } catch (IOException e) {
-                LogHelper.error(e);
+                logger.error("", e);
             }
         } else if (JVMHelper.OS_TYPE == JVMHelper.OS.LINUX) {
             try {
                 trySearchJava(javaPaths, result, Paths.get("/usr/lib/jvm"));
             } catch (IOException e) {
-                LogHelper.error(e);
+                logger.error("", e);
             }
         }
         javaVersionsCache = result;

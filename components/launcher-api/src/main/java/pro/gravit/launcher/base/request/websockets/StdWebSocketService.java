@@ -1,5 +1,7 @@
 package pro.gravit.launcher.base.request.websockets;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import pro.gravit.launcher.base.events.RequestEvent;
 import pro.gravit.launcher.base.events.request.ErrorRequestEvent;
 import pro.gravit.launcher.base.request.Request;
@@ -21,6 +23,10 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 
 public class StdWebSocketService extends ClientWebSocketService implements RequestService {
+
+    private static final Logger logger =
+            LoggerFactory.getLogger(StdWebSocketService.class);
+
     @SuppressWarnings("rawtypes")
     private final ConcurrentHashMap<UUID, CompletableFuture> futureMap = new ConcurrentHashMap<>();
     private final HashSet<RequestService.EventHandler> eventHandlers = new HashSet<>();
@@ -73,7 +79,7 @@ public class StdWebSocketService extends ClientWebSocketService implements Reque
     public <T extends WebSocketEvent> void eventHandle(T webSocketEvent) {
         if (webSocketEvent instanceof RequestEvent event) {
             if (event.requestUUID == null) {
-                LogHelper.warning("Request event type %s.requestUUID is null", event.getType() == null ? "null" : event.getType());
+                logger.warn("Request event type {}.requestUUID is null", event.getType() == null ? "null" : event.getType());
                 return;
             }
             if (event.requestUUID.equals(RequestEvent.eventUUID)) {

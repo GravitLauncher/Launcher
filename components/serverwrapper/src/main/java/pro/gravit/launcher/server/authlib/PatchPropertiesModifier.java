@@ -1,5 +1,7 @@
 package pro.gravit.launcher.server.authlib;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import pro.gravit.utils.helper.LogHelper;
 import pro.gravit.utils.helper.SecurityHelper;
 
@@ -9,6 +11,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 public class PatchPropertiesModifier implements LibrariesHashFileModifier {
+
+    private static final Logger logger =
+            LoggerFactory.getLogger(PatchPropertiesModifier.class);
+
     @Override
     public byte[] apply(byte[] data, InstallAuthlib.InstallAuthlibContext context) throws IOException {
         String[] lines = new String(data).split("\n");
@@ -25,25 +31,25 @@ public class PatchPropertiesModifier implements LibrariesHashFileModifier {
             }
         }
         if(version == null) {
-            LogHelper.warning("Unable to parse version from patch.properties");
+            logger.warn("Unable to parse version from patch.properties");
             return data;
         }
         if(linePatchedHashIndex < 0) {
-            LogHelper.warning("Unable to parse patchedHash from patch.properties");
+            logger.warn("Unable to parse patchedHash from patch.properties");
             return data;
         }
         if(lineOriginalHashIndex < 0) {
-            LogHelper.warning("Unable to parse originalHash from patch.properties");
+            logger.warn("Unable to parse originalHash from patch.properties");
             return data;
         }
         Path patchedFile = context.workdir.resolve("cache").resolve("patched_".concat(version).concat(".jar"));
         Path originalFile = context.workdir.resolve("cache").resolve("mojang_".concat(version).concat(".jar"));
         if(Files.notExists(patchedFile)) {
-            LogHelper.warning("Unable to find %s. Maybe you should start the server at least once?", patchedFile);
+            logger.warn("Unable to find {}. Maybe you should start the server at least once?", patchedFile);
             return data;
         }
         if(Files.notExists(originalFile)) {
-            LogHelper.warning("Unable to find %s. Maybe you should start the server at least once?", originalFile);
+            logger.warn("Unable to find {}. Maybe you should start the server at least once?", originalFile);
             return data;
         }
         String newPatchedHash = SecurityHelper.toHex(SecurityHelper.digest(SecurityHelper.DigestAlgorithm.SHA256, patchedFile)).toUpperCase();

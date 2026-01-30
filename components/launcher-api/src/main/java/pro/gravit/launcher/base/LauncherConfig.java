@@ -1,5 +1,7 @@
 package pro.gravit.launcher.base;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import pro.gravit.launcher.core.BuildInParams;
 import pro.gravit.launcher.core.LauncherInject;
 import pro.gravit.launcher.core.LauncherInjectionConstructor;
@@ -25,6 +27,10 @@ import java.security.spec.InvalidKeySpecException;
 import java.util.*;
 
 public final class LauncherConfig extends StreamObject {
+
+    private static final Logger logger =
+            LoggerFactory.getLogger(LauncherConfig.class);
+
     @LauncherInject("launchercore.certificates")
     private static final List<byte[]> secureConfigCertificates = null;
     @LauncherInject("launcher.legacymodules")
@@ -142,7 +148,7 @@ public final class LauncherConfig extends StreamObject {
             try {
                 modulesManager.loadModule((LauncherModule) MethodHandles.publicLookup().findConstructor(clazz, VOID_TYPE).invokeWithArguments(Collections.emptyList()));
             } catch (Throwable e) {
-                LogHelper.error(e);
+                logger.error("", e);
             }
         // This method should be called once at exec time.
         modulesClasses.clear();

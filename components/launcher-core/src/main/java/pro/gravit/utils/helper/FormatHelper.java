@@ -1,5 +1,7 @@
 package pro.gravit.utils.helper;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.fusesource.jansi.Ansi;
 import pro.gravit.utils.Version;
 
@@ -11,6 +13,10 @@ import pro.gravit.utils.Version;
  * Therefore, rawAnsiFormat is moved to a separate Helper
  */
 public class FormatHelper {
+
+    private static final Logger logger =
+            LoggerFactory.getLogger(FormatHelper.class);
+
     public static Ansi rawAnsiFormat(LogHelper.Level level, String dateTime, boolean sub) {
         Ansi.Color levelColor;
         boolean bright = level != LogHelper.Level.DEBUG;

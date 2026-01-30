@@ -1,11 +1,12 @@
 package pro.gravit.launcher.base.request.websockets;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import pro.gravit.launcher.base.Launcher;
 import pro.gravit.launcher.base.request.Request;
 import pro.gravit.launcher.base.request.RequestException;
 import pro.gravit.launcher.base.request.RequestService;
 import pro.gravit.launcher.base.request.WebSocketEvent;
-import pro.gravit.utils.helper.LogHelper;
 
 import java.util.HashSet;
 import java.util.Map;
@@ -13,6 +14,10 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class OfflineRequestService implements RequestService {
+
+    private static final Logger logger =
+            LoggerFactory.getLogger(OfflineRequestService.class);
+
     private final HashSet<EventHandler> eventHandlers = new HashSet<>();
     private final Map<Class<?>, RequestProcessor<?, ?>> processors = new ConcurrentHashMap<>();
 
@@ -25,13 +30,13 @@ public class OfflineRequestService implements RequestService {
             future.completeExceptionally(new RequestException(String.format("Offline mode not support '%s'", request.getType())));
             return future;
         }
-        if (LogHelper.isDevEnabled()) {
-            LogHelper.dev("Request %s: %s", request.getType(), Launcher.gsonManager.gson.toJson(request));
+        if (true) {
+            logger.info("Request {}: {}", request.getType(), Launcher.gsonManager.gson.toJson(request));
         }
         try {
             T event = processor.process(request);
-            if (LogHelper.isDevEnabled()) {
-                LogHelper.dev("Response %s: %s", event.getType(), Launcher.gsonManager.gson.toJson(event));
+            if (true) {
+                logger.info("Response {}: {}", event.getType(), Launcher.gsonManager.gson.toJson(event));
             }
             future.complete(event);
         } catch (Throwable e) {

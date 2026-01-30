@@ -1,5 +1,7 @@
 package pro.gravit.launcher.base.request.websockets;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import pro.gravit.launcher.base.Launcher;
@@ -24,6 +26,10 @@ import java.net.URI;
 import java.net.URISyntaxException;
 
 public abstract class ClientWebSocketService extends ClientJSONPoint {
+
+    private static final Logger logger =
+            LoggerFactory.getLogger(ClientWebSocketService.class);
+
     public static final ProviderMap<WebSocketEvent> results = new ProviderMap<>();
     public static final ProviderMap<WebSocketRequest> requests = new ProviderMap<>();
     private static boolean resultsRegistered = false;
@@ -68,7 +74,7 @@ public abstract class ClientWebSocketService extends ClientJSONPoint {
 
     @Override
     void onDisconnect(int statusCode, String reason) {
-        LogHelper.info("WebSocket disconnected: %d: %s", statusCode, reason);
+        logger.info("WebSocket disconnected: {}: {}", statusCode, reason);
         if (onCloseCallback != null) onCloseCallback.onClose(statusCode, reason, !isClosed);
     }
 

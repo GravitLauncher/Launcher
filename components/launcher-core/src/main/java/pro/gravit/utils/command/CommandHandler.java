@@ -1,5 +1,7 @@
 package pro.gravit.utils.command;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import pro.gravit.utils.helper.CommonHelper;
 import pro.gravit.utils.helper.LogHelper;
 
@@ -10,6 +12,10 @@ import java.util.List;
 import java.util.Map;
 
 public abstract class CommandHandler implements Runnable {
+
+    private static final Logger logger =
+            LoggerFactory.getLogger(CommandHandler.class);
+
     protected final List<Category> categories;
     protected final CommandCategory baseCategory;
 
@@ -24,11 +30,11 @@ public abstract class CommandHandler implements Runnable {
     }
 
     public void eval(String line, boolean bell) {
-        LogHelper.info("Command '%s'", line);
+        logger.info("Command '{}'", line);
         try {
             evalNative(line, bell);
         } catch (Exception e) {
-            LogHelper.error(e);
+            logger.error("", e);
         }
     }
 
@@ -110,7 +116,7 @@ public abstract class CommandHandler implements Runnable {
         try {
             readLoop();
         } catch (IOException e) {
-            LogHelper.error(e);
+            logger.error("", e);
         }
     }
 

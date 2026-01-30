@@ -1,6 +1,9 @@
 package pro.gravit.launcher.base.vfs;
 
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.event.Level;
 import pro.gravit.launcher.base.vfs.directory.SimpleVfsDirectory;
 import pro.gravit.launcher.base.vfs.protocol.vfs.VfsURLStreamHandlerProvider;
 import pro.gravit.utils.helper.LogHelper;
@@ -18,6 +21,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Vfs {
+
+    private static final Logger logger =
+            LoggerFactory.getLogger(Vfs.class);
+
     private final VfsDirectory directory;
     private volatile String name;
     private static final Map<String, Vfs> map = new HashMap<>();
@@ -73,15 +80,15 @@ public class Vfs {
         }
     }
 
-    public void debugPrint(LogHelper.Level level) {
+    public void debugPrint(Level level) {
         debugPrint(level, directory, Path.of(""));
     }
 
-    private void debugPrint(LogHelper.Level level, VfsDirectory vfsDirectory, Path path) {
+    private void debugPrint(Level level, VfsDirectory vfsDirectory, Path path) {
         try(var stream = vfsDirectory.getFiles()) {
             for(var e : stream.toList()) {
                 VfsEntry entry = vfsDirectory.find(e);
-                LogHelper.log(level, String.format("%s - %s", path.resolve(e), entry.getClass().getSimpleName()), false);
+                logger.makeLoggingEventBuilder(level).log("{} - {}", path.resolve(e), entry.getClass().getSimpleName());
                 if(entry instanceof VfsDirectory nextDirectory) {
                     debugPrint(level, nextDirectory, path.resolve(e));
                 }

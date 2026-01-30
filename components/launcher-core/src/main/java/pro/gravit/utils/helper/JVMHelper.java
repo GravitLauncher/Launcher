@@ -1,5 +1,7 @@
 package pro.gravit.utils.helper;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import pro.gravit.launcher.core.api.features.HardwareVerificationFeatureAPI;
 
 import java.lang.invoke.MethodHandles;
@@ -11,6 +13,10 @@ import java.util.Arrays;
 import java.util.Locale;
 
 public final class JVMHelper {
+
+    private static final Logger logger =
+            LoggerFactory.getLogger(JVMHelper.class);
+
 
     // MXBeans exports
     public static final RuntimeMXBean RUNTIME_MXBEAN = ManagementFactory.getRuntimeMXBean();
@@ -75,7 +81,7 @@ public final class JVMHelper {
 
     public static void fullGC() {
         RUNTIME.gc();
-        LogHelper.debug("Used heap: %d MiB", RUNTIME.totalMemory() - RUNTIME.freeMemory() >> 20);
+        logger.debug("Used heap: {} MiB", RUNTIME.totalMemory() - RUNTIME.freeMemory() >> 20);
     }
 
     public static X509Certificate[] getCertificates(Class<?> clazz) {
@@ -85,7 +91,7 @@ public final class JVMHelper {
     }
 
     public static void checkStackTrace(Class<?> mainClass) {
-        LogHelper.debug("Testing stacktrace");
+        logger.debug("Testing stacktrace");
         Exception e = new Exception("Testing stacktrace");
         StackTraceElement[] list = e.getStackTrace();
         if (!list[list.length - 1].getClassName().equals(mainClass.getName())) {
@@ -113,12 +119,12 @@ public final class JVMHelper {
     public static void verifySystemProperties(Class<?> mainClass, boolean requireSystem) {
         Locale.setDefault(Locale.US);
         // Verify class loader
-        LogHelper.debug("Verifying class loader");
+        logger.debug("Verifying class loader");
         if (requireSystem && !mainClass.getClassLoader().equals(LOADER))
             throw new SecurityException("ClassLoader should be system");
 
         // Verify system and java architecture
-        LogHelper.debug("Verifying JVM architecture");
+        logger.debug("Verifying JVM architecture");
     }
 
     public enum ARCH {

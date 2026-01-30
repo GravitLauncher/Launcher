@@ -1,5 +1,7 @@
 package pro.gravit.launcher.server.setup;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import pro.gravit.launcher.base.events.request.GetPublicKeyRequestEvent;
 import pro.gravit.launcher.base.profiles.ClientProfile;
 import pro.gravit.launcher.base.profiles.ClientProfileVersions;
@@ -21,6 +23,10 @@ import java.nio.file.Paths;
 import java.util.jar.JarFile;
 
 public class ServerWrapperSetup {
+
+    private static final Logger logger =
+            LoggerFactory.getLogger(ServerWrapperSetup.class);
+
     public ServerWrapperCommands commands;
     public URLClassLoader urlClassLoader;
 
@@ -41,23 +47,23 @@ public class ServerWrapperSetup {
         try (JarFile file = new JarFile(jarPath.toFile())) {
             URL jarURL = jarPath.toUri().toURL();
             urlClassLoader = new URLClassLoader(new URL[]{jarURL});
-            LogHelper.info("Check server jar MainClass");
+            logger.info("Check server jar MainClass");
             mainClassName = file.getManifest().getMainAttributes().getValue("Main-Class");
             agentClassName = file.getManifest().getMainAttributes().getValue("Premain-Class");
             if (mainClassName == null) {
-                LogHelper.error("Main-Class not found in MANIFEST");
+                logger.error("Main-Class not found in MANIFEST");
                 return;
             }
             try {
                 Class.forName(mainClassName, false, urlClassLoader);
             } catch (ClassNotFoundException e) {
-                LogHelper.error(e);
+                logger.error("", e);
                 return;
             }
         }
-        LogHelper.info("Found MainClass %s", mainClassName);
+        logger.info("Found MainClass {}", mainClassName);
         if (agentClassName != null) {
-            LogHelper.info("Found PremainClass %s", agentClassName);
+            logger.info("Found PremainClass {}", agentClassName);
         }
         if(wrapper.config.serverName == null || wrapper.config.serverName.isEmpty()) {
             System.out.println("Print your server name:");
@@ -75,7 +81,7 @@ public class ServerWrapperSetup {
                 try {
                     service = StdWebSocketService.initWebSockets(wrapper.config.address).get();
                 } catch (Throwable e) {
-                    LogHelper.error(e);
+                    logger.error("", e);
                     continue;
                 }
                 Request.setRequestService(service);
@@ -94,14 +100,14 @@ public class ServerWrapperSetup {
                 wrapper.config.encodedServerEcPublicKey = publicKeyRequestEvent.ecdsaPublicKey;
                 break;
             } catch (Throwable e) {
-                LogHelper.error(e);
+                logger.error("", e);
                 if(Request.isAvailable() && Request.getRequestService() instanceof AutoCloseable) {
                     ((AutoCloseable) Request.getRequestService()).close();
                 }
             }
         }
         if(wrapper.profile != null && wrapper.profile.getVersion().compareTo(ClientProfileVersions.MINECRAFT_1_18) >= 0) {
-            LogHelper.info("Switch to alternative start mode (1.18)");
+            logger.info("Switch to alternative start mode (1.18)");
             if(!wrapper.config.classpath.contains(jarName)) {
                 wrapper.config.classpath.add(jarName);
             }
@@ -109,12 +115,12 @@ public class ServerWrapperSetup {
             altMode = true;
         }
         wrapper.saveConfig();
-        LogHelper.info("Generate start script");
+        logger.info("Generate start script");
         Path startScript;
         if (JVMHelper.OS_TYPE == JVMHelper.OS.MUSTDIE) startScript = Paths.get("start.bat");
         else startScript = Paths.get("start.sh");
         if (Files.exists(startScript)) {
-            LogHelper.warning("start script found. Move to start.bak");
+            logger.warn("start script found. Move to start.bak");
             Path startScriptBak = Paths.get("start.bak");
             IOHelper.move(startScript, startScriptBak);
         }
@@ -126,7 +132,7 @@ public class ServerWrapperSetup {
             writer.append(IOHelper.resolveJavaBin(Paths.get(System.getProperty("java.home")), true).toAbsolutePath().toString());
             writer.append("\" ");
             if (mainClassName.contains("bungee")) {
-                LogHelper.info("Found BungeeCord mainclass. Modules dir change to modules_srv");
+                logger.info("Found BungeeCord mainclass. Modules dir change to modules_srv");
                 writer.append(JVMHelper.jvmProperty("serverwrapper.modulesDir", "modules_srv"));
                 writer.append(" ");
             }
@@ -151,7 +157,7 @@ public class ServerWrapperSetup {
         }
         if(JVMHelper.OS_TYPE != JVMHelper.OS.MUSTDIE) {
             if(!startScript.toFile().setExecutable(true)) {
-                LogHelper.error("Failed to set executable %s", startScript);
+                logger.error("Failed to set executable {}", startScript);
             }
         }
     }

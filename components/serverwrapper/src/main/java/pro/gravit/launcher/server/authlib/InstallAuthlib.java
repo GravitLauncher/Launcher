@@ -1,5 +1,7 @@
 package pro.gravit.launcher.server.authlib;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.LogHelper;
 
@@ -14,6 +16,10 @@ import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
 public class InstallAuthlib {
+
+    private static final Logger logger =
+            LoggerFactory.getLogger(InstallAuthlib.class);
+
     private static final Map<String, LibrariesHashFileModifier> modifierMap;
     private static final String tempLaunchAuthLibName = "authlib.jar";
     static {
@@ -28,7 +34,7 @@ public class InstallAuthlib {
         InstallAuthlibContext context = new InstallAuthlibContext();
         if(args[0].startsWith("http://") || args[0].startsWith("https://")) {
             Path tempAuthlib = Paths.get(tempLaunchAuthLibName);
-            LogHelper.info("Download %s to %s", args[0], tempAuthlib);
+            logger.info("Download {} to {}", args[0], tempAuthlib);
             try(InputStream input = IOHelper.newInput(new URL(args[0]))) {
                 IOHelper.transfer(input, tempAuthlib);
             }
@@ -40,7 +46,7 @@ public class InstallAuthlib {
         if(Files.notExists(context.pathToAuthlib)) {
             throw new FileNotFoundException(context.pathToAuthlib.toString());
         }
-        LogHelper.info("Search .jar files in %s", context.workdir.toAbsolutePath());
+        logger.info("Search .jar files in {}", context.workdir.toAbsolutePath());
         IOHelper.walk(context.workdir, new SimpleFileVisitor<>() {
             @Override
             public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
@@ -51,7 +57,7 @@ public class InstallAuthlib {
             }
         }, true);
         context.files.sort(Comparator.comparingInt((Path path) -> - path.getNameCount()));
-        LogHelper.info("Search authlib in %d files", context.files.size());
+        logger.info("Search authlib in {} files", context.files.size());
         for(Path path : context.files) {
             boolean foundAuthlib = false;
             try(ZipInputStream input = IOHelper.newZipInput(path)) {
@@ -73,7 +79,7 @@ public class InstallAuthlib {
         }
         Path tmpFile = Paths.get("repack.tmp");
         for(RepackInfo ri : context.repack) {
-            LogHelper.info("Found authlib in %s (prefix '%s' jar %s)", ri.path, ri.prefix, ri.isJarFile ? "true" : "false");
+            logger.info("Found authlib in {} (prefix '{}' jar {})", ri.path, ri.prefix, ri.isJarFile ? "true" : "false");
             try(ZipInputStream input = IOHelper.newZipInput(ri.path)) {
                 try(ZipOutputStream output = new ZipOutputStream(IOHelper.newOutput(tmpFile))) {
                     ZipEntry e;
@@ -136,9 +142,9 @@ public class InstallAuthlib {
             Files.delete(ri.path);
             Files.move(tmpFile, ri.path);
         }
-        LogHelper.info("%d authlib files repacked", context.repack.size());
+        logger.info("{} authlib files repacked", context.repack.size());
         for(HashFile hf : context.hashes) {
-            LogHelper.info("Found hash file %s in %s", hf.prefix, hf.path);
+            logger.info("Found hash file {} in {}", hf.prefix, hf.path);
             try(ZipInputStream input = IOHelper.newZipInput(hf.path)) {
                 try (ZipOutputStream output = new ZipOutputStream(IOHelper.newOutput(tmpFile))) {
                     ZipEntry e = input.getNextEntry();
@@ -159,12 +165,12 @@ public class InstallAuthlib {
             Files.delete(hf.path);
             Files.move(tmpFile, hf.path);
         }
-        LogHelper.info("%d hash files repacked", context.hashes.size());
+        logger.info("{} hash files repacked", context.hashes.size());
         if(deleteAuthlibAfterInstall) {
-            LogHelper.info("Delete %s", context.pathToAuthlib);
+            logger.info("Delete {}", context.pathToAuthlib);
             Files.delete(context.pathToAuthlib);
         }
-        LogHelper.info("Completed");
+        logger.info("Completed");
     }
 
     private Set<String> getNames(Path path) throws IOException {

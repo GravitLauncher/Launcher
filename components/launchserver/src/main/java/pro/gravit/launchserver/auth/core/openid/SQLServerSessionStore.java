@@ -1,5 +1,7 @@
 package pro.gravit.launchserver.auth.core.openid;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import pro.gravit.launchserver.auth.SQLSourceConfig;
 import pro.gravit.utils.helper.LogHelper;
 
@@ -7,6 +9,10 @@ import java.sql.SQLException;
 import java.util.UUID;
 
 public class SQLServerSessionStore implements ServerSessionStore {
+
+    private static final Logger logger =
+            LoggerFactory.getLogger(SQLServerSessionStore.class);
+
     private static final String CREATE_TABLE = """
             create table if not exists `gravit_server_session` (
               id int auto_increment,
@@ -54,8 +60,8 @@ public class SQLServerSessionStore implements ServerSessionStore {
                 throw e;
             }
         } catch (SQLException e) {
-            LogHelper.debug("Can't join server. Username: %s".formatted(username));
-            LogHelper.error(e);
+            logger.debug("Can't join server. Username: {}".formatted(username));
+            logger.error("", e);
         }
 
         return false;
@@ -73,8 +79,8 @@ public class SQLServerSessionStore implements ServerSessionStore {
                 return rs.getString("server_id");
             }
         } catch (SQLException e) {
-            LogHelper.debug("Can't find server id by username. Username: %s".formatted(username));
-            LogHelper.error(e);
+            logger.debug("Can't find server id by username. Username: {}".formatted(username));
+            logger.error("", e);
         }
         return null;
     }
