@@ -12,6 +12,8 @@ import pro.gravit.utils.helper.IOHelper;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.function.Predicate;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
@@ -25,13 +27,13 @@ public class AdditionalFixesApplyTask implements LauncherBuildTask {
         this.server = server;
     }
 
-    public static void apply(Path inputFile, Path addFile, ZipOutputStream output, LaunchServer srv, Predicate<ZipEntry> excluder, boolean needFixes) throws IOException {
+    public static void apply(Path inputFile, Path addFile, ZipOutputStream output, LaunchServer srv, Predicate<ZipEntry> excluder, Set<String> exclusionList, boolean needFixes) throws IOException {
         try (ClassMetadataReader reader = new ClassMetadataReader()) {
             reader.getCp().add(new JarFile(inputFile.toFile()));
             try (ZipInputStream input = IOHelper.newZipInput(addFile)) {
                 ZipEntry e = input.getNextEntry();
                 while (e != null) {
-                    if (e.isDirectory() || excluder.test(e)) {
+                    if (e.isDirectory() || excluder.test(e) || exclusionList.contains(e.getName())) {
                         e = input.getNextEntry();
                         continue;
                     }
@@ -46,6 +48,7 @@ public class AdditionalFixesApplyTask implements LauncherBuildTask {
                             IOHelper.transfer(input, output);
                     } else
                         IOHelper.transfer(input, output);
+                    exclusionList.add(e.getName());
                     e = input.getNextEntry();
                 }
             }
@@ -71,7 +74,7 @@ public class AdditionalFixesApplyTask implements LauncherBuildTask {
         Path inputFile = context.getLastest();
         Path out = context.makeTempPath("post-fixed", ".jar");
         try (ZipOutputStream output = new ZipOutputStream(IOHelper.newOutput(out))) {
-            apply(inputFile, inputFile, output, server, (e) -> false, true);
+            apply(inputFile, inputFile, output, server, (e) -> false, new HashSet<>(), true);
         }
         return out;
     }

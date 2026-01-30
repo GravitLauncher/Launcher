@@ -9,7 +9,9 @@ import pro.gravit.utils.helper.IOHelper;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
@@ -38,6 +40,7 @@ public class AttachJarsTask implements LauncherBuildTask {
     public Path process(PipelineContext context) throws IOException {
         Path inputFile = context.getLastest();
         Path outputFile = context.makeTempPath("attached", ".jar");
+        var set = new HashSet<String>();
         try (ZipInputStream input = IOHelper.newZipInput(inputFile);
              ZipOutputStream output = new ZipOutputStream(IOHelper.newOutput(outputFile))) {
             ZipEntry e = input.getNextEntry();
@@ -48,10 +51,11 @@ public class AttachJarsTask implements LauncherBuildTask {
                 }
                 output.putNextEntry(IOHelper.newZipEntry(e));
                 IOHelper.transfer(input, output);
+                set.add(e.getName());
                 e = input.getNextEntry();
             }
-            attach(output, inputFile, ((JARLauncherBinary)srv.launcherBinaries.get(CoreFeatureAPI.UpdateVariant.JAR)).coreLibs);
-            attach(output, inputFile, jars);
+            attach(output, inputFile, ((JARLauncherBinary)srv.launcherBinaries.get(CoreFeatureAPI.UpdateVariant.JAR)).coreLibs, set);
+            attach(output, inputFile, jars, set);
             for(var entry : ((JARLauncherBinary)srv.launcherBinaries.get(CoreFeatureAPI.UpdateVariant.JAR)).files.entrySet()) {
                 ZipEntry newEntry = IOHelper.newZipEntry(entry.getKey());
                 output.putNextEntry(newEntry);
@@ -61,9 +65,9 @@ public class AttachJarsTask implements LauncherBuildTask {
         return outputFile;
     }
 
-    private void attach(ZipOutputStream output, Path inputFile, List<Path> lst) throws IOException {
+    private void attach(ZipOutputStream output, Path inputFile, List<Path> lst, Set<String> set) throws IOException {
         for (Path p : lst) {
-            AdditionalFixesApplyTask.apply(inputFile, p, output, srv, (e) -> filter(e.getName()), false);
+            AdditionalFixesApplyTask.apply(inputFile, p, output, srv, (e) -> filter(e.getName()), set, false);
         }
     }
 

@@ -15,7 +15,7 @@ repositories {
 }
 
 val optional by configurations.creating {
-    isCanBeConsumed = false; isCanBeResolved = true
+    isCanBeConsumed = false; isCanBeResolved = true;
 }
 
 configurations {
@@ -36,9 +36,7 @@ dependencies {
     api(project(":components:launcher-client"))
     api(project(":components:launcher-start"))
     optional(libs.slf4j.simple)
-    optional(libs.oshi) {
-        exclude(group = "org.slf4j")
-    }
+    optional(libs.oshi)
 }
 
 val copyLauncherLibs by tasks.registering(Copy::class) {
