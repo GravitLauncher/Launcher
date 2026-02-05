@@ -20,7 +20,7 @@ import java.util.Deque;
 import java.util.LinkedList;
 import java.util.Objects;
 
-public final class DirWatcher implements Runnable, AutoCloseable {
+public class DirWatcher implements Runnable, AutoCloseable {
 
     private static final Logger logger =
             LoggerFactory.getLogger(DirWatcher.class);
@@ -48,7 +48,6 @@ public final class DirWatcher implements Runnable, AutoCloseable {
 
         // Register dirs recursively
         IOHelper.walk(dir, new RegisterFileVisitor(), true);
-        LogHelper.subInfo("DirWatcher %s", dir.toString());
     }
 
     private static void handleError(Throwable e) {
@@ -66,6 +65,10 @@ public final class DirWatcher implements Runnable, AutoCloseable {
     @Override
     public void close() throws IOException {
         service.close();
+    }
+
+    protected void onForbiddenModification(WatchEvent<?> event, Path path) {
+        throw new SecurityException(String.format("Forbidden modification (%s, %d times): '%s'", event.kind(), event.count(), path));
     }
 
     private void processKey(WatchKey key) throws IOException {
@@ -91,7 +94,7 @@ public final class DirWatcher implements Runnable, AutoCloseable {
             }
 
             // Forbidden modification!
-            throw new SecurityException(String.format("Forbidden modification (%s, %d times): '%s'", kind, event.count(), path));
+            onForbiddenModification(event, path);
         }
         key.reset();
     }
