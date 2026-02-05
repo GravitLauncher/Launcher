@@ -147,6 +147,7 @@ public class ReadyProfileImpl implements LauncherBackendAPI.ReadyProfile {
             process.start(true);
             logger.debug("Start watching client IO {}", profile.getTitle());
             readIOLoop();
+            callback.onReadyToExit();
         } catch (Throwable e) {
             if(e instanceof InterruptedException) {
                 return;
@@ -201,6 +202,7 @@ public class ReadyProfileImpl implements LauncherBackendAPI.ReadyProfile {
             return;
         }
         nativeProcess.destroyForcibly();
+        callback.onReadyToExit();
     }
 
     public boolean isAlive() {
