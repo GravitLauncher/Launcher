@@ -142,6 +142,7 @@ public class LaunchServerStarter {
                 isRunCommand = false;
             }
         }
+        server.modulesManager.fullInitializedLaunchServer(server);
         for(var cmd : runCommand) {
             localCommandHandler.eval(cmd, false);
         }

@@ -382,7 +382,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
         if (config.netty != null)
             rebindNettyServerSocket();
         try {
-            modulesManager.fullInitializedLaunchServer(this);
+            //modulesManager.fullInitializedLaunchServer(this);
             modulesManager.invokeEvent(new LaunchServerFullInitEvent(this));
             logger.info("LaunchServer started");
         } catch (Throwable e) {
