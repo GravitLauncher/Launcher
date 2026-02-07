@@ -98,14 +98,19 @@ public class CreateProfileCommand extends Command {
                 isMirrorProfileDownload = true;
             }
         }
-        pushClientAndDownloadAssets(server, clientProfile, clientDir);
+        pushClientAndDownloadAssets(server, clientProfile, clientDir, true);
 
         // Finished
         logger.info("Client successfully downloaded: '{}'", dirName);
     }
 
-    public static ProfilesProvider.CompletedProfile pushClientAndDownloadAssets(LaunchServer server, ClientProfile clientProfile, Path clientDir) throws Exception {
+    public static ProfilesProvider.CompletedProfile pushClientAndDownloadAssets(LaunchServer server, ClientProfile clientProfile, Path clientDir, boolean isDownloadAssets) throws Exception {
         var uncompleted = server.config.profilesProvider.create(clientProfile.getTitle(), "Description", null);
+        if(!isDownloadAssets) {
+            return server.config.profilesProvider.pushUpdate(uncompleted, null, clientProfile, null, List.of(
+                    ProfilesProvider.ProfileAction.upload(clientDir, "", true)
+            ), List.of(ProfilesProvider.UpdateFlag.USE_DEFAULT_ASSETS));
+        }
         var completed = server.config.profilesProvider.pushUpdate(uncompleted, null, clientProfile, null, List.of(
                 ProfilesProvider.ProfileAction.upload(clientDir, "", true)
         ), List.of(ProfilesProvider.UpdateFlag.USE_DEFAULT_ASSETS));
