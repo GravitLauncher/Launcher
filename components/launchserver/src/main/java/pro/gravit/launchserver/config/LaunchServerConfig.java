@@ -71,6 +71,7 @@ public final class LaunchServerConfig {
         newConfig.launcher.deleteTempFiles = true;
         newConfig.launcher.stripLineNumbers = true;
         newConfig.launcher.customJvmOptions.add("-Dfile.encoding=UTF-8");
+        newConfig.launcher.customJvmOptions.add("-Dlauncher.useSlf4j=true");
 
         newConfig.sign = new JarSignerConf();
 
