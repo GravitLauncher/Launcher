@@ -3,7 +3,6 @@ package pro.gravit.launcher.server.authlib;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pro.gravit.utils.helper.IOHelper;
-import pro.gravit.utils.helper.LogHelper;
 
 import java.io.*;
 import java.net.URL;
@@ -32,16 +31,84 @@ public class InstallAuthlib {
     public void run(String... args) throws Exception {
         boolean deleteAuthlibAfterInstall = false;
         InstallAuthlibContext context = new InstallAuthlibContext();
-        if(args[0].startsWith("http://") || args[0].startsWith("https://")) {
-            Path tempAuthlib = Paths.get(tempLaunchAuthLibName);
-            logger.info("Download {} to {}", args[0], tempAuthlib);
-            try(InputStream input = IOHelper.newInput(new URL(args[0]))) {
-                IOHelper.transfer(input, tempAuthlib);
+        String source = null;
+        if (args != null && args.length > 0) {
+            source = args[0];
+        }
+        if (source == null || source.isEmpty()) {
+            // Detect version from libraries/com/mojang/authlib/
+            try {
+                Path libs = context.workdir.resolve("libraries").resolve("com").resolve("mojang").resolve("authlib");
+                if (Files.exists(libs) && Files.isDirectory(libs)) {
+                    Optional<String> best = Files.list(libs)
+                            .filter(Files::isDirectory)
+                            .map(p -> p.getFileName().toString())
+                            .max(InstallAuthlib::compareVersion);
+                    if (best.isPresent()) {
+                        String version = best.get();
+                        int major = parseMajor(version);
+                        String fileName;
+                        if (major == 3 && inRange(version, "3.5.41", "3.18.38")) {
+                            fileName = "LauncherAuthlib3-1.19.jar";
+                        } else {
+                            fileName = "LauncherAuthlib" + major + ".jar";
+                        }
+                        // Get mirrors from system property or env, fallback to default
+                        String prop = System.getProperty("installAuthlib.mirrors");
+                        List<String> mirrors;
+                        if (prop != null && !prop.isEmpty()) {
+                            mirrors = Arrays.asList(prop.split(","));
+                        } else if (System.getenv("SERVERWRAPPER_MIRRORS") != null) {
+                            mirrors = Arrays.asList(System.getenv("SERVERWRAPPER_MIRRORS").split(","));
+                        } else {
+                            mirrors = List.of("https://mirror.gravitlauncher.com/5.7.x/");
+                        }
+                        String chosen = null;
+                        for (String base : mirrors) {
+                            String b = base.endsWith("/") ? base : base + "/";
+                            String urlStr = b + "authlib/" + fileName;
+                            try {
+                                logger.info("Try download {}", urlStr);
+                                try (InputStream input = IOHelper.newInput(new URL(urlStr))) {
+                                    Path tempAuthlib = Paths.get(tempLaunchAuthLibName);
+                                    IOHelper.transfer(input, tempAuthlib);
+                                    context.pathToAuthlib = tempAuthlib.toAbsolutePath();
+                                    deleteAuthlibAfterInstall = true;
+                                    chosen = urlStr;
+                                    break;
+                                }
+                            } catch (FileNotFoundException fnf) {
+                                logger.info("Not found on mirror: {}", urlStr);
+                                continue;
+                            } catch (IOException ioe) {
+                                logger.info("Failed to download from {}: {}", urlStr, ioe.getMessage());
+                                continue;
+                            }
+                        }
+                        if (chosen == null) {
+                            throw new FileNotFoundException("LauncherAuthlib for detected version " + version + " not found on mirrors. Please notify developers.");
+                        }
+                    } else {
+                        throw new FileNotFoundException("No authlib versions found in " + libs.toString());
+                    }
+                } else {
+                    throw new FileNotFoundException("Libraries authlib directory not found: " + libs.toString());
+                }
+            } catch (IOException e) {
+                throw e;
             }
-            context.pathToAuthlib = tempAuthlib.toAbsolutePath();
-            deleteAuthlibAfterInstall = true;
         } else {
-            context.pathToAuthlib = Paths.get(args[0]).toAbsolutePath();
+            if(source.startsWith("http://") || source.startsWith("https://")) {
+                Path tempAuthlib = Paths.get(tempLaunchAuthLibName);
+                logger.info("Download {} to {}", source, tempAuthlib);
+                try(InputStream input = IOHelper.newInput(new URL(source))) {
+                    IOHelper.transfer(input, tempAuthlib);
+                }
+                context.pathToAuthlib = tempAuthlib.toAbsolutePath();
+                deleteAuthlibAfterInstall = true;
+            } else {
+                context.pathToAuthlib = Paths.get(source).toAbsolutePath();
+            }
         }
         if(Files.notExists(context.pathToAuthlib)) {
             throw new FileNotFoundException(context.pathToAuthlib.toString());
@@ -185,6 +252,39 @@ public class InstallAuthlib {
             }
         }
         return set;
+    }
+
+    private static int compareVersion(String a, String b) {
+        int[] va = parseVersion(a);
+        int[] vb = parseVersion(b);
+        for (int i = 0; i < Math.max(va.length, vb.length); i++) {
+            int ca = i < va.length ? va[i] : 0;
+            int cb = i < vb.length ? vb[i] : 0;
+            if (ca != cb) return Integer.compare(ca, cb);
+        }
+        return 0;
+    }
+
+    private static int[] parseVersion(String v) {
+        try {
+            String[] parts = v.split("[.-]");
+            int[] res = new int[parts.length];
+            for (int i = 0; i < parts.length; i++) {
+                try { res[i] = Integer.parseInt(parts[i]); } catch (NumberFormatException e) { res[i] = 0; }
+            }
+            return res;
+        } catch (Exception e) {
+            return new int[]{0};
+        }
+    }
+
+    private static int parseMajor(String v) {
+        int[] vv = parseVersion(v);
+        return vv.length > 0 ? vv[0] : 0;
+    }
+
+    private static boolean inRange(String v, String from, String to) {
+        return compareVersion(v, from) >= 0 && compareVersion(v, to) <= 0;
     }
 
     private byte[] repackAuthlibJar(byte[] data, Path path) throws IOException {
