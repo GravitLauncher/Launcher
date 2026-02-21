@@ -105,7 +105,7 @@ public class SimpleModuleManager implements LauncherModulesManager {
                 module.setInitStatus(LauncherModule.InitStatus.FINISH);
             } else if (module.getInitStatus().equals(LauncherModule.InitStatus.PRE_INIT_WAIT)) {
                 LauncherModuleInfo info = module.getModuleInfo();
-                logger.error("Module {} skip pre-init phase. This module NOT finish loading", info.name, Arrays.toString(info.dependencies));
+                logger.error("Module {} skip pre-init phase. This module NOT finish loading. Dependencies: {}", info.name, Arrays.toString(info.dependencies));
             }
         }
     }

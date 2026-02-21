@@ -34,26 +34,26 @@ public class PrintHardwareInfoCommand extends Command {
         long totalMemory = provider.getTotalMemory();
         boolean isBattery = provider.isBattery();
         currentTime = System.currentTimeMillis();
-        logger.info("Bitness: {}, totalMemory: %d(%.3f GB), battery %s, TIME: %d ms", bitness, totalMemory, (double) totalMemory / (1024.0 * 1024.0 * 1024.0), Boolean.toString(isBattery), currentTime - startTime);
+        logger.info("Bitness: {}, totalMemory: {}({} GB), battery {}, TIME: {} ms", bitness, totalMemory, String.format("%.3f", (double) totalMemory / (1024.0 * 1024.0 * 1024.0)), Boolean.toString(isBattery), currentTime - startTime);
         startTime = System.currentTimeMillis();
         int logicalProcessors = provider.getProcessorLogicalCount();
         int physicalProcessors = provider.getProcessorPhysicalCount();
         long processorMaxFreq = provider.getProcessorMaxFreq();
         currentTime = System.currentTimeMillis();
-        logger.info("Processors || logical: {} physical {} freq {}, TIME: %d ms", logicalProcessors, physicalProcessors, processorMaxFreq, currentTime - startTime);
+        logger.info("Processors || logical: {} physical {} freq {}, TIME: {} ms", logicalProcessors, physicalProcessors, processorMaxFreq, currentTime - startTime);
         startTime = System.currentTimeMillis();
         String hwDiskID = provider.getHWDiskID();
         currentTime = System.currentTimeMillis();
-        logger.info("HWDiskID {}, TIME: %d ms", hwDiskID, currentTime - startTime);
+        logger.info("HWDiskID {}, TIME: {} ms", hwDiskID, currentTime - startTime);
         startTime = System.currentTimeMillis();
         String baseboardSerial = provider.getBaseboardSerialNumber();
         currentTime = System.currentTimeMillis();
-        logger.info("BaseboardSerial {}, TIME: %d ms", baseboardSerial, currentTime - startTime);
+        logger.info("BaseboardSerial {}, TIME: {} ms", baseboardSerial, currentTime - startTime);
         startTime = System.currentTimeMillis();
         String graphicCardName = provider.getGraphicCardName();
         long graphicCardVRam = provider.getGraphicCardMemory();
         currentTime = System.currentTimeMillis();
-        logger.info("GraphicCard {} (%.3f vram), TIME: %d ms", graphicCardName, (double) graphicCardVRam, currentTime - startTime);
+        logger.info("GraphicCard {} ({} VRAM), TIME: {} ms", graphicCardName, String.format("%.3f", (double) graphicCardVRam), currentTime - startTime);
         logger.info("Hardware ID end");
     }
 }
