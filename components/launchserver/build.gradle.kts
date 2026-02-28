@@ -50,7 +50,15 @@ dependencies {
     launcherInside(project(mapOf("path" to ":components:launcher-runtime", "configuration" to "shadow")))
     proguardLibrary(libs.proguard)
 }
-
+tasks.withType<JavaCompile> {
+    options.compilerArgs.addAll(listOf(
+        "-Alog4j.graalvm.groupId=${project.group}",
+        "-Alog4j.graalvm.artifactId=${project.name}"
+    ))
+}
+tasks.withType<Test> {
+    jvmArgs("--enable-native-access=ALL-UNNAMED")
+}
 tasks.jar {
     archiveClassifier.set("") // the main jar
     manifest {
@@ -86,6 +94,8 @@ application {
         "java.net.http",
         "--add-opens",
         "java.base/java.lang.invoke=launchserver",
+        "--enable-native-access",
+        "io.netty.common,org.fusesource.jansi",
         "-Dlauncher.useSlf4j=true",
         "-Dio.netty.noUnsafe=true"
     )
