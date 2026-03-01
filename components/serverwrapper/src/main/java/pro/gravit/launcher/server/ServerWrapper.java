@@ -2,6 +2,7 @@ package pro.gravit.launcher.server;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import pro.gravit.launcher.base.ClientPermissions;
 import pro.gravit.launcher.base.Launcher;
 import pro.gravit.launcher.base.LauncherConfig;
 import pro.gravit.launcher.base.api.AuthService;
@@ -76,6 +77,15 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
     }
 
     public void restore() throws Exception {
+        if(config.address.startsWith("http://") || config.address.startsWith("https://")) {
+            var selfUser = LauncherAPIHolder.get().auth().restore(config.oauth.accessToken, true).get();
+            AuthService.uuid = selfUser.getUUID();
+            AuthService.username = selfUser.getUsername();
+            if(selfUser.getPermissions() instanceof ClientPermissions clientPermissions) {
+                AuthService.permissions = clientPermissions;
+            }
+            return;
+        }
         if(config.oauth != null) {
             Request.setOAuth(config.authId, config.oauth, config.oauthExpireTime);
         }
