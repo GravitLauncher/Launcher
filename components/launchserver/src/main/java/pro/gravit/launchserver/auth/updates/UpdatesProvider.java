@@ -51,7 +51,7 @@ public abstract class UpdatesProvider {
 
     }
 
-    public record BuildSecrets(String secureToken, byte[] digest) {
+    public record BuildSecrets(String secureToken, byte[] digest, String privateKey, String publicKey) {
 
     }
 

@@ -71,7 +71,9 @@ public class PipelineContext {
         try {
             byte[] hash = SecurityHelper.digest(SecurityHelper.DigestAlgorithm.SHA512, getLastest());
             return new UpdatesProvider.UpdateUploadInfo(getLastest(), variant, new UpdatesProvider.BuildSecrets(
-                    getProperty("checkClientSecret"), hash
+                    getProperty("checkClientSecret"), hash,
+                    getProperty("build.privateKey"),
+                    getProperty("build.publicKey")
             ));
         } catch (IOException e) {
             throw new RuntimeException(e);
