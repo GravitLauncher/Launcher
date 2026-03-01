@@ -1,5 +1,7 @@
 package pro.gravit.launchserver.auth.updates;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import pro.gravit.launcher.base.Launcher;
 import pro.gravit.launcher.core.api.features.CoreFeatureAPI;
 import pro.gravit.utils.helper.IOHelper;
@@ -16,6 +18,7 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 public class RemoteUpdatesProvider extends UpdatesProvider {
+    private static final Logger log = LoggerFactory.getLogger(RemoteUpdatesProvider.class);
     public String baseUrl = "PASTE BASE URL HERE";
     public String accessToken = "PASTE ACCESS TOKEN HERE";
     private final transient HttpClient client = HttpClient.newBuilder().build();
@@ -44,7 +47,7 @@ public class RemoteUpdatesProvider extends UpdatesProvider {
             }
             byte[] bytes = IOHelper.read(file.path());
             try {
-                client.send(HttpRequest.newBuilder()
+                var result = client.send(HttpRequest.newBuilder()
                         .uri(URI.create(baseUrl.concat("/updates/upload/"+file.variant().toString())))
                         .POST(HttpRequest.BodyPublishers.concat(HttpRequest.BodyPublishers.ofByteArray(preFileData),
                                 HttpRequest.BodyPublishers.ofByteArray(bytes),
@@ -53,6 +56,9 @@ public class RemoteUpdatesProvider extends UpdatesProvider {
                         .header("Content-Type", "multipart/form-data; boundary=\""+boundary+"\"")
                         .header("Accept", "application/json")
                         .build(), HttpResponse.BodyHandlers.ofByteArray());
+                if(result.statusCode() < 200 || result.statusCode() >= 300) {
+                    log.error("Failed to upload new release with code {}: {}", result.statusCode(), new String(result.body(), StandardCharsets.UTF_8));
+                }
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }

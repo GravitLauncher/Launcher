@@ -8,6 +8,7 @@ import pro.gravit.launcher.base.Launcher;
 import pro.gravit.launcher.base.profiles.ClientProfile;
 import pro.gravit.launcher.base.profiles.ClientProfileBuilder;
 import pro.gravit.launcher.base.profiles.ClientProfileVersions;
+import pro.gravit.launcher.core.hasher.HashedDir;
 import pro.gravit.launchserver.HttpRequester;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.auth.profiles.ProfilesProvider;
@@ -116,11 +117,15 @@ public class CreateProfileCommand extends Command {
         ), List.of(ProfilesProvider.UpdateFlag.USE_DEFAULT_ASSETS));
         {
             String assetIndexPath = String.format("indexes/%s.json", completed.getProfile().getAssetIndex());
-            if (!completed.getAssetDir().tryFindRecursive(assetIndexPath).isFound()) {
+            HashedDir completedAssetDir = completed.getAssetDir();
+            if(completedAssetDir == null) {
+                completedAssetDir = new HashedDir();
+            }
+            if (!completedAssetDir.tryFindRecursive(assetIndexPath).isFound()) {
                 Path assetDir = server.createTempDirectory("assets");
                 HttpRequester requester = new HttpRequester();
                 var assetInfo = AssetsDirHelper.getAssetInfo(requester, completed.getProfile().getAssetIndex());
-                var toDownload = AssetsDirHelper.makeToDownloadFiles(assetInfo, completed.getAssetDir());
+                var toDownload = AssetsDirHelper.makeToDownloadFiles(assetInfo, completedAssetDir);
                 logger.info("Download assets {}", completed.getProfile().getAssetIndex());
                 Downloader downloader = downloadWithProgressBar(completed.getProfile().getAssetIndex(),
                         toDownload, AssetsDirHelper.RESOURCES_DOWNLOAD_URL, assetDir);

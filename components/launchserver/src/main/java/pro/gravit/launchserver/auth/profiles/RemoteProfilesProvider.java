@@ -2,6 +2,7 @@ package pro.gravit.launchserver.auth.profiles;
 
 import pro.gravit.launcher.base.HttpHelper;
 import pro.gravit.launcher.base.profiles.ClientProfile;
+import pro.gravit.launcher.base.profiles.ClientProfileBuilder;
 import pro.gravit.launcher.base.request.RequestFeatureHttpAPIImpl;
 import pro.gravit.launcher.core.hasher.HashedDir;
 import pro.gravit.launcher.core.hasher.HashedEntry;
@@ -14,9 +15,9 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
@@ -28,11 +29,23 @@ public class RemoteProfilesProvider extends ProfilesProvider {
     public UncompletedProfile create(String name, String description, CompletedProfile basic) {
         try {
             return HttpHelper.sendAsync(client, HttpRequest.newBuilder()
-                            .POST(HttpHelper.jsonBodyPublisher(new HttpCreateProfileRequest(name, description, basic.getProfile())))
+                            .POST(HttpHelper.jsonBodyPublisher(new HttpCreateProfileRequest(name, description, basic == null ? null : basic.getProfile())))
                             .uri(URI.create(baseUrl.concat("/profile/new")))
+                            .header("Content-Type", "application/json")
                             .header("Authorization", "Bearer "+accessToken)
                             .build(), new RequestFeatureHttpAPIImpl.HttpErrorHandler<>(HttpUncompletedProfile.class))
-                    .thenApply(HttpHelper.HttpOptional::getOrThrow).get();
+                    .thenApply(HttpHelper.HttpOptional::getOrThrow).thenCompose(result -> {
+                        if(basic == null && result.profile == null) {
+                            ClientProfile newClientProfile = new ClientProfileBuilder()
+                                .setTitle(name)
+                                .setInfo(description)
+                                .setDir(name)
+                                .setUuid(result.getUuid())
+                                .createClientProfile();
+                            return pushUpdateAsync(result, newClientProfile, null, null).thenApply(e -> result);
+                        }
+                        return CompletableFuture.completedFuture(result);
+                    }).get();
         } catch (InterruptedException | ExecutionException e) {
             throw new RuntimeException(e);
         }
@@ -61,7 +74,7 @@ public class RemoteProfilesProvider extends ProfilesProvider {
                             .header("Authorization", "Bearer "+accessToken)
                             .build(), new RequestFeatureHttpAPIImpl.HttpErrorHandler<>(RequestFeatureHttpAPIImpl.HttpListProfilesResponse.class))
                     .thenApply(e -> e.getOrThrow().profiles().stream()
-                            .map(HttpUncompletedProfile::new)
+                            .map(es -> new HttpUncompletedProfile(es.getUUID(), es))
                             .map(x -> (UncompletedProfile) x)
                             .collect(Collectors.toSet()))
                     .get();
@@ -73,10 +86,16 @@ public class RemoteProfilesProvider extends ProfilesProvider {
     @Override
     public CompletedProfile pushUpdate(UncompletedProfile profile, String tag, ClientProfile clientProfile, List<ProfileAction> assetActions, List<ProfileAction> clientActions, List<UpdateFlag> flags) throws IOException {
         var prev = get(profile.getUuid(), tag);
-        HashedDir clientDir = prev.getClientDir();
-        HashedDir assetDir = prev.getAssetDir();
+        HashedDir clientDir = prev == null ? null : prev.getClientDir();
+        HashedDir assetDir = prev == null ? null : prev.getAssetDir();
         if(flags.contains(UpdateFlag.USE_DEFAULT_ASSETS)) {
             assetDir = getUnconnectedDirectory("assets");
+        }
+        if(assetDir == null) {
+            assetDir = new HashedDir();
+        }
+        if(clientDir == null) {
+            clientDir = new HashedDir();
         }
         if(assetActions != null) {
             execute(assetDir, assetActions);
@@ -86,15 +105,20 @@ public class RemoteProfilesProvider extends ProfilesProvider {
         }
 
         try {
-            return HttpHelper.sendAsync(client, HttpRequest.newBuilder()
-                            .POST(HttpHelper.jsonBodyPublisher(new HttpUpdateProfileRequest(clientProfile, clientDir, assetDir)))
-                            .uri(URI.create(baseUrl.concat("/profile/by/uuid/"+profile.getUuid()+"/pushupdate")))
-                            .header("Authorization", "Bearer "+accessToken)
-                            .build(), new RequestFeatureHttpAPIImpl.HttpErrorHandler<>(HttpProfile.class))
-                    .thenApply(HttpHelper.HttpOptional::getOrThrow).get();
+            return pushUpdateAsync(profile, clientProfile, clientDir, assetDir).get();
         } catch (InterruptedException | ExecutionException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private CompletableFuture<HttpProfile> pushUpdateAsync(UncompletedProfile profile, ClientProfile clientProfile, HashedDir clientDir, HashedDir assetDir) {
+        return HttpHelper.sendAsync(client, HttpRequest.newBuilder()
+                        .POST(HttpHelper.jsonBodyPublisher(new HttpUpdateProfileRequest(clientProfile, clientDir, assetDir)))
+                        .uri(URI.create(baseUrl.concat("/profile/by/uuid/" + profile.getUuid() + "/pushupdate")))
+                        .header("Content-Type", "application/json")
+                        .header("Authorization", "Bearer " + accessToken)
+                        .build(), new RequestFeatureHttpAPIImpl.HttpErrorHandler<>(HttpProfile.class))
+                .thenApply(HttpHelper.HttpOptional::getOrThrow);
     }
 
     @Override
@@ -113,7 +137,7 @@ public class RemoteProfilesProvider extends ProfilesProvider {
                     .thenApply(HttpHelper.HttpOptional::getOrThrow)
                     .get();
         } catch (InterruptedException | ExecutionException e) {
-            throw new RuntimeException(e);
+            return null;
         }
     }
 
@@ -182,10 +206,10 @@ public class RemoteProfilesProvider extends ProfilesProvider {
                     }
                 } else {
                     HashedDir srcDir = new HashedDir(Path.of(action.source()), null, true, true);
-                    HashedDir.Diff diff = dir.diff(srcDir, null);
+                    HashedDir.Diff diff = srcDir.diff(dir, null);
                     diff.mismatch.walk("/", (HashedDir.WalkCallback) (path, name, entry) -> {
                         if(entry.getType() == HashedEntry.Type.FILE) {
-                            var r = dir.createParentDirectories(action.target());
+                            var r = dir.createParentDirectories(Path.of(action.target()).resolve(path).toString().replace('\\', '/'));
                             try(var output = new ByteArrayOutputStream()) {
                                 try(var input = IOHelper.newInput(Path.of(action.source()).resolve(path))) {
                                     input.transferTo(output);
@@ -193,7 +217,7 @@ public class RemoteProfilesProvider extends ProfilesProvider {
                                 byte[] bytes = output.toByteArray();
                                 var res = uploadFile(HttpRequest.BodyPublishers.ofByteArray(bytes));
                                 HashedFile file = new HashedFile(bytes, res.url());
-                                r.parent.put(r.name, file);
+                                r.parent.put(name, file);
                             } catch (IOException e) {
                                 throw new RuntimeException(e);
                             }
@@ -226,11 +250,11 @@ public class RemoteProfilesProvider extends ProfilesProvider {
 
     }
 
-    public record HttpUncompletedProfile(ClientProfile profile) implements UncompletedProfile {
+    public record HttpUncompletedProfile(UUID uuid, ClientProfile profile) implements UncompletedProfile {
 
         @Override
         public UUID getUuid() {
-            return profile.getUUID();
+            return uuid;
         }
 
         @Override

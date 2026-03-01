@@ -123,7 +123,7 @@ public class MainBuildTask implements LauncherBuildTask {
             context.properties.put("runtimeconfig.runtimeEncryptKey", runtimeEncryptKey);
         }
         context.properties.put("launcher.certificatePinning", server.config.launcher.certificatePinning);
-        context.properties.put("launcher.usehttpapi", server.config.launcher.experimentalDevOnlyHttpApi);
+        context.properties.put("launcher.useHttpApi", server.config.launcher.experimentalDevOnlyHttpApi);
         String checkClientSecret = SecurityHelper.randomStringToken();
         context.pipelineContext.putProperty("checkClientSecret", checkClientSecret);
         String launcherSalt = SecurityHelper.randomStringToken();
