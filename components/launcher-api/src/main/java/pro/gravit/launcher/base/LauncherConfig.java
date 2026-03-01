@@ -70,6 +70,8 @@ public final class LauncherConfig extends StreamObject {
     public String ecdsaBuildPrivateKey;
     @LauncherInject("launcher.build.publickey")
     public String ecdsaBuildPublicKey;
+    @LauncherInject("launcher.useHttpApi")
+    public boolean useHttpApi;
 
     private static class ModernModulesClass {
         @LauncherInject("launcher.modules")

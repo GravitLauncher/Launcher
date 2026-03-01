@@ -247,6 +247,7 @@ public final class LaunchServerConfig {
         public Map<String, String> customJavaDownload = new HashMap<>();
         public boolean forceUseCustomJava;
         public int memoryLimit = 256;
+        public boolean experimentalDevOnlyHttpApi;
     }
 
     public static class NettyConfig {

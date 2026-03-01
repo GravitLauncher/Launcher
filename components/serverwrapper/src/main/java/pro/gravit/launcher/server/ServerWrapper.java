@@ -17,6 +17,7 @@ import pro.gravit.launcher.base.profiles.optional.triggers.OptionalTrigger;
 import pro.gravit.launcher.base.request.Request;
 import pro.gravit.launcher.base.request.RequestCoreFeatureAPIImpl;
 import pro.gravit.launcher.base.request.RequestFeatureAPIImpl;
+import pro.gravit.launcher.base.request.RequestFeatureHttpAPIImpl;
 import pro.gravit.launcher.base.request.auth.AuthRequest;
 import pro.gravit.launcher.base.request.auth.GetAvailabilityAuthRequest;
 import pro.gravit.launcher.base.request.update.ProfilesRequest;
@@ -128,39 +129,53 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
     public void connect() throws Exception {
         config.applyEnv();
         updateLauncherConfig();
-        StdWebSocketService service = StdWebSocketService.initWebSockets(config.address).get();
-        service.reconnectCallback = () ->
-        {
-            logger.debug("WebSocket connect closed. Try reconnect");
-            try {
-                Request.reconnect();
-                getProfiles();
-            } catch (Exception e) {
-                logger.error("", e);
-            }
-        };
-        Request.setRequestService(service);
-        LauncherAPIHolder.setCoreAPI(new RequestCoreFeatureAPIImpl(Request.getRequestService()));
-        LauncherAPIHolder.setCreateApiFactory((authId) -> {
-            var impl = new RequestFeatureAPIImpl(Request.getRequestService(), authId);
-            return new LauncherAPI(Map.of(
-                    AuthFeatureAPI.class, impl,
-                    UserFeatureAPI.class, impl,
-                    ProfileFeatureAPI.class, impl,
-                    TextureUploadFeatureAPI.class, impl,
-                    HardwareVerificationFeatureAPI.class, impl));
-        });
-        if(config.authId != null) {
-            LauncherAPIHolder.changeAuthId(config.authId);
+        if(config.address.startsWith("http://") || config.address.startsWith("https://")) {
+            RequestFeatureHttpAPIImpl impl = new RequestFeatureHttpAPIImpl(config.address);
+            LauncherAPIHolder.setCoreAPI(impl);
+            LauncherAPIHolder.setCreateApiFactory((authId) -> {
+                return new LauncherAPI(Map.of(
+                        AuthFeatureAPI.class, impl,
+                        UserFeatureAPI.class, impl,
+                        ProfileFeatureAPI.class, impl,
+                        TextureUploadFeatureAPI.class, impl,
+                        HardwareVerificationFeatureAPI.class, impl));
+            });
         } else {
-            var impl = new RequestFeatureAPIImpl(Request.getRequestService(), null);
-            LauncherAPIHolder.setApi(new LauncherAPI(Map.of(
-                    AuthFeatureAPI.class, impl,
-                    UserFeatureAPI.class, impl,
-                    ProfileFeatureAPI.class, impl,
-                    TextureUploadFeatureAPI.class, impl,
-                    HardwareVerificationFeatureAPI.class, impl)));
+            StdWebSocketService service = StdWebSocketService.initWebSockets(config.address).get();
+            service.reconnectCallback = () ->
+            {
+                logger.debug("WebSocket connect closed. Try reconnect");
+                try {
+                    Request.reconnect();
+                    getProfiles();
+                } catch (Exception e) {
+                    logger.error("", e);
+                }
+            };
+            Request.setRequestService(service);
+            LauncherAPIHolder.setCoreAPI(new RequestCoreFeatureAPIImpl(Request.getRequestService()));
+            LauncherAPIHolder.setCreateApiFactory((authId) -> {
+                var impl = new RequestFeatureAPIImpl(Request.getRequestService(), authId);
+                return new LauncherAPI(Map.of(
+                        AuthFeatureAPI.class, impl,
+                        UserFeatureAPI.class, impl,
+                        ProfileFeatureAPI.class, impl,
+                        TextureUploadFeatureAPI.class, impl,
+                        HardwareVerificationFeatureAPI.class, impl));
+            });
+            if(config.authId != null) {
+                LauncherAPIHolder.changeAuthId(config.authId);
+            } else {
+                var impl = new RequestFeatureAPIImpl(Request.getRequestService(), null);
+                LauncherAPIHolder.setApi(new LauncherAPI(Map.of(
+                        AuthFeatureAPI.class, impl,
+                        UserFeatureAPI.class, impl,
+                        ProfileFeatureAPI.class, impl,
+                        TextureUploadFeatureAPI.class, impl,
+                        HardwareVerificationFeatureAPI.class, impl)));
+            }
         }
+
         if (config.logFile != null) LogHelper.addOutput(IOHelper.newWriter(Paths.get(config.logFile), true));
         {
             restore();

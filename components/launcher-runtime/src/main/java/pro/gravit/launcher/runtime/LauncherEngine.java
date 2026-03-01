@@ -185,7 +185,18 @@ public class LauncherEngine {
         if (runtimeProvider == null) runtimeProvider = basicRuntimeProvider.getConstructor().newInstance();
         runtimeProvider.init(clientInstance);
         //runtimeProvider.preLoad();
-        if (!Request.isAvailable()) {
+        if(config.useHttpApi) {
+            RequestFeatureHttpAPIImpl impl = new RequestFeatureHttpAPIImpl(config.address);
+            LauncherAPIHolder.setCoreAPI(impl);
+            LauncherAPIHolder.setCreateApiFactory((authId) -> {
+                return new LauncherAPI(Map.of(
+                        AuthFeatureAPI.class, impl,
+                        UserFeatureAPI.class, impl,
+                        ProfileFeatureAPI.class, impl,
+                        TextureUploadFeatureAPI.class, impl,
+                        HardwareVerificationFeatureAPI.class, impl));
+            });
+        } else if (!Request.isAvailable()) {
             String address = config.address;
             logger.debug("Start async connection to {}", address);
             RequestService service;
@@ -211,20 +222,20 @@ public class LauncherEngine {
                     }
                 };
             }
+            Request.startAutoRefresh();
+            Request.getRequestService().registerEventHandler(new BasicLauncherEventHandler());
+            // Init New API
+            LauncherAPIHolder.setCoreAPI(new RequestCoreFeatureAPIImpl(Request.getRequestService()));
+            LauncherAPIHolder.setCreateApiFactory((authId) -> {
+                var impl = new RequestFeatureAPIImpl(Request.getRequestService(), authId);
+                return new LauncherAPI(Map.of(
+                        AuthFeatureAPI.class, impl,
+                        UserFeatureAPI.class, impl,
+                        ProfileFeatureAPI.class, impl,
+                        TextureUploadFeatureAPI.class, impl,
+                        HardwareVerificationFeatureAPI.class, impl));
+            });
         }
-        Request.startAutoRefresh();
-        Request.getRequestService().registerEventHandler(new BasicLauncherEventHandler());
-        // Init New API
-        LauncherAPIHolder.setCoreAPI(new RequestCoreFeatureAPIImpl(Request.getRequestService()));
-        LauncherAPIHolder.setCreateApiFactory((authId) -> {
-            var impl = new RequestFeatureAPIImpl(Request.getRequestService(), authId);
-            return new LauncherAPI(Map.of(
-                    AuthFeatureAPI.class, impl,
-                    UserFeatureAPI.class, impl,
-                    ProfileFeatureAPI.class, impl,
-                    TextureUploadFeatureAPI.class, impl,
-                    HardwareVerificationFeatureAPI.class, impl));
-        });
         LauncherBackendAPIHolder.setApi(new LauncherBackendImpl());
         //
         Objects.requireNonNull(args, "args");

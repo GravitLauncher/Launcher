@@ -127,7 +127,18 @@ public class ClientLauncherEntryPoint {
         var config = Launcher.getConfig();
         config.apply();
         RequestService service;
-        if (params.offlineMode) {
+        if(config.useHttpApi) {
+            RequestFeatureHttpAPIImpl impl = new RequestFeatureHttpAPIImpl(config.address);
+            LauncherAPIHolder.setCoreAPI(impl);
+            LauncherAPIHolder.setCreateApiFactory((authId) -> {
+                return new LauncherAPI(Map.of(
+                        AuthFeatureAPI.class, impl,
+                        UserFeatureAPI.class, impl,
+                        ProfileFeatureAPI.class, impl,
+                        TextureUploadFeatureAPI.class, impl,
+                        HardwareVerificationFeatureAPI.class, impl));
+            });
+        } else if (params.offlineMode) {
             service = ClientLauncherMethods.initOffline(modulesManager, params);
             Request.setRequestService(service);
         } else {
