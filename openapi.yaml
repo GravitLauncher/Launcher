@@ -138,6 +138,9 @@ components:
         required:
           type: boolean
           description: Whether the update is mandatory and the launcher must update before continuing.
+        jwtToken:
+          type: string
+          description: Verify token for /auth/authorize (X-Launcher-Update-Token)
       required: [url, version, available, required]
 
     # ── Auth ─────────────────────────────────────────────────────────────────
@@ -561,13 +564,31 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 
-  /updates/check:
+  /updates/check/{variant}:
     post:
       summary: >
         Submit the signed challenge to verify the build identity and
         receive update information.
       security: []
       tags: [Updates]
+      parameters:
+        - in: path
+          name: variant
+          required: true
+          description: Update variant — identifies the target platform/binary.
+          schema:
+            type: string
+            enum:
+              - JAR
+              - EXE_WINDOWS_X86_64
+              - EXE_WINDOWS_X86
+              - EXE_WINDOWS_ARM64
+              - LINUX_X86
+              - LINUX_X86_64
+              - LINUX_ARM64
+              - LINUX_ARM32
+              - MACOS_X86_64
+              - MACOS_ARM64
       requestBody:
         required: true
         content:

@@ -4,6 +4,7 @@ import com.google.gson.JsonElement;
 import pro.gravit.launcher.base.HttpHelper;
 import pro.gravit.launcher.base.Launcher;
 import pro.gravit.launcher.base.profiles.ClientProfile;
+import pro.gravit.launcher.base.request.update.LauncherRequest;
 import pro.gravit.launcher.core.api.features.*;
 import pro.gravit.launcher.core.api.method.AuthMethod;
 import pro.gravit.launcher.core.api.method.AuthMethodDetails;
@@ -39,6 +40,7 @@ public class RequestFeatureHttpAPIImpl implements AuthFeatureAPI, UserFeatureAPI
     private final HttpClient client = HttpClient.newBuilder().build();
     private AtomicReference<HttpAuthData> authDataRef = new AtomicReference<>();
     private AtomicReference<ClientProfile> profileRef = new AtomicReference<>();
+    private AtomicReference<String> launcherVerifyTokenRef = new AtomicReference<>();
 
     public RequestFeatureHttpAPIImpl(String baseUrl) {
         this.baseUrl = baseUrl;
@@ -86,10 +88,16 @@ public class RequestFeatureHttpAPIImpl implements AuthFeatureAPI, UserFeatureAPI
         } else {
             return CompletableFuture.failedFuture(new RequestException("Unknown password type"));
         }
-        return HttpHelper.sendAsync(client, HttpRequest.newBuilder()
+        var requestBuilder = HttpRequest.newBuilder()
                 .POST(HttpHelper.jsonBodyPublisher(new HttpAuthRequest(login, rawPassword, rawTotp)))
                 .uri(URI.create(baseUrl.concat("/auth/authorize")))
-                .header("Content-Type", "application/json")
+                .header("Content-Type", "application/json");
+        String launcherVerifyToken = launcherVerifyTokenRef.get();
+        if(launcherVerifyToken != null) {
+            requestBuilder = requestBuilder
+                    .header("X-Launcher-Update-Token", launcherVerifyToken);
+        }
+        return HttpHelper.sendAsync(client, requestBuilder
                 .build(), new HttpErrorHandler<>(HttpAuthData.class)).thenCompose(result -> {
             authDataRef.set(result.getOrThrow());
             return getCurrentUser().thenApply((selfUser) -> new AuthResponse(selfUser, result.result()));
@@ -98,10 +106,17 @@ public class RequestFeatureHttpAPIImpl implements AuthFeatureAPI, UserFeatureAPI
 
     @Override
     public CompletableFuture<AuthToken> refreshToken(String refreshToken) {
-        return HttpHelper.sendAsync(client, HttpRequest.newBuilder()
+        HttpRequest.Builder builder = HttpRequest.newBuilder()
                 .POST(HttpHelper.jsonBodyPublisher(new HttpRefreshRequest(refreshToken)))
                 .uri(URI.create(baseUrl.concat("/auth/refresh")))
-                .header("Content-Type", "application/json")
+                .header("Content-Type", "application/json");
+
+        String launcherVerifyToken = launcherVerifyTokenRef.get();
+        if(launcherVerifyToken != null) {
+            builder = builder
+                    .header("X-Launcher-Update-Token", launcherVerifyToken);
+        }
+        return HttpHelper.sendAsync(client, builder
                 .build(), new HttpErrorHandler<>(HttpAuthData.class)).thenApply(HttpHelper.HttpOptional::getOrThrow);
     }
 
@@ -249,10 +264,15 @@ public class RequestFeatureHttpAPIImpl implements AuthFeatureAPI, UserFeatureAPI
                                         Base64.getEncoder().encodeToString(signedData),
                                         Base64.getEncoder().encodeToString(publicKey.getEncoded()),
                                         result.result().jwtToken())))
-                                .uri(URI.create(baseUrl.concat("/updates/check")))
+                                .uri(URI.create(baseUrl.concat("/updates/check/"+ LauncherRequest.getUpdateVariant())))
                                 .header("Content-Type", "application/json")
-                                .build(), new HttpErrorHandler<>(LauncherUpdateInfo.class))
-                        .thenApply(HttpHelper.HttpOptional::getOrThrow);
+                                .build(), new HttpErrorHandler<>(HttpLauncherUpdateInfo.class))
+                        .thenApply(HttpHelper.HttpOptional::getOrThrow)
+                        .thenApply((httpLauncherUpdateInfo -> {
+                            launcherVerifyTokenRef.set(httpLauncherUpdateInfo.verifyToken());
+                            return new LauncherUpdateInfo(httpLauncherUpdateInfo.url, httpLauncherUpdateInfo.version,
+                                    httpLauncherUpdateInfo.available, httpLauncherUpdateInfo.required);
+                        }));
             } catch (InvalidKeySpecException e) {
                 return CompletableFuture.failedFuture(e);
             }
@@ -402,6 +422,9 @@ public class RequestFeatureHttpAPIImpl implements AuthFeatureAPI, UserFeatureAPI
             }
             return new HttpHelper.HttpOptional<>(Launcher.gsonManager.gson.fromJson(response, type), null, statusCode);
         }
+    }
+
+    public record HttpLauncherUpdateInfo(String url, String version, boolean available, boolean required, String verifyToken) {
     }
 
     public record ErrorResponse(String code, String error) {
