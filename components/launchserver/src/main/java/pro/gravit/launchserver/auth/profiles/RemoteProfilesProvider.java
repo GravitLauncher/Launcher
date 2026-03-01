@@ -86,6 +86,11 @@ public class RemoteProfilesProvider extends ProfilesProvider {
     @Override
     public CompletedProfile pushUpdate(UncompletedProfile profile, String tag, ClientProfile clientProfile, List<ProfileAction> assetActions, List<ProfileAction> clientActions, List<UpdateFlag> flags) throws IOException {
         var prev = get(profile.getUuid(), tag);
+        if(prev != null && prev.getProfile() != null && (prev.getProfile().getUUID() == null || !prev.getProfile().getUUID().equals(prev.getUuid()))) {
+            clientProfile = new ClientProfileBuilder(clientProfile)
+                    .setUuid(prev.getUuid())
+                    .createClientProfile();
+        }
         HashedDir clientDir = prev == null ? null : prev.getClientDir();
         HashedDir assetDir = prev == null ? null : prev.getAssetDir();
         if(flags.contains(UpdateFlag.USE_DEFAULT_ASSETS)) {
