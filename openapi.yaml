@@ -722,27 +722,6 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 
-  /profile/{uuid}:
-    delete:
-      summary: Delete a profile by UUID
-      tags: [Profile Management]
-      parameters:
-        - in: path
-          name: uuid
-          required: true
-          schema:
-            type: string
-            format: uuid
-      responses:
-        '200':
-          description: Profile deleted.
-        default:
-          description: Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-
   /profile/by/uuid/{uuid}:
     get:
       summary: Get a completed profile by UUID
@@ -761,6 +740,25 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/CompletedProfile'
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      summary: Delete a profile by UUID
+      tags: [Profile Management]
+      parameters:
+        - in: path
+          name: uuid
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Profile deleted.
         default:
           description: Error
           content:

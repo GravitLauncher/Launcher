@@ -43,7 +43,7 @@ public class RemoteProfilesProvider extends ProfilesProvider {
         try {
             HttpHelper.sendAsync(client, HttpRequest.newBuilder()
                             .DELETE()
-                            .uri(URI.create(baseUrl.concat("/profile/"+profile.getUuid())))
+                            .uri(URI.create(baseUrl.concat("/profile/by/uuid/"+profile.getUuid())))
                             .header("Authorization", "Bearer "+accessToken)
                             .build(), new RequestFeatureHttpAPIImpl.HttpErrorHandler<>(Void.class))
                     .thenApply(HttpHelper.HttpOptional::getOrThrow).get();
