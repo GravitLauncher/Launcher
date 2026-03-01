@@ -20,6 +20,7 @@ public abstract class UpdatesProvider {
     public static void registerProviders() {
         if (!registredProviders) {
             providers.register("local", LocalUpdatesProvider.class);
+            providers.register("remote", RemoteUpdatesProvider.class);
             registredProviders = true;
         }
     }
