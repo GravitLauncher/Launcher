@@ -859,15 +859,10 @@ paths:
       requestBody:
         required: true
         content:
-          multipart/form-data:
+          application/octet-stream:
             schema:
-              type: object
-              properties:
-                file:
-                  type: string
-                  format: binary
-                  description: The file to upload.
-              required: [file]
+              type: string
+              format: binary
       responses:
         '200':
           description: URL where the uploaded file is now available.
@@ -898,7 +893,3 @@ paths:
 #    parameter, but none of the HTTP calls include it as a query parameter or
 #    path segment. It is either ignored server-side or carried inside the
 #    ClientProfile blob.
-#
-# 4. /profile/uploadfile multipart field name — The client passes the body
-#    directly as a raw BodyPublisher without declaring a part name. "file" is
-#    assumed; the actual server-expected field name may differ.
