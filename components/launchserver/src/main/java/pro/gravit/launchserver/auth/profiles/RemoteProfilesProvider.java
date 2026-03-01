@@ -1,5 +1,6 @@
 package pro.gravit.launchserver.auth.profiles;
 
+import pro.gravit.launcher.base.Downloader;
 import pro.gravit.launcher.base.HttpHelper;
 import pro.gravit.launcher.base.profiles.ClientProfile;
 import pro.gravit.launcher.base.profiles.ClientProfileBuilder;
@@ -7,10 +8,12 @@ import pro.gravit.launcher.base.request.RequestFeatureHttpAPIImpl;
 import pro.gravit.launcher.core.hasher.HashedDir;
 import pro.gravit.launcher.core.hasher.HashedEntry;
 import pro.gravit.launcher.core.hasher.HashedFile;
+import pro.gravit.launchserver.command.Command;
 import pro.gravit.launchserver.socket.Client;
 import pro.gravit.utils.helper.IOHelper;
 
 import java.io.ByteArrayOutputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -128,7 +131,46 @@ public class RemoteProfilesProvider extends ProfilesProvider {
 
     @Override
     public void download(CompletedProfile profile, Map<String, Path> files, boolean assets) throws IOException {
-        throw new UnsupportedOperationException();
+        HttpProfile httpProfile = (HttpProfile) profile;
+        HashedDir dir;
+        if(assets) {
+            dir = httpProfile.assetDir;
+        } else {
+            dir = httpProfile.clientDir;
+        }
+        List<Downloader.SizedFile> sizedFiles = new ArrayList<>();
+        for(var e : files.entrySet()) {
+            var key = e.getKey();
+            var path = e.getValue();
+            if(!key.isEmpty() && !key.equals(".")) {
+                var ref = dir.tryFindRecursive(key);
+                if(!ref.isFound()) {
+                    throw new FileNotFoundException(key);
+                }
+                if(ref.entry instanceof HashedFile file) {
+                    IOHelper.createParentDirs(path);
+                    sizedFiles.add(new Downloader.SizedFile(file.url, path.toString(), file.size()));
+                } else if(ref.entry instanceof HashedDir hdir) {
+                    hdir.walk("/", (rpath, name, entry) -> {
+                        if(entry instanceof HashedFile file) {
+                            Path target = path.resolve(rpath);
+                            try {
+                                IOHelper.createParentDirs(target);
+                            } catch (IOException ex) {
+                                throw new RuntimeException(ex);
+                            }
+                            sizedFiles.add(new Downloader.SizedFile(file.url, target.toString(), file.size()));
+                        }
+                        return HashedDir.WalkAction.CONTINUE;
+                    });
+                }
+            }
+        }
+        try {
+            Command.downloadWithProgressBar("files", sizedFiles, "https://example.com", Path.of(""));
+        } catch (Exception e) {
+            throw new IOException(e);
+        }
     }
 
     @Override

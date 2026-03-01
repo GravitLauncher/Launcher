@@ -10,6 +10,8 @@ public class ProfilesCommand extends Command {
         this.childCommands.put("clone", new CloneProfileCommand(server));
         this.childCommands.put("list", new ListProfilesCommand(server));
         this.childCommands.put("delete", new DeleteProfileCommand(server));
+        this.childCommands.put("get", new GetProfileCommand(server));
+        this.childCommands.put("upload", new UploadProfileCommand(server));
     }
 
     @Override
