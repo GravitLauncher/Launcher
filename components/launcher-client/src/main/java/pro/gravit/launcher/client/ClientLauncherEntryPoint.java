@@ -158,19 +158,21 @@ public class ClientLauncherEntryPoint {
                 }
             };
         }
-        // Init New API
-        LauncherAPIHolder.setCoreAPI(new RequestCoreFeatureAPIImpl(Request.getRequestService()));
-        LauncherAPIHolder.setCreateApiFactory((authId) -> {
-            var impl = new RequestFeatureAPIImpl(Request.getRequestService(), authId);
-            return new LauncherAPI(Map.of(
-                    AuthFeatureAPI.class, impl,
-                    UserFeatureAPI.class, impl,
-                    ProfileFeatureAPI.class, impl,
-                    TextureUploadFeatureAPI.class, impl,
-                    HardwareVerificationFeatureAPI.class, impl));
-        });
+        if(!config.useHttpApi) {
+            // Init New API
+            LauncherAPIHolder.setCoreAPI(new RequestCoreFeatureAPIImpl(Request.getRequestService()));
+            LauncherAPIHolder.setCreateApiFactory((authId) -> {
+                var impl = new RequestFeatureAPIImpl(Request.getRequestService(), authId);
+                return new LauncherAPI(Map.of(
+                        AuthFeatureAPI.class, impl,
+                        UserFeatureAPI.class, impl,
+                        ProfileFeatureAPI.class, impl,
+                        TextureUploadFeatureAPI.class, impl,
+                        HardwareVerificationFeatureAPI.class, impl));
+            });
+            //
+        }
         LauncherAPIHolder.changeAuthId(params.authId);
-        //
         logger.debug("Natives dir {}", params.nativesDir);
         ClientProfile.ClassLoaderConfig classLoaderConfig = profile.getClassLoaderConfig();
         LaunchOptions options = new LaunchOptions();

@@ -91,7 +91,7 @@ public class ClientDownloadImpl {
             } else {
                 var downloader = Downloader.newDownloader(backend.executorService);
                 var list = new LinkedList<Downloader.SizedFile>();
-                list.add(new Downloader.SizedFile(assetIndexRelPath, assetIndexRelPath, assetIndexHashFile.size));
+                list.add(new Downloader.SizedFile(assetIndexHashFile.url == null ? assetIndexRelPath : assetIndexHashFile.url, assetIndexRelPath, assetIndexHashFile.size));
                 return downloader.downloadFiles(list, response.getUrl(), targetDir, null, backend.executorService, 1).thenComposeAsync(v -> {
                     try {
                         var assetIndex = AssetIndexHelper.parse(assetIndexPath);
@@ -194,7 +194,7 @@ public class ClientDownloadImpl {
             }
             String pathFixed = path.replace(File.separatorChar, '/');
             if(entry instanceof HashedFile hfile && hfile.url != null) {
-                files.add(new Downloader.SizedFile(pathFixed, hfile.url, entry.size()));
+                files.add(new Downloader.SizedFile(hfile.url, pathFixed, entry.size()));
             } else {
                 files.add(new Downloader.SizedFile(pathFixed, pathRemapper.apply(pathFixed), entry.size()));
             }

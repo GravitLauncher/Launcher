@@ -1,6 +1,7 @@
 package pro.gravit.launcher.base.request;
 
 import com.google.gson.JsonElement;
+import pro.gravit.launcher.base.ClientPermissions;
 import pro.gravit.launcher.base.HttpHelper;
 import pro.gravit.launcher.base.Launcher;
 import pro.gravit.launcher.base.profiles.ClientProfile;
@@ -374,7 +375,7 @@ public class RequestFeatureHttpAPIImpl implements AuthFeatureAPI, UserFeatureAPI
 
         @Override
         public UserPermissions getPermissions() {
-            return null;
+            return new ClientPermissions(new ArrayList<>(), new ArrayList<>());
         }
     }
 
