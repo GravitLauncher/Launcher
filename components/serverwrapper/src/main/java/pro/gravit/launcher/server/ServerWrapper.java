@@ -401,6 +401,12 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
             this.encodedServerEcPublicKey = applyEnvOrDefault("SERVERWRAPPER_EC_PUBLIC_KEY", Base64.getUrlDecoder()::decode, null);
             this.encodedServerRsaPublicKey = applyEnvOrDefault("SERVERWRAPPER_RSA_PUBLIC_KEY", Base64.getUrlDecoder()::decode, null);
             {
+                String accessToken = System.getenv("SERVERWRAPPER_ACCESS_TOKEN");
+                if(accessToken != null) {
+                    this.oauth = new AuthRequestEvent.OAuthRequestEvent(accessToken, null, 0);
+                }
+            }
+            {
                 String token = System.getenv("SERVERWRAPPER_CHECK_SERVER_TOKEN");
                 if(token != null) {
                     if(extendedTokens == null) {
