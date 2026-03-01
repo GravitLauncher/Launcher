@@ -663,7 +663,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 
-  /profile/{profileUuid}/dir/{dirName}:
+  /profile/by/uuid/{profileUuid}/dir/{dirName}:
     get:
       summary: Fetch hashed-directory update info for a named directory of a profile
       tags: [Profiles]

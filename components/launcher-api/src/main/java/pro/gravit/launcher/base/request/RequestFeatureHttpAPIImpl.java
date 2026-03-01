@@ -220,7 +220,7 @@ public class RequestFeatureHttpAPIImpl implements AuthFeatureAPI, UserFeatureAPI
         }
         return HttpHelper.sendAsync(client, HttpRequest.newBuilder()
                         .GET()
-                        .uri(URI.create(baseUrl.concat(String.format("/profile/%s/dir/%s", profileRef.get().getUUID(), dirName))))
+                        .uri(URI.create(baseUrl.concat(String.format("/profile/by/uuid/%s/dir/%s", profileRef.get().getUUID(), dirName))))
                         .header("Authorization", "Bearer "+accessToken0.get())
                         .header("Content-Type", "application/json")
                         .build(), new HttpErrorHandler<>(HttpUpdateInfo.class))
