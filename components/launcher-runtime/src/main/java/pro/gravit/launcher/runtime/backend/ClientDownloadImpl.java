@@ -44,14 +44,19 @@ public class ClientDownloadImpl {
         AtomicReference<DownloadedDir> assetRef = new AtomicReference<>();
         AtomicReference<DownloadedDir> javaRef = new AtomicReference<>();
         return LauncherAPIHolder.profile().changeCurrentProfile(profile)
-                .thenCompose(vv -> downloadDir(profile.getDir(), profile.getClientUpdateMatcher(), settings.view, callback)).thenCompose((clientDir -> {
-            clientRef.set(clientDir);
+                .thenCompose(vv -> {
+                    callback.onStartPhase(LauncherBackendAPI.DownloadCallback.UpdatePhase.CLIENT);
+                    return downloadDir(profile.getDir(), profile.getClientUpdateMatcher(), settings.view, callback);
+                }).thenCompose((clientDir -> {
+                    clientRef.set(clientDir);
+                    callback.onStartPhase(LauncherBackendAPI.DownloadCallback.UpdatePhase.ASSETS);
             return downloadAsset(profile.getAssetDir(), profile.getAssetUpdateMatcher(), profile.getAssetIndex(), callback);
         })).thenCompose(assetDir -> {
             assetRef.set(assetDir);
             Path javaPath = settings.getSelectedJava().getPath();
             if(javaPath.startsWith(DirBridge.dirUpdates)) {
                 String javaDirName = DirBridge.dirUpdates.relativize(javaPath).getFileName().toString();
+                callback.onStartPhase(LauncherBackendAPI.DownloadCallback.UpdatePhase.JAVA);
                 return downloadDir(javaDirName, null, callback);
             }
             return CompletableFuture.completedFuture((DownloadedDir)null);
