@@ -24,11 +24,12 @@ import pro.gravit.utils.helper.CommonHelper;
 import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.SecurityHelper;
 
-import java.io.IOException;
+import java.io.*;
 import java.net.URI;
 import java.net.URLEncoder;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.security.PublicKey;
 import java.security.spec.InvalidKeySpecException;
@@ -36,7 +37,7 @@ import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicReference;
 
-public class RequestFeatureHttpAPIImpl implements AuthFeatureAPI, UserFeatureAPI, ProfileFeatureAPI, CoreFeatureAPI, HardwareVerificationFeatureAPI {
+public class RequestFeatureHttpAPIImpl implements AuthFeatureAPI, UserFeatureAPI, ProfileFeatureAPI, CoreFeatureAPI, HardwareVerificationFeatureAPI,TextureUploadFeatureAPI {
     private final String baseUrl;
     private final HttpClient client = HttpClient.newBuilder().build();
     private AtomicReference<HttpAuthData> authDataRef = new AtomicReference<>();
@@ -306,6 +307,80 @@ public class RequestFeatureHttpAPIImpl implements AuthFeatureAPI, UserFeatureAPI
     public CompletableFuture<Void> sendHardwareInfo(HardwareStatisticData statisticData, HardwareIdentifyData identifyData) {
         // TODO: Implement
         return CompletableFuture.failedFuture(new UnsupportedOperationException());
+    }
+
+    @Override
+    public CompletableFuture<TextureUploadInfo> fetchInfo() {
+        return CompletableFuture.completedFuture(new HttpTextureUploadInfo());
+    }
+
+    @Override
+    public CompletableFuture<Texture> upload(String name, byte[] bytes, UploadSettings settings) {
+        var accessToken0 = Optional.ofNullable(authDataRef.get()).map(e -> e.accessToken);
+        if(accessToken0.isEmpty()) {
+            return CompletableFuture.failedFuture(new RequestException("You are not authorized"));
+        }
+        String boundary = SecurityHelper.toHex(SecurityHelper.randomBytes(32));
+        String jsonOptions = settings == null ? "{}" : Launcher.gsonManager.gson.toJson(new RequestFeatureAPIImpl.TextureUploadOptions(settings.slim()));
+        byte[] preFileData;
+        try(ByteArrayOutputStream output = new ByteArrayOutputStream(256)) {
+            output.write("--".getBytes(StandardCharsets.UTF_8));
+            output.write(boundary.getBytes(StandardCharsets.UTF_8));
+            output.write("\r\nContent-Disposition: form-data; name=\"options\"\r\nContent-Type: application/json\r\n\r\n".getBytes(StandardCharsets.UTF_8));
+            output.write(jsonOptions.getBytes(StandardCharsets.UTF_8));
+            output.write("\r\n--".getBytes(StandardCharsets.UTF_8));
+            output.write(boundary.getBytes(StandardCharsets.UTF_8));
+            output.write("\r\nContent-Disposition: form-data; name=\"file\"; filename=\"file\"\r\nContent-Type: image/png\r\n\r\n".getBytes(StandardCharsets.UTF_8));
+            preFileData = output.toByteArray();
+        } catch (IOException ex) {
+            return CompletableFuture.failedFuture(ex);
+        }
+        byte[] postFileData;
+        try(ByteArrayOutputStream output = new ByteArrayOutputStream(128)) {
+            output.write("\r\n--".getBytes(StandardCharsets.UTF_8));
+            output.write(boundary.getBytes(StandardCharsets.UTF_8));
+            output.write("--\r\n".getBytes(StandardCharsets.UTF_8));
+            postFileData = output.toByteArray();
+        } catch (IOException ex) {
+            return CompletableFuture.failedFuture(ex);
+        }
+        return client.sendAsync(HttpRequest.newBuilder()
+                .uri(URI.create(baseUrl.concat("/cabinet/upload/"+name)))
+                .POST(HttpRequest.BodyPublishers.concat(HttpRequest.BodyPublishers.ofByteArray(preFileData),
+                        HttpRequest.BodyPublishers.ofByteArray(bytes),
+                        HttpRequest.BodyPublishers.ofByteArray(postFileData)))
+                .header("Authorization", "Bearer "+accessToken0.get())
+                .header("Content-Type", "multipart/form-data; boundary=\""+boundary+"\"")
+                .header("Accept", "application/json")
+                .build(), HttpResponse.BodyHandlers.ofByteArray()).thenCompose((response) -> {
+            if(response.statusCode() >= 200 && response.statusCode() < 300) {
+                try (Reader reader = new InputStreamReader(new ByteArrayInputStream(response.body()))) {
+                    return CompletableFuture.completedFuture(Launcher.gsonManager.gson.fromJson(reader, RequestFeatureAPIImpl.UserTexture.class).toLauncherTexture());
+                } catch (Throwable e) {
+                    return CompletableFuture.failedFuture(e);
+                }
+            } else {
+                try(Reader reader = new InputStreamReader(new ByteArrayInputStream(response.body()))) {
+                    RequestFeatureAPIImpl.UploadError error = Launcher.gsonManager.gson.fromJson(reader, RequestFeatureAPIImpl.UploadError.class);
+                    return CompletableFuture.failedFuture(new RequestException(error.error()));
+                } catch (Exception ex) {
+                    return CompletableFuture.failedFuture(ex);
+                }
+            }
+        });
+    }
+
+    public record HttpTextureUploadInfo() implements TextureUploadInfo {
+
+        @Override
+        public Set<String> getAvailable() {
+            return Set.of("SKIN", "CAPE");
+        }
+
+        @Override
+        public boolean isRequireManualSlimSkinSelect() {
+            return true;
+        }
     }
 
     public record HttoAuthMethod() implements AuthMethod {
