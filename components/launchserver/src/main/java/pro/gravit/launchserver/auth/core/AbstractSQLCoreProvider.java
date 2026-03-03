@@ -32,7 +32,6 @@ import java.util.List;
 import java.util.UUID;
 
 import static java.util.concurrent.TimeUnit.HOURS;
-import static java.util.concurrent.TimeUnit.SECONDS;
 
 public abstract class AbstractSQLCoreProvider extends AuthCoreProvider implements AuthSupportSudo {
     public final transient Logger logger = LogManager.getLogger();
@@ -134,7 +133,7 @@ public abstract class AbstractSQLCoreProvider extends AuthCoreProvider implement
             return null;
         }
         var accessToken = LegacySessionHelper.makeAccessJwtTokenFromString(user, LocalDateTime.now(Clock.systemUTC()).plusSeconds(expireSeconds), server.keyAgreementManager.ecdsaPrivateKey);
-        return new AuthManager.AuthReport(null, accessToken, refreshToken, SECONDS.toMillis(expireSeconds), createSession(user));
+        return new AuthManager.AuthReport(null, accessToken, refreshToken, expireSeconds, createSession(user));
     }
 
     @Override
@@ -156,9 +155,9 @@ public abstract class AbstractSQLCoreProvider extends AuthCoreProvider implement
         if (minecraftAccess) {
             String minecraftAccessToken = SecurityHelper.randomStringToken();
             updateAuth(user, minecraftAccessToken);
-            return AuthManager.AuthReport.ofOAuthWithMinecraft(minecraftAccessToken, accessToken, refreshToken, SECONDS.toMillis(expireSeconds), session);
+            return AuthManager.AuthReport.ofOAuthWithMinecraft(minecraftAccessToken, accessToken, refreshToken, expireSeconds, session);
         } else {
-            return AuthManager.AuthReport.ofOAuth(accessToken, refreshToken, SECONDS.toMillis(expireSeconds), session);
+            return AuthManager.AuthReport.ofOAuth(accessToken, refreshToken, expireSeconds, session);
         }
     }
 
@@ -170,7 +169,7 @@ public abstract class AbstractSQLCoreProvider extends AuthCoreProvider implement
         var refreshToken = sqlUser.username.concat(".").concat(LegacySessionHelper.makeRefreshTokenFromPassword(sqlUser.username, sqlUser.password, server.keyAgreementManager.legacySalt));
         String minecraftAccessToken = SecurityHelper.randomStringToken();
         updateAuth(user, minecraftAccessToken);
-        return AuthManager.AuthReport.ofOAuthWithMinecraft(minecraftAccessToken, accessToken, refreshToken, SECONDS.toMillis(expireSeconds), session);
+        return AuthManager.AuthReport.ofOAuthWithMinecraft(minecraftAccessToken, accessToken, refreshToken, expireSeconds, session);
     }
 
     @Override

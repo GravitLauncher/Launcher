@@ -91,7 +91,7 @@ public class OpenIDAuthCoreProvider extends AuthCoreProvider {
         var accessToken = tokens.accessToken();
         var refreshToken = tokens.refreshToken();
         var user = openIDAuthenticator.createUserFromToken(accessToken);
-        long expiresIn = TimeUnit.SECONDS.toMillis(tokens.accessTokenExpiresIn());
+        long expiresIn = tokens.accessTokenExpiresIn();
 
         sqlUserStore.createOrUpdateUser(user);
 
