@@ -6,6 +6,7 @@ import pro.gravit.launcher.base.ClientPermissions;
 import pro.gravit.launcher.base.Launcher;
 import pro.gravit.launcher.base.api.AuthService;
 import pro.gravit.launcher.base.api.ClientService;
+import pro.gravit.launcher.core.api.model.UserPermissions;
 import pro.gravit.launcher.runtime.LauncherEngine;
 import pro.gravit.launcher.runtime.gui.RuntimeProvider;
 import pro.gravit.launcher.base.events.request.ProfilesRequestEvent;
@@ -47,16 +48,16 @@ public class ClientRuntimeProvider implements RuntimeProvider {
             String nativesDir = System.getProperty("launcher.runtime.launch.natives", "natives");
             String launcherOptionsPath = System.getProperty("launcher.runtime.launch.options", null);
             boolean enableHacks = Boolean.getBoolean("launcher.runtime.launch.enablehacks");
-            ClientPermissions permissions = new ClientPermissions();
+            UserPermissions permissions = new ClientPermissions();
             if(mainClass == null) {
                 throw new NullPointerException("Add `-Dlauncher.runtime.mainclass=YOUR_MAIN_CLASS` to jvmArgs");
             }
             if(uuid == null) {
                 var data = DebugMain.authorize();
-                minecraftAccessToken = data.userInfo().accessToken;
-                permissions = data.userInfo().permissions;
-                username = data.userInfo().playerProfile.username;
-                uuid = data.userInfo().playerProfile.uuid.toString();
+                minecraftAccessToken = data.getAccessToken();
+                permissions = data.getPermissions();
+                username = data.getUsername();
+                uuid = data.getUUID().toString();
             }
             if(profileUUID != null) {
                 UUID profileUuid = java.util.UUID.fromString(profileUUID);
