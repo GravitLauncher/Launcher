@@ -19,7 +19,6 @@ import pro.gravit.launchserver.helper.MakeProfileHelper;
 import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
-import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 

@@ -3,7 +3,6 @@ package pro.gravit.launcher.base.profiles.optional.actions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pro.gravit.launcher.core.hasher.HashedDir;
-import pro.gravit.utils.helper.LogHelper;
 
 import java.util.Map;
 

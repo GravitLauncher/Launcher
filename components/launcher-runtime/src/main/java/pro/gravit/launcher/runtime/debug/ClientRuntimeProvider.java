@@ -8,14 +8,10 @@ import pro.gravit.launcher.base.api.AuthService;
 import pro.gravit.launcher.base.api.ClientService;
 import pro.gravit.launcher.runtime.LauncherEngine;
 import pro.gravit.launcher.runtime.gui.RuntimeProvider;
-import pro.gravit.launcher.base.events.request.AuthRequestEvent;
 import pro.gravit.launcher.base.events.request.ProfilesRequestEvent;
 import pro.gravit.launcher.base.profiles.ClientProfile;
-import pro.gravit.launcher.base.request.Request;
-import pro.gravit.launcher.base.request.auth.AuthRequest;
 import pro.gravit.launcher.base.request.update.ProfilesRequest;
 import pro.gravit.utils.helper.IOHelper;
-import pro.gravit.utils.helper.LogHelper;
 import pro.gravit.utils.launch.*;
 
 import java.io.File;

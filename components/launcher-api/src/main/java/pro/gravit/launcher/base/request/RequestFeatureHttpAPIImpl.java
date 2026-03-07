@@ -4,7 +4,6 @@ import com.google.gson.JsonElement;
 import pro.gravit.launcher.base.ClientPermissions;
 import pro.gravit.launcher.base.HttpHelper;
 import pro.gravit.launcher.base.Launcher;
-import pro.gravit.launcher.base.profiles.ClientProfile;
 import pro.gravit.launcher.base.request.update.LauncherRequest;
 import pro.gravit.launcher.core.api.features.*;
 import pro.gravit.launcher.core.api.method.AuthMethod;
@@ -20,8 +19,6 @@ import pro.gravit.launcher.core.api.model.Texture;
 import pro.gravit.launcher.core.api.model.User;
 import pro.gravit.launcher.core.api.model.UserPermissions;
 import pro.gravit.launcher.core.hasher.HashedDir;
-import pro.gravit.utils.helper.CommonHelper;
-import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.SecurityHelper;
 
 import java.io.*;

@@ -9,16 +9,12 @@ import pro.gravit.launcher.base.request.RequestException;
 import pro.gravit.launcher.base.request.RequestService;
 import pro.gravit.launcher.base.request.WebSocketEvent;
 import pro.gravit.utils.helper.JVMHelper;
-import pro.gravit.utils.helper.LogHelper;
 
 import javax.net.ssl.SSLException;
 import java.io.IOException;
-import java.net.http.WebSocket;
-import java.nio.ByteBuffer;
 import java.util.HashSet;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 

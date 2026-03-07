@@ -15,7 +15,6 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 
 public class RemoteUpdatesProvider extends UpdatesProvider {
     private static final Logger log = LoggerFactory.getLogger(RemoteUpdatesProvider.class);

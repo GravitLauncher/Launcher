@@ -16,7 +16,6 @@ import pro.gravit.utils.command.basic.DebugCommand;
 import pro.gravit.utils.command.basic.GCCommand;
 import pro.gravit.utils.command.basic.HelpCommand;
 import pro.gravit.utils.helper.CommonHelper;
-import pro.gravit.utils.helper.LogHelper;
 
 import java.io.IOException;
 

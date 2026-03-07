@@ -11,7 +11,6 @@ import pro.gravit.launcher.base.request.websockets.StdWebSocketService;
 import pro.gravit.launcher.server.ServerWrapper;
 import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.JVMHelper;
-import pro.gravit.utils.helper.LogHelper;
 
 import java.io.IOException;
 import java.io.Writer;

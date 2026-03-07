@@ -13,7 +13,6 @@ import pro.gravit.launcher.core.serialize.HOutput;
 import pro.gravit.launcher.core.serialize.stream.StreamObject;
 import pro.gravit.utils.Version;
 import pro.gravit.utils.helper.JVMHelper;
-import pro.gravit.utils.helper.LogHelper;
 import pro.gravit.utils.helper.SecurityHelper;
 import pro.gravit.utils.helper.VerifyHelper;
 

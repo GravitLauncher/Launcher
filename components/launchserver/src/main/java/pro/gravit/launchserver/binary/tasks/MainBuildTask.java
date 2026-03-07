@@ -13,7 +13,6 @@ import pro.gravit.launcher.base.LauncherConfig;
 import pro.gravit.launcher.core.api.features.CoreFeatureAPI;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.asm.ClassMetadataReader;
-import pro.gravit.launchserver.asm.InjectClassAcceptor;
 import pro.gravit.launchserver.asm.SafeClassWriter;
 import pro.gravit.launchserver.binary.BuildContext;
 import pro.gravit.launchserver.binary.JARLauncherBinary;

@@ -1,13 +1,9 @@
 package pro.gravit.launcher.base.events.request;
 
-import pro.gravit.launcher.base.request.auth.details.AuthLoginOnlyDetails;
-import pro.gravit.launcher.base.request.auth.details.AuthWebViewDetails;
 import pro.gravit.launcher.core.LauncherNetworkAPI;
 import pro.gravit.launcher.base.events.RequestEvent;
 import pro.gravit.launcher.core.api.method.AuthMethod;
 import pro.gravit.launcher.core.api.method.AuthMethodDetails;
-import pro.gravit.launcher.core.api.method.details.AuthPasswordDetails;
-import pro.gravit.launcher.core.api.method.details.AuthWebDetails;
 import pro.gravit.utils.TypeSerializeInterface;
 
 import java.util.ArrayList;

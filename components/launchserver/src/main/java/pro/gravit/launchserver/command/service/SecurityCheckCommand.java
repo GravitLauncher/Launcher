@@ -2,7 +2,6 @@ package pro.gravit.launchserver.command.service;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import pro.gravit.launcher.base.profiles.ClientProfile;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.auth.protect.AdvancedProtectHandler;
 import pro.gravit.launchserver.auth.protect.NoProtectHandler;
@@ -26,7 +25,6 @@ import java.security.cert.X509Certificate;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
-import java.util.StringTokenizer;
 
 public class SecurityCheckCommand extends Command {
     private static final Logger logger = LogManager.getLogger();

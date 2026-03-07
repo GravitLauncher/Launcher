@@ -4,9 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pro.gravit.launcher.base.Downloader;
 import pro.gravit.launcher.core.LauncherInject;
-import pro.gravit.utils.helper.LogHelper;
 
-import javax.net.ssl.SSLException;
 import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;

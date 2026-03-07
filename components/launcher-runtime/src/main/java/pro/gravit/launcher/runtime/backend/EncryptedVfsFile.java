@@ -1,7 +1,6 @@
 package pro.gravit.launcher.runtime.backend;
 
 import pro.gravit.launcher.base.Launcher;
-import pro.gravit.launcher.base.vfs.Vfs;
 import pro.gravit.launcher.base.vfs.VfsFile;
 import pro.gravit.utils.helper.SecurityHelper;
 
@@ -12,7 +11,6 @@ import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 import java.io.BufferedInputStream;
 import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;

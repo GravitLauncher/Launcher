@@ -3,7 +3,6 @@ package pro.gravit.launcher.server;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pro.gravit.launcher.client.utils.MinecraftAuthlibBridge;
-import pro.gravit.utils.helper.LogHelper;
 
 import java.net.InetSocketAddress;
 

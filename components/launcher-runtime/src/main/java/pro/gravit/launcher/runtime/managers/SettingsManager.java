@@ -5,7 +5,6 @@ import org.slf4j.LoggerFactory;
 import pro.gravit.launcher.runtime.NewLauncherSettings;
 import pro.gravit.launcher.runtime.client.DirBridge;
 import pro.gravit.launcher.base.config.JsonConfigurable;
-import pro.gravit.utils.helper.LogHelper;
 
 public class SettingsManager extends JsonConfigurable<NewLauncherSettings> {
 

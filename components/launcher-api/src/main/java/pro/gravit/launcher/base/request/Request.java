@@ -11,7 +11,6 @@ import pro.gravit.launcher.base.request.auth.RefreshTokenRequest;
 import pro.gravit.launcher.base.request.auth.RestoreRequest;
 import pro.gravit.launcher.base.request.websockets.StdWebSocketService;
 import pro.gravit.launcher.base.request.websockets.WebSocketRequest;
-import pro.gravit.utils.helper.LogHelper;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;

@@ -2,11 +2,9 @@ package pro.gravit.launcher.runtime.utils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import pro.gravit.launcher.runtime.LauncherEngine;
 import pro.gravit.launcher.core.LauncherInject;
 import pro.gravit.launcher.base.request.update.LauncherRequest;
 import pro.gravit.utils.helper.IOHelper;
-import pro.gravit.utils.helper.LogHelper;
 import pro.gravit.utils.helper.SecurityHelper;
 
 import javax.net.ssl.HttpsURLConnection;

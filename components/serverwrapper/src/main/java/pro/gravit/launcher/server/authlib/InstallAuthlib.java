@@ -3,7 +3,6 @@ package pro.gravit.launcher.server.authlib;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pro.gravit.utils.helper.IOHelper;
-import pro.gravit.utils.helper.LogHelper;
 
 import java.io.*;
 import java.net.URL;

@@ -11,7 +11,6 @@ import pro.gravit.launcher.core.backend.LauncherBackendAPI;
 import pro.gravit.launcher.core.serialize.HInput;
 import pro.gravit.launcher.core.serialize.HOutput;
 import pro.gravit.utils.helper.IOHelper;
-import pro.gravit.utils.helper.LogHelper;
 import pro.gravit.utils.helper.VerifyHelper;
 
 import java.io.ByteArrayOutputStream;

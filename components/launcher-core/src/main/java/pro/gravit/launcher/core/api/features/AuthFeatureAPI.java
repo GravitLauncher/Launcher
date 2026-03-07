@@ -1,10 +1,8 @@
 package pro.gravit.launcher.core.api.features;
 
-import pro.gravit.launcher.core.api.method.AuthMethod;
 import pro.gravit.launcher.core.api.method.AuthMethodPassword;
 import pro.gravit.launcher.core.api.model.SelfUser;
 
-import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 public interface AuthFeatureAPI extends FeatureAPI {

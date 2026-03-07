@@ -4,7 +4,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pro.gravit.launcher.runtime.utils.HWIDProvider;
 import pro.gravit.utils.command.Command;
-import pro.gravit.utils.helper.LogHelper;
 
 public class PrintHardwareInfoCommand extends Command {
 

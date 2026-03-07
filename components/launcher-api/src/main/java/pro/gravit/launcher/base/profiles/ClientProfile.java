@@ -7,7 +7,6 @@ import pro.gravit.launcher.base.profiles.optional.OptionalDepend;
 import pro.gravit.launcher.base.profiles.optional.OptionalFile;
 import pro.gravit.launcher.base.profiles.optional.triggers.OptionalTrigger;
 import pro.gravit.launcher.core.api.features.ProfileFeatureAPI;
-import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.VerifyHelper;
 import pro.gravit.utils.launch.LaunchOptions;
 

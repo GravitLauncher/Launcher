@@ -16,7 +16,6 @@ import pro.gravit.launcher.core.hasher.HashedEntry;
 import pro.gravit.launcher.core.hasher.HashedFile;
 import pro.gravit.launcher.runtime.client.DirBridge;
 import pro.gravit.launcher.runtime.utils.AssetIndexHelper;
-import pro.gravit.utils.helper.LogHelper;
 
 import java.io.File;
 import java.io.FileNotFoundException;

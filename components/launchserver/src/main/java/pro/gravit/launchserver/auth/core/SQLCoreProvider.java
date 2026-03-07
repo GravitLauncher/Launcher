@@ -12,7 +12,6 @@ import pro.gravit.launchserver.auth.core.interfaces.provider.AuthSupportHardware
 import pro.gravit.launchserver.auth.core.interfaces.session.UserSessionSupportHardware;
 import pro.gravit.launchserver.socket.Client;
 
-import java.io.IOException;
 import java.sql.*;
 import java.util.Base64;
 import java.util.LinkedList;
