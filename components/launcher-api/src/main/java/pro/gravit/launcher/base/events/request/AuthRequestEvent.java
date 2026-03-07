@@ -15,6 +15,7 @@ public class AuthRequestEvent extends RequestEvent {
     public static final String OAUTH_TOKEN_INVALID = "auth.invalidtoken";
     public static final String USER_NOT_FOUND_ERROR_MESSAGE = "auth.usernotfound";
     public static final String WRONG_PASSWORD_ERROR_MESSAGE = "auth.wrongpassword";
+    public static final String AUTH_LIMITER_ERROR_MESSAGE = "auth.limiterauth";
     public static final String ACCOUNT_BLOCKED_ERROR_MESSAGE = "auth.userblocked";
     @LauncherNetworkAPI
     public ClientPermissions permissions;

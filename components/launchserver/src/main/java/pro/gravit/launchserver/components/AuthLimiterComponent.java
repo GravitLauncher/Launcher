@@ -1,12 +1,12 @@
 package pro.gravit.launchserver.components;
 
+import pro.gravit.launcher.base.events.request.AuthRequestEvent;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.socket.Client;
 import pro.gravit.launchserver.socket.response.auth.AuthResponse;
 import pro.gravit.utils.HookException;
 
 public class AuthLimiterComponent extends IPLimiter implements AutoCloseable {
-    public String message;
     private transient LaunchServer srv;
 
     @Override
@@ -17,7 +17,7 @@ public class AuthLimiterComponent extends IPLimiter implements AutoCloseable {
 
     public boolean preAuthHook(AuthResponse.AuthContext context, Client client) {
         if (!check(context.ip)) {
-            throw new HookException(message);
+            throw new HookException(AuthRequestEvent.AUTH_LIMITER_ERROR_MESSAGE);
         }
         return false;
     }

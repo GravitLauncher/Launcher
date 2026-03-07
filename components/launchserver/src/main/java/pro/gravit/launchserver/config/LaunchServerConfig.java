@@ -78,7 +78,6 @@ public final class LaunchServerConfig {
         AuthLimiterComponent authLimiterComponent = new AuthLimiterComponent();
         authLimiterComponent.rateLimit = 3;
         authLimiterComponent.rateLimitMillis = SECONDS.toMillis(8);
-        authLimiterComponent.message = "Превышен лимит авторизаций";
         newConfig.components.put("authLimiter", authLimiterComponent);
         ProGuardComponent proGuardComponent = new ProGuardComponent();
         newConfig.components.put("proguard", proGuardComponent);
