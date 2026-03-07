@@ -34,10 +34,6 @@ public final class AuthException extends IOException {
         return new AuthException(AuthRequestEvent.WRONG_PASSWORD_ERROR_MESSAGE);
     }
 
-    public static AuthException authLimiter() {
-        return new AuthException(AuthRequestEvent.AUTH_LIMITER_ERROR_MESSAGE);
-    }
-
     public static AuthException userNotFound() {
         return new AuthException(AuthRequestEvent.USER_NOT_FOUND_ERROR_MESSAGE);
     }

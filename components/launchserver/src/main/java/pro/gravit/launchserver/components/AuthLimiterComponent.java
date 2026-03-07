@@ -17,7 +17,7 @@ public class AuthLimiterComponent extends IPLimiter implements AutoCloseable {
 
     public boolean preAuthHook(AuthResponse.AuthContext context, Client client) {
         if (!check(context.ip)) {
-            throw new HookException(AuthRequestEvent.AUTH_LIMITER_ERROR_MESSAGE);
+            throw new HookException("auth.trylater");
         }
         return false;
     }
