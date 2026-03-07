@@ -2,13 +2,17 @@ package pro.gravit.launchserver.command.modules;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jline.reader.Candidate;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.command.Command;
 
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 
 public class LoadLauncherModuleCommand extends Command {
     private transient final Logger logger = LogManager.getLogger();
@@ -55,5 +59,22 @@ public class LoadLauncherModuleCommand extends Command {
             server.launchServerConfigManager.writeModulesConfig(server.modulesConfig);
         }
         logger.info("Launcher module {} loaded from {}", target, file);
+    }
+
+    @Override
+    public List<Candidate> complete(List<String> words, int wordIndex, String word) {
+        if (wordIndex == 0) {
+            List<Candidate> candidates = new ArrayList<>();
+            try (var stream = Files.list(server.modulesDir)) {
+                stream.forEach(p -> {
+                    String file = p.getFileName().toString();
+                    if (!file.endsWith("_lmodule.jar")) return;
+                    String name = file.substring(0, file.length() - "_lmodule.jar".length());
+                    if (name.startsWith(word)) candidates.add(new Candidate(name));
+                });
+            } catch (IOException ignored) {}
+            return candidates;
+        }
+        return new ArrayList<>();
     }
 }
