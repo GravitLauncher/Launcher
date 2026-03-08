@@ -1,12 +1,24 @@
 package pro.gravit.launchserver.auth.core;
 
+import dev.samstevens.totp.code.CodeGenerator;
+import dev.samstevens.totp.code.CodeVerifier;
+import dev.samstevens.totp.code.DefaultCodeGenerator;
+import dev.samstevens.totp.code.DefaultCodeVerifier;
+import dev.samstevens.totp.time.SystemTimeProvider;
+import dev.samstevens.totp.time.TimeProvider;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import pro.gravit.launcher.base.ClientPermissions;
+import pro.gravit.launcher.base.events.request.GetAvailabilityAuthRequestEvent;
 import pro.gravit.launcher.base.request.auth.AuthRequest;
+import pro.gravit.launcher.base.request.auth.details.AuthPasswordDetails;
+import pro.gravit.launcher.base.request.auth.details.AuthTotpDetails;
+import pro.gravit.launcher.base.request.auth.password.Auth2FAPassword;
+import pro.gravit.launcher.base.request.auth.password.AuthMultiPassword;
 import pro.gravit.launcher.base.request.auth.password.AuthPlainPassword;
+import pro.gravit.launcher.base.request.auth.password.AuthTOTPPassword;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.auth.AuthException;
 import pro.gravit.launchserver.auth.AuthProviderPair;
@@ -27,6 +39,9 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.function.BiConsumer;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static java.util.concurrent.TimeUnit.HOURS;
 
@@ -43,6 +58,26 @@ import static java.util.concurrent.TimeUnit.HOURS;
  *   <li>Any {@code customQuery*} / {@code customUpdate*} field overrides the
  *       corresponding generated SQL when non-null.</li>
  * </ul>
+ *
+ * <h3>Adding an optional user-table column</h3>
+ * Override {@link #registerOptionalColumns()} and call
+ * {@link #registerColumnFeature(ColumnFeature)} for each optional column.
+ * The feature is automatically included in SELECT lists and ResultSet mapping
+ * only when its column name is non-null — no other methods need to be touched.
+ *
+ * <pre>{@code
+ * // Example: totpSecret optional column in a subclass
+ * public String totpSecretColumn;   // null = feature disabled
+ *
+ * @Override
+ * protected void registerOptionalColumns() {
+ *     super.registerOptionalColumns();
+ *     registerColumnFeature(ColumnFeature.of(
+ *         totpSecretColumn,
+ *         (user, rs) -> ((MyUser) user).totpSecret = rs.getString(totpSecretColumn)
+ *     ));
+ * }
+ * }</pre>
  */
 public abstract class AbstractSQLCoreProvider extends AuthCoreProvider implements AuthSupportSudo {
 
@@ -66,6 +101,13 @@ public abstract class AbstractSQLCoreProvider extends AuthCoreProvider implement
     public String passwordColumn;
     public String serverIDColumn;
 
+    /**
+     * Optional TOTP secret column in the user table.
+     * Set to a non-null column name to enable TOTP support; leave {@code null} to disable.
+     * When disabled the column is completely absent from all generated SQL.
+     */
+    public String totpSecretColumn;
+
     // Optional permissions table (leave null to disable)
     public String permissionsTable;
     public String permissionsPermissionColumn;
@@ -88,8 +130,16 @@ public abstract class AbstractSQLCoreProvider extends AuthCoreProvider implement
     public String customUpdateServerIdSQL;
 
     // -------------------------------------------------------------------------
-    // Prepared SQL (transient – rebuilt on every init)
+    // Transient state – rebuilt on every init()
     // -------------------------------------------------------------------------
+
+    /**
+     * Registry of all <em>enabled</em> optional user-table columns.
+     * Populated by {@link #registerOptionalColumns()}; disabled features are
+     * removed before any SQL is generated.
+     */
+    private transient List<ColumnFeature<?, ?>> optionalColumns;
+
     private transient String queryByUUIDSQL;
     private transient String queryByUsernameSQL;
     private transient String queryByLoginSQL;
@@ -97,6 +147,9 @@ public abstract class AbstractSQLCoreProvider extends AuthCoreProvider implement
     private transient String queryRolesByUserUUID;
     private transient String updateAuthSQL;
     private transient String updateServerIDSQL;
+    protected transient final TimeProvider timeProvider = new SystemTimeProvider();
+    protected transient final CodeGenerator codeGenerator = new DefaultCodeGenerator();
+    protected transient final CodeVerifier verifier = new DefaultCodeVerifier(codeGenerator, timeProvider);
 
     // -------------------------------------------------------------------------
     // Abstract contract
@@ -121,6 +174,15 @@ public abstract class AbstractSQLCoreProvider extends AuthCoreProvider implement
     @Override
     public User getUserByLogin(String login) {
         return safeQueryUser(queryByLoginSQL, login);
+    }
+
+    @Override
+    public List<GetAvailabilityAuthRequestEvent.AuthAvailabilityDetails> getDetails(Client client) {
+        if(totpSecretColumn == null) {
+            return List.of(new AuthPasswordDetails());
+        } else {
+            return List.of(new AuthPasswordDetails(), new AuthTotpDetails("HMAC", 6));
+        }
     }
 
     // -------------------------------------------------------------------------
@@ -166,17 +228,60 @@ public abstract class AbstractSQLCoreProvider extends AuthCoreProvider implement
 
         SQLUser user = (SQLUser) getUserByLogin(login);
         if (user == null) throw AuthException.userNotFound();
+        String plainPassword;
+        String totpCode;
+        if (password instanceof AuthPlainPassword plain) {
+            plainPassword = plain.password;
+            totpCode = null;
+        } else if(password instanceof Auth2FAPassword twoFa) {
+            if(twoFa.firstPassword instanceof AuthPlainPassword plain) {
+                plainPassword = plain.password;
+            } else {
+                throw AuthException.wrongPassword();
+            }
+            if(twoFa.secondPassword instanceof AuthTOTPPassword totpPassword) {
+                totpCode = totpPassword.totp;
+            } else {
+                throw AuthException.wrongPassword();
+            }
+        } else if(password instanceof AuthMultiPassword multi) {
+            if(multi.list == null || multi.list.isEmpty()) {
+                throw AuthException.wrongPassword();
+            }
+            if(multi.list.get(0) instanceof AuthPlainPassword plain) {
+                plainPassword = plain.password;
+            } else {
+                throw AuthException.wrongPassword();
+            }
+            if(multi.list.get(1) instanceof AuthTOTPPassword totpPassword) {
+                totpCode = totpPassword.totp;
+            } else {
+                throw AuthException.wrongPassword();
+            }
+        } else {
+            throw AuthException.wrongPassword();
+        }
+        if (!passwordVerifier.check(user.password, plainPassword)) throw AuthException.wrongPassword();
+        if (totpSecretColumn != null && user.totpSecret != null) {
+            if(totpCode == null) {
+                throw AuthException.need2FA();
+            }
+            verifyTotpCode(user, totpCode);
+        }
 
-        if (!(password instanceof AuthPlainPassword plain)) throw AuthException.wrongPassword();
-        if (!passwordVerifier.check(user.password, plain.password)) throw AuthException.wrongPassword();
 
         return buildAuthReport(user, minecraftAccess);
     }
 
+    protected void verifyTotpCode(SQLUser user, String totpCode) throws AuthException {
+        if(!verifier.isValidCode(user.totpSecret, totpCode)) {
+            throw AuthException.wrongPassword();
+        }
+    }
+
     @Override
     public AuthManager.AuthReport sudo(User user, boolean shadow) throws IOException {
-        SQLUser sqlUser = (SQLUser) user;
-        return buildAuthReport(sqlUser, true);
+        return buildAuthReport((SQLUser) user, true);
     }
 
     // -------------------------------------------------------------------------
@@ -209,6 +314,14 @@ public abstract class AbstractSQLCoreProvider extends AuthCoreProvider implement
     public void init(LaunchServer server, AuthProviderPair pair) {
         super.init(server, pair);
         validateRequiredConfig();
+
+        // Phase 1: collect optional column declarations from the full class hierarchy,
+        // then immediately discard disabled ones so the rest of the code never sees them.
+        optionalColumns = new ArrayList<>();
+        registerOptionalColumns();
+        optionalColumns.removeIf(f -> !f.isEnabled());
+
+        // Phase 2: build SQL now that the final column list is known.
         buildPreparedQueries();
     }
 
@@ -221,9 +334,51 @@ public abstract class AbstractSQLCoreProvider extends AuthCoreProvider implement
         if (serverIDColumn == null)    logger.error("serverIDColumn cannot be null");
     }
 
+    // -------------------------------------------------------------------------
+    // Optional column registry hook
+    // -------------------------------------------------------------------------
+
     /**
-     * Computes all transient SQL strings.  Subclasses may call {@code super}
-     * and then set their own additional queries.
+     * Override to declare optional user-table columns.
+     * Always call {@code super.registerOptionalColumns()} so the full hierarchy participates.
+     *
+     * <p>Registering a feature with a {@code null} column name is safe — it is
+     * silently ignored before any SQL is generated.
+     *
+     * <p>See the class-level Javadoc for a usage example.
+     */
+    protected void registerOptionalColumns() {
+
+        registerColumnFeature(ColumnFeature.of(
+                totpSecretColumn,
+                (user, rs) -> {
+                    try {
+                        user.totpSecret = rs.getString(totpSecretColumn);
+                    } catch (SQLException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+        ));
+    }
+
+    /**
+     * Registers one optional column.  Only valid to call from
+     * {@link #registerOptionalColumns()}.
+     */
+    protected final void registerColumnFeature(ColumnFeature<?, ?> feature) {
+        optionalColumns.add(feature);
+    }
+
+    // -------------------------------------------------------------------------
+    // SQL construction
+    // -------------------------------------------------------------------------
+
+    /**
+     * Builds all transient SQL strings.  Called once per {@link #init} after the
+     * optional-column registry is finalised.
+     *
+     * <p>Subclasses that need additional SQL should override this and call
+     * {@code super.buildPreparedQueries()} first.
      */
     protected void buildPreparedQueries() {
         String cols = makeUserCols();
@@ -234,52 +389,93 @@ public abstract class AbstractSQLCoreProvider extends AuthCoreProvider implement
                 "SELECT %s FROM %s WHERE %s=? LIMIT 1".formatted(cols, table, usernameColumn));
         queryByLoginSQL    = resolve(customQueryByLoginSQL, queryByUsernameSQL);
 
-        updateAuthSQL    = resolve(customUpdateAuthSQL,
-                "UPDATE %s SET %s=?, %s=NULL WHERE %s=?".formatted(table, accessTokenColumn, serverIDColumn, uuidColumn));
+        updateAuthSQL     = resolve(customUpdateAuthSQL,
+                "UPDATE %s SET %s=?, %s=NULL WHERE %s=?".formatted(
+                        table, accessTokenColumn, serverIDColumn, uuidColumn));
         updateServerIDSQL = resolve(customUpdateServerIdSQL,
                 "UPDATE %s SET %s=? WHERE %s=?".formatted(table, serverIDColumn, uuidColumn));
 
         buildPermissionQueries();
     }
 
-    private void buildPermissionQueries() {
-        if (!isPermissionsEnabled()) return;
+    /**
+     * Returns the comma-separated column list used in SELECT queries.
+     *
+     * <p>The base implementation covers all required columns plus every enabled
+     * optional column registered via {@link #registerOptionalColumns()}.
+     *
+     * <p>Subclasses that add extra <em>required</em> (always-present) columns should
+     * override this and append to {@code super.makeUserCols()}.  Truly optional columns
+     * belong in {@link #registerOptionalColumns()} instead — they are appended here
+     * automatically.
+     */
+    protected String makeUserCols() {
+        String required = "%s, %s, %s, %s, %s".formatted(
+                uuidColumn, usernameColumn, accessTokenColumn, serverIDColumn, passwordColumn);
 
-        if (isRolesEnabled()) {
-            // Recursive CTE that resolves role-inherited permissions
-            queryPermissionsByUUIDSQL = resolve(customQueryPermissionsByUUIDSQL, """
-                    WITH RECURSIVE req AS (
-                      SELECT p.%s FROM %s p WHERE p.%s = ?
-                      UNION ALL
-                      SELECT p.%s FROM %s p
-                      INNER JOIN %s r ON p.%s = r.%s
-                      INNER JOIN req ON r.%s = substring(req.%s FROM 6)
-                                     OR r.name = substring(req.%s FROM 6)
-                    ) SELECT * FROM req""".formatted(
-                    permissionsPermissionColumn, permissionsTable, permissionsUUIDColumn,
-                    permissionsPermissionColumn, permissionsTable,
-                    rolesTable, permissionsUUIDColumn, rolesUUIDColumn,
-                    rolesUUIDColumn, permissionsPermissionColumn, permissionsPermissionColumn));
+        if (optionalColumns.isEmpty()) return required;
 
-            queryRolesByUserUUID = resolve(customQueryRolesByUserUUID, """
-                    SELECT r.%s FROM %s r
-                    INNER JOIN %s pr ON r.%s = substring(pr.%s FROM 6)
-                                     OR r.%s = substring(pr.%s FROM 6)
-                    WHERE pr.%s = ?""".formatted(
-                    rolesNameColumn, rolesTable,
-                    permissionsTable, rolesUUIDColumn, permissionsPermissionColumn,
-                    rolesNameColumn, permissionsPermissionColumn,
-                    permissionsUUIDColumn));
-        } else {
-            queryPermissionsByUUIDSQL = resolve(customQueryPermissionsByUUIDSQL,
-                    "SELECT %s FROM %s WHERE %s=?".formatted(
-                            permissionsPermissionColumn, permissionsTable, permissionsUUIDColumn));
+        String optional = optionalColumns.stream()
+                .map(f -> f.columnName)
+                .collect(Collectors.joining(", "));
+        return required + ", " + optional;
+    }
+
+    /**
+     * Constructs a {@link SQLUser} from the <em>current</em> ResultSet row.
+     * Assumes {@link ResultSet#next()} has already returned {@code true}.
+     *
+     * <p>Required columns are always read.  Every enabled optional column is then
+     * applied via its {@link ColumnFeature} reader — no per-feature null checks needed.
+     *
+     * <p>Subclasses that add their own <em>required</em> columns should override this,
+     * call {@code super.constructUserFromRow(set)}, cast the result to their SQLUser
+     * subtype, and populate the extra fields.  Optional columns should use
+     * {@link #registerOptionalColumns()} instead.
+     */
+    protected SQLUser constructUserFromRow(ResultSet set) throws SQLException {
+        SQLUser user = new SQLUser(
+                UUID.fromString(set.getString(uuidColumn)),
+                set.getString(usernameColumn),
+                set.getString(accessTokenColumn),
+                set.getString(serverIDColumn),
+                set.getString(passwordColumn));
+        applyOptionalColumns(user, set);
+        return user;
+    }
+
+    /**
+     * Advances {@code set} by one row and delegates to {@link #constructUserFromRow},
+     * or returns {@code null} if the result set is empty.
+     */
+    protected SQLUser constructUser(ResultSet set) throws SQLException {
+        return set.next() ? constructUserFromRow(set) : null;
+    }
+
+    /**
+     * Applies all registered optional columns to {@code user} from the current row of {@code set}.
+     *
+     * <p>Subclasses that override {@link #constructUserFromRow} to supply their own
+     * required columns should call this at the end of their override so optional columns
+     * are still applied:
+     *
+     * <pre>{@code
+     * @Override
+     * protected SQLUser constructUserFromRow(ResultSet set) throws SQLException {
+     *     MyUser user = new MyUser(..., set.getLong(myRequiredColumn));
+     *     applyOptionalColumns(user, set);
+     *     return user;
+     * }
+     * }</pre>
+     */
+    protected final void applyOptionalColumns(SQLUser user, ResultSet set) throws SQLException {
+        for (ColumnFeature<?, ?> feature : optionalColumns) {
+            feature.read(user, set);
         }
     }
 
-    @Override
-    public void close() {
-        getSQLConfig().close();
+    protected SQLUserSession createSession(SQLUser user) {
+        return new SQLUserSession(user);
     }
 
     // -------------------------------------------------------------------------
@@ -287,41 +483,8 @@ public abstract class AbstractSQLCoreProvider extends AuthCoreProvider implement
     // -------------------------------------------------------------------------
 
     /**
-     * Returns a comma-separated list of all user columns selected in user queries.
-     * Subclasses should override to append additional columns, e.g.:
-     * <pre>{@code
-     * protected String makeUserCols() {
-     *     return super.makeUserCols() + ", " + hardwareIdColumn;
-     * }
-     * }</pre>
-     */
-    protected String makeUserCols() {
-        return "%s, %s, %s, %s, %s".formatted(
-                uuidColumn, usernameColumn, accessTokenColumn, serverIDColumn, passwordColumn);
-    }
-
-    /**
-     * Constructs a {@link SQLUser} from the current row of {@code set}.
-     * Returns {@code null} when the result set is empty.
-     * Subclasses override this to populate additional fields.
-     */
-    protected SQLUser constructUser(ResultSet set) throws SQLException {
-        if (!set.next()) return null;
-        return new SQLUser(
-                UUID.fromString(set.getString(uuidColumn)),
-                set.getString(usernameColumn),
-                set.getString(accessTokenColumn),
-                set.getString(serverIDColumn),
-                set.getString(passwordColumn));
-    }
-
-    protected SQLUserSession createSession(SQLUser user) {
-        return new SQLUserSession(user);
-    }
-
-    /**
-     * Executes a single-parameter query and maps the result to a {@link SQLUser},
-     * enriching it with permissions.  Returns {@code null} on SQL errors.
+     * Executes a single-parameter SELECT and maps the result to a {@link SQLUser}
+     * (with permissions).  Returns {@code null} on SQL errors.
      */
     protected final SQLUser safeQueryUser(String sql, String param) {
         try {
@@ -375,6 +538,11 @@ public abstract class AbstractSQLCoreProvider extends AuthCoreProvider implement
         }
     }
 
+    @Override
+    public void close() {
+        getSQLConfig().close();
+    }
+
     // -------------------------------------------------------------------------
     // Permissions & roles
     // -------------------------------------------------------------------------
@@ -410,11 +578,44 @@ public abstract class AbstractSQLCoreProvider extends AuthCoreProvider implement
         }
     }
 
+    private void buildPermissionQueries() {
+        if (!isPermissionsEnabled()) return;
+
+        if (isRolesEnabled()) {
+            queryPermissionsByUUIDSQL = resolve(customQueryPermissionsByUUIDSQL, """
+                    WITH RECURSIVE req AS (
+                      SELECT p.%s FROM %s p WHERE p.%s = ?
+                      UNION ALL
+                      SELECT p.%s FROM %s p
+                      INNER JOIN %s r ON p.%s = r.%s
+                      INNER JOIN req ON r.%s = substring(req.%s FROM 6)
+                                     OR r.name = substring(req.%s FROM 6)
+                    ) SELECT * FROM req""".formatted(
+                    permissionsPermissionColumn, permissionsTable, permissionsUUIDColumn,
+                    permissionsPermissionColumn, permissionsTable,
+                    rolesTable, permissionsUUIDColumn, rolesUUIDColumn,
+                    rolesUUIDColumn, permissionsPermissionColumn, permissionsPermissionColumn));
+
+            queryRolesByUserUUID = resolve(customQueryRolesByUserUUID, """
+                    SELECT r.%s FROM %s r
+                    INNER JOIN %s pr ON r.%s = substring(pr.%s FROM 6)
+                                     OR r.%s = substring(pr.%s FROM 6)
+                    WHERE pr.%s = ?""".formatted(
+                    rolesNameColumn, rolesTable,
+                    permissionsTable, rolesUUIDColumn, permissionsPermissionColumn,
+                    rolesNameColumn, permissionsPermissionColumn,
+                    permissionsUUIDColumn));
+        } else {
+            queryPermissionsByUUIDSQL = resolve(customQueryPermissionsByUUIDSQL,
+                    "SELECT %s FROM %s WHERE %s=?".formatted(
+                            permissionsPermissionColumn, permissionsTable, permissionsUUIDColumn));
+        }
+    }
+
     // -------------------------------------------------------------------------
     // Private helpers
     // -------------------------------------------------------------------------
 
-    /** Returns {@code override} when non-null, otherwise {@code fallback}. */
     private static String resolve(String override, String fallback) {
         return override != null ? override : fallback;
     }
@@ -432,13 +633,14 @@ public abstract class AbstractSQLCoreProvider extends AuthCoreProvider implement
     }
 
     private AuthManager.AuthReport buildAuthReport(SQLUser user, boolean minecraftAccess) throws IOException {
-        SQLUserSession session  = createSession(user);
-        String accessToken      = makeAccessToken(user);
-        String refreshToken     = makeRefreshToken(user);
+        SQLUserSession session = createSession(user);
+        String accessToken    = makeAccessToken(user);
+        String refreshToken   = makeRefreshToken(user);
         if (minecraftAccess) {
             String mcToken = SecurityHelper.randomStringToken();
             updateAuth(user, mcToken);
-            return AuthManager.AuthReport.ofOAuthWithMinecraft(mcToken, accessToken, refreshToken, expireSeconds, session);
+            return AuthManager.AuthReport.ofOAuthWithMinecraft(
+                    mcToken, accessToken, refreshToken, expireSeconds, session);
         }
         return AuthManager.AuthReport.ofOAuth(accessToken, refreshToken, expireSeconds, session);
     }
@@ -452,9 +654,15 @@ public abstract class AbstractSQLCoreProvider extends AuthCoreProvider implement
         protected final String username;
         protected String accessToken;
         protected String serverId;
-        /** Stored hashed password (never exposed via the {@link User} API). */
+        /** Stored hashed password — never exposed through the {@link User} API. */
         protected final String password;
         protected ClientPermissions permissions;
+
+        /**
+         * TOTP shared secret for this user.
+         * {@code null} when the {@code totpSecretColumn} feature is disabled.
+         */
+        public String totpSecret;
 
         public SQLUser(UUID uuid, String username, String accessToken, String serverId, String password) {
             this.uuid        = uuid;
@@ -464,8 +672,8 @@ public abstract class AbstractSQLCoreProvider extends AuthCoreProvider implement
             this.password    = password;
         }
 
-        @Override public String getUsername()             { return username; }
-        @Override public UUID getUUID()                   { return uuid; }
+        @Override public String getUsername()              { return username; }
+        @Override public UUID getUUID()                    { return uuid; }
         @Override public ClientPermissions getPermissions(){ return permissions; }
 
         public String getServerId()    { return serverId; }
@@ -490,5 +698,107 @@ public abstract class AbstractSQLCoreProvider extends AuthCoreProvider implement
         @Override public User getUser()                   { return user; }
         @Override public String getMinecraftAccessToken() { return user.getAccessToken(); }
         @Override public long getExpireIn()               { return 0; }
+    }
+
+    /**
+     * Describes a single optional column in the user table.
+     *
+     * <p>A {@code ColumnFeature} is <b>enabled</b> when its {@link #columnName} is non-null.
+     * When disabled, it is silently excluded from every SQL fragment — SELECT column list,
+     * UPDATE statements, and ResultSet mapping — with no branching required at the call site.
+     *
+     * <p>Instances are registered via
+     * {@link AbstractSQLCoreProvider#registerColumnFeature(ColumnFeature)} inside
+     * {@link AbstractSQLCoreProvider#registerOptionalColumns()}.
+     *
+     * @param <U> the concrete {@link SQLUser} subtype this feature reads into
+     * @param <T> the Java type of the value held in the column
+     */
+    public static final class ColumnFeature<U extends SQLUser, T> {
+
+        /**
+         * Name of the database column.  {@code null} means the feature is disabled —
+         * it will be excluded from all SQL and ResultSet access.
+         */
+        public final String columnName;
+
+        /**
+         * Reads this column from the current row of {@code rs} and stores it on {@code user}.
+         * Never called when {@link #isEnabled()} returns {@code false}.
+         */
+        private final BiConsumer<U, ResultSet> reader;
+
+        // -------------------------------------------------------------------------
+        // Factory methods
+        // -------------------------------------------------------------------------
+
+        /**
+         * Creates an enabled feature backed by a custom reader lambda.
+         *
+         * <pre>{@code
+         * ColumnFeature.of(totpColumn, (user, rs) -> user.totpSecret = rs.getString(totpColumn))
+         * }</pre>
+         */
+        public static <U extends SQLUser, T> ColumnFeature<U, T> of(
+                String columnName,
+                BiConsumer<U, ResultSet> reader) {
+            return new ColumnFeature<>(columnName, reader);
+        }
+
+        /**
+         * Convenience factory for columns whose value is a {@code String} mapped via
+         * {@link ResultSet#getString(String)} and stored through a setter.
+         *
+         * <pre>{@code
+         * ColumnFeature.ofString(totpColumn, rs -> rs.getString(totpColumn), (user, val) -> user.totpSecret = val)
+         * }</pre>
+         */
+        public static <U extends SQLUser> ColumnFeature<U, String> ofString(
+                String columnName,
+                Function<ResultSet, String> extractor,
+                BiConsumer<U, String> setter) {
+            return new ColumnFeature<>(columnName,
+                    (user, rs) -> {
+                        try {
+                            setter.accept(user, extractor.apply(rs));
+                        } catch (Exception e) {
+                            throw new RuntimeException("Failed to read column '" + columnName + "'", e);
+                        }
+                    });
+        }
+
+        // -------------------------------------------------------------------------
+        // Core API
+        // -------------------------------------------------------------------------
+
+        /** Returns {@code true} when {@link #columnName} is non-null (feature is active). */
+        public boolean isEnabled() {
+            return columnName != null;
+        }
+
+        /**
+         * Reads this column from {@code rs} into {@code user}.
+         * Must only be called when {@link #isEnabled()} is {@code true}.
+         *
+         * @throws SQLException propagated from {@link ResultSet} access
+         */
+        @SuppressWarnings("unchecked")
+        public void read(SQLUser user, ResultSet rs) throws SQLException {
+            try {
+                reader.accept((U) user, rs);
+            } catch (RuntimeException e) {
+                if (e.getCause() instanceof SQLException sql) throw sql;
+                throw e;
+            }
+        }
+
+        // -------------------------------------------------------------------------
+        // Private constructor
+        // -------------------------------------------------------------------------
+
+        private ColumnFeature(String columnName, BiConsumer<U, ResultSet> reader) {
+            this.columnName = columnName;
+            this.reader     = reader;
+        }
     }
 }

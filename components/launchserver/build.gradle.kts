@@ -45,6 +45,7 @@ dependencies {
     implementation(libs.jline.terminal)
     implementation(libs.jline.reader)
     implementation(libs.jansi)
+    implementation(libs.totp)
     api(project(":components:launcher-api"))
     annotationProcessor(libs.log4j.core)
     launcherInside(project(mapOf("path" to ":components:launcher-runtime", "configuration" to "shadow")))

@@ -18,6 +18,7 @@ postgresql = "42.7.7"
 mysql = "9.4.0"
 mariadb = "3.5.5"
 h2 = "2.3.232"
+totp = "1.7.1"
 
 [libraries]
 gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
@@ -48,3 +49,4 @@ db-postgresql = { module = "org.postgresql:postgresql", version.ref = "postgresq
 db-mysql = { module = "com.mysql:mysql-connector-j", version.ref = "mysql" }
 db-mariadb = { module = "org.mariadb.jdbc:mariadb-java-client", version.ref = "mariadb" }
 db-h2 = { module = "com.h2database:h2", version.ref = "h2" }
+totp = { module = "dev.samstevens.totp:totp", version.ref = "totp"  }
