@@ -180,10 +180,10 @@ public class ReadyProfileImpl implements LauncherBackendAPI.ReadyProfile {
 
     public void terminate() {
         try {
-            if(assetWatcher == null) {
+            if(assetWatcher != null) {
                 assetWatcher.close();
             }
-            if(clientWatcher == null) {
+            if(clientWatcher != null) {
                 clientWatcher.close();
             }
             if(javaWatcher != null) {
