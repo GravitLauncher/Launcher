@@ -200,7 +200,7 @@ public class ClientDownloadImpl {
             if(entry instanceof HashedFile hfile && hfile.url != null) {
                 files.add(new Downloader.SizedFile(hfile.url, pathFixed, entry.size()));
             } else {
-                files.add(new Downloader.SizedFile(pathFixed, pathRemapper.apply(pathFixed), entry.size()));
+                files.add(new Downloader.SizedFile(pathRemapper.apply(pathFixed), pathFixed, entry.size()));
             }
             return HashedDir.WalkAction.CONTINUE;
         });
