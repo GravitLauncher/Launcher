@@ -7,7 +7,6 @@ import org.bouncycastle.cms.CMSSignedDataGenerator;
 import org.bouncycastle.operator.OperatorCreationException;
 import pro.gravit.launcher.core.api.features.CoreFeatureAPI;
 import pro.gravit.launchserver.LaunchServer;
-import pro.gravit.launchserver.binary.JARLauncherBinary;
 import pro.gravit.launchserver.binary.PipelineContext;
 import pro.gravit.launchserver.binary.SignerJar;
 import pro.gravit.launchserver.config.LaunchServerConfig;

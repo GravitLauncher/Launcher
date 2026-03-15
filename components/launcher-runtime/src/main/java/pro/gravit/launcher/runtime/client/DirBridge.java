@@ -5,7 +5,6 @@ import org.slf4j.LoggerFactory;
 import pro.gravit.launcher.base.Launcher;
 import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.JVMHelper;
-import pro.gravit.utils.helper.LogHelper;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -47,12 +46,12 @@ public class DirBridge {
         if (newDir == null) {
             logger.debug("Invalid dir (null)");
             if (true)
-                logger.info("", LogHelper.toString(new Throwable("Check stack of call DirBridge with null path...")));
+                logger.info("{}", (new Throwable("Check stack of call DirBridge with null path...").toString()));
             return;
         }
         Path oldUpdates = dirUpdates;
         dirUpdates = newDir;
-        logger.info("", newDir.toString());
+        logger.info("{}", newDir.toString());
         IOHelper.move(oldUpdates, dirUpdates);
     }
 

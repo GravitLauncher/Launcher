@@ -6,7 +6,6 @@ import pro.gravit.utils.helper.JVMHelper;
 import java.io.File;
 import java.io.IOException;
 import java.lang.instrument.ClassFileTransformer;
-import java.lang.instrument.IllegalClassFormatException;
 import java.lang.instrument.Instrumentation;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;

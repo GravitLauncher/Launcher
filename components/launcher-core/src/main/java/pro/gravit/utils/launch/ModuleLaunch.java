@@ -13,7 +13,6 @@ import java.io.InputStream;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
-import java.lang.invoke.VarHandle;
 import java.lang.module.*;
 import java.net.MalformedURLException;
 import java.net.URI;

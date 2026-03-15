@@ -68,7 +68,9 @@ public class JLineCommandHandler extends CommandHandler {
                 }
                 List<String> words = line.words();
                 List<Candidate> candidates1 = target.complete(words.subList(1, words.size()), line.wordIndex() - 1, completeWord);
-                candidates.addAll(candidates1);
+                if (candidates1 != null) {
+                    candidates.addAll(candidates1);
+                }
             }
         }
     }

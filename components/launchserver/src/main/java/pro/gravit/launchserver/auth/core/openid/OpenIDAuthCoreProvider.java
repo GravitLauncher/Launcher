@@ -18,7 +18,6 @@ import pro.gravit.launchserver.auth.core.UserSession;
 import pro.gravit.launchserver.manangers.AuthManager;
 import pro.gravit.launchserver.socket.Client;
 import pro.gravit.launchserver.socket.response.auth.AuthResponse;
-import pro.gravit.utils.helper.LogHelper;
 
 import java.io.IOException;
 import java.time.Instant;
@@ -91,7 +90,7 @@ public class OpenIDAuthCoreProvider extends AuthCoreProvider {
         var accessToken = tokens.accessToken();
         var refreshToken = tokens.refreshToken();
         var user = openIDAuthenticator.createUserFromToken(accessToken);
-        long expiresIn = TimeUnit.SECONDS.toMillis(tokens.accessTokenExpiresIn());
+        long expiresIn = tokens.accessTokenExpiresIn();
 
         sqlUserStore.createOrUpdateUser(user);
 

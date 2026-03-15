@@ -46,6 +46,14 @@ public final class HashedFile extends HashedEntry {
         this(size, digest ? SecurityHelper.digest(DIGEST_ALGO, file) : null);
     }
 
+    public HashedFile(byte[] bytes) {
+        this(bytes.length, SecurityHelper.digest(DIGEST_ALGO, bytes));
+    }
+
+    public HashedFile(byte[] bytes, String url) {
+        this(bytes.length, SecurityHelper.digest(DIGEST_ALGO, bytes), url);
+    }
+
     @Override
     public Type getType() {
         return Type.FILE;

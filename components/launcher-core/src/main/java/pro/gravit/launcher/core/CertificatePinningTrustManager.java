@@ -2,7 +2,6 @@ package pro.gravit.launcher.core;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import pro.gravit.utils.helper.LogHelper;
 
 import javax.net.ssl.TrustManagerFactory;
 import java.io.ByteArrayInputStream;

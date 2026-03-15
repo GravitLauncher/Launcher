@@ -7,7 +7,6 @@ import pro.gravit.launcher.core.LauncherTrustManager;
 import pro.gravit.launcher.core.api.features.CoreFeatureAPI;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.asm.InjectClassAcceptor;
-import pro.gravit.launchserver.binary.JARLauncherBinary;
 import pro.gravit.launchserver.binary.tasks.MainBuildTask;
 import pro.gravit.utils.helper.IOHelper;
 

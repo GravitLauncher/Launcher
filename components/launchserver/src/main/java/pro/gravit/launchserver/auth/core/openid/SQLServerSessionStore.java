@@ -3,7 +3,6 @@ package pro.gravit.launchserver.auth.core.openid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pro.gravit.launchserver.auth.SQLSourceConfig;
-import pro.gravit.utils.helper.LogHelper;
 
 import java.sql.SQLException;
 import java.util.UUID;

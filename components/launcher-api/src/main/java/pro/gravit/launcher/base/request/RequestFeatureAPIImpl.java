@@ -2,8 +2,6 @@ package pro.gravit.launcher.base.request;
 
 import pro.gravit.launcher.base.Launcher;
 import pro.gravit.launcher.base.events.request.AuthRequestEvent;
-import pro.gravit.launcher.base.events.request.VerifySecureLevelKeyRequestEvent;
-import pro.gravit.launcher.base.profiles.ClientProfile;
 import pro.gravit.launcher.base.request.auth.*;
 import pro.gravit.launcher.base.request.auth.password.*;
 import pro.gravit.launcher.base.request.cabinet.AssetUploadInfoRequest;
@@ -191,8 +189,8 @@ public class RequestFeatureAPIImpl implements AuthFeatureAPI, UserFeatureAPI, Pr
     }
 
     @Override
-    public CompletableFuture<Void> changeCurrentProfile(ClientProfile profile) {
-        return request.request(new SetProfileRequest((pro.gravit.launcher.base.profiles.ClientProfile) profile)).thenApply(response -> null);
+    public CompletableFuture<ClientProfile> changeCurrentProfile(ClientProfile profile) {
+        return request.request(new SetProfileRequest((pro.gravit.launcher.base.profiles.ClientProfile) profile)).thenApply(response -> response.newProfile);
     }
 
     @Override

@@ -8,7 +8,6 @@ import pro.gravit.launcher.core.LauncherTrustManager;
 import pro.gravit.launcher.base.modules.LauncherModule;
 import pro.gravit.launcher.base.modules.LauncherModuleInfo;
 import pro.gravit.utils.command.Command;
-import pro.gravit.utils.helper.LogHelper;
 
 import java.security.cert.X509Certificate;
 import java.util.Arrays;

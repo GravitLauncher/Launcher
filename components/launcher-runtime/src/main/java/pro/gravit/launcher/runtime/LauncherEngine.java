@@ -34,6 +34,7 @@ import pro.gravit.utils.helper.*;
 import java.nio.file.Paths;
 import java.security.cert.X509Certificate;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -185,46 +186,7 @@ public class LauncherEngine {
         if (runtimeProvider == null) runtimeProvider = basicRuntimeProvider.getConstructor().newInstance();
         runtimeProvider.init(clientInstance);
         //runtimeProvider.preLoad();
-        if (!Request.isAvailable()) {
-            String address = config.address;
-            logger.debug("Start async connection to {}", address);
-            RequestService service;
-            try {
-                service = StdWebSocketService.initWebSockets(address).get();
-            } catch (Throwable e) {
-                if (true) {
-                    logger.error("", e);
-                }
-                logger.warn("Launcher in offline mode");
-                service = initOffline();
-            }
-            Request.setRequestService(service);
-            if (service instanceof StdWebSocketService) {
-                ((StdWebSocketService) service).reconnectCallback = () ->
-                {
-                    logger.debug("WebSocket connect closed. Try reconnect");
-                    try {
-                        Request.reconnect();
-                    } catch (Exception e) {
-                        logger.error("", e);
-                        throw new RequestException("Connection failed", e);
-                    }
-                };
-            }
-        }
-        Request.startAutoRefresh();
-        Request.getRequestService().registerEventHandler(new BasicLauncherEventHandler());
-        // Init New API
-        LauncherAPIHolder.setCoreAPI(new RequestCoreFeatureAPIImpl(Request.getRequestService()));
-        LauncherAPIHolder.setCreateApiFactory((authId) -> {
-            var impl = new RequestFeatureAPIImpl(Request.getRequestService(), authId);
-            return new LauncherAPI(Map.of(
-                    AuthFeatureAPI.class, impl,
-                    UserFeatureAPI.class, impl,
-                    ProfileFeatureAPI.class, impl,
-                    TextureUploadFeatureAPI.class, impl,
-                    HardwareVerificationFeatureAPI.class, impl));
-        });
+        LauncherAPIInitializer.initialize(modulesManager, config.address, List.of(LauncherAPIInitializer.Flag.ENABLE_AUTO_REFRESH));
         LauncherBackendAPIHolder.setApi(new LauncherBackendImpl());
         //
         Objects.requireNonNull(args, "args");

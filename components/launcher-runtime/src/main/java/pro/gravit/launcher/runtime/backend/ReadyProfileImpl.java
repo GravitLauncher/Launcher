@@ -7,10 +7,8 @@ import pro.gravit.launcher.base.events.request.AuthRequestEvent;
 import pro.gravit.launcher.base.profiles.ClientProfile;
 import pro.gravit.launcher.base.profiles.ClientProfileBuilder;
 import pro.gravit.launcher.base.profiles.PlayerProfile;
-import pro.gravit.launcher.client.events.ClientProcessLaunchEvent;
 import pro.gravit.launcher.client.utils.DirWatcher;
 import pro.gravit.launcher.client.utils.MinecraftAuthlibBridge;
-import pro.gravit.launcher.core.api.LauncherAPIHolder;
 import pro.gravit.launcher.core.api.features.ProfileFeatureAPI;
 import pro.gravit.launcher.core.backend.LauncherBackendAPI;
 import pro.gravit.launcher.core.hasher.FileNameMatcher;
@@ -18,7 +16,6 @@ import pro.gravit.launcher.runtime.client.ClientLauncherProcess;
 import pro.gravit.utils.helper.CommonHelper;
 import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.JVMHelper;
-import pro.gravit.utils.helper.LogHelper;
 
 import java.io.EOFException;
 import java.io.IOException;
@@ -183,10 +180,10 @@ public class ReadyProfileImpl implements LauncherBackendAPI.ReadyProfile {
 
     public void terminate() {
         try {
-            if(assetWatcher == null) {
+            if(assetWatcher != null) {
                 assetWatcher.close();
             }
-            if(clientWatcher == null) {
+            if(clientWatcher != null) {
                 clientWatcher.close();
             }
             if(javaWatcher != null) {

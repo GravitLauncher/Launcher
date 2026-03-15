@@ -158,6 +158,17 @@ public interface LauncherBackendAPI {
         public static final String STAGE_DONE_PART = "done.part";
         public static final String STAGE_DONE = "done";
 
+        public enum UpdatePhase {
+            JAVA,
+            ASSETS,
+            CLIENT,
+            LAUNCH
+        }
+
+        public void onStartPhase(UpdatePhase phase) {
+
+        }
+
         public void onStage(String stage) {
 
         }

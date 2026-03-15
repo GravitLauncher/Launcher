@@ -5,19 +5,20 @@ jansi = "2.4.2"
 slf4j = "2.0.17"
 oshi = "6.8.3"
 # LaunchServer libraries
-log4j = "2.25.1"
-netty = "4.2.5.Final"
+log4j = "2.25.3"
+netty = "4.2.10.Final"
 bouncycastle = "1.81"
 jjwt = "0.13.0"
 progressbar = "0.10.1"
 asm = "9.8"
 proguard = "7.8.0"
 # Database libraries
-hikari = "3.3.0"
+hikari = "4.0.0"
 postgresql = "42.7.7"
 mysql = "9.4.0"
 mariadb = "3.5.5"
 h2 = "2.3.232"
+totp = "1.7.1"
 
 [libraries]
 gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
@@ -48,3 +49,4 @@ db-postgresql = { module = "org.postgresql:postgresql", version.ref = "postgresq
 db-mysql = { module = "com.mysql:mysql-connector-j", version.ref = "mysql" }
 db-mariadb = { module = "org.mariadb.jdbc:mariadb-java-client", version.ref = "mariadb" }
 db-h2 = { module = "com.h2database:h2", version.ref = "h2" }
+totp = { module = "dev.samstevens.totp:totp", version.ref = "totp"  }

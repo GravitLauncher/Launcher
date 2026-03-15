@@ -1,0 +1,914 @@
+openapi: 3.1.0
+info:
+  title: GravitLauncher HTTP API
+  version: 1.0.0
+  description: >
+    API specification derived from client-side Java code (RequestFeatureHttpAPIImpl,
+    RemoteProfilesProvider, RemoteUpdatesProvider). Some response shapes are partially
+    inferred — see the "Missing / unknown data" note at the bottom of each section.
+
+servers:
+  - url: https://{host}
+    variables:
+      host:
+        default: localhost
+
+security:
+  - bearerAuth: []
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+
+    # ── Primitives / shared ───────────────────────────────────────────────────
+
+    ErrorResponse:
+      type: object
+      description: Returned for any non-2xx HTTP status.
+      properties:
+        code:
+          type: string
+        error:
+          type: string
+      required: [code, error]
+
+    Texture:
+      type: object
+      description: Player skin/cape texture descriptor.
+      properties:
+        url:
+          type: string
+          format: uri
+        digest:
+          type: string
+          format: byte
+          description: Base64-encoded raw digest bytes of the texture file.
+        metadata:
+          type: object
+          additionalProperties:
+            type: string
+      required: [url, digest]
+
+    UserPermissions:
+      type: object
+      properties:
+        roles:
+          type: array
+          items:
+            type: string
+        perms:
+          type: array
+          items:
+            type: string
+
+    User:
+      type: object
+      properties:
+        username:
+          type: string
+        uuid:
+          type: string
+          format: uuid
+        assets:
+          type: object
+          description: Map of texture type (e.g. "SKIN", "CAPE") to Texture.
+          additionalProperties:
+            $ref: '#/components/schemas/Texture'
+        properties:
+          type: object
+          additionalProperties:
+            type: string
+      required: [username, uuid]
+
+    SelfUser:
+      description: >
+        Extended User returned from /auth/currentuser. Includes the caller's
+        own permissions in addition to all base User fields.
+      allOf:
+        - $ref: '#/components/schemas/User'
+        - type: object
+          properties:
+            permissions:
+              $ref: '#/components/schemas/UserPermissions'
+
+    AuthToken:
+      type: object
+      properties:
+        accessToken:
+          type: string
+        refreshToken:
+          type: string
+        expireSeconds:
+          type: integer
+          format: int64
+      required: [accessToken, expireSeconds]
+
+    ClientProfile:
+      type: object
+      description: >
+        Opaque client profile blob. Internal structure is private;
+        treated as arbitrary JSON by this API.
+      additionalProperties: true
+
+    HashedDir:
+      type: object
+      description: >
+        Opaque directory-hierarchy hash tree. Internal structure is private;
+        treated as arbitrary JSON by this API.
+      additionalProperties: true
+
+    LauncherUpdateInfo:
+      type: object
+      properties:
+        url:
+          type: string
+          format: uri
+          description: URL from which the updated launcher binary can be downloaded.
+        version:
+          type: string
+          description: Version string of the available update.
+        available:
+          type: boolean
+          description: Whether an update is available.
+        required:
+          type: boolean
+          description: Whether the update is mandatory and the launcher must update before continuing.
+        jwtToken:
+          type: string
+          description: Verify token for /auth/authorize (X-Launcher-Update-Token)
+      required: [url, version, available, required]
+
+    # ── Auth ─────────────────────────────────────────────────────────────────
+
+    AuthRequest:
+      type: object
+      properties:
+        login:
+          type: string
+        password:
+          type: string
+          nullable: true
+        totp:
+          type: string
+          nullable: true
+          description: TOTP one-time code (6 digits).
+      required: [login]
+
+    RefreshRequest:
+      type: object
+      properties:
+        refreshToken:
+          type: string
+      required: [refreshToken]
+
+    JoinServerByUsernameRequest:
+      type: object
+      properties:
+        username:
+          type: string
+        serverId:
+          type: string
+        accessToken:
+          type: string
+      required: [username, serverId, accessToken]
+
+    JoinServerByUuidRequest:
+      type: object
+      properties:
+        uuid:
+          type: string
+          format: uuid
+        serverId:
+          type: string
+        accessToken:
+          type: string
+      required: [uuid, serverId, accessToken]
+
+    CheckServerRequest:
+      type: object
+      properties:
+        username:
+          type: string
+        serverId:
+          type: string
+        extended:
+          type: boolean
+          default: false
+      required: [username, serverId]
+
+    CheckServerResponse:
+      type: object
+      properties:
+        user:
+          $ref: '#/components/schemas/User'
+        hardwareId:
+          type: string
+          nullable: true
+        sessionId:
+          type: string
+          nullable: true
+        sessionProperties:
+          type: object
+          additionalProperties:
+            type: string
+
+    # ── Updates ───────────────────────────────────────────────────────────────
+
+    UpdatesPrepareResponse:
+      type: object
+      description: >
+        Contains an opaque data blob to be signed by the build private key,
+        plus a JWT token that must be echoed back in /updates/check.
+      properties:
+        data:
+          type: string
+          description: Base64-encoded bytes to sign with the ECDSA build private key.
+        jwtToken:
+          type: string
+      required: [data, jwtToken]
+
+    UpdatesCheckRequest:
+      type: object
+      properties:
+        signedData:
+          type: string
+          description: Base64-encoded ECDSA signature over the challenge data.
+        publicKey:
+          type: string
+          description: Base64-encoded DER-encoded ECDSA public key.
+        jwtToken:
+          type: string
+          description: Token received from /updates/prepare.
+      required: [signedData, publicKey, jwtToken]
+
+    UpdateInfo:
+      type: object
+      description: Update information for a specific named directory.
+      properties:
+        dir:
+          $ref: '#/components/schemas/HashedDir'
+        baseUrl:
+          type: string
+          format: uri
+          description: Base URL from which update files are downloaded.
+      required: [dir, baseUrl]
+
+    BuildSecrets:
+      type: object
+      description: Secrets used to sign/verify launcher builds.
+      properties:
+        privateKey:
+          type: string
+          description: Base64-encoded private key.
+        publicKey:
+          type: string
+          description: Base64-encoded public key.
+      required: [privateKey, publicKey]
+
+    # ── Profiles (management API — RemoteProfilesProvider) ───────────────────
+
+    CreateProfileRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        profile:
+          $ref: '#/components/schemas/ClientProfile'
+      required: [name, profile]
+
+    UncompletedProfile:
+      type: object
+      description: A profile record that does not yet have associated file hashes.
+      properties:
+        profile:
+          $ref: '#/components/schemas/ClientProfile'
+      required: [profile]
+
+    CompletedProfile:
+      type: object
+      description: A fully resolved profile with client and asset directory hashes.
+      properties:
+        profile:
+          $ref: '#/components/schemas/ClientProfile'
+        clientDir:
+          $ref: '#/components/schemas/HashedDir'
+        assetDir:
+          $ref: '#/components/schemas/HashedDir'
+      required: [profile, clientDir, assetDir]
+
+    ListProfilesResponse:
+      type: object
+      properties:
+        profiles:
+          type: array
+          items:
+            $ref: '#/components/schemas/ClientProfile'
+      required: [profiles]
+
+    UpdateProfileRequest:
+      type: object
+      properties:
+        profile:
+          $ref: '#/components/schemas/ClientProfile'
+        clientDir:
+          $ref: '#/components/schemas/HashedDir'
+        assetDir:
+          $ref: '#/components/schemas/HashedDir'
+      required: [profile, clientDir, assetDir]
+
+    FileUploadResponse:
+      type: object
+      description: URL at which the uploaded file can subsequently be referenced.
+      properties:
+        url:
+          type: string
+          format: uri
+      required: [url]
+
+paths:
+
+  # ════════════════════════════════════════════════════════════════════════════
+  # Auth
+  # ════════════════════════════════════════════════════════════════════════════
+
+  /auth/authorize:
+    post:
+      summary: Authenticate with login / password / optional TOTP
+      security: []
+      tags: [Auth]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthRequest'
+      responses:
+        '200':
+          description: Authentication successful.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthToken'
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /auth/refresh:
+    post:
+      summary: Refresh an access token using a refresh token
+      security: []
+      tags: [Auth]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RefreshRequest'
+      responses:
+        '200':
+          description: New token pair.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthToken'
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /auth/logout:
+    post:
+      summary: Invalidate the current session
+      tags: [Auth]
+      responses:
+        '200':
+          description: Logged out successfully. Body is empty / null.
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /auth/currentuser:
+    get:
+      summary: Get the authenticated user's own profile
+      tags: [Auth]
+      responses:
+        '200':
+          description: Current user.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SelfUser'
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /auth/joinserver/username:
+    post:
+      summary: Join a game server — identified by username
+      tags: [Auth]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/JoinServerByUsernameRequest'
+      responses:
+        '200':
+          description: Join accepted.
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /auth/joinserver/uuid:
+    post:
+      summary: Join a game server — identified by UUID
+      tags: [Auth]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/JoinServerByUuidRequest'
+      responses:
+        '200':
+          description: Join accepted.
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /auth/checkserver:
+    post:
+      summary: Verify that a player has joined a server (server-side validation)
+      tags: [Auth]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CheckServerRequest'
+      responses:
+        '200':
+          description: Server check result.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CheckServerResponse'
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  # ════════════════════════════════════════════════════════════════════════════
+  # Users
+  # ════════════════════════════════════════════════════════════════════════════
+
+  /user/by/username/{username}:
+    get:
+      summary: Look up a user by username
+      security: []
+      tags: [Users]
+      parameters:
+        - in: path
+          name: username
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: User found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /user/by/uuid/{uuid}:
+    get:
+      summary: Look up a user by UUID
+      security: []
+      tags: [Users]
+      parameters:
+        - in: path
+          name: uuid
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: User found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  # ════════════════════════════════════════════════════════════════════════════
+  # Updates (launcher self-update)
+  # ════════════════════════════════════════════════════════════════════════════
+
+  /updates/prepare:
+    get:
+      summary: >
+        Begin the launcher self-update challenge/response flow.
+        Returns a random blob the client must sign with its build private key.
+      security: []
+      tags: [Updates]
+      responses:
+        '200':
+          description: Challenge data.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdatesPrepareResponse'
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /updates/check/{variant}:
+    post:
+      summary: >
+        Submit the signed challenge to verify the build identity and
+        receive update information.
+      security: []
+      tags: [Updates]
+      parameters:
+        - in: path
+          name: variant
+          required: true
+          description: Update variant — identifies the target platform/binary.
+          schema:
+            type: string
+            enum:
+              - JAR
+              - EXE_WINDOWS_X86_64
+              - EXE_WINDOWS_X86
+              - EXE_WINDOWS_ARM64
+              - LINUX_X86
+              - LINUX_X86_64
+              - LINUX_ARM64
+              - LINUX_ARM32
+              - MACOS_X86_64
+              - MACOS_ARM64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdatesCheckRequest'
+      responses:
+        '200':
+          description: Update info for the launcher itself.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LauncherUpdateInfo'
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /updates/upload/{variant}:
+    post:
+      summary: Upload a game/asset update file (admin / server-side use)
+      tags: [Updates]
+      parameters:
+        - in: path
+          name: variant
+          required: true
+          description: Update variant — identifies the target platform/binary.
+          schema:
+            type: string
+            enum:
+              - JAR
+              - EXE_WINDOWS_X86_64
+              - EXE_WINDOWS_X86
+              - EXE_WINDOWS_ARM64
+              - LINUX_X86
+              - LINUX_X86_64
+              - LINUX_ARM64
+              - LINUX_ARM32
+              - MACOS_X86_64
+              - MACOS_ARM64
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                secrets:
+                  description: >
+                    JSON-serialised BuildSecrets object (privateKey, publicKey).
+                  $ref: '#/components/schemas/BuildSecrets'
+                file:
+                  type: string
+                  format: binary
+                  description: The file to upload.
+              required: [secrets, file]
+            encoding:
+              secrets:
+                contentType: application/json
+              file:
+                contentType: image/png
+      responses:
+        '200':
+          description: Upload accepted.
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  # ════════════════════════════════════════════════════════════════════════════
+  # Profiles (client-facing — RequestFeatureHttpAPIImpl)
+  # ════════════════════════════════════════════════════════════════════════════
+
+  /profile/list:
+    get:
+      summary: List all available client profiles
+      tags: [Profiles]
+      responses:
+        '200':
+          description: Profile list.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListProfilesResponse'
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /profile/by/uuid/{profileUuid}/dir/{dirName}:
+    get:
+      summary: Fetch hashed-directory update info for a named directory of a profile
+      tags: [Profiles]
+      parameters:
+        - in: path
+          name: profileUuid
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - in: path
+          name: dirName
+          required: true
+          description: Directory name, e.g. "client" or "assets".
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Update info including HashedDir and base download URL.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateInfo'
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  # ════════════════════════════════════════════════════════════════════════════
+  # Profiles (management API — RemoteProfilesProvider)
+  # ════════════════════════════════════════════════════════════════════════════
+
+  /profile/new:
+    post:
+      summary: Create a new profile
+      tags: [Profile Management]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateProfileRequest'
+      responses:
+        '200':
+          description: The newly created uncompleted profile.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UncompletedProfile'
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /profile/by/uuid/{uuid}:
+    get:
+      summary: Get a completed profile by UUID
+      tags: [Profile Management]
+      parameters:
+        - in: path
+          name: uuid
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Completed profile.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CompletedProfile'
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      summary: Delete a profile by UUID
+      tags: [Profile Management]
+      parameters:
+        - in: path
+          name: uuid
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Profile deleted.
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /profile/by/uuid/{uuid}/pushupdate:
+    post:
+      summary: Push updated ClientProfile, clientDir, and assetDir for a profile
+      tags: [Profile Management]
+      parameters:
+        - in: path
+          name: uuid
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateProfileRequest'
+      responses:
+        '200':
+          description: Updated completed profile.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CompletedProfile'
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /profile/by/name/{name}:
+    get:
+      summary: Get a completed profile by name
+      tags: [Profile Management]
+      parameters:
+        - in: path
+          name: name
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Completed profile.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CompletedProfile'
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /profile/unconnected/{name}:
+    get:
+      summary: >
+        Fetch a HashedDir for a named directory that is not yet associated with
+        any profile (e.g. a default "assets" directory).
+      tags: [Profile Management]
+      parameters:
+        - in: path
+          name: name
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: HashedDir for the requested unconnected directory.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HashedDir'
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /profile/uploadfile:
+    post:
+      summary: >
+        Upload an arbitrary file and receive a URL reference back.
+        Used internally by pushUpdate to stage individual files before
+        committing a profile update.
+      tags: [Profile Management]
+      requestBody:
+        required: true
+        content:
+          application/octet-stream:
+            schema:
+              type: string
+              format: binary
+      responses:
+        '200':
+          description: URL where the uploaded file is now available.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FileUploadResponse'
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+# ════════════════════════════════════════════════════════════════════════════
+# ⚠ Remaining ambiguous data noted during reverse-engineering
+# ════════════════════════════════════════════════════════════════════════════
+#
+# 1. HTTP status codes beyond 200/default — No explicit status codes other
+#    than the 2xx-vs-non-2xx split (HttpErrorHandler) are present in the
+#    client code. Concrete 400 / 401 / 404 / 409 mappings are not specified.
+#
+# 2. /updates/upload multipart part Content-Type — The client hard-codes
+#    "image/png" for every uploaded update file regardless of actual content.
+#    This looks like a placeholder; the real media type per variant is unknown.
+#
+# 3. Tag parameter — Several ProfilesProvider methods accept a `tag`
+#    parameter, but none of the HTTP calls include it as a query parameter or
+#    path segment. It is either ignored server-side or carried inside the
+#    ClientProfile blob.

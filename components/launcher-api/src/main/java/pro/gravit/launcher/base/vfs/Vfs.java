@@ -6,7 +6,6 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.event.Level;
 import pro.gravit.launcher.base.vfs.directory.SimpleVfsDirectory;
 import pro.gravit.launcher.base.vfs.protocol.vfs.VfsURLStreamHandlerProvider;
-import pro.gravit.utils.helper.LogHelper;
 
 import java.io.File;
 import java.io.FileNotFoundException;

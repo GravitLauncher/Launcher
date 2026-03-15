@@ -35,10 +35,8 @@ import java.io.*;
 import java.net.URI;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
-import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -160,7 +158,7 @@ public class LauncherBackendImpl implements LauncherBackendAPI, TextureUploadExt
         if(backendSettings.auth == null) {
             return CompletableFuture.failedFuture(new LauncherBackendException("Auth data not found"));
         }
-        if(backendSettings.auth.expireIn > 0 && LocalDateTime.ofInstant(Instant.ofEpochMilli(backendSettings.auth.expireIn), ZoneOffset.UTC).isBefore(LocalDateTime.now(ZoneOffset.UTC))) {
+        if(backendSettings.auth.expireIn > 0 && LocalDateTime.ofEpochSecond(backendSettings.auth.expireIn, 0, ZoneOffset.UTC).isBefore(LocalDateTime.now(ZoneOffset.UTC))) {
             return LauncherAPIHolder.auth().refreshToken(backendSettings.auth.refreshToken).thenCompose((response) -> {
                 setAuthToken(response);
                 return LauncherAPIHolder.auth().restore(backendSettings.auth.accessToken, true);
@@ -182,9 +180,7 @@ public class LauncherBackendImpl implements LauncherBackendAPI, TextureUploadExt
         if(authToken.getExpire() <= 0) {
             backendSettings.auth.expireIn = 0;
         }
-        backendSettings.auth.expireIn = LocalDateTime.now(ZoneOffset.UTC)
-                .plus(authToken.getExpire(), ChronoUnit.MILLIS).
-                toEpochSecond(ZoneOffset.UTC);
+        backendSettings.auth.expireIn = LocalDateTime.now().plusSeconds(authToken.getExpire()).toEpochSecond(ZoneOffset.UTC);
     }
 
     private void onAuthorize(SelfUser selfUser) {

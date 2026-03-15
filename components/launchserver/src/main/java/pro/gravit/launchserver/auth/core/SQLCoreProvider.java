@@ -12,32 +12,72 @@ import pro.gravit.launchserver.auth.core.interfaces.provider.AuthSupportHardware
 import pro.gravit.launchserver.auth.core.interfaces.session.UserSessionSupportHardware;
 import pro.gravit.launchserver.socket.Client;
 
-import java.io.IOException;
 import java.sql.*;
+import java.util.ArrayList;
 import java.util.Base64;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
 
-public class SQLCoreProvider extends AbstractSQLCoreProvider implements AuthSupportHardware, AuthSupportExtendedCheckServer {
+/**
+ * SQL-backed auth provider with hardware-ID tracking and optional TOTP support.
+ *
+ * <h3>Required configuration fields (in addition to base class)</h3>
+ * <ul>
+ *   <li>{@link #hardwareIdColumn} – FK column in the user table pointing to the hwids table</li>
+ * </ul>
+ *
+ * <h3>Optional configuration fields</h3>
+ * <ul>
+ *   <li>{@link #totpSecretColumn} – when set, the TOTP secret is read from this column and
+ *       stored on {@link SQLUser#totpSecret}.  When {@code null} the column is completely
+ *       absent from every SELECT query and ResultSet mapping.</li>
+ *   <li>{@link #tableHWID} – defaults to {@code "hwids"}</li>
+ *   <li>{@link #tableHWIDLog} – defaults to {@code "hwidLog"}</li>
+ *   <li>{@link #criticalCompareLevel} – fuzzy-match threshold, defaults to {@code 1.0}</li>
+ * </ul>
+ */
+public class SQLCoreProvider extends AbstractSQLCoreProvider
+        implements AuthSupportHardware, AuthSupportExtendedCheckServer {
+
+    // -------------------------------------------------------------------------
+    // Serialized configuration
+    // -------------------------------------------------------------------------
+
+    /** Hikari connection-pool config (required). */
     public HikariSQLSourceConfig holder;
 
-    @Override
-    public void close() {
-        super.close();
-        holder.close();
-    }
-
-    @Override
-    public SQLSourceConfig getSQLConfig() {
-        return holder;
-    }
-
-
+    /**
+     * Column in the user table that holds the hardware-ID foreign key (required).
+     * This is a <em>required</em> column for this provider — it is always included
+     * in SELECT queries via {@link #makeUserCols()}, not via the optional registry.
+     */
     public String hardwareIdColumn;
-    public String tableHWID = "hwids";
+
+    /** Hardware-info table name. */
+    public String tableHWID    = "hwids";
+
+    /** Hardware-change audit-log table name. */
     public String tableHWIDLog = "hwidLog";
+
+    /**
+     * Minimum similarity level for a hardware record to be considered a match
+     * in {@link #getHardwareInfoByData}.
+     */
     public double criticalCompareLevel = 1.0;
+
+    // Custom SQL overrides for hardware queries (null → use generated defaults)
+    public String customFindHardwareByPublicKey;
+    public String customFindHardwareByData;
+    public String customFindHardwareById;
+    public String customCreateHardware;
+    public String customCreateHWIDLog;
+    public String customUpdateHardwarePublicKey;
+    public String customUsersByHwidId;
+
+    // -------------------------------------------------------------------------
+    // Transient prepared SQL
+    // -------------------------------------------------------------------------
+
     private transient String sqlFindHardwareByPublicKey;
     private transient String sqlFindHardwareByData;
     private transient String sqlFindHardwareById;
@@ -45,214 +85,232 @@ public class SQLCoreProvider extends AbstractSQLCoreProvider implements AuthSupp
     private transient String sqlCreateHWIDLog;
     private transient String sqlUpdateHardwarePublicKey;
     private transient String sqlUpdateHardwareBanned;
-    private transient String sqlUpdateUsers;
+    private transient String sqlUpdateUserHwidId;
     private transient String sqlUsersByHwidId;
+
+    // -------------------------------------------------------------------------
+    // Lifecycle
+    // -------------------------------------------------------------------------
+
+    @Override
+    public SQLSourceConfig getSQLConfig() {
+        return holder;
+    }
 
     @Override
     public void init(LaunchServer server, AuthProviderPair pair) {
         holder.init();
-        super.init(server, pair);
-        String userInfoCols = makeUserCols();
-        String hardwareInfoCols = "id, hwDiskId, baseboardSerialNumber, displayId, bitness, totalMemory, logicalProcessors, physicalProcessors, processorMaxFreq, battery, id, graphicCard, banned, publicKey";
-        if (sqlFindHardwareByPublicKey == null)
-            sqlFindHardwareByPublicKey = "SELECT %s FROM %s WHERE publicKey = ?".formatted(hardwareInfoCols, tableHWID);
-        if (sqlFindHardwareById == null)
-            sqlFindHardwareById = "SELECT %s FROM %s WHERE id = ?".formatted(hardwareInfoCols, tableHWID);
-        if (sqlUsersByHwidId == null)
-            sqlUsersByHwidId = "SELECT %s FROM %s WHERE %s = ?".formatted(userInfoCols, table, hardwareIdColumn);
-        if (sqlFindHardwareByData == null)
-            sqlFindHardwareByData = "SELECT %s FROM %s".formatted(hardwareInfoCols, tableHWID);
-        if (sqlCreateHardware == null)
-            sqlCreateHardware = "INSERT INTO %s (publickey, hwDiskId, baseboardSerialNumber, displayId, bitness, totalMemory, logicalProcessors, physicalProcessors, processorMaxFreq, graphicCard, battery, banned) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, '0')".formatted(tableHWID);
-        if (sqlCreateHWIDLog == null)
-            sqlCreateHWIDLog = "INSERT INTO %s (hwidId, newPublicKey) VALUES (?, ?)".formatted(tableHWIDLog);
-        if (sqlUpdateHardwarePublicKey == null)
-            sqlUpdateHardwarePublicKey = "UPDATE %s SET publicKey = ? WHERE id = ?".formatted(tableHWID);
-        sqlUpdateHardwareBanned = "UPDATE %s SET banned = ? WHERE id = ?".formatted(tableHWID);
-        sqlUpdateUsers = "UPDATE %s SET %s = ? WHERE %s = ?".formatted(table, hardwareIdColumn, uuidColumn);
+        super.init(server, pair); // triggers registerOptionalColumns() then buildPreparedQueries()
     }
 
+    // -------------------------------------------------------------------------
+    // SQL construction
+    // -------------------------------------------------------------------------
+
+    /**
+     * {@code hardwareIdColumn} is a <em>required</em> column for this provider, so it
+     * is appended here rather than through the optional registry.  Optional columns
+     * (e.g. {@link #totpSecretColumn}) are appended by {@link AbstractSQLCoreProvider}
+     * automatically after the required set.
+     */
     @Override
     protected String makeUserCols() {
-        return super.makeUserCols().concat(", ").concat(hardwareIdColumn);
+        return super.makeUserCols() + ", " + hardwareIdColumn;
     }
 
     @Override
-    protected SQLUser constructUser(ResultSet set) throws SQLException {
-        return set.next() ? new SQLUser(UUID.fromString(set.getString(uuidColumn)), set.getString(usernameColumn),
-                set.getString(accessTokenColumn), set.getString(serverIDColumn), set.getString(passwordColumn), set.getLong(hardwareIdColumn)) : null;
+    protected void buildPreparedQueries() {
+        super.buildPreparedQueries();
+
+        String hwCols = hardwareColumns();
+
+        sqlFindHardwareByPublicKey = resolve(customFindHardwareByPublicKey,
+                "SELECT %s FROM %s WHERE publicKey = ?".formatted(hwCols, tableHWID));
+
+        sqlFindHardwareById = resolve(customFindHardwareById,
+                "SELECT %s FROM %s WHERE id = ?".formatted(hwCols, tableHWID));
+
+        sqlFindHardwareByData = resolve(customFindHardwareByData,
+                "SELECT %s FROM %s".formatted(hwCols, tableHWID));
+
+        sqlCreateHardware = resolve(customCreateHardware,
+                ("INSERT INTO %s " +
+                        "(publicKey, hwDiskId, baseboardSerialNumber, displayId, bitness, " +
+                        " totalMemory, logicalProcessors, physicalProcessors, processorMaxFreq, " +
+                        " graphicCard, battery, banned) " +
+                        "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, '0')").formatted(tableHWID));
+
+        sqlCreateHWIDLog = resolve(customCreateHWIDLog,
+                "INSERT INTO %s (hwidId, newPublicKey) VALUES (?, ?)".formatted(tableHWIDLog));
+
+        sqlUpdateHardwarePublicKey = resolve(customUpdateHardwarePublicKey,
+                "UPDATE %s SET publicKey = ? WHERE id = ?".formatted(tableHWID));
+
+        sqlUpdateHardwareBanned = "UPDATE %s SET banned = ? WHERE id = ?".formatted(tableHWID);
+        sqlUpdateUserHwidId     = "UPDATE %s SET %s = ? WHERE %s = ?".formatted(table, hardwareIdColumn, uuidColumn);
+
+        sqlUsersByHwidId = resolve(customUsersByHwidId,
+                "SELECT %s FROM %s WHERE %s = ?".formatted(makeUserCols(), table, hardwareIdColumn));
     }
 
-    private SQLUserHardware fetchHardwareInfo(ResultSet set) throws SQLException {
-        HardwareReportRequest.HardwareInfo hardwareInfo = new HardwareReportRequest.HardwareInfo();
-        hardwareInfo.hwDiskId = set.getString("hwDiskId");
-        hardwareInfo.baseboardSerialNumber = set.getString("baseboardSerialNumber");
-        byte[] displayId = set.getBytes("displayId");
-        hardwareInfo.displayId = displayId;
-        hardwareInfo.bitness = set.getInt("bitness");
-        hardwareInfo.totalMemory = set.getLong("totalMemory");
-        hardwareInfo.logicalProcessors = set.getInt("logicalProcessors");
-        hardwareInfo.physicalProcessors = set.getInt("physicalProcessors");
-        hardwareInfo.processorMaxFreq = set.getLong("processorMaxFreq");
-        hardwareInfo.battery = set.getBoolean("battery");
-        hardwareInfo.graphicCard = set.getString("graphicCard");
-        byte[] publicKey = set.getBytes("publicKey");
-        long id = set.getLong("id");
-        boolean banned = set.getBoolean("banned");
-        return new SQLUserHardware(hardwareInfo, publicKey, id, banned);
+    // -------------------------------------------------------------------------
+    // User construction
+    // -------------------------------------------------------------------------
+
+    /**
+     * Reads all required columns plus {@link #hardwareIdColumn}, then lets the
+     * base class apply every registered optional column (including {@link #totpSecretColumn}
+     * when enabled) via the {@link ColumnFeature} registry.
+     */
+    @Override
+    protected SQLUser constructUserFromRow(ResultSet set) throws SQLException {
+        // Build a SQLUser (this subtype) with the required columns ...
+        SQLUser user = new SQLUser(
+                UUID.fromString(set.getString(uuidColumn)),
+                set.getString(usernameColumn),
+                set.getString(accessTokenColumn),
+                set.getString(serverIDColumn),
+                set.getString(passwordColumn),
+                set.getLong(hardwareIdColumn));
+
+        // ... then let the base class apply all registered optional columns.
+        applyOptionalColumns(user, set);
+        return user;
     }
 
-    private void setUserHardwareId(Connection connection, UUID uuid, long hwidId) throws SQLException {
-        PreparedStatement s = connection.prepareStatement(sqlUpdateUsers);
-        s.setLong(1, hwidId);
-        s.setString(2, uuid.toString());
-        s.executeUpdate();
+    @Override
+    public void close() {
+        super.close(); // delegates to getSQLConfig().close() == holder.close()
     }
+
+    // -------------------------------------------------------------------------
+    // AuthSupportHardware
+    // -------------------------------------------------------------------------
 
     @Override
     public UserHardware getHardwareInfoByPublicKey(byte[] publicKey) {
-        try (Connection connection = holder.getConnection()) {
-            connection.setAutoCommit(false);
-            PreparedStatement s = connection.prepareStatement(sqlFindHardwareByPublicKey);
+        try (Connection c = holder.getConnection();
+             PreparedStatement s = c.prepareStatement(sqlFindHardwareByPublicKey)) {
             s.setBytes(1, publicKey);
-            try (ResultSet set = s.executeQuery()) {
-                if (set.next()) {
-                    connection.commit();
-                    return fetchHardwareInfo(set);
-                } else {
-                    connection.commit();
-                    return null;
-                }
+            try (ResultSet rs = s.executeQuery()) {
+                return rs.next() ? mapHardware(rs) : null;
             }
-        } catch (SQLException throwables) {
-            logger.error("SQL Error", throwables);
+        } catch (SQLException e) {
+            logger.error("SQL error in getHardwareInfoByPublicKey", e);
             return null;
         }
     }
 
     @Override
     public UserHardware getHardwareInfoByData(HardwareReportRequest.HardwareInfo info) {
-        try (Connection connection = holder.getConnection()) {
-            connection.setAutoCommit(false);
-            PreparedStatement s = connection.prepareStatement(sqlFindHardwareByData);
-            try (ResultSet set = s.executeQuery()) {
-                while (set.next()) {
-                    SQLUserHardware hw = fetchHardwareInfo(set);
-                    AuthSupportHardware.HardwareInfoCompareResult result = compareHardwareInfo(hw.getHardwareInfo(), info);
-                    if (result.compareLevel > criticalCompareLevel) {
-                        connection.commit();
-                        return hw;
-                    } else {
-                        connection.commit();
-                    }
+        try (Connection c = holder.getConnection();
+             PreparedStatement s = c.prepareStatement(sqlFindHardwareByData);
+             ResultSet rs = s.executeQuery()) {
+            while (rs.next()) {
+                SQLUserHardware hw = mapHardware(rs);
+                if (compareHardwareInfo(hw.getHardwareInfo(), info).compareLevel >= criticalCompareLevel) {
+                    return hw;
                 }
             }
-        } catch (SQLException throwables) {
-            logger.error("SQL Error", throwables);
+        } catch (SQLException e) {
+            logger.error("SQL error in getHardwareInfoByData", e);
         }
         return null;
     }
 
     @Override
     public UserHardware getHardwareInfoById(String id) {
-        try (Connection connection = holder.getConnection()) {
-            connection.setAutoCommit(false);
-            PreparedStatement s = connection.prepareStatement(sqlFindHardwareById);
+        try (Connection c = holder.getConnection();
+             PreparedStatement s = c.prepareStatement(sqlFindHardwareById)) {
             s.setLong(1, Long.parseLong(id));
-            try (ResultSet set = s.executeQuery()) {
-                if (set.next()) {
-                    connection.commit();
-                    return fetchHardwareInfo(set);
-                } else {
-                    connection.commit();
-                    return null;
-                }
+            try (ResultSet rs = s.executeQuery()) {
+                return rs.next() ? mapHardware(rs) : null;
             }
-        } catch (SQLException throwables) {
-            logger.error("SQL Error", throwables);
+        } catch (SQLException e) {
+            logger.error("SQL error in getHardwareInfoById", e);
             return null;
         }
     }
 
     @Override
-    public UserHardware createHardwareInfo(HardwareReportRequest.HardwareInfo hardwareInfo, byte[] publicKey) {
-        try (Connection connection = holder.getConnection()) {
-            connection.setAutoCommit(false);
-            PreparedStatement s = connection.prepareStatement(sqlCreateHardware, Statement.RETURN_GENERATED_KEYS);
-            s.setBytes(1, publicKey);
-            s.setString(2, hardwareInfo.hwDiskId);
-            s.setString(3, hardwareInfo.baseboardSerialNumber);
-            s.setBytes(4, hardwareInfo.displayId == null ? null : hardwareInfo.displayId);
-            s.setInt(5, hardwareInfo.bitness);
-            s.setLong(6, hardwareInfo.totalMemory);
-            s.setInt(7, hardwareInfo.logicalProcessors);
-            s.setInt(8, hardwareInfo.physicalProcessors);
-            s.setLong(9, hardwareInfo.processorMaxFreq);
-            s.setString(10, hardwareInfo.graphicCard);
-            s.setBoolean(11, hardwareInfo.battery);
-            s.executeUpdate();
-            try (ResultSet generatedKeys = s.getGeneratedKeys()) {
-                if (generatedKeys.next()) {
-                    //writeHwidLog(connection, generatedKeys.getLong(1), publicKey);
-                    long id = generatedKeys.getLong(1);
-                    connection.commit();
-                    return new SQLUserHardware(hardwareInfo, publicKey, id, false);
+    public UserHardware createHardwareInfo(HardwareReportRequest.HardwareInfo info, byte[] publicKey) {
+        try (Connection c = holder.getConnection()) {
+            c.setAutoCommit(false);
+            long generatedId;
+            try (PreparedStatement s = c.prepareStatement(sqlCreateHardware, Statement.RETURN_GENERATED_KEYS)) {
+                s.setBytes(1, publicKey);
+                s.setString(2, info.hwDiskId);
+                s.setString(3, info.baseboardSerialNumber);
+                s.setBytes(4, info.displayId);
+                s.setInt(5, info.bitness);
+                s.setLong(6, info.totalMemory);
+                s.setInt(7, info.logicalProcessors);
+                s.setInt(8, info.physicalProcessors);
+                s.setLong(9, info.processorMaxFreq);
+                s.setString(10, info.graphicCard);
+                s.setBoolean(11, info.battery);
+                s.executeUpdate();
+
+                try (ResultSet keys = s.getGeneratedKeys()) {
+                    if (!keys.next()) { c.rollback(); return null; }
+                    generatedId = keys.getLong(1);
                 }
             }
-            connection.commit();
-            return null;
-        } catch (SQLException throwables) {
-            logger.error("SQL Error", throwables);
+            logHwidCreation(c, generatedId, publicKey);
+            c.commit();
+            return new SQLUserHardware(info, publicKey, generatedId, false);
+        } catch (SQLException e) {
+            logger.error("SQL error in createHardwareInfo", e);
             return null;
         }
     }
 
     @Override
     public void connectUserAndHardware(UserSession userSession, UserHardware hardware) {
-        AbstractSQLCoreProvider.SQLUserSession SQLUserSession = (AbstractSQLCoreProvider.SQLUserSession) userSession;
-        SQLUser SQLUser = (SQLUser) SQLUserSession.getUser();
-        SQLUserHardware SQLUserHardware = (SQLUserHardware) hardware;
-        if (SQLUser.hwidId == SQLUserHardware.id) return;
-        SQLUser.hwidId = SQLUserHardware.id;
-        try (Connection connection = holder.getConnection()) {
-            setUserHardwareId(connection, SQLUser.getUUID(), SQLUserHardware.id);
-        } catch (SQLException throwables) {
-            logger.error("SQL Error", throwables);
+        SQLUser user         = (SQLUser) userSession.getUser();
+        SQLUserHardware hwid = (SQLUserHardware) hardware;
+        if (user.hwidId == hwid.id) return;
+        user.hwidId = hwid.id;
+        try (Connection c = holder.getConnection();
+             PreparedStatement s = c.prepareStatement(sqlUpdateUserHwidId)) {
+            s.setLong(1, hwid.id);
+            s.setString(2, user.getUUID().toString());
+            s.executeUpdate();
+        } catch (SQLException e) {
+            logger.error("SQL error in connectUserAndHardware", e);
         }
     }
 
     @Override
     public void addPublicKeyToHardwareInfo(UserHardware hardware, byte[] publicKey) {
-        SQLUserHardware SQLUserHardware = (SQLUserHardware) hardware;
-        SQLUserHardware.publicKey = publicKey;
-        try (Connection connection = holder.getConnection()) {
-            connection.setAutoCommit(false);
-            PreparedStatement s = connection.prepareStatement(sqlUpdateHardwarePublicKey);
+        SQLUserHardware hwid = (SQLUserHardware) hardware;
+        hwid.publicKey = publicKey;
+        try (Connection c = holder.getConnection();
+             PreparedStatement s = c.prepareStatement(sqlUpdateHardwarePublicKey)) {
             s.setBytes(1, publicKey);
-            s.setLong(2, SQLUserHardware.id);
+            s.setLong(2, hwid.id);
             s.executeUpdate();
-            connection.commit();
         } catch (SQLException e) {
-            logger.error("SQL error", e);
+            logger.error("SQL error in addPublicKeyToHardwareInfo", e);
         }
     }
 
     @Override
     public Iterable<User> getUsersByHardwareInfo(UserHardware hardware) {
-        List<User> users = new LinkedList<>();
-        try (Connection c = holder.getConnection()) {
-            c.setAutoCommit(false);
-            PreparedStatement s = c.prepareStatement(sqlUsersByHwidId);
+        List<User> users = new ArrayList<>();
+        try (Connection c = holder.getConnection();
+             PreparedStatement s = c.prepareStatement(sqlUsersByHwidId)) {
             s.setLong(1, Long.parseLong(hardware.getId()));
             s.setQueryTimeout(MySQLSourceConfig.TIMEOUT);
-            try (ResultSet set = s.executeQuery()) {
-                while (!set.isLast()) {
-                    users.add(constructUser(set));
+            try (ResultSet rs = s.executeQuery()) {
+                while (rs.next()) {
+                    SQLUser user = constructUserFromRow(rs);
+                    user.permissions = loadPermissions(user.uuid.toString());
+                    users.add(user);
                 }
             }
-            c.commit();
         } catch (SQLException e) {
-            logger.error("SQL error", e);
+            logger.error("SQL error in getUsersByHardwareInfo", e);
             return null;
         }
         return users;
@@ -260,132 +318,157 @@ public class SQLCoreProvider extends AbstractSQLCoreProvider implements AuthSupp
 
     @Override
     public void banHardware(UserHardware hardware) {
-        SQLUserHardware SQLUserHardware = (SQLUserHardware) hardware;
-        SQLUserHardware.banned = true;
-        try (Connection connection = holder.getConnection()) {
-            PreparedStatement s = connection.prepareStatement(sqlUpdateHardwareBanned);
-            s.setBoolean(1, true);
-            s.setLong(2, SQLUserHardware.id);
-            s.executeUpdate();
-        } catch (SQLException e) {
-            logger.error("SQL Error", e);
-        }
+        setHardwareBanned(hardware, true);
     }
 
     @Override
     public void unbanHardware(UserHardware hardware) {
-        SQLUserHardware SQLUserHardware = (SQLUserHardware) hardware;
-        SQLUserHardware.banned = false;
-        try (Connection connection = holder.getConnection()) {
-            PreparedStatement s = connection.prepareStatement(sqlUpdateHardwareBanned);
-            s.setBoolean(1, false);
-            s.setLong(2, SQLUserHardware.id);
-            s.executeUpdate();
-        } catch (SQLException e) {
-            logger.error("SQL error", e);
-        }
+        setHardwareBanned(hardware, false);
     }
 
-    @Override
-    protected AbstractSQLCoreProvider.SQLUserSession createSession(AbstractSQLCoreProvider.SQLUser user) {
-        return new SQLUserSession(user);
-    }
+    // -------------------------------------------------------------------------
+    // AuthSupportExtendedCheckServer
+    // -------------------------------------------------------------------------
 
     @Override
     public UserSession extendedCheckServer(Client client, String username, String serverID) {
-        AbstractSQLCoreProvider.SQLUser user = (AbstractSQLCoreProvider.SQLUser) getUserByUsername(username);
-        if (user == null) {
-            return null;
-        }
-        if (user.getUsername().equals(username) && user.getServerId().equals(serverID)) {
-            return createSession(user);
-        }
-        return null;
+        SQLUser user = (SQLUser) getUserByUsername(username);
+        if (user == null) return null;
+        return user.getUsername().equals(username) && user.getServerId().equals(serverID)
+                ? createSession(user)
+                : null;
     }
 
-    public class SQLUserSession extends AbstractSQLCoreProvider.SQLUserSession implements UserSessionSupportHardware {
-        private final transient SQLUser SQLUser;
-        protected transient SQLUserHardware hardware;
+    // -------------------------------------------------------------------------
+    // Private helpers
+    // -------------------------------------------------------------------------
+
+    private static String hardwareColumns() {
+        return "id, hwDiskId, baseboardSerialNumber, displayId, bitness, totalMemory, " +
+                "logicalProcessors, physicalProcessors, processorMaxFreq, battery, " +
+                "graphicCard, banned, publicKey";
+    }
+
+    /** Maps the <em>current</em> row of {@code rs} to a {@link SQLUserHardware}. */
+    private static SQLUserHardware mapHardware(ResultSet rs) throws SQLException {
+        HardwareReportRequest.HardwareInfo info = new HardwareReportRequest.HardwareInfo();
+        info.hwDiskId              = rs.getString("hwDiskId");
+        info.baseboardSerialNumber = rs.getString("baseboardSerialNumber");
+        info.displayId             = rs.getBytes("displayId");
+        info.bitness               = rs.getInt("bitness");
+        info.totalMemory           = rs.getLong("totalMemory");
+        info.logicalProcessors     = rs.getInt("logicalProcessors");
+        info.physicalProcessors    = rs.getInt("physicalProcessors");
+        info.processorMaxFreq      = rs.getLong("processorMaxFreq");
+        info.battery               = rs.getBoolean("battery");
+        info.graphicCard           = rs.getString("graphicCard");
+        return new SQLUserHardware(
+                info, rs.getBytes("publicKey"), rs.getLong("id"), rs.getBoolean("banned"));
+    }
+
+    private void setHardwareBanned(UserHardware hardware, boolean banned) {
+        SQLUserHardware hwid = (SQLUserHardware) hardware;
+        hwid.banned = banned;
+        try (Connection c = holder.getConnection();
+             PreparedStatement s = c.prepareStatement(sqlUpdateHardwareBanned)) {
+            s.setBoolean(1, banned);
+            s.setLong(2, hwid.id);
+            s.executeUpdate();
+        } catch (SQLException e) {
+            logger.error("SQL error while {} hardware id={}",
+                    banned ? "banning" : "unbanning", hwid.id, e);
+        }
+    }
+
+    private void logHwidCreation(Connection c, long hwidId, byte[] publicKey) throws SQLException {
+        try (PreparedStatement s = c.prepareStatement(sqlCreateHWIDLog)) {
+            s.setLong(1, hwidId);
+            s.setBytes(2, publicKey);
+            s.executeUpdate();
+        }
+    }
+
+    private static String resolve(String override, String fallback) {
+        return override != null ? override : fallback;
+    }
+
+    // =========================================================================
+    // Inner types
+    // =========================================================================
+
+    /** Session with lazy-loaded hardware info. */
+    public class SQLUserSession extends AbstractSQLCoreProvider.SQLUserSession
+            implements UserSessionSupportHardware {
+
+        private final transient SQLUser sqlUser;
+        private transient SQLUserHardware cachedHardware;
 
         public SQLUserSession(AbstractSQLCoreProvider.SQLUser user) {
             super(user);
-            SQLUser = (SQLUser) user;
+            this.sqlUser = (SQLUser) user;
         }
 
         @Override
         public String getHardwareId() {
-            return SQLUser.hwidId == 0 ? null : String.valueOf(SQLUser.hwidId);
+            return sqlUser.hwidId == 0 ? null : String.valueOf(sqlUser.hwidId);
         }
 
         @Override
         public UserHardware getHardware() {
-            if(hardware == null) {
-                hardware = (SQLUserHardware) getHardwareInfoById(String.valueOf(SQLUser.hwidId));
+            if (cachedHardware == null && sqlUser.hwidId != 0) {
+                cachedHardware = (SQLUserHardware) getHardwareInfoById(String.valueOf(sqlUser.hwidId));
             }
-            return hardware;
+            return cachedHardware;
         }
     }
 
+    @Override
+    protected SQLUserSession createSession(AbstractSQLCoreProvider.SQLUser user) {
+        return new SQLUserSession(user);
+    }
+
+    /** Immutable hardware record (except mutable {@code publicKey} and {@code banned}). */
     public static class SQLUserHardware implements UserHardware {
         private final HardwareReportRequest.HardwareInfo hardwareInfo;
         private final long id;
         private byte[] publicKey;
         private boolean banned;
 
-        public SQLUserHardware(HardwareReportRequest.HardwareInfo hardwareInfo, byte[] publicKey, long id, boolean banned) {
+        public SQLUserHardware(HardwareReportRequest.HardwareInfo hardwareInfo,
+                               byte[] publicKey, long id, boolean banned) {
             this.hardwareInfo = hardwareInfo;
-            this.publicKey = publicKey;
-            this.id = id;
-            this.banned = banned;
+            this.publicKey    = publicKey;
+            this.id           = id;
+            this.banned       = banned;
         }
 
-        @Override
-        public HardwareReportRequest.HardwareInfo getHardwareInfo() {
-            return hardwareInfo;
-        }
-
-        @Override
-        public byte[] getPublicKey() {
-            return publicKey;
-        }
-
-        @Override
-        public String getId() {
-            return String.valueOf(id);
-        }
-
-        @Override
-        public boolean isBanned() {
-            return banned;
-        }
+        @Override public HardwareReportRequest.HardwareInfo getHardwareInfo() { return hardwareInfo; }
+        @Override public byte[] getPublicKey()                                 { return publicKey; }
+        @Override public String getId()                                        { return String.valueOf(id); }
+        @Override public boolean isBanned()                                    { return banned; }
 
         @Override
         public String toString() {
-            return "SQLUserHardware{" +
-                    "hardwareInfo=" + hardwareInfo +
-                    ", publicKey=" + (publicKey == null ? null : new String(Base64.getEncoder().encode(publicKey))) +
-                    ", id=" + id +
-                    ", banned=" + banned +
-                    '}';
+            return "SQLUserHardware{id=%d, banned=%b, publicKey=%s, info=%s}".formatted(
+                    id, banned,
+                    publicKey == null ? "null" : Base64.getEncoder().encodeToString(publicKey),
+                    hardwareInfo);
         }
     }
 
     public static class SQLUser extends AbstractSQLCoreProvider.SQLUser {
         protected long hwidId;
 
-        public SQLUser(UUID uuid, String username, String accessToken, String serverId, String password, long hwidId) {
+        public SQLUser(UUID uuid, String username, String accessToken,
+                       String serverId, String password, long hwidId) {
             super(uuid, username, accessToken, serverId, password);
             this.hwidId = hwidId;
         }
 
         @Override
         public String toString() {
-            return "SQLUser{" +
-                    "uuid=" + uuid +
-                    ", username='" + username + '\'' +
-                    ", permissions=" + permissions +
-                    ", hwidId=" + hwidId +
-                    '}';
+            return "SQLUser{uuid=%s, username='%s', permissions=%s, hwidId=%d}"
+                    .formatted(uuid, username, permissions, hwidId);
         }
     }
 }

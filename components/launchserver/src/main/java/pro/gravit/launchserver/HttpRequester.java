@@ -2,7 +2,7 @@ package pro.gravit.launchserver;
 
 import com.google.gson.JsonElement;
 import pro.gravit.launcher.base.Launcher;
-import pro.gravit.launchserver.helper.HttpHelper;
+import pro.gravit.launcher.base.HttpHelper;
 
 import java.io.IOException;
 import java.lang.reflect.Type;

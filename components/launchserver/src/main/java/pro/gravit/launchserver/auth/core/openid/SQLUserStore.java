@@ -5,7 +5,6 @@ import org.slf4j.LoggerFactory;
 import pro.gravit.launcher.base.ClientPermissions;
 import pro.gravit.launchserver.auth.HikariSQLSourceConfig;
 import pro.gravit.launchserver.auth.core.User;
-import pro.gravit.utils.helper.LogHelper;
 
 import java.sql.SQLException;
 import java.util.UUID;

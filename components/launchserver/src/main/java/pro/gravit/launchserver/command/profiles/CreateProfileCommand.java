@@ -8,6 +8,7 @@ import pro.gravit.launcher.base.Launcher;
 import pro.gravit.launcher.base.profiles.ClientProfile;
 import pro.gravit.launcher.base.profiles.ClientProfileBuilder;
 import pro.gravit.launcher.base.profiles.ClientProfileVersions;
+import pro.gravit.launcher.core.hasher.HashedDir;
 import pro.gravit.launchserver.HttpRequester;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.auth.profiles.ProfilesProvider;
@@ -18,7 +19,6 @@ import pro.gravit.launchserver.helper.MakeProfileHelper;
 import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
-import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -98,24 +98,33 @@ public class CreateProfileCommand extends Command {
                 isMirrorProfileDownload = true;
             }
         }
-        pushClientAndDownloadAssets(server, clientProfile, clientDir);
+        pushClientAndDownloadAssets(server, clientProfile, clientDir, true);
 
         // Finished
         logger.info("Client successfully downloaded: '{}'", dirName);
     }
 
-    public static ProfilesProvider.CompletedProfile pushClientAndDownloadAssets(LaunchServer server, ClientProfile clientProfile, Path clientDir) throws Exception {
+    public static ProfilesProvider.CompletedProfile pushClientAndDownloadAssets(LaunchServer server, ClientProfile clientProfile, Path clientDir, boolean isDownloadAssets) throws Exception {
         var uncompleted = server.config.profilesProvider.create(clientProfile.getTitle(), "Description", null);
+        if(!isDownloadAssets) {
+            return server.config.profilesProvider.pushUpdate(uncompleted, null, clientProfile, null, List.of(
+                    ProfilesProvider.ProfileAction.upload(clientDir, "", true)
+            ), List.of(ProfilesProvider.UpdateFlag.USE_DEFAULT_ASSETS));
+        }
         var completed = server.config.profilesProvider.pushUpdate(uncompleted, null, clientProfile, null, List.of(
                 ProfilesProvider.ProfileAction.upload(clientDir, "", true)
         ), List.of(ProfilesProvider.UpdateFlag.USE_DEFAULT_ASSETS));
         {
             String assetIndexPath = String.format("indexes/%s.json", completed.getProfile().getAssetIndex());
-            if (!completed.getAssetDir().tryFindRecursive(assetIndexPath).isFound()) {
+            HashedDir completedAssetDir = completed.getAssetDir();
+            if(completedAssetDir == null) {
+                completedAssetDir = new HashedDir();
+            }
+            if (!completedAssetDir.tryFindRecursive(assetIndexPath).isFound()) {
                 Path assetDir = server.createTempDirectory("assets");
                 HttpRequester requester = new HttpRequester();
                 var assetInfo = AssetsDirHelper.getAssetInfo(requester, completed.getProfile().getAssetIndex());
-                var toDownload = AssetsDirHelper.makeToDownloadFiles(assetInfo, completed.getAssetDir());
+                var toDownload = AssetsDirHelper.makeToDownloadFiles(assetInfo, completedAssetDir);
                 logger.info("Download assets {}", completed.getProfile().getAssetIndex());
                 Downloader downloader = downloadWithProgressBar(completed.getProfile().getAssetIndex(),
                         toDownload, AssetsDirHelper.RESOURCES_DOWNLOAD_URL, assetDir);

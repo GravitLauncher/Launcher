@@ -2,6 +2,7 @@ package pro.gravit.launcher.server;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import pro.gravit.launcher.base.ClientPermissions;
 import pro.gravit.launcher.base.Launcher;
 import pro.gravit.launcher.base.LauncherConfig;
 import pro.gravit.launcher.base.api.AuthService;
@@ -17,6 +18,7 @@ import pro.gravit.launcher.base.profiles.optional.triggers.OptionalTrigger;
 import pro.gravit.launcher.base.request.Request;
 import pro.gravit.launcher.base.request.RequestCoreFeatureAPIImpl;
 import pro.gravit.launcher.base.request.RequestFeatureAPIImpl;
+import pro.gravit.launcher.base.request.RequestFeatureHttpAPIImpl;
 import pro.gravit.launcher.base.request.auth.AuthRequest;
 import pro.gravit.launcher.base.request.auth.GetAvailabilityAuthRequest;
 import pro.gravit.launcher.base.request.update.ProfilesRequest;
@@ -75,6 +77,15 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
     }
 
     public void restore() throws Exception {
+        if(config.address.startsWith("http://") || config.address.startsWith("https://")) {
+            var selfUser = LauncherAPIHolder.get().auth().restore(config.oauth.accessToken, true).get();
+            AuthService.uuid = selfUser.getUUID();
+            AuthService.username = selfUser.getUsername();
+            if(selfUser.getPermissions() instanceof ClientPermissions clientPermissions) {
+                AuthService.permissions = clientPermissions;
+            }
+            return;
+        }
         if(config.oauth != null) {
             Request.setOAuth(config.authId, config.oauth, config.oauthExpireTime);
         }
@@ -128,39 +139,53 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
     public void connect() throws Exception {
         config.applyEnv();
         updateLauncherConfig();
-        StdWebSocketService service = StdWebSocketService.initWebSockets(config.address).get();
-        service.reconnectCallback = () ->
-        {
-            logger.debug("WebSocket connect closed. Try reconnect");
-            try {
-                Request.reconnect();
-                getProfiles();
-            } catch (Exception e) {
-                logger.error("", e);
-            }
-        };
-        Request.setRequestService(service);
-        LauncherAPIHolder.setCoreAPI(new RequestCoreFeatureAPIImpl(Request.getRequestService()));
-        LauncherAPIHolder.setCreateApiFactory((authId) -> {
-            var impl = new RequestFeatureAPIImpl(Request.getRequestService(), authId);
-            return new LauncherAPI(Map.of(
-                    AuthFeatureAPI.class, impl,
-                    UserFeatureAPI.class, impl,
-                    ProfileFeatureAPI.class, impl,
-                    TextureUploadFeatureAPI.class, impl,
-                    HardwareVerificationFeatureAPI.class, impl));
-        });
-        if(config.authId != null) {
-            LauncherAPIHolder.changeAuthId(config.authId);
+        if(config.address.startsWith("http://") || config.address.startsWith("https://")) {
+            RequestFeatureHttpAPIImpl impl = new RequestFeatureHttpAPIImpl(config.address);
+            LauncherAPIHolder.setCoreAPI(impl);
+            LauncherAPIHolder.setCreateApiFactory((authId) -> {
+                return new LauncherAPI(Map.of(
+                        AuthFeatureAPI.class, impl,
+                        UserFeatureAPI.class, impl,
+                        ProfileFeatureAPI.class, impl,
+                        TextureUploadFeatureAPI.class, impl,
+                        HardwareVerificationFeatureAPI.class, impl));
+            });
         } else {
-            var impl = new RequestFeatureAPIImpl(Request.getRequestService(), null);
-            LauncherAPIHolder.setApi(new LauncherAPI(Map.of(
-                    AuthFeatureAPI.class, impl,
-                    UserFeatureAPI.class, impl,
-                    ProfileFeatureAPI.class, impl,
-                    TextureUploadFeatureAPI.class, impl,
-                    HardwareVerificationFeatureAPI.class, impl)));
+            StdWebSocketService service = StdWebSocketService.initWebSockets(config.address).get();
+            service.reconnectCallback = () ->
+            {
+                logger.debug("WebSocket connect closed. Try reconnect");
+                try {
+                    Request.reconnect();
+                    getProfiles();
+                } catch (Exception e) {
+                    logger.error("", e);
+                }
+            };
+            Request.setRequestService(service);
+            LauncherAPIHolder.setCoreAPI(new RequestCoreFeatureAPIImpl(Request.getRequestService()));
+            LauncherAPIHolder.setCreateApiFactory((authId) -> {
+                var impl = new RequestFeatureAPIImpl(Request.getRequestService(), authId);
+                return new LauncherAPI(Map.of(
+                        AuthFeatureAPI.class, impl,
+                        UserFeatureAPI.class, impl,
+                        ProfileFeatureAPI.class, impl,
+                        TextureUploadFeatureAPI.class, impl,
+                        HardwareVerificationFeatureAPI.class, impl));
+            });
+            if(config.authId != null) {
+                LauncherAPIHolder.changeAuthId(config.authId);
+            } else {
+                var impl = new RequestFeatureAPIImpl(Request.getRequestService(), null);
+                LauncherAPIHolder.setApi(new LauncherAPI(Map.of(
+                        AuthFeatureAPI.class, impl,
+                        UserFeatureAPI.class, impl,
+                        ProfileFeatureAPI.class, impl,
+                        TextureUploadFeatureAPI.class, impl,
+                        HardwareVerificationFeatureAPI.class, impl)));
+            }
         }
+
         if (config.logFile != null) LogHelper.addOutput(IOHelper.newWriter(Paths.get(config.logFile), true));
         {
             restore();
@@ -385,6 +410,12 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
             this.serverName = applyEnvOrDefault("SERVERWRAPPER_SERVER_NAME", this.serverName);
             this.encodedServerEcPublicKey = applyEnvOrDefault("SERVERWRAPPER_EC_PUBLIC_KEY", Base64.getUrlDecoder()::decode, null);
             this.encodedServerRsaPublicKey = applyEnvOrDefault("SERVERWRAPPER_RSA_PUBLIC_KEY", Base64.getUrlDecoder()::decode, null);
+            {
+                String accessToken = System.getenv("SERVERWRAPPER_ACCESS_TOKEN");
+                if(accessToken != null) {
+                    this.oauth = new AuthRequestEvent.OAuthRequestEvent(accessToken, null, 0);
+                }
+            }
             {
                 String token = System.getenv("SERVERWRAPPER_CHECK_SERVER_TOKEN");
                 if(token != null) {

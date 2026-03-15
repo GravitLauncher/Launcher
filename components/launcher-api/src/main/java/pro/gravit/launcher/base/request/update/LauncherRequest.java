@@ -11,7 +11,6 @@ import pro.gravit.launcher.base.request.websockets.WebSocketRequest;
 import pro.gravit.launcher.core.api.features.CoreFeatureAPI;
 import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.JVMHelper;
-import pro.gravit.utils.helper.LogHelper;
 import pro.gravit.utils.helper.SecurityHelper;
 
 import java.io.IOException;

@@ -16,7 +16,6 @@ import pro.gravit.launcher.core.hasher.HashedEntry;
 import pro.gravit.launcher.core.hasher.HashedFile;
 import pro.gravit.launcher.runtime.client.DirBridge;
 import pro.gravit.launcher.runtime.utils.AssetIndexHelper;
-import pro.gravit.utils.helper.LogHelper;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -44,14 +43,19 @@ public class ClientDownloadImpl {
         AtomicReference<DownloadedDir> assetRef = new AtomicReference<>();
         AtomicReference<DownloadedDir> javaRef = new AtomicReference<>();
         return LauncherAPIHolder.profile().changeCurrentProfile(profile)
-                .thenCompose(vv -> downloadDir(profile.getDir(), profile.getClientUpdateMatcher(), settings.view, callback)).thenCompose((clientDir -> {
-            clientRef.set(clientDir);
+                .thenCompose(vv -> {
+                    callback.onStartPhase(LauncherBackendAPI.DownloadCallback.UpdatePhase.CLIENT);
+                    return downloadDir(profile.getDir(), profile.getClientUpdateMatcher(), settings.view, callback);
+                }).thenCompose((clientDir -> {
+                    clientRef.set(clientDir);
+                    callback.onStartPhase(LauncherBackendAPI.DownloadCallback.UpdatePhase.ASSETS);
             return downloadAsset(profile.getAssetDir(), profile.getAssetUpdateMatcher(), profile.getAssetIndex(), callback);
         })).thenCompose(assetDir -> {
             assetRef.set(assetDir);
             Path javaPath = settings.getSelectedJava().getPath();
             if(javaPath.startsWith(DirBridge.dirUpdates)) {
                 String javaDirName = DirBridge.dirUpdates.relativize(javaPath).getFileName().toString();
+                callback.onStartPhase(LauncherBackendAPI.DownloadCallback.UpdatePhase.JAVA);
                 return downloadDir(javaDirName, null, callback);
             }
             return CompletableFuture.completedFuture((DownloadedDir)null);
@@ -91,7 +95,7 @@ public class ClientDownloadImpl {
             } else {
                 var downloader = Downloader.newDownloader(backend.executorService);
                 var list = new LinkedList<Downloader.SizedFile>();
-                list.add(new Downloader.SizedFile(assetIndexRelPath, assetIndexRelPath, assetIndexHashFile.size));
+                list.add(new Downloader.SizedFile(assetIndexHashFile.url == null ? assetIndexRelPath : assetIndexHashFile.url, assetIndexRelPath, assetIndexHashFile.size));
                 return downloader.downloadFiles(list, response.getUrl(), targetDir, null, backend.executorService, 1).thenComposeAsync(v -> {
                     try {
                         var assetIndex = AssetIndexHelper.parse(assetIndexPath);
@@ -194,9 +198,9 @@ public class ClientDownloadImpl {
             }
             String pathFixed = path.replace(File.separatorChar, '/');
             if(entry instanceof HashedFile hfile && hfile.url != null) {
-                files.add(new Downloader.SizedFile(pathFixed, hfile.url, entry.size()));
+                files.add(new Downloader.SizedFile(hfile.url, pathFixed, entry.size()));
             } else {
-                files.add(new Downloader.SizedFile(pathFixed, pathRemapper.apply(pathFixed), entry.size()));
+                files.add(new Downloader.SizedFile(pathRemapper.apply(pathFixed), pathFixed, entry.size()));
             }
             return HashedDir.WalkAction.CONTINUE;
         });

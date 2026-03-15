@@ -11,8 +11,9 @@ import pro.gravit.launcher.base.request.auth.RefreshTokenRequest;
 import pro.gravit.launcher.base.request.auth.RestoreRequest;
 import pro.gravit.launcher.base.request.websockets.StdWebSocketService;
 import pro.gravit.launcher.base.request.websockets.WebSocketRequest;
-import pro.gravit.utils.helper.LogHelper;
 
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
@@ -77,7 +78,7 @@ public abstract class Request<R extends WebSocketEvent> implements WebSocketRequ
         oauth = event;
         Request.authId = authId;
         if (oauth != null && oauth.expire != 0) {
-            tokenExpiredTime = System.currentTimeMillis() + oauth.expire;
+            tokenExpiredTime = LocalDateTime.now().toEpochSecond(ZoneOffset.UTC) + oauth.expire;
         } else {
             tokenExpiredTime = 0;
         }
@@ -143,7 +144,7 @@ public abstract class Request<R extends WebSocketEvent> implements WebSocketRequ
     public static boolean isTokenExpired() {
         if (oauth == null) return true;
         if (tokenExpiredTime == 0) return false;
-        return System.currentTimeMillis() > tokenExpiredTime;
+        return LocalDateTime.now().toEpochSecond(ZoneOffset.UTC) > tokenExpiredTime;
     }
 
     public static long getTokenExpiredTime() {
@@ -174,7 +175,7 @@ public abstract class Request<R extends WebSocketEvent> implements WebSocketRequ
         }
         Set<String> set = new HashSet<>();
         for(Map.Entry<String, ExtendedToken> e : extendedTokens.entrySet()) {
-            if(e.getValue().expire != 0 && e.getValue().expire < System.currentTimeMillis()) {
+            if(e.getValue().expire != 0 && e.getValue().expire < LocalDateTime.now().toEpochSecond(ZoneOffset.UTC)) {
                 set.add(e.getKey());
             }
         }
@@ -305,7 +306,7 @@ public abstract class Request<R extends WebSocketEvent> implements WebSocketRequ
 
         public ExtendedToken(String token, long expire) {
             this.token = token;
-            long time = System.currentTimeMillis();
+            long time = LocalDateTime.now().toEpochSecond(ZoneOffset.UTC);
             this.expire = expire < time/2 ? time+expire : expire;
         }
     }

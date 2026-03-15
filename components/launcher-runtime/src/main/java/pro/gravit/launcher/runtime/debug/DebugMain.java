@@ -5,30 +5,26 @@ import org.slf4j.LoggerFactory;
 import pro.gravit.launcher.base.ClientPermissions;
 import pro.gravit.launcher.base.Launcher;
 import pro.gravit.launcher.base.LauncherConfig;
-import pro.gravit.launcher.base.events.request.AuthRequestEvent;
-import pro.gravit.launcher.base.events.request.CurrentUserRequestEvent;
-import pro.gravit.launcher.base.profiles.PlayerProfile;
-import pro.gravit.launcher.base.request.auth.AuthRequest;
-import pro.gravit.launcher.client.ClientLauncherMethods;
+import pro.gravit.launcher.client.LauncherAPIInitializer;
+import pro.gravit.launcher.core.api.LauncherAPIHolder;
+import pro.gravit.launcher.core.api.features.AuthFeatureAPI;
+import pro.gravit.launcher.core.api.method.password.AuthPlainPassword;
+import pro.gravit.launcher.core.api.model.SelfUser;
+import pro.gravit.launcher.core.api.model.Texture;
+import pro.gravit.launcher.core.api.model.UserPermissions;
 import pro.gravit.launcher.runtime.LauncherEngine;
 import pro.gravit.launcher.client.RuntimeLauncherCoreModule;
 import pro.gravit.launcher.runtime.managers.ConsoleManager;
 import pro.gravit.launcher.start.RuntimeModuleManager;
 import pro.gravit.launcher.base.modules.LauncherModule;
-import pro.gravit.launcher.base.modules.events.OfflineModeEvent;
 import pro.gravit.launcher.base.modules.events.PreConfigPhase;
-import pro.gravit.launcher.base.request.Request;
-import pro.gravit.launcher.base.request.RequestService;
-import pro.gravit.launcher.base.request.websockets.OfflineRequestService;
-import pro.gravit.launcher.base.request.websockets.StdWebSocketService;
 import pro.gravit.utils.helper.LogHelper;
 
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Paths;
-import java.util.HashMap;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class DebugMain {
@@ -52,7 +48,7 @@ public class DebugMain {
         IS_DEBUG.set(true);
         logger.info("Launcher start in DEBUG mode (Only for developers)");
         logger.debug("Initialization LauncherConfig");
-        LauncherConfig config = new LauncherConfig(DebugProperties.WEBSOCKET_URL, new HashMap<>(), DebugProperties.PROJECT_NAME, DebugProperties.ENV, new DebugLauncherTrustManager(DebugLauncherTrustManager.TrustDebugMode.TRUST_ALL));
+        LauncherConfig config = new LauncherConfig(DebugProperties.ADDRESS, new HashMap<>(), DebugProperties.PROJECT_NAME, DebugProperties.ENV, new DebugLauncherTrustManager(DebugLauncherTrustManager.TrustDebugMode.TRUST_ALL));
         config.unlockSecret = DebugProperties.UNLOCK_SECRET;
         Launcher.setConfig(config);
         Launcher.applyLauncherEnv(DebugProperties.ENV);
@@ -73,41 +69,59 @@ public class DebugMain {
             ConsoleManager.initConsole();
         }
         LauncherEngine.modulesManager.invokeEvent(new PreConfigPhase());
-        RequestService service;
-        if (DebugProperties.OFFLINE_MODE) {
-            OfflineRequestService offlineRequestService = new OfflineRequestService();
-            ClientLauncherMethods.applyBasicOfflineProcessors(offlineRequestService);
-            OfflineModeEvent event = new OfflineModeEvent(offlineRequestService);
-            LauncherEngine.modulesManager.invokeEvent(event);
-            service = event.service;
-        } else {
-            service = StdWebSocketService.initWebSockets(DebugProperties.WEBSOCKET_URL).get();
-        }
-        Request.setRequestService(service);
+        List<LauncherAPIInitializer.Flag> flags = new ArrayList<>();
         if(!DebugProperties.DISABLE_AUTO_REFRESH) {
-            Request.startAutoRefresh();
+            flags.add(LauncherAPIInitializer.Flag.ENABLE_AUTO_REFRESH);
         }
+        if(DebugProperties.OFFLINE_MODE) {
+            flags.add(LauncherAPIInitializer.Flag.OFFLINE_MODE);
+        }
+        LauncherAPIInitializer.initialize(LauncherEngine.modulesManager, DebugProperties.ADDRESS, List.of());
+        LauncherAPIHolder.changeAuthId(DebugProperties.AUTH_ID);
     }
 
-    public static AuthorizationData authorize() throws Exception {
+    public static SelfUser authorize() throws Exception {
         if(DebugProperties.ACCESS_TOKEN != null) {
-            Request.setOAuth(DebugProperties.AUTH_ID, new AuthRequestEvent.OAuthRequestEvent(DebugProperties.ACCESS_TOKEN, DebugProperties.REFRESH_TOKEN, DebugProperties.EXPIRE));
-            Request.RequestRestoreReport report = Request.restore(true, false, true);
-            return new AuthorizationData(new AuthRequestEvent.OAuthRequestEvent(DebugProperties.ACCESS_TOKEN, DebugProperties.REFRESH_TOKEN, DebugProperties.EXPIRE), report.userInfo);
+            return LauncherAPIHolder.auth().restore(DebugProperties.ACCESS_TOKEN, true).get();
         } else if(DebugProperties.LOGIN != null) {
-            AuthRequest request = new AuthRequest(DebugProperties.LOGIN, DebugProperties.PASSWORD, DebugProperties.AUTH_ID, AuthRequest.ConnectTypes.API);
-            AuthRequestEvent event = request.request();
-            Request.setOAuth(DebugProperties.AUTH_ID, event.oauth);
-            return new AuthorizationData(event.oauth, new CurrentUserRequestEvent.UserInfo(event.permissions, event.accessToken, event.playerProfile));
+            return LauncherAPIHolder.auth().auth(DebugProperties.LOGIN, new AuthPlainPassword(DebugProperties.PASSWORD)).thenApply(AuthFeatureAPI.AuthResponse::user).get();
         } else {
-            return new AuthorizationData(new AuthRequestEvent.OAuthRequestEvent("ACCESS_TOKEN", "REFRESH_TOKEN", 0),
-                    new CurrentUserRequestEvent.UserInfo(new ClientPermissions(), "ACCESS_TOKEN", new PlayerProfile(UUID.fromString(DebugProperties.UUID),
-                            DebugProperties.USERNAME, new HashMap<>(), new HashMap<>())));
+            return new VirtualSelfUser();
         }
     }
 
-    public record AuthorizationData(AuthRequestEvent.OAuthRequestEvent event, CurrentUserRequestEvent.UserInfo userInfo) {
+    public record VirtualSelfUser() implements SelfUser {
+        private static UUID PLAYER_UUID = UUID.fromString("Player");
 
+        @Override
+        public String getAccessToken() {
+            return "";
+        }
+
+        @Override
+        public UserPermissions getPermissions() {
+            return new ClientPermissions();
+        }
+
+        @Override
+        public String getUsername() {
+            return "Player";
+        }
+
+        @Override
+        public UUID getUUID() {
+            return PLAYER_UUID;
+        }
+
+        @Override
+        public Map<String, Texture> getAssets() {
+            return Map.of();
+        }
+
+        @Override
+        public Map<String, String> getProperties() {
+            return Map.of();
+        }
     }
 
     @SuppressWarnings("unchecked")

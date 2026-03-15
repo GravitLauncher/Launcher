@@ -86,7 +86,7 @@ public class ClientLauncherWrapper {
 
         if(context.javaVersion.version < 17) {
             String message = String.format("GravitLauncher v%s required Java 17 or higher", Version.getVersion());
-            logger.error("", message);
+            logger.error("{}", message);
             JOptionPane.showMessageDialog(null, message, "GravitLauncher", JOptionPane.ERROR_MESSAGE);
             System.exit(0);
         }

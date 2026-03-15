@@ -5,7 +5,6 @@ import org.slf4j.LoggerFactory;
 import pro.gravit.launcher.base.config.SimpleConfigurable;
 import pro.gravit.launcher.base.modules.ModulesConfigManager;
 import pro.gravit.utils.helper.IOHelper;
-import pro.gravit.utils.helper.LogHelper;
 
 import java.io.IOException;
 import java.nio.file.Files;

@@ -13,7 +13,6 @@ import pro.gravit.launcher.base.LauncherConfig;
 import pro.gravit.launcher.core.api.features.CoreFeatureAPI;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.asm.ClassMetadataReader;
-import pro.gravit.launchserver.asm.InjectClassAcceptor;
 import pro.gravit.launchserver.asm.SafeClassWriter;
 import pro.gravit.launchserver.binary.BuildContext;
 import pro.gravit.launchserver.binary.JARLauncherBinary;
@@ -123,6 +122,7 @@ public class MainBuildTask implements LauncherBuildTask {
             context.properties.put("runtimeconfig.runtimeEncryptKey", runtimeEncryptKey);
         }
         context.properties.put("launcher.certificatePinning", server.config.launcher.certificatePinning);
+        context.properties.put("launcher.useHttpApi", server.config.launcher.experimentalDevOnlyHttpApi);
         String checkClientSecret = SecurityHelper.randomStringToken();
         context.pipelineContext.putProperty("checkClientSecret", checkClientSecret);
         String launcherSalt = SecurityHelper.randomStringToken();
@@ -133,6 +133,15 @@ public class MainBuildTask implements LauncherBuildTask {
         String unlockSecret = SecurityHelper.randomStringToken();
         context.pipelineContext.putProperty("unlockSecret", unlockSecret);
         context.properties.put("runtimeconfig.unlockSecret", unlockSecret);
+        {
+            var pair = SecurityHelper.genECDSAKeyPair(SecurityHelper.newRandom());
+            String privateKey = Base64.getEncoder().encodeToString(pair.getPrivate().getEncoded());
+            String publicKey = Base64.getEncoder().encodeToString(pair.getPublic().getEncoded());
+            context.properties.put("launcher.build.privatekey", privateKey);
+            context.properties.put("launcher.build.publickey", publicKey);
+            context.pipelineContext.putProperty("build.privateKey", privateKey);
+            context.pipelineContext.putProperty("build.publicKey", publicKey);
+        }
     }
 
     public byte[] transformClass(byte[] bytes, String classname, BuildContext context) {

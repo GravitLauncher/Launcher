@@ -12,7 +12,7 @@ public class DebugProperties {
     public static final String LOGIN = System.getProperty("launcher.runtime.login", USERNAME);
     public static final String UUID = System.getProperty("launcher.runtime.uuid", null);
     public static final String PASSWORD = System.getProperty("launcher.runtime.password", null);
-    public static String WEBSOCKET_URL = System.getProperty("launcherdebug.websocket", "ws://localhost:9274/api");
+    public static String ADDRESS = System.getProperty("launcherdebug.address", "ws://localhost:9274/api");
     public static String PROJECT_NAME = System.getProperty("launcherdebug.projectname", "Minecraft");
     public static String UNLOCK_SECRET = System.getProperty("launcherdebug.unlocksecret", "");
     public static boolean DISABLE_CONSOLE = Boolean.getBoolean("launcherdebug.disableConsole");
@@ -21,4 +21,8 @@ public class DebugProperties {
     public static String[] MODULE_CLASSES = System.getProperty("launcherdebug.modules", "").split(",");
     public static String[] MODULE_FILES = System.getProperty("launcherdebug.modulefiles", "").split(",");
     public static LauncherConfig.LauncherEnvironment ENV = LauncherConfig.LauncherEnvironment.valueOf(System.getProperty("launcherdebug.env", "STD"));
+
+    public static boolean isHttp() {
+        return ADDRESS.startsWith("http://") || ADDRESS.startsWith("https://");
+    }
 }

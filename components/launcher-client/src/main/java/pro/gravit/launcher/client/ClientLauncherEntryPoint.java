@@ -126,40 +126,8 @@ public class ClientLauncherEntryPoint {
         // Start client with WatchService monitoring
         var config = Launcher.getConfig();
         config.apply();
-        RequestService service;
-        if (params.offlineMode) {
-            service = ClientLauncherMethods.initOffline(modulesManager, params);
-            Request.setRequestService(service);
-        } else {
-            service = StdWebSocketService.initWebSockets(config.address).get();
-            Request.setRequestService(service);
-            logger.debug("Restore sessions");
-            Request.restore(false, false, true);
-            service.registerEventHandler(new BasicLauncherEventHandler());
-            ((StdWebSocketService) service).reconnectCallback = () ->
-            {
-                logger.debug("WebSocket connect closed. Try reconnect");
-                try {
-                    Request.reconnect();
-                } catch (Exception e) {
-                    logger.error("", e);
-                    throw new RequestException("Connection failed", e);
-                }
-            };
-        }
-        // Init New API
-        LauncherAPIHolder.setCoreAPI(new RequestCoreFeatureAPIImpl(Request.getRequestService()));
-        LauncherAPIHolder.setCreateApiFactory((authId) -> {
-            var impl = new RequestFeatureAPIImpl(Request.getRequestService(), authId);
-            return new LauncherAPI(Map.of(
-                    AuthFeatureAPI.class, impl,
-                    UserFeatureAPI.class, impl,
-                    ProfileFeatureAPI.class, impl,
-                    TextureUploadFeatureAPI.class, impl,
-                    HardwareVerificationFeatureAPI.class, impl));
-        });
+        LauncherAPIInitializer.initialize(modulesManager, config.address, List.of());
         LauncherAPIHolder.changeAuthId(params.authId);
-        //
         logger.debug("Natives dir {}", params.nativesDir);
         ClientProfile.ClassLoaderConfig classLoaderConfig = profile.getClassLoaderConfig();
         LaunchOptions options = new LaunchOptions();

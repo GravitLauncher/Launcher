@@ -4,7 +4,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pro.gravit.launcher.runtime.client.DirBridge;
 import pro.gravit.utils.helper.IOHelper;
-import pro.gravit.utils.helper.LogHelper;
 import pro.gravit.utils.helper.SecurityHelper;
 
 import java.io.IOException;

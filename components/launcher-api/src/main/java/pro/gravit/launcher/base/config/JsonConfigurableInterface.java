@@ -3,7 +3,6 @@ package pro.gravit.launcher.base.config;
 import com.google.gson.Gson;
 import pro.gravit.launcher.base.Launcher;
 import pro.gravit.utils.helper.IOHelper;
-import pro.gravit.utils.helper.LogHelper;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;

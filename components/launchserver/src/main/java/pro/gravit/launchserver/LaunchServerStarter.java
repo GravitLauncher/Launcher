@@ -142,6 +142,7 @@ public class LaunchServerStarter {
                 isRunCommand = false;
             }
         }
+        server.modulesManager.fullInitializedLaunchServer(server);
         for(var cmd : runCommand) {
             localCommandHandler.eval(cmd, false);
         }
@@ -208,12 +209,18 @@ public class LaunchServerStarter {
             }
             if(!Files.exists(filePath)) {
                 logger.warn("Module {} not found", filePath);
+                continue;
             }
-            if(Files.isDirectory(filePath)) {
-                modulesManager.autoload(filePath);
-            } else {
-                modulesManager.loadModule(filePath);
+            try {
+                if(Files.isDirectory(filePath)) {
+                    modulesManager.autoload(filePath);
+                } else {
+                    modulesManager.loadModule(filePath);
+                }
+            } catch (Throwable ex) {
+                logger.error("Failed to load module {}: {}", filePath, e);
             }
+
         }
         return config;
     }

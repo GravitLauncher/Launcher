@@ -13,7 +13,6 @@ import pro.gravit.launcher.core.serialize.HOutput;
 import pro.gravit.launcher.core.serialize.stream.StreamObject;
 import pro.gravit.utils.Version;
 import pro.gravit.utils.helper.JVMHelper;
-import pro.gravit.utils.helper.LogHelper;
 import pro.gravit.utils.helper.SecurityHelper;
 import pro.gravit.utils.helper.VerifyHelper;
 
@@ -66,6 +65,12 @@ public final class LauncherConfig extends StreamObject {
     public Map<String, String> customJavaDownload;
     @LauncherInject("runtimeconfig.forceUseCustomJava")
     public boolean forceUseCustomJava;
+    @LauncherInject("launcher.build.privatekey")
+    public String ecdsaBuildPrivateKey;
+    @LauncherInject("launcher.build.publickey")
+    public String ecdsaBuildPublicKey;
+    @LauncherInject("launcher.useHttpApi")
+    public boolean useHttpApi;
 
     private static class ModernModulesClass {
         @LauncherInject("launcher.modules")
