@@ -36,6 +36,7 @@ import java.io.IOException;
 import java.sql.*;
 import java.time.Clock;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -623,7 +624,7 @@ public abstract class AbstractSQLCoreProvider extends AuthCoreProvider implement
     private String makeAccessToken(SQLUser user) {
         return LegacySessionHelper.makeAccessJwtTokenFromString(
                 user,
-                LocalDateTime.now(Clock.systemUTC()).plusSeconds(expireSeconds),
+                LocalDateTime.now().plusSeconds(expireSeconds),
                 server.keyAgreementManager.ecdsaPrivateKey);
     }
 
