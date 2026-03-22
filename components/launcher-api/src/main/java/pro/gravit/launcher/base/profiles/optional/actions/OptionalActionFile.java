@@ -22,22 +22,26 @@ public class OptionalActionFile extends OptionalAction {
 
     public void injectToHashedDir(HashedDir dir) {
         if (files == null) return;
-        files.forEach((k, v) -> {
-            HashedDir.FindRecursiveResult firstPath = dir.findRecursive(k);
-            if (v != null && !v.isEmpty()) {
-                logger.info("Debug findRecursive firstPath: name {}, parent: {}, entry: {}", firstPath.name, firstPath.parent == null ? "null" : "not null", firstPath.entry == null ? "null" : "not null");
-                HashedDir.FindRecursiveResult secondPath = dir.findRecursive(v);
-                logger.info("Debug findRecursive secondPath: name {}, parent: {}, entry: {}", secondPath.name, secondPath.parent == null ? "null" : "not null", secondPath.entry == null ? "null" : "not null");
-                firstPath.parent.moveTo(firstPath.name, secondPath.parent, secondPath.name);
+        files.forEach((targetPath, sourcePath) -> {
+            if (sourcePath == null || sourcePath.isEmpty()) return;
+            HashedDir.FindRecursiveResult source = dir.tryFindRecursive(sourcePath);
+            if (!source.isFound()) {
+                logger.warn("OptionalActionFile source not found for move: {}", sourcePath);
+                return;
             }
+            HashedDir.FindRecursiveResult target = dir.createParentDirectories(targetPath);
+            source.parent.moveTo(source.name, target.parent, target.name);
         });
     }
 
     public void disableInHashedDir(HashedDir dir) {
         if (files == null) return;
-        files.forEach((k, v) -> {
-            HashedDir.FindRecursiveResult firstPath = dir.findRecursive(k);
-            firstPath.parent.remove(firstPath.name);
+        files.forEach((targetPath, sourcePath) -> {
+            String path = sourcePath != null && !sourcePath.isEmpty() ? sourcePath : targetPath;
+            HashedDir.FindRecursiveResult result = dir.tryFindRecursive(path);
+            if (result.isFound()) {
+                result.parent.remove(result.name);
+            }
         });
     }
 }

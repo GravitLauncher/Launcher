@@ -67,6 +67,9 @@ public final class HashedDir extends HashedEntry {
 
     public void moveTo(String elementName, HashedDir target, String targetElementName) {
         HashedEntry entry = map.remove(elementName);
+        if (entry == null) {
+            throw new IllegalArgumentException(String.format("Entry '%s' not found", elementName));
+        }
         target.map.put(targetElementName, entry);
     }
 
