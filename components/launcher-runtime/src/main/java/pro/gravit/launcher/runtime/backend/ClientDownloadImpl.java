@@ -251,8 +251,8 @@ public class ClientDownloadImpl {
             file.injectToHashedDir(hdir);
             file.files.forEach((k, v) -> {
                 if (v == null || v.isEmpty()) return;
-                pathRemapper.add(new PathRemapperData(v, k)); //reverse (!)
-                logger.info("Remap prepare {} to {}", v, k);
+                pathRemapper.add(new PathRemapperData(k, v));
+                logger.info("Remap prepare {} to {}", k, v);
             });
         }
         pathRemapper.sort(Comparator.comparingInt(c -> -c.key.length())); // Support deep remap

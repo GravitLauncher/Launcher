@@ -21,6 +21,8 @@ public class ClientLauncherWrapper {
     public static final String MAGIC_ARG = "-Djdk.attach.allowAttachSelf";
     public static final String WAIT_PROCESS_PROPERTY = "launcher.waitProcess";
     public static final String NO_JAVA_CHECK_PROPERTY = "launcher.noJavaCheck";
+    public static final String WRAPPED_LAUNCH_PROPERTY = "launcher.wrappedLaunch";
+    public static final String BRIDGED_FROM_ENGINE_PROPERTY = "launcher.bridgedFromEngine";
     public static boolean noJavaCheck = Boolean.getBoolean(NO_JAVA_CHECK_PROPERTY);
     public static boolean waitProcess = Boolean.getBoolean(WAIT_PROCESS_PROPERTY);
     @LauncherInject("launcher.memory")
@@ -41,7 +43,9 @@ public class ClientLauncherWrapper {
     public static void main(String[] arguments) throws IOException, InterruptedException {
         LogHelper.printVersion("Launcher");
         LogHelper.printLicense("Launcher");
-        JVMHelper.checkStackTrace(ClientLauncherWrapper.class);
+        if (!Boolean.getBoolean(BRIDGED_FROM_ENGINE_PROPERTY)) {
+            JVMHelper.checkStackTrace(ClientLauncherWrapper.class);
+        }
         JVMHelper.verifySystemProperties(Launcher.class, true);
         EnvHelper.checkDangerousParams();
         LauncherConfig config = Launcher.getConfig();
@@ -107,6 +111,7 @@ public class ClientLauncherWrapper {
         context.clientArgs.addAll(Arrays.asList(arguments));
         EnvHelper.addEnv(context.processBuilder);
         modulesManager.callWrapper(context);
+        context.jvmProperties.put(WRAPPED_LAUNCH_PROPERTY, "true");
         // ---------
         List<String> args = new ArrayList<>(16);
         args.add(context.executePath.toAbsolutePath().toString());

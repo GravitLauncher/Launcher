@@ -3,6 +3,7 @@ package pro.gravit.launcher.runtime;
 import pro.gravit.launcher.base.Launcher;
 import pro.gravit.launcher.base.LauncherConfig;
 import pro.gravit.launcher.core.LauncherNetworkAPI;
+import pro.gravit.launcher.start.ClientLauncherWrapper;
 import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.launch.LaunchOptions;
 import pro.gravit.utils.launch.ModuleLaunch;
@@ -63,6 +64,11 @@ public class LauncherEngineWrapper {
         modules.add("javafx.web");
     }
     public static void main(String[] args) throws Throwable {
+        if (!Boolean.getBoolean(ClientLauncherWrapper.WRAPPED_LAUNCH_PROPERTY)) {
+            System.setProperty(ClientLauncherWrapper.BRIDGED_FROM_ENGINE_PROPERTY, "true");
+            ClientLauncherWrapper.main(args);
+            return;
+        }
         applyLoggerSettings(args);
         ModuleLaunch launch = new ModuleLaunch();
         LaunchOptions options = new LaunchOptions();
