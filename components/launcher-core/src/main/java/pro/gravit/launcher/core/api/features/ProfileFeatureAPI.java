@@ -40,5 +40,6 @@ public interface ProfileFeatureAPI extends FeatureAPI {
         String getCategory();
         boolean isVisible();
         Set<OptionalMod> getDependencies();
+        default int getDepth() { return 0; }
     }
 }

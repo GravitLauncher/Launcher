@@ -11,6 +11,7 @@ import pro.gravit.launcher.core.api.LauncherAPIHolder;
 import pro.gravit.launcher.core.api.features.*;
 import pro.gravit.launcher.core.backend.LauncherBackendAPIHolder;
 import pro.gravit.launcher.runtime.backend.LauncherBackendImpl;
+import pro.gravit.launcher.runtime.backend.LauncherBackendModule;
 import pro.gravit.launcher.runtime.client.*;
 import pro.gravit.launcher.runtime.client.events.ClientEngineInitPhase;
 import pro.gravit.launcher.client.events.ClientExitPhase;
@@ -127,6 +128,7 @@ public class LauncherEngine {
         LauncherEngine.checkClass(ClientLauncherEntryPoint.class);
         LauncherEngine.modulesManager = new RuntimeModuleManager();
         LauncherEngine.modulesManager.loadModule(new RuntimeLauncherCoreModule());
+        LauncherEngine.modulesManager.loadModule(new LauncherBackendModule());
         LauncherConfig.initModules(LauncherEngine.modulesManager);
         LauncherEngine.modulesManager.initModules(null);
         // Start Launcher
@@ -187,7 +189,6 @@ public class LauncherEngine {
         runtimeProvider.init(clientInstance);
         //runtimeProvider.preLoad();
         LauncherAPIInitializer.initialize(modulesManager, config.address, List.of(LauncherAPIInitializer.Flag.ENABLE_AUTO_REFRESH));
-        LauncherBackendAPIHolder.setApi(new LauncherBackendImpl());
         //
         Objects.requireNonNull(args, "args");
         if (started.getAndSet(true))

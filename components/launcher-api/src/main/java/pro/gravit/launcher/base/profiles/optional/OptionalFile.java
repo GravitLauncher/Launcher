@@ -4,6 +4,7 @@ import pro.gravit.launcher.core.LauncherNetworkAPI;
 import pro.gravit.launcher.base.profiles.optional.actions.OptionalAction;
 import pro.gravit.launcher.core.api.features.ProfileFeatureAPI;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -39,6 +40,8 @@ public class OptionalFile implements ProfileFeatureAPI.OptionalMod {
     public boolean isPreset;
     @LauncherNetworkAPI
     public boolean limited;
+    @LauncherNetworkAPI
+    private transient int cachedDepth = -1;
 
     @LauncherNetworkAPI
     public String category;
@@ -83,5 +86,31 @@ public class OptionalFile implements ProfileFeatureAPI.OptionalMod {
 
     public boolean isMark() {
         return mark;
+    }
+
+    @Override
+    public int getDepth() {
+        if (cachedDepth >= 0) return cachedDepth;
+        cachedDepth = computeDepth(new HashSet<>());
+        return cachedDepth;
+    }
+
+    private int computeDepth(Set<OptionalFile> visited) {
+        if (dependencies == null || dependencies.length == 0) {
+            return 0;
+        }
+        int max = 0;
+        for (OptionalFile dep : dependencies) {
+            if (visited.contains(dep)) continue;
+            visited.add(dep);
+            int depDepth;
+            if (dep.isVisible()) {
+                depDepth = dep.computeDepth(visited) + 1;
+            } else {
+                depDepth = dep.computeDepth(visited);
+            }
+            if (depDepth > max) max = depDepth;
+        }
+        return max;
     }
 }

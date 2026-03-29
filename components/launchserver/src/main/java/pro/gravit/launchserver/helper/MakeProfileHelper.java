@@ -193,7 +193,7 @@ public class MakeProfileHelper {
 
     public static String getMainClassByVersion(ClientProfile.Version version, MakeProfileOption... options) {
         if(version.compareTo(ClientProfileVersions.MINECRAFT_1_7_10) == 0) {
-            return  "com.gtnewhorizons.retrofuturabootstrap.Main";
+            return  "com.gtnewhorizons.retrofuturabootstrap.MainStartOnFirstThread";
         }
         if (findOption(options, MakeProfileOptionLaunchWrapper.class).isPresent()) {
             return "net.minecraft.launchwrapper.Launch";
