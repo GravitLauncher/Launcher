@@ -10,6 +10,7 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.time.Duration;
+import java.util.concurrent.CompletableFuture;
 
 public class HttpRequester {
     private transient final HttpClient httpClient = HttpClient.newBuilder().build();
@@ -65,6 +66,10 @@ public class HttpRequester {
 
     public <T> HttpHelper.HttpOptional<T, SimpleError> send(HttpRequest request, Type type) throws IOException {
         return HttpHelper.send(httpClient, request, makeEH(type));
+    }
+
+    public <T> CompletableFuture<HttpHelper.HttpOptional<T, SimpleError>> sendAsync(HttpRequest request, Type type) {
+        return HttpHelper.sendAsync(httpClient, request, makeEH(type));
     }
 
 
