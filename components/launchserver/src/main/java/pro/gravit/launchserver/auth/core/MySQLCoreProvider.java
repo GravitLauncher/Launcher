@@ -27,6 +27,7 @@ public class MySQLCoreProvider extends AbstractSQLCoreProvider implements AuthSu
     public double criticalCompareLevel = 1.0;
     private transient String sqlFindHardwareByPublicKey;
     private transient String sqlFindHardwareByData;
+    private transient String sqlFindHardwareByDataFiltered;
     private transient String sqlFindHardwareById;
     private transient String sqlCreateHardware;
     private transient String sqlCreateHWIDLog;
@@ -54,6 +55,7 @@ public class MySQLCoreProvider extends AbstractSQLCoreProvider implements AuthSu
             sqlUsersByHwidId = "SELECT %s FROM %s WHERE `%s` = ?".formatted(userInfoCols, table, hardwareIdColumn);
         if (sqlFindHardwareByData == null)
             sqlFindHardwareByData = "SELECT %s FROM %s".formatted(hardwareInfoCols, tableHWID);
+        sqlFindHardwareByDataFiltered = "SELECT %s FROM %s WHERE `hwDiskId` = ? OR `baseboardSerialNumber` = ?".formatted(hardwareInfoCols, tableHWID);
         if (sqlCreateHardware == null)
             sqlCreateHardware = "INSERT INTO `%s` (`publickey`, `hwDiskId`, `baseboardSerialNumber`, `displayId`, `bitness`, `totalMemory`, `logicalProcessors`, `physicalProcessors`, `processorMaxFreq`, `graphicCard`, `battery`, `banned`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, '0')".formatted(tableHWID);
         if (sqlCreateHWIDLog == null)
@@ -95,16 +97,17 @@ public class MySQLCoreProvider extends AbstractSQLCoreProvider implements AuthSu
     }
 
     private void setUserHardwareId(Connection connection, UUID uuid, long hwidId) throws SQLException {
-        PreparedStatement s = connection.prepareStatement(sqlUpdateUsers);
-        s.setLong(1, hwidId);
-        s.setString(2, uuid.toString());
-        s.executeUpdate();
+        try (PreparedStatement s = connection.prepareStatement(sqlUpdateUsers)) {
+            s.setLong(1, hwidId);
+            s.setString(2, uuid.toString());
+            s.executeUpdate();
+        }
     }
 
     @Override
     public UserHardware getHardwareInfoByPublicKey(byte[] publicKey) {
-        try (Connection connection = mySQLHolder.getConnection()) {
-            PreparedStatement s = connection.prepareStatement(sqlFindHardwareByPublicKey);
+        try (Connection connection = mySQLHolder.getConnection();
+             PreparedStatement s = connection.prepareStatement(sqlFindHardwareByPublicKey)) {
             s.setBlob(1, new ByteArrayInputStream(publicKey));
             try (ResultSet set = s.executeQuery()) {
                 if (set.next()) {
@@ -122,26 +125,48 @@ public class MySQLCoreProvider extends AbstractSQLCoreProvider implements AuthSu
     @Override
     public UserHardware getHardwareInfoByData(HardwareReportRequest.HardwareInfo info) {
         try (Connection connection = mySQLHolder.getConnection()) {
-            PreparedStatement s = connection.prepareStatement(sqlFindHardwareByData);
-            try (ResultSet set = s.executeQuery()) {
-                while (set.next()) {
-                    MySQLUserHardware hw = fetchHardwareInfo(set);
-                    HardwareInfoCompareResult result = compareHardwareInfo(hw.getHardwareInfo(), info);
-                    if (result.compareLevel > criticalCompareLevel) {
-                        return hw;
-                    }
-                }
-            }
+            MySQLUserHardware result = findHardwareByDataFiltered(connection, info);
+            if (result != null) return result;
+            return findHardwareByDataFullScan(connection, info);
         } catch (SQLException | IOException throwables) {
             logger.error("SQL Error", throwables);
         }
         return null;
     }
 
+    private MySQLUserHardware findHardwareByDataFiltered(Connection connection, HardwareReportRequest.HardwareInfo info) throws SQLException, IOException {
+        try (PreparedStatement s = connection.prepareStatement(sqlFindHardwareByDataFiltered)) {
+            s.setString(1, info.hwDiskId);
+            s.setString(2, info.baseboardSerialNumber);
+            try (ResultSet set = s.executeQuery()) {
+                while (set.next()) {
+                    MySQLUserHardware hw = fetchHardwareInfo(set);
+                    if (compareHardwareInfo(hw.getHardwareInfo(), info).compareLevel > criticalCompareLevel) {
+                        return hw;
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    private MySQLUserHardware findHardwareByDataFullScan(Connection connection, HardwareReportRequest.HardwareInfo info) throws SQLException, IOException {
+        try (PreparedStatement s = connection.prepareStatement(sqlFindHardwareByData);
+             ResultSet set = s.executeQuery()) {
+            while (set.next()) {
+                MySQLUserHardware hw = fetchHardwareInfo(set);
+                if (compareHardwareInfo(hw.getHardwareInfo(), info).compareLevel > criticalCompareLevel) {
+                    return hw;
+                }
+            }
+        }
+        return null;
+    }
+
     @Override
     public UserHardware getHardwareInfoById(String id) {
-        try (Connection connection = mySQLHolder.getConnection()) {
-            PreparedStatement s = connection.prepareStatement(sqlFindHardwareById);
+        try (Connection connection = mySQLHolder.getConnection();
+             PreparedStatement s = connection.prepareStatement(sqlFindHardwareById)) {
             s.setLong(1, Long.parseLong(id));
             try (ResultSet set = s.executeQuery()) {
                 if (set.next()) {
@@ -158,8 +183,8 @@ public class MySQLCoreProvider extends AbstractSQLCoreProvider implements AuthSu
 
     @Override
     public UserHardware createHardwareInfo(HardwareReportRequest.HardwareInfo hardwareInfo, byte[] publicKey) {
-        try (Connection connection = mySQLHolder.getConnection()) {
-            PreparedStatement s = connection.prepareStatement(sqlCreateHardware, Statement.RETURN_GENERATED_KEYS);
+        try (Connection connection = mySQLHolder.getConnection();
+             PreparedStatement s = connection.prepareStatement(sqlCreateHardware, Statement.RETURN_GENERATED_KEYS)) {
             s.setBlob(1, new ByteArrayInputStream(publicKey));
             s.setString(2, hardwareInfo.hwDiskId);
             s.setString(3, hardwareInfo.baseboardSerialNumber);
@@ -174,7 +199,6 @@ public class MySQLCoreProvider extends AbstractSQLCoreProvider implements AuthSu
             s.executeUpdate();
             try (ResultSet generatedKeys = s.getGeneratedKeys()) {
                 if (generatedKeys.next()) {
-                    //writeHwidLog(connection, generatedKeys.getLong(1), publicKey);
                     long id = generatedKeys.getLong(1);
                     return new MySQLUserHardware(hardwareInfo, publicKey, id, false);
                 }
@@ -204,8 +228,8 @@ public class MySQLCoreProvider extends AbstractSQLCoreProvider implements AuthSu
     public void addPublicKeyToHardwareInfo(UserHardware hardware, byte[] publicKey) {
         MySQLUserHardware mySQLUserHardware = (MySQLUserHardware) hardware;
         mySQLUserHardware.publicKey = publicKey;
-        try (Connection connection = mySQLHolder.getConnection()) {
-            PreparedStatement s = connection.prepareStatement(sqlUpdateHardwarePublicKey);
+        try (Connection connection = mySQLHolder.getConnection();
+             PreparedStatement s = connection.prepareStatement(sqlUpdateHardwarePublicKey)) {
             s.setBlob(1, new ByteArrayInputStream(publicKey));
             s.setLong(2, mySQLUserHardware.id);
             s.executeUpdate();
@@ -217,12 +241,12 @@ public class MySQLCoreProvider extends AbstractSQLCoreProvider implements AuthSu
     @Override
     public Iterable<User> getUsersByHardwareInfo(UserHardware hardware) {
         List<User> users = new LinkedList<>();
-        try (Connection c = mySQLHolder.getConnection()) {
-            PreparedStatement s = c.prepareStatement(sqlUsersByHwidId);
+        try (Connection c = mySQLHolder.getConnection();
+             PreparedStatement s = c.prepareStatement(sqlUsersByHwidId)) {
             s.setLong(1, Long.parseLong(hardware.getId()));
             s.setQueryTimeout(MySQLSourceConfig.TIMEOUT);
             try (ResultSet set = s.executeQuery()) {
-                while (!set.isLast()) {
+                while (set.next()) {
                     users.add(constructUser(set));
                 }
             }
@@ -237,8 +261,8 @@ public class MySQLCoreProvider extends AbstractSQLCoreProvider implements AuthSu
     public void banHardware(UserHardware hardware) {
         MySQLUserHardware mySQLUserHardware = (MySQLUserHardware) hardware;
         mySQLUserHardware.banned = true;
-        try (Connection connection = mySQLHolder.getConnection()) {
-            PreparedStatement s = connection.prepareStatement(sqlUpdateHardwareBanned);
+        try (Connection connection = mySQLHolder.getConnection();
+             PreparedStatement s = connection.prepareStatement(sqlUpdateHardwareBanned)) {
             s.setBoolean(1, true);
             s.setLong(2, mySQLUserHardware.id);
             s.executeUpdate();
@@ -251,8 +275,8 @@ public class MySQLCoreProvider extends AbstractSQLCoreProvider implements AuthSu
     public void unbanHardware(UserHardware hardware) {
         MySQLUserHardware mySQLUserHardware = (MySQLUserHardware) hardware;
         mySQLUserHardware.banned = false;
-        try (Connection connection = mySQLHolder.getConnection()) {
-            PreparedStatement s = connection.prepareStatement(sqlUpdateHardwareBanned);
+        try (Connection connection = mySQLHolder.getConnection();
+             PreparedStatement s = connection.prepareStatement(sqlUpdateHardwareBanned)) {
             s.setBoolean(1, false);
             s.setLong(2, mySQLUserHardware.id);
             s.executeUpdate();
