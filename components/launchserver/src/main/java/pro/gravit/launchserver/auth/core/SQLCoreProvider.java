@@ -80,6 +80,7 @@ public class SQLCoreProvider extends AbstractSQLCoreProvider
 
     private transient String sqlFindHardwareByPublicKey;
     private transient String sqlFindHardwareByData;
+    private transient String sqlFindHardwareByDataFiltered;
     private transient String sqlFindHardwareById;
     private transient String sqlCreateHardware;
     private transient String sqlCreateHWIDLog;
@@ -132,6 +133,9 @@ public class SQLCoreProvider extends AbstractSQLCoreProvider
 
         sqlFindHardwareByData = resolve(customFindHardwareByData,
                 "SELECT %s FROM %s".formatted(hwCols, tableHWID));
+
+        sqlFindHardwareByDataFiltered =
+                "SELECT %s FROM %s WHERE hwDiskId = ? OR baseboardSerialNumber = ?".formatted(hwCols, tableHWID);
 
         sqlCreateHardware = resolve(customCreateHardware,
                 ("INSERT INTO %s " +
@@ -203,8 +207,34 @@ public class SQLCoreProvider extends AbstractSQLCoreProvider
 
     @Override
     public UserHardware getHardwareInfoByData(HardwareReportRequest.HardwareInfo info) {
-        try (Connection c = holder.getConnection();
-             PreparedStatement s = c.prepareStatement(sqlFindHardwareByData);
+        try (Connection c = holder.getConnection()) {
+            SQLUserHardware result = findHardwareByDataFiltered(c, info);
+            if (result != null) return result;
+            return findHardwareByDataFullScan(c, info);
+        } catch (SQLException e) {
+            logger.error("SQL error in getHardwareInfoByData", e);
+        }
+        return null;
+    }
+
+    private SQLUserHardware findHardwareByDataFiltered(Connection c, HardwareReportRequest.HardwareInfo info) throws SQLException {
+        try (PreparedStatement s = c.prepareStatement(sqlFindHardwareByDataFiltered)) {
+            s.setString(1, info.hwDiskId);
+            s.setString(2, info.baseboardSerialNumber);
+            try (ResultSet rs = s.executeQuery()) {
+                while (rs.next()) {
+                    SQLUserHardware hw = mapHardware(rs);
+                    if (compareHardwareInfo(hw.getHardwareInfo(), info).compareLevel >= criticalCompareLevel) {
+                        return hw;
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    private SQLUserHardware findHardwareByDataFullScan(Connection c, HardwareReportRequest.HardwareInfo info) throws SQLException {
+        try (PreparedStatement s = c.prepareStatement(sqlFindHardwareByData);
              ResultSet rs = s.executeQuery()) {
             while (rs.next()) {
                 SQLUserHardware hw = mapHardware(rs);
@@ -212,8 +242,6 @@ public class SQLCoreProvider extends AbstractSQLCoreProvider
                     return hw;
                 }
             }
-        } catch (SQLException e) {
-            logger.error("SQL error in getHardwareInfoByData", e);
         }
         return null;
     }
@@ -305,7 +333,7 @@ public class SQLCoreProvider extends AbstractSQLCoreProvider
             try (ResultSet rs = s.executeQuery()) {
                 while (rs.next()) {
                     SQLUser user = constructUserFromRow(rs);
-                    user.permissions = loadPermissions(user.uuid.toString());
+                    user.permissions = loadPermissions(c, user.uuid.toString());
                     users.add(user);
                 }
             }

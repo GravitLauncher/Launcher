@@ -39,7 +39,7 @@ public final class MySQLSourceConfig implements AutoCloseable, SQLSourceConfig {
     private boolean useHikari;
 
     // Cache
-    private transient DataSource source;
+    private transient volatile DataSource source;
     private transient boolean hikari;
 
 
@@ -69,59 +69,64 @@ public final class MySQLSourceConfig implements AutoCloseable, SQLSourceConfig {
     }
 
 
-    public synchronized Connection getConnection() throws SQLException {
-        if (source == null) { // New data source
-            MysqlDataSource mysqlSource = new MysqlDataSource();
-            mysqlSource.setCharacterEncoding("UTF-8");
-
-            // Prep statements cache
-            mysqlSource.setPrepStmtCacheSize(250);
-            mysqlSource.setPrepStmtCacheSqlLimit(2048);
-            mysqlSource.setCachePrepStmts(true);
-            mysqlSource.setUseServerPrepStmts(true);
-
-            // General optimizations
-            mysqlSource.setCacheServerConfiguration(true);
-            mysqlSource.setUseLocalSessionState(true);
-            mysqlSource.setRewriteBatchedStatements(true);
-            mysqlSource.setMaintainTimeStats(false);
-            mysqlSource.setUseUnbufferedInput(false);
-            mysqlSource.setUseReadAheadInput(false);
-            mysqlSource.setUseSSL(useSSL);
-            mysqlSource.setVerifyServerCertificate(verifyCertificates);
-            // Set credentials
-            mysqlSource.setServerName(address);
-            mysqlSource.setPortNumber(port);
-            mysqlSource.setUser(username);
-            mysqlSource.setPassword(password);
-            mysqlSource.setDatabaseName(database);
-            mysqlSource.setTcpNoDelay(true);
-            if (timezone != null) mysqlSource.setServerTimezone(timezone);
-            hikari = false;
-            // Try using HikariCP
-            source = mysqlSource;
-            if (useHikari) {
-                try {
-                    Class.forName("com.zaxxer.hikari.HikariDataSource");
-                    hikari = true; // Used for shutdown. Not instanceof because of possible classpath error
-                    HikariConfig hikariConfig = new HikariConfig();
-                    hikariConfig.setDataSource(mysqlSource);
-                    hikariConfig.setPoolName(poolName);
-                    hikariConfig.setMinimumIdle(1);
-                    hikariConfig.setMaximumPoolSize(MAX_POOL_SIZE);
-                    hikariConfig.setConnectionTestQuery("SELECT 1");
-                    hikariConfig.setConnectionTimeout(1000);
-                    hikariConfig.setLeakDetectionThreshold(2000);
-                    hikariConfig.setMaxLifetime(hikariMaxLifetime);
-                    // Set HikariCP pool
-                    // Replace source with hds
-                    source = new HikariDataSource(hikariConfig);
-                } catch (ClassNotFoundException ignored) {
-                    logger.debug("HikariCP isn't in classpath for '{}'", poolName);
+    public Connection getConnection() throws SQLException {
+        DataSource ds = source;
+        if (ds == null) {
+            synchronized (this) {
+                ds = source;
+                if (ds == null) {
+                    ds = initDataSource();
+                    source = ds;
                 }
             }
-
         }
-        return source.getConnection();
+        return ds.getConnection();
+    }
+
+    private DataSource initDataSource() throws SQLException {
+        MysqlDataSource mysqlSource = new MysqlDataSource();
+        mysqlSource.setCharacterEncoding("UTF-8");
+
+        mysqlSource.setPrepStmtCacheSize(250);
+        mysqlSource.setPrepStmtCacheSqlLimit(2048);
+        mysqlSource.setCachePrepStmts(true);
+        mysqlSource.setUseServerPrepStmts(true);
+
+        mysqlSource.setCacheServerConfiguration(true);
+        mysqlSource.setUseLocalSessionState(true);
+        mysqlSource.setRewriteBatchedStatements(true);
+        mysqlSource.setMaintainTimeStats(false);
+        mysqlSource.setUseUnbufferedInput(false);
+        mysqlSource.setUseReadAheadInput(false);
+        mysqlSource.setUseSSL(useSSL);
+        mysqlSource.setVerifyServerCertificate(verifyCertificates);
+        mysqlSource.setServerName(address);
+        mysqlSource.setPortNumber(port);
+        mysqlSource.setUser(username);
+        mysqlSource.setPassword(password);
+        mysqlSource.setDatabaseName(database);
+        mysqlSource.setTcpNoDelay(true);
+        if (timezone != null) mysqlSource.setServerTimezone(timezone);
+        hikari = false;
+        DataSource result = mysqlSource;
+        if (useHikari) {
+            try {
+                Class.forName("com.zaxxer.hikari.HikariDataSource");
+                hikari = true;
+                HikariConfig hikariConfig = new HikariConfig();
+                hikariConfig.setDataSource(mysqlSource);
+                hikariConfig.setPoolName(poolName);
+                hikariConfig.setMinimumIdle(1);
+                hikariConfig.setMaximumPoolSize(MAX_POOL_SIZE);
+                hikariConfig.setConnectionTestQuery("SELECT 1");
+                hikariConfig.setConnectionTimeout(1000);
+                hikariConfig.setLeakDetectionThreshold(2000);
+                hikariConfig.setMaxLifetime(hikariMaxLifetime);
+                result = new HikariDataSource(hikariConfig);
+            } catch (ClassNotFoundException ignored) {
+                logger.debug("HikariCP isn't in classpath for '{}'", poolName);
+            }
+        }
+        return result;
     }
 }

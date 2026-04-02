@@ -10,6 +10,7 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.time.Duration;
+import java.util.concurrent.CompletableFuture;
 
 public class HttpRequester {
     private transient final HttpClient httpClient = HttpClient.newBuilder().build();
@@ -67,6 +68,10 @@ public class HttpRequester {
         return HttpHelper.send(httpClient, request, makeEH(type));
     }
 
+    public <T> CompletableFuture<HttpHelper.HttpOptional<T, SimpleError>> sendAsync(HttpRequest request, Type type) {
+        return HttpHelper.sendAsync(httpClient, request, makeEH(type));
+    }
+
 
     public static class SimpleErrorHandler<T> implements HttpHelper.HttpJsonErrorHandler<T, SimpleError> {
         private final Type type;
@@ -78,7 +83,16 @@ public class HttpRequester {
         @Override
         public HttpHelper.HttpOptional<T, SimpleError> applyJson(JsonElement response, int statusCode) {
             if (statusCode < 200 || statusCode >= 300) {
-                return new HttpHelper.HttpOptional<>(null, Launcher.gsonManager.gson.fromJson(response, SimpleError.class), statusCode);
+                SimpleError error = null;
+                try {
+                    error = Launcher.gsonManager.gson.fromJson(response, SimpleError.class);
+                } catch (Exception ignored) {
+                }
+                if (error == null || (error.error == null && error.code == 0)) {
+                    error = new SimpleError("HTTP " + statusCode);
+                    error.code = statusCode;
+                }
+                return new HttpHelper.HttpOptional<>(null, error, statusCode);
             }
             if (type == Void.class) {
                 return new HttpHelper.HttpOptional<>(null, null, statusCode);

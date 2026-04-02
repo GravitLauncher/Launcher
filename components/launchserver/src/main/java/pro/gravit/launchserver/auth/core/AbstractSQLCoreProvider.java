@@ -504,7 +504,7 @@ public abstract class AbstractSQLCoreProvider extends AuthCoreProvider implement
             try (ResultSet rs = s.executeQuery()) {
                 SQLUser user = constructUser(rs);
                 if (user != null) {
-                    user.permissions = loadPermissions(user.uuid.toString());
+                    user.permissions = loadPermissions(c, user.uuid.toString());
                 }
                 return user;
             }
@@ -557,18 +557,23 @@ public abstract class AbstractSQLCoreProvider extends AuthCoreProvider implement
     }
 
     public ClientPermissions loadPermissions(String uuid) throws SQLException {
+        try (Connection c = getSQLConfig().getConnection()) {
+            return loadPermissions(c, uuid);
+        }
+    }
+
+    public ClientPermissions loadPermissions(Connection c, String uuid) throws SQLException {
         List<String> roles = isRolesEnabled()
-                ? queryStringColumn(queryRolesByUserUUID, uuid, rolesNameColumn)
+                ? queryStringColumn(c, queryRolesByUserUUID, uuid, rolesNameColumn)
                 : List.of();
         List<String> perms = isPermissionsEnabled()
-                ? queryStringColumn(queryPermissionsByUUIDSQL, uuid, permissionsPermissionColumn)
+                ? queryStringColumn(c, queryPermissionsByUUIDSQL, uuid, permissionsPermissionColumn)
                 : List.of();
         return new ClientPermissions(roles, perms);
     }
 
-    private List<String> queryStringColumn(String sql, String param, String column) throws SQLException {
-        try (Connection c = getSQLConfig().getConnection();
-             PreparedStatement s = c.prepareStatement(sql)) {
+    private List<String> queryStringColumn(Connection c, String sql, String param, String column) throws SQLException {
+        try (PreparedStatement s = c.prepareStatement(sql)) {
             s.setString(1, param);
             s.setQueryTimeout(MySQLSourceConfig.TIMEOUT);
             try (ResultSet rs = s.executeQuery()) {

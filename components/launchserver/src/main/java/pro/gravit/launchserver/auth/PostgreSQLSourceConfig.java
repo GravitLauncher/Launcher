@@ -33,7 +33,7 @@ public final class PostgreSQLSourceConfig implements AutoCloseable, SQLSourceCon
     private final long hikariMaxLifetime = MINUTES.toMillis(30); // 30 minutes
 
     // Cache
-    private transient DataSource source;
+    private transient volatile DataSource source;
     private transient boolean hikari;
 
     @Override
@@ -43,43 +43,48 @@ public final class PostgreSQLSourceConfig implements AutoCloseable, SQLSourceCon
         }
     }
 
-    public synchronized Connection getConnection() throws SQLException {
-        if (source == null) { // New data source
-            PGSimpleDataSource postgresqlSource = new PGSimpleDataSource();
-
-            // Set credentials
-            postgresqlSource.setServerNames(addresses);
-            postgresqlSource.setPortNumbers(ports);
-            postgresqlSource.setUser(username);
-            postgresqlSource.setPassword(password);
-            postgresqlSource.setDatabaseName(database);
-
-            // Try using HikariCP
-            source = postgresqlSource;
-
-            //noinspection Duplicates
-            try {
-                Class.forName("com.zaxxer.hikari.HikariDataSource");
-                hikari = true; // Used for shutdown. Not instanceof because of possible classpath error
-
-                // Set HikariCP pool
-                HikariDataSource hikariSource = new HikariDataSource();
-                hikariSource.setDataSource(source);
-
-                // Set pool settings
-                hikariSource.setPoolName(poolName);
-                hikariSource.setMinimumIdle(0);
-                hikariSource.setMaximumPoolSize(MAX_POOL_SIZE);
-                hikariSource.setIdleTimeout(SECONDS.toMillis(TIMEOUT));
-                hikariSource.setMaxLifetime(hikariMaxLifetime);
-
-                // Replace source with hds
-                source = hikariSource;
-                logger.info("HikariCP pooling enabled for '{}'", poolName);
-            } catch (ClassNotFoundException ignored) {
-                logger.warn("HikariCP isn't in classpath for '{}'", poolName);
+    public Connection getConnection() throws SQLException {
+        DataSource ds = source;
+        if (ds == null) {
+            synchronized (this) {
+                ds = source;
+                if (ds == null) {
+                    ds = initDataSource();
+                    source = ds;
+                }
             }
         }
-        return source.getConnection();
+        return ds.getConnection();
+    }
+
+    private DataSource initDataSource() {
+        PGSimpleDataSource postgresqlSource = new PGSimpleDataSource();
+
+        postgresqlSource.setServerNames(addresses);
+        postgresqlSource.setPortNumbers(ports);
+        postgresqlSource.setUser(username);
+        postgresqlSource.setPassword(password);
+        postgresqlSource.setDatabaseName(database);
+
+        hikari = false;
+        DataSource result = postgresqlSource;
+        try {
+            Class.forName("com.zaxxer.hikari.HikariDataSource");
+            hikari = true;
+
+            HikariDataSource hikariSource = new HikariDataSource();
+            hikariSource.setDataSource(postgresqlSource);
+            hikariSource.setPoolName(poolName);
+            hikariSource.setMinimumIdle(0);
+            hikariSource.setMaximumPoolSize(MAX_POOL_SIZE);
+            hikariSource.setIdleTimeout(SECONDS.toMillis(TIMEOUT));
+            hikariSource.setMaxLifetime(hikariMaxLifetime);
+
+            result = hikariSource;
+            logger.info("HikariCP pooling enabled for '{}'", poolName);
+        } catch (ClassNotFoundException ignored) {
+            logger.warn("HikariCP isn't in classpath for '{}'", poolName);
+        }
+        return result;
     }
 }
