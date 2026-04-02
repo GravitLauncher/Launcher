@@ -40,13 +40,31 @@ public class JsonTextureProvider extends TextureProvider {
 
     @Override
     public Map<String, Texture> getAssets(UUID uuid, String username, String client) {
-        try {
-            Map<String, JsonTexture> map = requester.<Map<String, JsonTexture>>send(requester.get(RequestTextureProvider.getTextureURL(url, uuid, username, client), bearerToken), MAP_TYPE).getOrThrow();
-            return JsonTexture.convertMap(map);
-        } catch (IOException e) {
-            logger.error("JsonTextureProvider", e);
-            return new HashMap<>();
+        String textureUrl = RequestTextureProvider.getTextureURL(url, uuid, username, client);
+        for (int attempt = 0; attempt < 3; attempt++) {
+            try {
+                var result = requester.<Map<String, JsonTexture>>send(
+                        requester.get(textureUrl, bearerToken), MAP_TYPE);
+                if (result.isSuccessful()) {
+                    return JsonTexture.convertMap(result.result());
+                }
+                if (result.statusCode() == 429 && attempt < 2) {
+                    logger.warn("Texture API rate limited (user={}, attempt={}/3)", username, attempt + 1);
+                    Thread.sleep(1000L * (attempt + 1));
+                    continue;
+                }
+                logger.warn("Texture API request failed (user={}, status={}, error={}, url={})",
+                        username, result.statusCode(), result.error(), textureUrl);
+                return new HashMap<>();
+            } catch (IOException e) {
+                logger.error("JsonTextureProvider", e);
+                return new HashMap<>();
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                return new HashMap<>();
+            }
         }
+        return new HashMap<>();
     }
 
     public record JsonTexture(String url, String digest, Map<String, String> metadata) {

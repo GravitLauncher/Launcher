@@ -78,7 +78,16 @@ public class HttpRequester {
         @Override
         public HttpHelper.HttpOptional<T, SimpleError> applyJson(JsonElement response, int statusCode) {
             if (statusCode < 200 || statusCode >= 300) {
-                return new HttpHelper.HttpOptional<>(null, Launcher.gsonManager.gson.fromJson(response, SimpleError.class), statusCode);
+                SimpleError error = null;
+                try {
+                    error = Launcher.gsonManager.gson.fromJson(response, SimpleError.class);
+                } catch (Exception ignored) {
+                }
+                if (error == null || (error.error == null && error.code == 0)) {
+                    error = new SimpleError("HTTP " + statusCode);
+                    error.code = statusCode;
+                }
+                return new HttpHelper.HttpOptional<>(null, error, statusCode);
             }
             if (type == Void.class) {
                 return new HttpHelper.HttpOptional<>(null, null, statusCode);
