@@ -5,6 +5,9 @@ import org.slf4j.LoggerFactory;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import org.xbill.DNS.Lookup;
+import org.xbill.DNS.SRVRecord;
+import org.xbill.DNS.Type;
 import pro.gravit.launcher.base.profiles.ClientProfile;
 import pro.gravit.launcher.base.profiles.ClientProfileVersions;
 import pro.gravit.launcher.core.backend.LauncherBackendAPI;
@@ -53,9 +56,45 @@ public final class ServerPinger {
         if (profile == null) {
             throw new NullPointerException("ServerProfile null");
         }
-        this.address = profile.toSocketAddress();
+        if(profile.useSrv) {
+            var result = resolveSrvRecord(profile.getAddress());
+            if(result != null) {
+                this.address = InetSocketAddress.createUnresolved(result.address(), result.port());
+            } else {
+                this.address = profile.toSocketAddress();
+            }
+        } else {
+            this.address = profile.toSocketAddress();
+        }
         this.version = Objects.requireNonNull(version, "version");
         this.protocol = profile.protocol;
+    }
+
+    public record SrvResult(String address, int port) {
+
+    }
+
+    public static SrvResult resolveSrvRecord(String address) {
+        String query = "_minecraft._tcp." + address;
+
+        try {
+            Lookup lookup = new Lookup(query, Type.SRV);
+            org.xbill.DNS.Record[] records = lookup.run();
+
+            if (records == null || records.length == 0) {
+                return null;
+            }
+
+            SRVRecord srv = (SRVRecord) records[0];
+
+            return new SrvResult(
+                    srv.getTarget().toString(),
+                    srv.getPort()
+            );
+
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     private static String readUTF16String(HInput input) throws IOException {
