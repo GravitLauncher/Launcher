@@ -7,8 +7,7 @@ import pro.gravit.launcher.core.api.features.CoreFeatureAPI;
 import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.SecurityHelper;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -57,6 +56,12 @@ public class RemoteUpdatesProvider extends UpdatesProvider {
                         .build(), HttpResponse.BodyHandlers.ofByteArray());
                 if(result.statusCode() < 200 || result.statusCode() >= 300) {
                     log.error("Failed to upload new release with code {}: {}", result.statusCode(), new String(result.body(), StandardCharsets.UTF_8));
+                } else {
+                    LauncherArtifactUploaded r;
+                    try(Reader reader = new InputStreamReader(new ByteArrayInputStream(result.body()), StandardCharsets.UTF_8)) {
+                        r = Launcher.gsonManager.gson.fromJson(reader, LauncherArtifactUploaded.class);
+                    }
+                    log.info("Uploaded release {}: {}", file.variant(), r.url());
                 }
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
@@ -67,5 +72,9 @@ public class RemoteUpdatesProvider extends UpdatesProvider {
     @Override
     public UpdateInfo checkUpdates(CoreFeatureAPI.UpdateVariant variant, BuildSecretsCheck buildSecretsCheck) {
         throw new UnsupportedOperationException();
+    }
+
+    public record LauncherArtifactUploaded(String url) {
+
     }
 }
