@@ -19,7 +19,6 @@ mysql = "9.6.0"
 mariadb = "3.5.7"
 h2 = "2.4.240"
 totp = "1.7.1"
-dnsjava = "3.6.4"
 
 [libraries]
 gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
@@ -51,4 +50,3 @@ db-mysql = { module = "com.mysql:mysql-connector-j", version.ref = "mysql" }
 db-mariadb = { module = "org.mariadb.jdbc:mariadb-java-client", version.ref = "mariadb" }
 db-h2 = { module = "com.h2database:h2", version.ref = "h2" }
 totp = { module = "dev.samstevens.totp:totp", version.ref = "totp"  }
-dnsjava = { module = "dnsjava:dnsjava", version.ref = "dnsjava" }

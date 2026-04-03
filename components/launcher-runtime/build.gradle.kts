@@ -37,7 +37,6 @@ dependencies {
     api(project(":components:launcher-start"))
     optional(libs.slf4j.simple)
     optional(libs.oshi)
-    optional(libs.dnsjava)
 }
 
 val copyLauncherLibs by tasks.registering(Copy::class) {

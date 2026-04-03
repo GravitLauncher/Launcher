@@ -539,7 +539,7 @@ public final class ClientProfile implements Comparable<ClientProfile>, ProfileFe
         public int serverPort;
         public boolean isDefault = true;
         public int protocol = -1;
-        public boolean useSrv = false;
+        public boolean socketPing = true;
 
         public ServerProfile() {
         }
