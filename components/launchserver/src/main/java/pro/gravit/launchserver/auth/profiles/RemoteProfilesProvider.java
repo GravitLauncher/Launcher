@@ -1,5 +1,7 @@
 package pro.gravit.launchserver.auth.profiles;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import pro.gravit.launcher.base.Downloader;
 import pro.gravit.launcher.base.HttpHelper;
 import pro.gravit.launcher.base.profiles.ClientProfile;
@@ -25,6 +27,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 public class RemoteProfilesProvider extends ProfilesProvider {
+    private static final Logger log = LoggerFactory.getLogger(RemoteProfilesProvider.class);
     public String baseUrl = "PASTE BASE URL HERE";
     public String accessToken = "PASTE ACCESS TOKEN HERE";
     private final transient HttpClient client = HttpClient.newBuilder().build();
@@ -134,9 +137,9 @@ public class RemoteProfilesProvider extends ProfilesProvider {
         HttpProfile httpProfile = (HttpProfile) profile;
         HashedDir dir;
         if(assets) {
-            dir = httpProfile.assetDir;
+            dir = httpProfile.assets;
         } else {
-            dir = httpProfile.clientDir;
+            dir = httpProfile.client;
         }
         List<Downloader.SizedFile> sizedFiles = new ArrayList<>();
         for(var e : files.entrySet()) {
@@ -164,8 +167,22 @@ public class RemoteProfilesProvider extends ProfilesProvider {
                         return HashedDir.WalkAction.CONTINUE;
                     });
                 }
+            } else {
+                dir.walk("/", (rpath, name, entry) -> {
+                    if(entry instanceof HashedFile file) {
+                        Path target = path.resolve(rpath);
+                        try {
+                            IOHelper.createParentDirs(target);
+                        } catch (IOException ex) {
+                            throw new RuntimeException(ex);
+                        }
+                        sizedFiles.add(new Downloader.SizedFile(file.url, target.toString(), file.size()));
+                    }
+                    return HashedDir.WalkAction.CONTINUE;
+                });
             }
         }
+        log.info("Download {} files", sizedFiles.size());
         try {
             Command.downloadWithProgressBar("files", sizedFiles, "https://example.com", Path.of(""));
         } catch (Exception e) {
@@ -320,7 +337,7 @@ public class RemoteProfilesProvider extends ProfilesProvider {
         }
     }
 
-    public record HttpProfile(ClientProfile profile, HashedDir clientDir, HashedDir assetDir) implements CompletedProfile {
+    public record HttpProfile(ClientProfile profile, HashedDir client, HashedDir assets) implements CompletedProfile {
 
         @Override
         public String getTag() {
@@ -334,12 +351,12 @@ public class RemoteProfilesProvider extends ProfilesProvider {
 
         @Override
         public HashedDir getClientDir() {
-            return clientDir;
+            return client;
         }
 
         @Override
         public HashedDir getAssetDir() {
-            return assetDir;
+            return assets;
         }
 
         @Override
