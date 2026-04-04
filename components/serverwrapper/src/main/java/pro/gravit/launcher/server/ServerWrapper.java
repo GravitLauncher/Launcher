@@ -79,10 +79,12 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
     public void restore() throws Exception {
         if(config.address.startsWith("http://") || config.address.startsWith("https://")) {
             var selfUser = LauncherAPIHolder.get().auth().restore(config.oauth.accessToken, true).get();
-            AuthService.uuid = selfUser.getUUID();
-            AuthService.username = selfUser.getUsername();
-            if(selfUser.getPermissions() instanceof ClientPermissions clientPermissions) {
-                AuthService.permissions = clientPermissions;
+            if(selfUser != null) {
+                AuthService.uuid = selfUser.getUUID();
+                AuthService.username = selfUser.getUsername();
+                if(selfUser.getPermissions() instanceof ClientPermissions clientPermissions) {
+                    AuthService.permissions = clientPermissions;
+                }
             }
             return;
         }
@@ -150,6 +152,7 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
                         TextureUploadFeatureAPI.class, impl,
                         HardwareVerificationFeatureAPI.class, impl));
             });
+            LauncherAPIHolder.changeAuthId(config.authId == null ? "std" : config.authId);
         } else {
             StdWebSocketService service = StdWebSocketService.initWebSockets(config.address).get();
             service.reconnectCallback = () ->
@@ -189,7 +192,7 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
         if (config.logFile != null) LogHelper.addOutput(IOHelper.newWriter(Paths.get(config.logFile), true));
         {
             restore();
-            getProfiles();
+            //getProfiles();
         }
         if(config.encodedServerRsaPublicKey != null) {
             KeyService.serverRsaPublicKey = SecurityHelper.toPublicRSAKey(config.encodedServerRsaPublicKey);

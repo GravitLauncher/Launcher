@@ -58,6 +58,9 @@ public class RequestFeatureHttpAPIImpl implements AuthFeatureAPI, UserFeatureAPI
                 .header("Content-Type", "application/json")
                 .build(), new HttpErrorHandler<>(HttpUser.class)).thenApply(result -> {
             var res = result.result();
+            if(res == null) {
+                return null;
+            }
             HttpSelfUser httpSelfUser = new HttpSelfUser();
             httpSelfUser.username = res.getUsername();
             httpSelfUser.uuid = res.getUUID();
@@ -122,7 +125,11 @@ public class RequestFeatureHttpAPIImpl implements AuthFeatureAPI, UserFeatureAPI
     @Override
     public CompletableFuture<SelfUser> restore(String accessToken, boolean fetchUser) {
         authDataRef.set(new HttpAuthData(accessToken, null, 0));
-        return getCurrentUser();
+        if(fetchUser) {
+            return getCurrentUser();
+        } else {
+            return CompletableFuture.completedFuture(null);
+        }
     }
 
     @Override
@@ -167,7 +174,7 @@ public class RequestFeatureHttpAPIImpl implements AuthFeatureAPI, UserFeatureAPI
             return CompletableFuture.failedFuture(new RequestException("You are not authorized"));
         }
         return HttpHelper.sendAsync(client, HttpRequest.newBuilder()
-                        .POST(HttpHelper.jsonBodyPublisher(new HttpJoinServerByUsernameRequest(username, serverID, accessToken)))
+                        .POST(HttpHelper.jsonBodyPublisher(new HttpJoinServerByUsernameRequest(username, serverID, accessToken0.get())))
                         .uri(URI.create(baseUrl.concat("/auth/joinserver/username")))
                         .header("Authorization", "Bearer "+accessToken0.get())
                         .header("Content-Type", "application/json")
@@ -182,7 +189,7 @@ public class RequestFeatureHttpAPIImpl implements AuthFeatureAPI, UserFeatureAPI
             return CompletableFuture.failedFuture(new RequestException("You are not authorized"));
         }
         return HttpHelper.sendAsync(client, HttpRequest.newBuilder()
-                        .POST(HttpHelper.jsonBodyPublisher(new HttpJoinServerByUuidRequest(uuid.toString(), serverID, accessToken)))
+                        .POST(HttpHelper.jsonBodyPublisher(new HttpJoinServerByUuidRequest(uuid.toString(), serverID, accessToken0.get())))
                         .uri(URI.create(baseUrl.concat("/auth/joinserver/uuid")))
                         .header("Authorization", "Bearer "+accessToken0.get())
                         .header("Content-Type", "application/json")
@@ -268,7 +275,7 @@ public class RequestFeatureHttpAPIImpl implements AuthFeatureAPI, UserFeatureAPI
                                 .build(), new HttpErrorHandler<>(HttpLauncherUpdateInfo.class))
                         .thenApply(HttpHelper.HttpOptional::getOrThrow)
                         .thenApply((httpLauncherUpdateInfo -> {
-                            launcherVerifyTokenRef.set(httpLauncherUpdateInfo.verifyToken());
+                            launcherVerifyTokenRef.set(httpLauncherUpdateInfo.jwtToken());
                             return new LauncherUpdateInfo(httpLauncherUpdateInfo.url, httpLauncherUpdateInfo.version,
                                     httpLauncherUpdateInfo.available, httpLauncherUpdateInfo.required);
                         }));
@@ -439,7 +446,6 @@ public class RequestFeatureHttpAPIImpl implements AuthFeatureAPI, UserFeatureAPI
     public static class HttpSelfUser extends HttpUser implements SelfUser {
 
 
-
         @Override
         public String getAccessToken() {
             return "";
@@ -497,7 +503,7 @@ public class RequestFeatureHttpAPIImpl implements AuthFeatureAPI, UserFeatureAPI
         }
     }
 
-    public record HttpLauncherUpdateInfo(String url, String version, boolean available, boolean required, String verifyToken) {
+    public record HttpLauncherUpdateInfo(String url, String version, boolean available, boolean required, String jwtToken) {
     }
 
     public record ErrorResponse(String code, String error) {
@@ -507,11 +513,11 @@ public class RequestFeatureHttpAPIImpl implements AuthFeatureAPI, UserFeatureAPI
 
     }
 
-    public record HttpCheckServerRequest(String username, String serverId, boolean extended) {
+    public record HttpCheckServerRequest(String username, String serverID, boolean extended) {
 
     }
 
-    public record HttpJoinServerByUsernameRequest(String username, String serverId, String accessToken) {
+    public record HttpJoinServerByUsernameRequest(String username, String serverID, String accessToken) {
 
     }
 
@@ -519,7 +525,7 @@ public class RequestFeatureHttpAPIImpl implements AuthFeatureAPI, UserFeatureAPI
 
     }
 
-    public record HttpJoinServerByUuidRequest(String uuid, String serverId, String accessToken) {
+    public record HttpJoinServerByUuidRequest(String uuid, String serverID, String accessToken) {
 
     }
 

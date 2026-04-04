@@ -128,6 +128,9 @@ public class ClientLauncherEntryPoint {
         config.apply();
         LauncherAPIInitializer.initialize(modulesManager, config.address, List.of());
         LauncherAPIHolder.changeAuthId(params.authId);
+        if(LauncherAPIInitializer.isHttpAddress(config.address)) {
+            LauncherAPIHolder.auth().restore(params.oauth.accessToken, false).get();
+        }
         logger.debug("Natives dir {}", params.nativesDir);
         ClientProfile.ClassLoaderConfig classLoaderConfig = profile.getClassLoaderConfig();
         LaunchOptions options = new LaunchOptions();
