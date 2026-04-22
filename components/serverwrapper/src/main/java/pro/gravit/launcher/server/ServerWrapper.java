@@ -252,7 +252,14 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
         if(config.encodedServerEcPublicKey != null) {
             KeyService.serverEcPublicKey = SecurityHelper.toPublicECDSAKey(config.encodedServerEcPublicKey);
         }
-        String classname = (config.mainclass == null || config.mainclass.isEmpty()) ? args[0] : config.mainclass;
+        String classname;
+        if (config.mainclass != null && !config.mainclass.isEmpty()) {
+            classname = config.mainclass;
+        } else if (args.length > 0) {
+            classname = args[0];
+        } else {
+            classname = "";
+        }
         if (classname.isEmpty()) {
             logger.error("MainClass not found. Please set MainClass for ServerWrapper.json or first commandline argument");
             System.exit(-1);
