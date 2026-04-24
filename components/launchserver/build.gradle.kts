@@ -93,6 +93,8 @@ application {
         "ALL-MODULE-PATH",
         "--add-modules",
         "java.net.http",
+        "--add-modules",
+        "java.xml",
         "--add-opens",
         "java.base/java.lang.invoke=launchserver",
         "--enable-native-access",
