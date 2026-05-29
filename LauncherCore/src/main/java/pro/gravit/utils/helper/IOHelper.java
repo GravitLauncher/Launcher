@@ -5,15 +5,12 @@ import javax.imageio.ImageReader;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.net.*;
-import java.nio.ByteBuffer;
-import java.nio.CharBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystem;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Collections;
-import java.util.HexFormat;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -561,34 +558,6 @@ public final class IOHelper {
         } catch (UnsupportedEncodingException e) {
             throw new InternalError(e);
         }
-    }
-
-    public static String urlDecodeStrict(String s) {
-        var builder = new StringBuilder();
-        char[] charArray = s.toCharArray();
-        for (int i = 0; i < charArray.length; i++) {
-            char c = charArray[i];
-            if (c != '%') {
-                builder.append(c);
-                continue;
-            }
-
-            if (i + 2 >= charArray.length) {
-                return null;
-            }
-
-            var buffer = UNICODE_CHARSET.decode(ByteBuffer.wrap(HexFormat.of().parseHex(CharBuffer.wrap(charArray, i + 1, 2))));
-
-            builder.append(buffer);
-
-            i += 2;
-        }
-
-        return builder.toString();
-    }
-
-    public static String getPathFromUrlFragment(String urlFragment) {
-        return urlFragment.indexOf('?') < 0 ? urlFragment : urlFragment.substring(0, urlFragment.indexOf('?'));
     }
 
     public static String verifyFileName(String fileName) {
