@@ -358,6 +358,84 @@ public class LauncherBackendImpl implements LauncherBackendAPI, TextureUploadExt
     }
 
     @Override
+    public CompletableFuture<ServerPingInfo> pingProfileServers(ProfileFeatureAPI.ClientProfile profile) {
+        return pingFutures.computeIfAbsent(profile.getUUID(), (k) -> {
+            CompletableFuture<ServerPingInfo> future = new CompletableFuture<>();
+            executorService.submit(() -> {
+                try {
+                    ClientProfile clientProfile = (ClientProfile) profile;
+                    List<ClientProfile.ServerProfile> servers = clientProfile.getServers();
+
+                    if (servers == null || servers.isEmpty()) return;
+
+                    var serverPingFutures = servers.stream()
+                            .map(server -> CompletableFuture.supplyAsync(() -> {
+                                try {
+                                    ServerPinger pinger = new ServerPinger(server, clientProfile.getVersion());
+                                    return pinger.ping();
+                                } catch (IOException e) {
+                                    logger.warn("Failed to ping server {}: {}", server.name, e.getMessage());
+                                    return null;
+                                }
+                            }, executorService))
+                            .toList();
+
+                    CompletableFuture.allOf(serverPingFutures.toArray(new CompletableFuture[0]))
+                            .thenAccept(v -> {
+                                int totalOnline = 0;
+                                int totalMax = 0;
+                                boolean hasAnyResult = false;
+
+                                for (var pingFuture : serverPingFutures) {
+                                    try {
+                                        ServerPinger.Result result = pingFuture.get();
+                                        if (result != null) {
+                                            totalOnline += result.onlinePlayers;
+                                            totalMax += result.maxPlayers;
+                                            hasAnyResult = true;
+                                        }
+                                    } catch (Exception e) {
+                                        logger.warn("Failed to get ping result: {}", e.getMessage());
+                                    }
+                                }
+
+                                if (!hasAnyResult) {
+                                    future.completeExceptionally(new IOException("All servers are unavailable"));
+                                    return;
+                                }
+
+                                int finalOnline = totalOnline;
+                                int finalMax = totalMax;
+                                future.complete(new ServerPingInfo() {
+                                    @Override
+                                    public int getMaxOnline() {
+                                        return finalMax;
+                                    }
+
+                                    @Override
+                                    public int getOnline() {
+                                        return finalOnline;
+                                    }
+
+                                    @Override
+                                    public List<String> getPlayerNames() {
+                                        return List.of();
+                                    }
+                                });
+                            })
+                            .exceptionally(ex -> {
+                                future.completeExceptionally(ex);
+                                return null;
+                            });
+                } catch (Throwable e) {
+                    future.completeExceptionally(e);
+                }
+            });
+            return future;
+        });
+    }
+
+    @Override
     public void registerUserSettings(String name, Class<? extends UserSettings> clazz) {
         UserSettings.providers.register(name, clazz);
     }
