@@ -1,24 +1,29 @@
 [versions]
-gson = "2.13.2"
-jline = "4.0.9"
+kotlin = "2.3.21"
+gson = "2.14.0"
+jline = "4.1.2"
 jansi = "2.4.3"
-slf4j = "2.0.17"
-oshi = "6.10.0"
+slf4j = "2.0.18"
+oshi = "7.2.1"
 # LaunchServer libraries
-log4j = "2.25.4"
-netty = "4.2.12.Final"
-bouncycastle = "1.83"
+log4j = "2.26.0"
+netty = "4.2.14.Final"
+bouncycastle = "1.84"
 jjwt = "0.13.0"
 progressbar = "0.10.2"
-asm = "9.9.1"
-proguard = "7.9.0"
+asm = "9.10.1"
+proguard = "7.9.1"
 # Database libraries
 hikari = "7.0.2"
-postgresql = "42.7.10"
-mysql = "9.6.0"
-mariadb = "3.5.7"
+postgresql = "42.7.11"
+mysql = "9.7.0"
+mariadb = "3.5.8"
 h2 = "2.4.240"
 totp = "1.7.1"
+# Modules libraries
+sentry = "8.43.0"
+jbcrypt = "0.4"
+discord-game-sdk = "v1.0.0"
 
 [libraries]
 gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
@@ -27,7 +32,8 @@ jline-reader = { module = "org.jline:jline-reader", version.ref = "jline" }
 jansi = { module = "org.fusesource.jansi:jansi", version.ref = "jansi" }
 slf4j = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }
 slf4j-simple = { module = "org.slf4j:slf4j-simple", version.ref = "slf4j" }
-oshi = { module = "com.github.oshi:oshi-core", version.ref = "oshi" }
+oshi-core = { module = "com.github.oshi:oshi-core", version.ref = "oshi" }
+oshi-common = { module = "com.github.oshi:oshi-common", version.ref = "oshi" }
 # LaunchServer libraries
 log4j-api = { module = "org.apache.logging.log4j:log4j-api", version.ref = "log4j" }
 log4j-core = { module = "org.apache.logging.log4j:log4j-core", version.ref = "log4j" }
@@ -50,3 +56,8 @@ db-mysql = { module = "com.mysql:mysql-connector-j", version.ref = "mysql" }
 db-mariadb = { module = "org.mariadb.jdbc:mariadb-java-client", version.ref = "mariadb" }
 db-h2 = { module = "com.h2database:h2", version.ref = "h2" }
 totp = { module = "dev.samstevens.totp:totp", version.ref = "totp"  }
+# Modules libraries
+sentry = { module = "io.sentry:sentry", version.ref = "sentry"  }
+sentry-log4j2 = { module = "io.sentry:sentry-log4j2", version.ref = "sentry"  }
+jbcrypt = { module = "org.mindrot:jbcrypt", version.ref = "jbcrypt"  }
+discord-game-sdk = { module = "com.github.JnCrMx:discord-game-sdk4j", version.ref = "discord-game-sdk"  }
