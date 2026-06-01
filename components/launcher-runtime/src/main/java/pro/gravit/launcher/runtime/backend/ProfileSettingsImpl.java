@@ -26,6 +26,8 @@ public class ProfileSettingsImpl implements LauncherBackendAPI.ClientProfileSett
     @LauncherNetworkAPI
     private Set<String> enabled;
     @LauncherNetworkAPI
+    private Set<String> disabled;
+    @LauncherNetworkAPI
     private String saveJavaPath;
     transient OptionalView view;
     transient volatile JavaHelper.JavaVersion selectedJava;
@@ -184,6 +186,7 @@ public class ProfileSettingsImpl implements LauncherBackendAPI.ClientProfileSett
         cloned.ram = new HashMap<>(ram);
         cloned.flags = new HashSet<>(flags);
         cloned.enabled = new HashSet<>(enabled);
+        cloned.disabled = disabled == null ? null : new HashSet<>(disabled);
         if(view != null) {
             cloned.view = new OptionalView(profile, view);
         }
@@ -194,8 +197,14 @@ public class ProfileSettingsImpl implements LauncherBackendAPI.ClientProfileSett
 
     public void updateEnabledMods() {
         enabled = new HashSet<>();
+        disabled = new HashSet<>();
         for(var e : view.enabled) {
             enabled.add(e.name);
+        }
+        for (var e : view.all) {
+            if (e.mark && !view.isEnabled(e)) {
+                disabled.add(e.name);
+            }
         }
         if(selectedJava != null) {
             saveJavaPath = selectedJava.getPath().toAbsolutePath().toString();
@@ -207,12 +216,23 @@ public class ProfileSettingsImpl implements LauncherBackendAPI.ClientProfileSett
         this.profile = profile;
         this.view = new OptionalView(profile);
         processTriggers(profile, this.view);
-        for(var e : enabled) {
-            var opt = profile.getOptionalFile(e);
-            if(opt == null) {
-                continue;
+        if (disabled != null) {
+            for (var e : disabled) {
+                var opt = profile.getOptionalFile(e);
+                if (opt == null) {
+                    continue;
+                }
+                disableOptional(opt, (var1, var2) -> {});
             }
-            enableOptional(opt, (var1, var2) -> {});
+        }
+        if (enabled != null) {
+            for(var e : enabled) {
+                var opt = profile.getOptionalFile(e);
+                if(opt == null) {
+                    continue;
+                }
+                enableOptional(opt, (var1, var2) -> {});
+            }
         }
         if(this.saveJavaPath != null) {
             backend.getAvailableJava().thenAccept((javas) -> {
