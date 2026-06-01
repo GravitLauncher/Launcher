@@ -14,6 +14,7 @@ public class OptionalFile implements ProfileFeatureAPI.OptionalMod {
     public List<OptionalAction> actions;
     @LauncherNetworkAPI
     public boolean mark;
+    public transient boolean enabledByDefault;
     @LauncherNetworkAPI
     public boolean visible = true;
     @LauncherNetworkAPI

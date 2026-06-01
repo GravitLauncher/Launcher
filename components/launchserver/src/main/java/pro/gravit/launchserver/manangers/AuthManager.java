@@ -34,20 +34,13 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 public class AuthManager {
     public static final String WRONG_CLIENT_ERROR_MESSAGE = "Wrong Client";
-    public static final String AUTH_BACKEND_TIMEOUT_ERROR_MESSAGE = "Auth backend timeout";
     private transient final LaunchServer server;
     private transient final Logger logger = LogManager.getLogger();
     private transient final JwtParser checkServerTokenParser;
     private transient final JwtParser clientProfileTokenParser;
-    private final transient Map<String, UUID> joinServerProfilesByServerId = new ConcurrentHashMap<>();
 
     public AuthManager(LaunchServer server) {
         this.server = server;
@@ -214,16 +207,10 @@ public class AuthManager {
         if(supportExtended != null) {
             var session = supportExtended.extendedCheckServer(client, username, serverID);
             if(session == null) return null;
-            if(!isCheckServerProfileAllowed(client, serverID)) {
-                throw new AuthException(WRONG_CLIENT_ERROR_MESSAGE);
-            }
             return CheckServerReport.ofUserSession(session, getPlayerProfile(client.auth, session.getUser()));
         } else {
             var user = client.auth.core.checkServer(client, username, serverID);
             if (user == null) return null;
-            if(!isCheckServerProfileAllowed(client, serverID)) {
-                throw new AuthException(WRONG_CLIENT_ERROR_MESSAGE);
-            }
             return CheckServerReport.ofUser(user, getPlayerProfile(client.auth, user));
         }
     }
@@ -236,71 +223,27 @@ public class AuthManager {
                     username != null ? username : uuid, serverID);
             return false;
         }
-        long joinServerTimeoutMillis = server.config.netty.security.joinServerTimeoutMillis;
-        boolean result;
-        if (joinServerTimeoutMillis <= 0) {
-            result = client.auth.core.joinServer(client, username, uuid, accessToken, serverID);
-        } else {
-            var joinServerFuture = CompletableFuture.supplyAsync(() -> {
-                try {
-                    return client.auth.core.joinServer(client, username, uuid, accessToken, serverID);
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-            });
-            try {
-                result = joinServerFuture.get(joinServerTimeoutMillis, TimeUnit.MILLISECONDS);
-            } catch (TimeoutException e) {
-                joinServerFuture.cancel(true);
-                logger.warn("joinServer timed out after {} ms for user {} (serverID={})",
-                        joinServerTimeoutMillis, username != null ? username : uuid, serverID);
-                throw new AuthException(AUTH_BACKEND_TIMEOUT_ERROR_MESSAGE);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                throw new IOException("joinServer interrupted", e);
-            } catch (ExecutionException e) {
-                Throwable cause = e.getCause();
-                if (cause instanceof RuntimeException runtimeException && runtimeException.getCause() instanceof IOException ioException) {
-                    throw ioException;
-                }
-                if (cause instanceof IOException ioException) {
-                    throw ioException;
-                }
-                throw new IOException("joinServer failed", cause);
-            }
+        if(!isJoinServerProfileAllowed(client, profileUUID, serverID)) {
+            throw new AuthException(WRONG_CLIENT_ERROR_MESSAGE);
         }
-        if(result && serverID != null && profileUUID != null) {
-            joinServerProfilesByServerId.put(serverID, profileUUID);
-        }
-        return result;
+        return client.auth.core.joinServer(client, username, uuid, accessToken, serverID);
     }
 
-    private boolean isCheckServerProfileAllowed(Client client, String serverID) {
-        if(serverID == null) {
+    private boolean isJoinServerProfileAllowed(Client client, UUID profileUUID, String serverID) {
+        if(client.type != AuthResponse.ConnectTypes.CLIENT || profileUUID == null || serverID == null) {
             return true;
         }
-        UUID expectedProfileUUID = joinServerProfilesByServerId.remove(serverID);
-        if(expectedProfileUUID == null) {
-            UUID currentProfileUUID = resolveCurrentClientProfileUUID(client);
-            if(currentProfileUUID == null) {
+        try {
+            UUID requestedProfileUUID = UUID.fromString(serverID);
+            if(profileUUID.equals(requestedProfileUUID)) {
                 return true;
             }
-            logger.warn("checkServer denied: no joinServer profile context for serverID={}, but server profile is {}",
-                    serverID, currentProfileUUID);
+            logger.warn("joinServer denied: profile mismatch for user {} (serverID={}, selectedProfile={})",
+                    client.username != null ? client.username : client.uuid, serverID, profileUUID);
             return false;
+        } catch (IllegalArgumentException ignored) {
+            return true;
         }
-        UUID currentProfileUUID = resolveCurrentClientProfileUUID(client);
-        if(currentProfileUUID == null) {
-            logger.warn("checkServer denied: server profile is not resolved, expected profile {} for serverID={}",
-                    expectedProfileUUID, serverID);
-            return false;
-        }
-        if(!currentProfileUUID.equals(expectedProfileUUID)) {
-            logger.warn("checkServer denied: profile mismatch for serverID={} (expected={}, current={})",
-                    serverID, expectedProfileUUID, currentProfileUUID);
-            return false;
-        }
-        return true;
     }
 
     private UUID resolveCurrentClientProfileUUID(Client client) {

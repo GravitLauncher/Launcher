@@ -26,8 +26,6 @@ public class ProfileSettingsImpl implements LauncherBackendAPI.ClientProfileSett
     @LauncherNetworkAPI
     private Set<String> enabled;
     @LauncherNetworkAPI
-    private Set<String> disabled;
-    @LauncherNetworkAPI
     private String saveJavaPath;
     transient OptionalView view;
     transient volatile JavaHelper.JavaVersion selectedJava;
@@ -53,6 +51,7 @@ public class ProfileSettingsImpl implements LauncherBackendAPI.ClientProfileSett
             this.flags.add(Flag.LINUX_WAYLAND_SUPPORT);
         }
         processTriggers(profile, this.view);
+        applyEnabledByDefault(this.view);
     }
 
     @Override
@@ -185,8 +184,7 @@ public class ProfileSettingsImpl implements LauncherBackendAPI.ClientProfileSett
         cloned.profile = profile;
         cloned.ram = new HashMap<>(ram);
         cloned.flags = new HashSet<>(flags);
-        cloned.enabled = new HashSet<>(enabled);
-        cloned.disabled = disabled == null ? null : new HashSet<>(disabled);
+        cloned.enabled = enabled == null ? null : new HashSet<>(enabled);
         if(view != null) {
             cloned.view = new OptionalView(profile, view);
         }
@@ -197,14 +195,8 @@ public class ProfileSettingsImpl implements LauncherBackendAPI.ClientProfileSett
 
     public void updateEnabledMods() {
         enabled = new HashSet<>();
-        disabled = new HashSet<>();
         for(var e : view.enabled) {
             enabled.add(e.name);
-        }
-        for (var e : view.all) {
-            if (e.mark && !view.isEnabled(e)) {
-                disabled.add(e.name);
-            }
         }
         if(selectedJava != null) {
             saveJavaPath = selectedJava.getPath().toAbsolutePath().toString();
@@ -216,19 +208,12 @@ public class ProfileSettingsImpl implements LauncherBackendAPI.ClientProfileSett
         this.profile = profile;
         this.view = new OptionalView(profile);
         processTriggers(profile, this.view);
-        if (disabled != null) {
-            for (var e : disabled) {
-                var opt = profile.getOptionalFile(e);
-                if (opt == null) {
-                    continue;
-                }
-                disableOptional(opt, (var1, var2) -> {});
-            }
-        }
-        if (enabled != null) {
+        if (enabled == null) {
+            applyEnabledByDefault(this.view);
+        } else {
             for(var e : enabled) {
                 var opt = profile.getOptionalFile(e);
-                if(opt == null) {
+                if (opt == null) {
                     continue;
                 }
                 enableOptional(opt, (var1, var2) -> {});
@@ -257,11 +242,12 @@ public class ProfileSettingsImpl implements LauncherBackendAPI.ClientProfileSett
     public void processTriggers(ClientProfile profile, OptionalView view) {
         TriggerManagerContext context = new TriggerManagerContext(profile);
         for (OptionalFile optional : view.all) {
+            optional.enabledByDefault = optional.mark;
             if (optional.limited) {
                 if (!backend.hasPermission("launcher.runtime.optionals.%s.%s.show"
                         .formatted(profile.getUUID(),
                                 optional.name.toLowerCase(Locale.ROOT)))) {
-                    view.disable(optional, null);
+                    optional.enabledByDefault = false;
                     optional.visible = false;
                 } else {
                     optional.visible = true;
@@ -280,10 +266,17 @@ public class ProfileSettingsImpl implements LauncherBackendAPI.ClientProfileSett
                 }
             }
             if (isRequired) {
-                if (fail == 0) view.enable(optional, true, null);
-                else view.disable(optional, null);
+                optional.enabledByDefault = fail == 0;
             } else {
-                if (success > 0) view.enable(optional, false, null);
+                if (success > 0) optional.enabledByDefault = true;
+            }
+        }
+    }
+
+    private void applyEnabledByDefault(OptionalView view) {
+        for (OptionalFile optional : view.all) {
+            if (optional.visible && optional.enabledByDefault) {
+                view.enable(optional, false, null);
             }
         }
     }
