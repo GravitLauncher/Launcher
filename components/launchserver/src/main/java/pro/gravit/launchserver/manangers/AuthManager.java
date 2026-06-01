@@ -36,7 +36,6 @@ import java.time.ZoneOffset;
 import java.util.*;
 
 public class AuthManager {
-    public static final String WRONG_CLIENT_ERROR_MESSAGE = "Wrong Client";
     private transient final LaunchServer server;
     private transient final Logger logger = LogManager.getLogger();
     private transient final JwtParser checkServerTokenParser;
@@ -217,48 +216,7 @@ public class AuthManager {
 
     public boolean joinServer(Client client, String username, UUID uuid, String accessToken, String serverID) throws IOException {
         if (client.auth == null) return false;
-        UUID profileUUID = resolveCurrentClientProfileUUID(client);
-        if(client.type == AuthResponse.ConnectTypes.CLIENT && profileUUID == null) {
-            logger.warn("joinServer denied: profile is not selected/restored for user {} (serverID={})",
-                    username != null ? username : uuid, serverID);
-            return false;
-        }
-        if(!isJoinServerProfileAllowed(client, profileUUID, serverID)) {
-            throw new AuthException(WRONG_CLIENT_ERROR_MESSAGE);
-        }
         return client.auth.core.joinServer(client, username, uuid, accessToken, serverID);
-    }
-
-    private boolean isJoinServerProfileAllowed(Client client, UUID profileUUID, String serverID) {
-        if(client.type != AuthResponse.ConnectTypes.CLIENT || profileUUID == null || serverID == null) {
-            return true;
-        }
-        try {
-            UUID requestedProfileUUID = UUID.fromString(serverID);
-            if(profileUUID.equals(requestedProfileUUID)) {
-                return true;
-            }
-            logger.warn("joinServer denied: profile mismatch for user {} (serverID={}, selectedProfile={})",
-                    client.username != null ? client.username : client.uuid, serverID, profileUUID);
-            return false;
-        } catch (IllegalArgumentException ignored) {
-            return true;
-        }
-    }
-
-    private UUID resolveCurrentClientProfileUUID(Client client) {
-        if(client.profile != null) {
-            return client.profile.getUuid();
-        }
-        String serverName = client.getProperty("launchserver.serverName");
-        if(serverName == null) {
-            return null;
-        }
-        try {
-            return UUID.fromString(serverName);
-        } catch (IllegalArgumentException e) {
-            return null;
-        }
     }
 
     public PlayerProfile getPlayerProfile(Client client) {
