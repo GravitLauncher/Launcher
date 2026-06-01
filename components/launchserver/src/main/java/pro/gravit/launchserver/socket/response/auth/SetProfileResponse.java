@@ -30,7 +30,9 @@ public class SetProfileResponse extends SimpleResponse {
             return;
         }
         client.profile = profile;
-        sendResult(new SetProfileRequestEvent(profile.getProfile(), profile.getTag()));
+        sendResult(new SetProfileRequestEvent(profile.getProfile(), profile.getTag(),
+                server.authManager.newClientProfileToken(profile.getUuid(), profile.getTag(), client.auth_id),
+                server.config.netty.security.launcherTokenExpire * 1000));
     }
 
     @Override
