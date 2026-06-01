@@ -294,5 +294,6 @@ public final class LaunchServerConfig {
         public long publicKeyTokenExpire = HOURS.toSeconds(8);
 
         public long launcherTokenExpire = HOURS.toSeconds(8);
+        public long joinServerTimeoutMillis = 10_000;
     }
 }
