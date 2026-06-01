@@ -6,6 +6,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import pro.gravit.launcher.base.ClientPermissions;
 import pro.gravit.launcher.base.events.request.AuthRequestEvent;
+import pro.gravit.launcher.base.events.request.SetProfileRequestEvent;
 import pro.gravit.launcher.base.profiles.ClientProfile;
 import pro.gravit.launcher.base.profiles.PlayerProfile;
 import pro.gravit.launcher.base.request.auth.AuthRequest;
@@ -20,6 +21,7 @@ import pro.gravit.launchserver.auth.core.interfaces.provider.AuthSupportExtended
 import pro.gravit.launchserver.auth.core.interfaces.session.UserSessionSupportKeys;
 import pro.gravit.launchserver.auth.core.interfaces.user.UserSupportProperties;
 import pro.gravit.launchserver.auth.core.interfaces.user.UserSupportTextures;
+import pro.gravit.launchserver.auth.profiles.ProfilesProvider;
 import pro.gravit.launchserver.auth.texture.TextureProvider;
 import pro.gravit.launchserver.socket.Client;
 import pro.gravit.launchserver.socket.response.auth.AuthResponse;
@@ -29,18 +31,34 @@ import pro.gravit.utils.helper.SecurityHelper;
 
 import javax.crypto.Cipher;
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 public class AuthManager {
+    public static final String WRONG_CLIENT_ERROR_MESSAGE = "Wrong Client";
+    public static final String AUTH_BACKEND_TIMEOUT_ERROR_MESSAGE = "Auth backend timeout";
     private transient final LaunchServer server;
     private transient final Logger logger = LogManager.getLogger();
     private transient final JwtParser checkServerTokenParser;
+    private transient final JwtParser clientProfileTokenParser;
+    private final transient Map<String, UUID> joinServerProfilesByServerId = new ConcurrentHashMap<>();
 
     public AuthManager(LaunchServer server) {
         this.server = server;
         this.checkServerTokenParser = Jwts.parser()
                 .requireIssuer("LaunchServer")
                 .require("tokenType", "checkServer")
+                .verifyWith(server.keyAgreementManager.ecdsaPublicKey)
+                .build();
+        this.clientProfileTokenParser = Jwts.parser()
+                .requireIssuer("LaunchServer")
+                .require("tokenType", SetProfileRequestEvent.CLIENT_PROFILE_EXTENDED_TOKEN_NAME)
                 .verifyWith(server.keyAgreementManager.ecdsaPublicKey)
                 .build();
     }
@@ -61,6 +79,34 @@ public class AuthManager {
             var jwt = checkServerTokenParser.parseClaimsJws(token).getBody();
             var isPublicClaim = jwt.get("isPublic", Boolean.class);
             return new CheckServerTokenInfo(jwt.get("serverName", String.class), jwt.get("authId", String.class), isPublicClaim == null || isPublicClaim);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    public String newClientProfileToken(UUID profileUUID, String profileTag, String authId) {
+        var builder = Jwts.builder()
+                .issuer("LaunchServer")
+                .claim("tokenType", SetProfileRequestEvent.CLIENT_PROFILE_EXTENDED_TOKEN_NAME)
+                .claim("profileUUID", profileUUID.toString());
+        if (profileTag != null) {
+            builder = builder.claim("profileTag", profileTag);
+        }
+        if (authId != null) {
+            builder = builder.claim("authId", authId);
+        }
+        return builder.setExpiration(Date.from(LocalDateTime.now().plusSeconds(server.config.netty.security.launcherTokenExpire).toInstant(ZoneOffset.UTC)))
+                .signWith(server.keyAgreementManager.ecdsaPrivateKey)
+                .compact();
+    }
+
+    public ClientProfileTokenInfo parseClientProfileToken(String token) {
+        try {
+            var jwt = clientProfileTokenParser.parseClaimsJws(token).getBody();
+            return new ClientProfileTokenInfo(
+                    UUID.fromString(jwt.get("profileUUID", String.class)),
+                    jwt.get("profileTag", String.class),
+                    jwt.get("authId", String.class));
         } catch (Exception e) {
             return null;
         }
@@ -168,17 +214,108 @@ public class AuthManager {
         if(supportExtended != null) {
             var session = supportExtended.extendedCheckServer(client, username, serverID);
             if(session == null) return null;
+            if(!isCheckServerProfileAllowed(client, serverID)) {
+                throw new AuthException(WRONG_CLIENT_ERROR_MESSAGE);
+            }
             return CheckServerReport.ofUserSession(session, getPlayerProfile(client.auth, session.getUser()));
         } else {
             var user = client.auth.core.checkServer(client, username, serverID);
             if (user == null) return null;
+            if(!isCheckServerProfileAllowed(client, serverID)) {
+                throw new AuthException(WRONG_CLIENT_ERROR_MESSAGE);
+            }
             return CheckServerReport.ofUser(user, getPlayerProfile(client.auth, user));
         }
     }
 
     public boolean joinServer(Client client, String username, UUID uuid, String accessToken, String serverID) throws IOException {
         if (client.auth == null) return false;
-        return client.auth.core.joinServer(client, username, uuid, accessToken, serverID);
+        UUID profileUUID = resolveCurrentClientProfileUUID(client);
+        if(client.type == AuthResponse.ConnectTypes.CLIENT && profileUUID == null) {
+            logger.warn("joinServer denied: profile is not selected/restored for user {} (serverID={})",
+                    username != null ? username : uuid, serverID);
+            return false;
+        }
+        long joinServerTimeoutMillis = server.config.netty.security.joinServerTimeoutMillis;
+        boolean result;
+        if (joinServerTimeoutMillis <= 0) {
+            result = client.auth.core.joinServer(client, username, uuid, accessToken, serverID);
+        } else {
+            var joinServerFuture = CompletableFuture.supplyAsync(() -> {
+                try {
+                    return client.auth.core.joinServer(client, username, uuid, accessToken, serverID);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            });
+            try {
+                result = joinServerFuture.get(joinServerTimeoutMillis, TimeUnit.MILLISECONDS);
+            } catch (TimeoutException e) {
+                joinServerFuture.cancel(true);
+                logger.warn("joinServer timed out after {} ms for user {} (serverID={})",
+                        joinServerTimeoutMillis, username != null ? username : uuid, serverID);
+                throw new AuthException(AUTH_BACKEND_TIMEOUT_ERROR_MESSAGE);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                throw new IOException("joinServer interrupted", e);
+            } catch (ExecutionException e) {
+                Throwable cause = e.getCause();
+                if (cause instanceof RuntimeException runtimeException && runtimeException.getCause() instanceof IOException ioException) {
+                    throw ioException;
+                }
+                if (cause instanceof IOException ioException) {
+                    throw ioException;
+                }
+                throw new IOException("joinServer failed", cause);
+            }
+        }
+        if(result && serverID != null && profileUUID != null) {
+            joinServerProfilesByServerId.put(serverID, profileUUID);
+        }
+        return result;
+    }
+
+    private boolean isCheckServerProfileAllowed(Client client, String serverID) {
+        if(serverID == null) {
+            return true;
+        }
+        UUID expectedProfileUUID = joinServerProfilesByServerId.remove(serverID);
+        if(expectedProfileUUID == null) {
+            UUID currentProfileUUID = resolveCurrentClientProfileUUID(client);
+            if(currentProfileUUID == null) {
+                return true;
+            }
+            logger.warn("checkServer denied: no joinServer profile context for serverID={}, but server profile is {}",
+                    serverID, currentProfileUUID);
+            return false;
+        }
+        UUID currentProfileUUID = resolveCurrentClientProfileUUID(client);
+        if(currentProfileUUID == null) {
+            logger.warn("checkServer denied: server profile is not resolved, expected profile {} for serverID={}",
+                    expectedProfileUUID, serverID);
+            return false;
+        }
+        if(!currentProfileUUID.equals(expectedProfileUUID)) {
+            logger.warn("checkServer denied: profile mismatch for serverID={} (expected={}, current={})",
+                    serverID, expectedProfileUUID, currentProfileUUID);
+            return false;
+        }
+        return true;
+    }
+
+    private UUID resolveCurrentClientProfileUUID(Client client) {
+        if(client.profile != null) {
+            return client.profile.getUuid();
+        }
+        String serverName = client.getProperty("launchserver.serverName");
+        if(serverName == null) {
+            return null;
+        }
+        try {
+            return UUID.fromString(serverName);
+        } catch (IllegalArgumentException e) {
+            return null;
+        }
     }
 
     public PlayerProfile getPlayerProfile(Client client) {
@@ -298,6 +435,9 @@ public class AuthManager {
     public record CheckServerTokenInfo(String serverName, String authId, boolean isPublic) {
     }
 
+    public record ClientProfileTokenInfo(UUID profileUUID, String profileTag, String authId) {
+    }
+
     public static class CheckServerVerifier implements RestoreResponse.ExtendedTokenProvider {
         private final LaunchServer server;
 
@@ -319,7 +459,41 @@ public class AuthManager {
                 client.permissions.addPerm("launchserver.checkserver.extended");
                 client.permissions.addPerm("launchserver.profile.%s.show".formatted(info.serverName));
             }
+            try {
+                UUID profileUUID = UUID.fromString(info.serverName);
+                ProfilesProvider.CompletedProfile profile = server.config.profilesProvider.get(profileUUID, null);
+                if(profile != null) {
+                    client.profile = profile;
+                }
+            } catch (IllegalArgumentException ignored) {
+                // serverName may be a custom value, profile restore from this token is optional
+            }
             client.setProperty("launchserver.serverName", info.serverName);
+            return true;
+        }
+    }
+
+    public static class ClientProfileTokenVerifier implements RestoreResponse.ExtendedTokenProvider {
+        private final LaunchServer server;
+
+        public ClientProfileTokenVerifier(LaunchServer server) {
+            this.server = server;
+        }
+
+        @Override
+        public boolean accept(Client client, AuthProviderPair pair, String extendedToken) {
+            var info = server.authManager.parseClientProfileToken(extendedToken);
+            if (info == null) {
+                return false;
+            }
+            if(info.authId() != null && pair != null && !info.authId().equals(pair.name)) {
+                return false;
+            }
+            ProfilesProvider.CompletedProfile profile = server.config.profilesProvider.get(info.profileUUID(), info.profileTag());
+            if (profile == null) {
+                return false;
+            }
+            client.profile = profile;
             return true;
         }
     }

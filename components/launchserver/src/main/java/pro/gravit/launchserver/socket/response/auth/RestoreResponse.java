@@ -4,6 +4,7 @@ import io.netty.channel.ChannelHandlerContext;
 import pro.gravit.launcher.base.events.request.AuthRequestEvent;
 import pro.gravit.launcher.base.events.request.LauncherRequestEvent;
 import pro.gravit.launcher.base.events.request.RestoreRequestEvent;
+import pro.gravit.launcher.base.events.request.SetProfileRequestEvent;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.auth.AuthProviderPair;
 import pro.gravit.launchserver.auth.core.AuthCoreProvider;
@@ -34,6 +35,7 @@ public class RestoreResponse extends SimpleResponse {
             providers.put("publicKey", new AdvancedProtectHandler.PublicKeyTokenVerifier(server));
             providers.put("hardware", new AdvancedProtectHandler.HardwareInfoTokenVerifier(server));
             providers.put("checkServer", new AuthManager.CheckServerVerifier(server));
+            providers.put(SetProfileRequestEvent.CLIENT_PROFILE_EXTENDED_TOKEN_NAME, new AuthManager.ClientProfileTokenVerifier(server));
             registeredProviders = true;
         }
     }
