@@ -71,7 +71,7 @@ public class MemoryAuthCoreProvider extends AuthCoreProvider implements AuthSupp
 
     @Override
     public AuthManager.AuthReport authorize(String login, AuthResponse.AuthContext context, AuthRequest.AuthPasswordInterface password, boolean minecraftAccess) throws IOException {
-        if (login == null) {
+        if (login == null || login.trim().length() < 2) {
             throw AuthException.userNotFound();
         }
         MemoryUser user = null;
