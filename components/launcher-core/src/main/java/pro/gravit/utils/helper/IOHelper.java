@@ -270,11 +270,38 @@ public final class IOHelper {
     }
 
     public static InputStream newInput(URL url) throws IOException {
-        return newConnection(url).getInputStream();
+        try {
+            return newConnection(url).getInputStream();
+        } catch (UnknownHostException e) {
+            logger.warn("DNS resolution failed for host '{}' (url='{}'): {}",
+                    url.getHost(), url, e.getMessage());
+            throw e;
+        } catch (SocketTimeoutException e) {
+            logger.warn("Connection timeout to '{}' (HTTP_TIMEOUT={}ms): {}",
+                    url, HTTP_TIMEOUT, e.getMessage());
+            throw e;
+        } catch (ConnectException e) {
+            logger.warn("Connection refused to '{}': {}",
+                    url, e.getMessage());
+            throw e;
+        }
     }
 
     public static BufferedInputStream newBufferedInput(URL url) throws IOException {
-        return new BufferedInputStream(newConnection(url).getInputStream());
+        try {
+            return new BufferedInputStream(newConnection(url).getInputStream());
+        } catch (UnknownHostException e) {
+            logger.warn("DNS resolution failed for host '{}' (url='{}'): {}",
+                    url.getHost(), url, e.getMessage());
+            throw e;
+        } catch (SocketTimeoutException e) {
+            logger.warn("Connection timeout to '{}' (HTTP_TIMEOUT={}ms): {}",
+                    url, HTTP_TIMEOUT, e.getMessage());
+            throw e;
+        } catch (ConnectException e) {
+            logger.warn("Connection refused to '{}': {}", url, e.getMessage());
+            throw e;
+        }
     }
 
     public static OutputStream newOutput(Path file) throws IOException {
@@ -392,7 +419,15 @@ public final class IOHelper {
 
     public static byte[] read(URL url) throws IOException {
         try (InputStream input = newInput(url)) {
-            return read(input);
+            try {
+                return read(input);
+            } catch (SocketTimeoutException e) {
+                // connect timeout is rethrown inside newInput and never reaches this point;
+                // only read timeout (response body) is caught here
+                logger.warn("Read timeout while downloading from '{}' (HTTP_TIMEOUT={}ms): {}",
+                        url, HTTP_TIMEOUT, e.getMessage());
+                throw e;
+            }
         }
     }
 

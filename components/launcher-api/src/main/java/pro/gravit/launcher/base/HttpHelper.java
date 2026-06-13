@@ -14,7 +14,9 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.Flow;
@@ -67,11 +69,26 @@ public final class HttpHelper {
         HttpOptional<T, E> applyJson(JsonElement response, int statusCode);
 
         default HttpOptional<T, E> apply(HttpResponse<InputStream> response) {
-            try (Reader reader = new InputStreamReader(response.body())) {
-                var element = Launcher.gsonManager.gson.fromJson(reader, JsonElement.class);
+            String contentType = response.headers()
+                    .firstValue("Content-Type")
+                    .orElse("unknown");
+
+            if (!contentType.toLowerCase(Locale.ROOT).contains("json")) {
+                throw new RuntimeException(
+                        "Expected a JSON response, but the server returned Content-Type '%s' (HTTP %d)."
+                                .formatted(contentType, response.statusCode())
+                );
+            }
+
+            try (Reader reader = new InputStreamReader(response.body(), StandardCharsets.UTF_8)) {
+                JsonElement element = Launcher.gsonManager.gson.fromJson(reader, JsonElement.class);
                 return applyJson(element, response.statusCode());
-            } catch (IOException e) {
-                throw new RuntimeException(e);
+            } catch (Exception e) {
+                throw new RuntimeException(
+                        "Failed to process JSON response from the server (HTTP %d)."
+                                .formatted(response.statusCode()),
+                        e
+                );
             }
         }
     }
