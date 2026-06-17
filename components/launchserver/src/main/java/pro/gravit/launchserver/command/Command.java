@@ -73,7 +73,7 @@ public abstract class Command extends pro.gravit.utils.command.Command {
             public void onComplete(Path path) {
                 bar.setExtraMessage(" [%d/%d]".formatted(currentFiles.incrementAndGet(), totalFiles));
             }
-        }, null, 4);
+        }, null, 32);
         downloader.getFuture().handle((v, e) -> {
             CompletableFuture<Void> future = new CompletableFuture<>();
             bar.close();
