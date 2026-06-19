@@ -58,6 +58,7 @@ public class LauncherBackendImpl implements LauncherBackendAPI, TextureUploadExt
     private final ClientDownloadImpl clientDownloadImpl = new ClientDownloadImpl(this);
     private volatile MainCallback callback;
     ExecutorService executorService;
+    ExecutorService PING_EXECUTOR;
     private volatile AuthMethod authMethod;
     // Settings
     private SettingsManager settingsManager;
@@ -84,6 +85,12 @@ public class LauncherBackendImpl implements LauncherBackendAPI, TextureUploadExt
         executorService = Executors.newScheduledThreadPool(2, (r) -> {
             Thread thread = new Thread(r);
             thread.setDaemon(true);
+            return thread;
+        });
+        PING_EXECUTOR = Executors.newCachedThreadPool(r -> {
+            Thread thread = new Thread(r, "server-ping-worker");
+            thread.setDaemon(true);
+            thread.setPriority(Thread.MIN_PRIORITY);
             return thread;
         });
         registerUserSettings("backend", BackendSettings.class);
@@ -346,7 +353,7 @@ public class LauncherBackendImpl implements LauncherBackendAPI, TextureUploadExt
     public CompletableFuture<ServerPingInfo> pingServer(ProfileFeatureAPI.ClientProfile profile) {
         return pingFutures.computeIfAbsent(profile.getUUID(), (k) -> {
             CompletableFuture<ServerPingInfo> future = new CompletableFuture<>();
-            executorService.submit(() -> {
+            PING_EXECUTOR.submit(() -> {
                 try {
                     ServerPinger pinger = new ServerPinger((ClientProfile) profile);
                     future.complete(pinger.ping());
@@ -362,7 +369,7 @@ public class LauncherBackendImpl implements LauncherBackendAPI, TextureUploadExt
     public CompletableFuture<ServerPingInfo> pingProfileServers(ProfileFeatureAPI.ClientProfile profile) {
         return pingFutures.computeIfAbsent(profile.getUUID(), (k) -> {
             CompletableFuture<ServerPingInfo> future = new CompletableFuture<>();
-            executorService.submit(() -> {
+            PING_EXECUTOR.submit(() -> {
                 try {
                     ClientProfile clientProfile = (ClientProfile) profile;
                     List<ClientProfile.ServerProfile> servers = clientProfile.getServers();
@@ -378,7 +385,7 @@ public class LauncherBackendImpl implements LauncherBackendAPI, TextureUploadExt
                                     logger.warn("Failed to ping server {}: {}", server.name, e.getMessage());
                                     return null;
                                 }
-                            }, executorService))
+                            }, PING_EXECUTOR))
                             .toList();
 
                     CompletableFuture.allOf(serverPingFutures.toArray(new CompletableFuture[0]))
@@ -496,10 +503,11 @@ public class LauncherBackendImpl implements LauncherBackendAPI, TextureUploadExt
 
     @Override
     public void shutdown() {
-        if(executorService != null) {
+        if (executorService != null) {
             executorService.shutdownNow();
         }
-        if(settingsManager != null) {
+        PING_EXECUTOR.shutdownNow();
+        if (settingsManager != null) {
             try {
                 settingsManager.saveConfig();
             } catch (IOException e) {
