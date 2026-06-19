@@ -3,6 +3,8 @@ package pro.gravit.launchserver.command;
 import me.tongfei.progressbar.ProgressBar;
 import me.tongfei.progressbar.ProgressBarBuilder;
 import me.tongfei.progressbar.ProgressBarStyle;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import pro.gravit.launcher.base.Launcher;
 import pro.gravit.launcher.base.Downloader;
 import pro.gravit.launcher.base.profiles.ClientProfile;
@@ -16,9 +18,11 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicReference;
 
 public abstract class Command extends pro.gravit.utils.command.Command {
     protected final LaunchServer server;
+    private static final transient Logger logger = LogManager.getLogger();
 
 
     protected Command(LaunchServer server) {
@@ -62,6 +66,7 @@ public abstract class Command extends pro.gravit.utils.command.Command {
                 .setUnit("MB", 1024 * 1024)
                 .build();
         bar.setExtraMessage(" [0/%d]".formatted(totalFiles));
+        AtomicReference<Downloader> downloaderRef = new AtomicReference<>();
         Downloader downloader = Downloader.downloadList(list, baseUrl, targetDir, new Downloader.DownloadCallback() {
             @Override
             public void apply(long fullDiff) {
@@ -70,10 +75,17 @@ public abstract class Command extends pro.gravit.utils.command.Command {
             }
 
             @Override
+            public void onFailed(Path path, Throwable e) {
+                logger.error("Failed to download {}: {}", path, e);
+                downloaderRef.get().cancel();
+            }
+
+            @Override
             public void onComplete(Path path) {
                 bar.setExtraMessage(" [%d/%d]".formatted(currentFiles.incrementAndGet(), totalFiles));
             }
         }, null, 32);
+        downloaderRef.set(downloader);
         downloader.getFuture().handle((v, e) -> {
             CompletableFuture<Void> future = new CompletableFuture<>();
             bar.close();

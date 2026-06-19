@@ -170,6 +170,10 @@ public interface LauncherBackendAPI {
 
         }
 
+        public void onDownloadFailed(Path path, Throwable e) {
+
+        }
+
         public void onStage(String stage) {
 
         }

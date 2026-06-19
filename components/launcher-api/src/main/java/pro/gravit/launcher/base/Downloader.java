@@ -226,8 +226,11 @@ public class Downloader {
                     taskSet.remove(task);
                     return x;
                 }).thenAccept(consumerObject.next).exceptionally(ec -> {
-                    future.completeExceptionally(ec);
-                    cancelEarly.run();
+                    if(callback != null) {
+                        callback.onFailed(targetDir.resolve(file.filePath), ec);
+                    }
+                    //future.completeExceptionally(ec);
+                    //cancelEarly.run();
                     return null;
                 });
             } catch (Exception exception) {
@@ -290,6 +293,8 @@ public class Downloader {
 
     public interface DownloadCallback {
         void apply(long fullDiff);
+
+        void onFailed(Path path, Throwable e);
 
         void onComplete(Path path);
     }

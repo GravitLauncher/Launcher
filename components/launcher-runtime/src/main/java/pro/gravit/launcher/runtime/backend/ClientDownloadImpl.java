@@ -161,6 +161,11 @@ public class ClientDownloadImpl {
                 }
 
                 @Override
+                public void onFailed(Path path, Throwable e) {
+                    callback.onDownloadFailed(path, e);
+                }
+
+                @Override
                 public void onComplete(Path path) {
 
                 }
