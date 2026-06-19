@@ -155,8 +155,13 @@ public class MakeProfileHelper {
                 }
             }
         }
-        builder.setMinJavaVersion(21);
-        builder.setRecommendJavaVersion(21);
+        if(version.compareTo(ClientProfileVersions.MINECRAFT_26_0) >= 0) {
+            builder.setMinJavaVersion(25);
+            builder.setRecommendJavaVersion(25);
+        } else {
+            builder.setMinJavaVersion(21);
+            builder.setRecommendJavaVersion(21);
+        }
         jvmArgs.add("-Dfml.ignorePatchDiscrepancies=true");
         jvmArgs.add("-Dfml.ignoreInvalidMinecraftCertificates=true");
         builder.setJvmArgs(jvmArgs);

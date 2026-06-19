@@ -20,4 +20,5 @@ public class ClientProfileVersions {
     public static final ClientProfile.Version MINECRAFT_1_20_3 = ClientProfile.Version.of("1.20.3");
     public static final ClientProfile.Version MINECRAFT_1_20_5 = ClientProfile.Version.of("1.20.5");
     public static final ClientProfile.Version MINECRAFT_1_21_9 = ClientProfile.Version.of("1.21.9");
+    public static final ClientProfile.Version MINECRAFT_26_0 = ClientProfile.Version.of("26.0");
 }
