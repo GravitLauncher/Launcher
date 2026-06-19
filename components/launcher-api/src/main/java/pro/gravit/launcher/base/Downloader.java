@@ -34,6 +34,8 @@ public class Downloader {
     private static final Logger logger =
             LoggerFactory.getLogger(Downloader.class);
 
+    public static final int MAX_FAILED_FILES = 8;
+
     @LauncherInject("launcher.certificatePinning")
     private static boolean isCertificatePinning;
     @LauncherInject("launcher.noHttp2")
@@ -191,6 +193,7 @@ public class Downloader {
         ConsumerObject consumerObject = new ConsumerObject();
         Set<DownloadTask> taskSet = ConcurrentHashMap.newKeySet();
         AtomicBoolean canceled = new AtomicBoolean();
+        AtomicInteger failedFiles = new AtomicInteger();
         Runnable cancelEarly = () -> {
             canceled.set(true);
             for(var e : taskSet) {
@@ -205,6 +208,10 @@ public class Downloader {
                 callback.onComplete(e.body());
             }
             if(canceled.get()) {
+                return;
+            }
+            if(failedFiles.get() >= MAX_FAILED_FILES) {
+                future.completeExceptionally(new IOException("Download failed. MAX_FAILED_FILES reached"));
                 return;
             }
             SizedFile file = queue.poll();
@@ -225,14 +232,16 @@ public class Downloader {
                 }).thenApply(x -> {
                     taskSet.remove(task);
                     return x;
-                }).thenAccept(consumerObject.next).exceptionally(ec -> {
+                }).exceptionally(ec -> {
                     if(callback != null) {
                         callback.onFailed(targetDir.resolve(file.filePath), ec);
                     }
-                    //future.completeExceptionally(ec);
-                    //cancelEarly.run();
+                    failedFiles.incrementAndGet();
+                    if(failedFiles.get() >= files.size()) {
+                        future.completeExceptionally(ec);
+                    }
                     return null;
-                });
+                }).thenAccept(consumerObject.next);
             } catch (Exception exception) {
                 logger.error("", exception);
                 future.completeExceptionally(exception);
