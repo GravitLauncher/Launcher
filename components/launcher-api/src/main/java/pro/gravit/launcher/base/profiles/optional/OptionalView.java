@@ -18,9 +18,6 @@ public class OptionalView {
 
     public OptionalView(ClientProfile profile) {
         this.all = profile.getOptional();
-        for (OptionalFile f : this.all) {
-            if (f.mark) enable(f, true, null);
-        }
     }
 
     public OptionalView(OptionalView view) {
@@ -39,8 +36,6 @@ public class OptionalView {
             }
             if(old.isEnabled(oldFile)) {
                 enable(newFile, old.installInfo.get(oldFile).isManual, (file, status) -> {});
-            } else {
-                disable(newFile, (file, status) -> {});
             }
         }
         fixDependencies();

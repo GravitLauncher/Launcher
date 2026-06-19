@@ -50,7 +50,7 @@ public class ProfileSettingsImpl implements LauncherBackendAPI.ClientProfileSett
         if(JVMHelper.OS_TYPE == JVMHelper.OS.LINUX && System.getenv("WAYLAND_DISPLAY") != null) {
             this.flags.add(Flag.LINUX_WAYLAND_SUPPORT);
         }
-        processTriggers(profile, this.view);
+        processTriggers(profile, this.view, true);
     }
 
     @Override
@@ -206,7 +206,7 @@ public class ProfileSettingsImpl implements LauncherBackendAPI.ClientProfileSett
         this.backend = backend;
         this.profile = profile;
         this.view = new OptionalView(profile);
-        processTriggers(profile, this.view);
+        processTriggers(profile, this.view, false);
         for(var e : enabled) {
             var opt = profile.getOptionalFile(e);
             if(opt == null) {
@@ -234,7 +234,7 @@ public class ProfileSettingsImpl implements LauncherBackendAPI.ClientProfileSett
 
 
 
-    public void processTriggers(ClientProfile profile, OptionalView view) {
+    public void processTriggers(ClientProfile profile, OptionalView view, boolean applyEnabledByDefault) {
         TriggerManagerContext context = new TriggerManagerContext(profile);
         for (OptionalFile optional : view.all) {
             if (optional.limited) {
@@ -246,6 +246,10 @@ public class ProfileSettingsImpl implements LauncherBackendAPI.ClientProfileSett
                 } else {
                     optional.visible = true;
                 }
+            }
+            // Apply mark-based defaults only for freshly created profile settings.
+            if (applyEnabledByDefault && optional.visible && optional.mark) {
+                view.enable(optional, false, null);
             }
             if (optional.triggersList == null) continue;
             boolean isRequired = false;
