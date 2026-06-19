@@ -17,8 +17,6 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Collections;
 import java.util.HexFormat;
 import java.util.Set;
-import java.util.jar.JarFile;
-import java.util.jar.Manifest;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.Deflater;
@@ -75,38 +73,6 @@ public final class IOHelper {
             closeable.close();
         } catch (Exception exc) {
             logger.error("", exc);
-        }
-    }
-
-    public static void close(InputStream in) {
-        try {
-            in.close();
-        } catch (Exception ignored) {
-        }
-    }
-
-    public static void close(OutputStream out) {
-        try {
-            out.flush();
-            out.close();
-        } catch (Exception ignored) {
-        }
-    }
-
-    public static Manifest getManifest(Class<?> clazz) {
-        Path path = getCodeSource(clazz);
-        try(JarFile jar = new JarFile(path.toFile())) {
-            return jar.getManifest();
-        } catch (IOException ex) {
-            throw new RuntimeException(ex);
-        }
-    }
-
-    public static URL convertToURL(String url) {
-        try {
-            return new URI(url).toURL();
-        } catch (MalformedURLException | URISyntaxException e) {
-            throw new IllegalArgumentException("Invalid URL", e);
         }
     }
 
@@ -221,14 +187,6 @@ public final class IOHelper {
 
     public static byte[] newBuffer() {
         return new byte[BUFFER_SIZE];
-    }
-
-    public static ByteArrayOutputStream newByteArrayOutput() {
-        return new ByteArrayOutputStream();
-    }
-
-    public static char[] newCharBuffer() {
-        return new char[BUFFER_SIZE];
     }
 
     public static URLConnection newConnection(URL url) throws IOException {
@@ -386,10 +344,7 @@ public final class IOHelper {
     }
 
     public static byte[] read(InputStream input) throws IOException {
-        try (ByteArrayOutputStream output = newByteArrayOutput()) {
-            transfer(input, output);
-            return output.toByteArray();
-        }
+        return input.readAllBytes();
     }
 
     public static void read(InputStream input, byte[] bytes) throws IOException {
@@ -403,18 +358,7 @@ public final class IOHelper {
     }
 
     public static byte[] read(Path file) throws IOException {
-        long size = readAttributes(file).size();
-        if (size > Integer.MAX_VALUE)
-            throw new IOException("File too big");
-
-        // Read bytes from file
-        byte[] bytes = new byte[(int) size];
-        try (InputStream input = newInput(file)) {
-            read(input, bytes);
-        }
-
-        // Return result
-        return bytes;
+        return Files.readAllBytes(file);
     }
 
     public static byte[] read(URL url) throws IOException {
@@ -461,23 +405,6 @@ public final class IOHelper {
         if (address.isUnresolved())
             return new InetSocketAddress(address.getHostString(), address.getPort());
         return address;
-    }
-
-    public static Path resolveIncremental(Path dir, String name, String extension) {
-        Path original = dir.resolve(name + '.' + extension);
-        if (!exists(original))
-            return original;
-
-        // Incremental resolve
-        int counter = 1;
-        while (true) {
-            Path path = dir.resolve(String.format("%s (%d).%s", name, counter, extension));
-            if (exists(path)) {
-                counter++;
-                continue;
-            }
-            return path;
-        }
     }
 
     public static Path resolveJavaBin(Path javaDir) {
@@ -533,12 +460,6 @@ public final class IOHelper {
         return path.normalize().toAbsolutePath();
     }
 
-    public static byte[] toByteArray(InputStream in) throws IOException {
-        ByteArrayOutputStream out = new ByteArrayOutputStream(in.available());
-        IOHelper.transfer(in, out);
-        return out.toByteArray();
-    }
-
     public static Path toPath(String path) {
         return Paths.get(CROSS_SEPARATOR_PATTERN.matcher(path).replaceAll(Matcher.quoteReplacement(PLATFORM_SEPARATOR)));
     }
@@ -570,13 +491,7 @@ public final class IOHelper {
     }
 
     public static long transfer(InputStream input, OutputStream output) throws IOException {
-        long transferred = 0;
-        byte[] buffer = newBuffer();
-        for (int length = input.read(buffer); length >= 0; length = input.read(buffer)) {
-            output.write(buffer, 0, length);
-            transferred += length;
-        }
-        return transferred;
+        return input.transferTo(output);
     }
 
     public static void transfer(InputStream input, Path file) throws IOException {

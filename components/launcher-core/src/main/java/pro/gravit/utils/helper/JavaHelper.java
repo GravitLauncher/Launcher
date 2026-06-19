@@ -4,7 +4,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pro.gravit.launcher.core.backend.LauncherBackendAPI;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
@@ -24,27 +23,6 @@ public class JavaHelper {
         javaFxModules = List.of("javafx.base", "javafx.graphics", "javafx.fxml", "javafx.controls", "javafx.swing", "javafx.media", "javafx.web");
     }
 
-    public static Path tryGetOpenJFXPath(Path jvmDir) {
-        String dirName = jvmDir.getFileName().toString();
-        Path parent = jvmDir.getParent();
-        if (parent == null) return null;
-        Path archJFXPath = parent.resolve(dirName.replace("openjdk", "openjfx"));
-        if (Files.isDirectory(archJFXPath)) {
-            return archJFXPath;
-        }
-        Path arch2JFXPath = parent.resolve(dirName.replace("jdk", "openjfx"));
-        if (Files.isDirectory(arch2JFXPath)) {
-            return arch2JFXPath;
-        }
-        if (JVMHelper.OS_TYPE == JVMHelper.OS.LINUX) {
-            Path debianJfxPath = Paths.get("/usr/share/openjfx");
-            if (Files.isDirectory(debianJfxPath)) {
-                return debianJfxPath;
-            }
-        }
-        return null;
-    }
-
     public static Path tryFindModule(Path path, String moduleName) {
         Path result = path.resolve(moduleName.concat(".jar"));
         if (!IOHelper.isFile(result))
@@ -53,19 +31,6 @@ public class JavaHelper {
         if (!IOHelper.isFile(result))
             return null;
         else return result;
-    }
-
-    public static boolean tryAddModule(List<Path> paths, String moduleName, StringBuilder args) {
-        for (Path path : paths) {
-            if (path == null) continue;
-            Path result = tryFindModule(path, moduleName);
-            if (result != null) {
-                if (!args.isEmpty()) args.append(File.pathSeparatorChar);
-                args.append(result.toAbsolutePath());
-                return true;
-            }
-        }
-        return false;
     }
 
     public synchronized static List<JavaVersion> findJava() {

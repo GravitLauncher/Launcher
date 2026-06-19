@@ -88,7 +88,7 @@ public final class ServerPinger {
 
             // Prepare custom payload packet
             byte[] customPayloadPacket;
-            try (ByteArrayOutputStream packetArray = IOHelper.newByteArrayOutput()) {
+            try (ByteArrayOutputStream packetArray = new ByteArrayOutputStream()) {
                 try (HOutput packetOutput = new HOutput(packetArray)) {
                     packetOutput.writeUnsignedByte(0x4a); // Protocol version
                     writeUTF16String(packetOutput, address.getHostString()); // Server address
@@ -133,7 +133,7 @@ public final class ServerPinger {
     private Result modernPing(HInput input, HOutput output, int protocol) throws IOException {
         // Prepare handshake packet
         byte[] handshakePacket;
-        try (ByteArrayOutputStream packetArray = IOHelper.newByteArrayOutput()) {
+        try (ByteArrayOutputStream packetArray = new ByteArrayOutputStream()) {
             try (HOutput packetOutput = new HOutput(packetArray)) {
                 packetOutput.writeVarInt(0x0); // Handshake packet ID
                 packetOutput.writeVarInt(protocol > 0 ? protocol : 0x4); // Protocol version

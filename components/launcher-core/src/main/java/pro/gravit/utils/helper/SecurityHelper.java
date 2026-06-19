@@ -16,6 +16,7 @@ import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.HashMap;
+import java.util.HexFormat;
 import java.util.Map;
 import java.util.Random;
 
@@ -145,20 +146,6 @@ public final class SecurityHelper {
             throw new InternalError(e);
         }
     }
-
-    /**
-     * @param algo Cipher algo
-     * @return Cipher instance
-     * @throws SecurityException: JCE cannot authenticate the provider BC if BouncyCastle is in unsigned jar
-     */
-    private static Cipher newBCCipher(String algo) {
-        try {
-            return Cipher.getInstance(algo, "BC");
-        } catch (NoSuchAlgorithmException | NoSuchPaddingException | NoSuchProviderException e) {
-            throw new InternalError(e);
-        }
-    }
-
 
     public static MessageDigest newDigest(DigestAlgorithm algo) {
         VerifyHelper.verify(algo, a -> a != DigestAlgorithm.PLAIN, "PLAIN digest");
@@ -343,16 +330,7 @@ public final class SecurityHelper {
         if (bytes == null) {
             return null;
         }
-        int offset = 0;
-        char[] hex = new char[bytes.length << 1];
-        for (byte currentByte : bytes) {
-            int ub = Byte.toUnsignedInt(currentByte);
-            hex[offset] = HEX.charAt(ub >>> 4);
-            offset++;
-            hex[offset] = HEX.charAt(ub & 0x0F);
-            offset++;
-        }
-        return new String(hex);
+        return HexFormat.of().formatHex(bytes);
     }
 
     public static ECPublicKey toPublicECDSAKey(byte[] bytes) throws InvalidKeySpecException {
@@ -479,12 +457,7 @@ public final class SecurityHelper {
     }
 
     public static byte[] fromHex(String hexString) {
-        int len = hexString.length() / 2;
-        byte[] result = new byte[len];
-        for (int i = 0; i < len; i++) {
-            result[i] = Integer.valueOf(hexString.substring(2 * i, 2 * i + 2), 16).byteValue();
-        }
-        return result;
+        return HexFormat.of().parseHex(hexString);
     }
 
     public enum DigestAlgorithm {

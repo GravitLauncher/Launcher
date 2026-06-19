@@ -2,7 +2,6 @@ package pro.gravit.utils.helper;
 
 import java.net.URI;
 import java.net.URLDecoder;
-import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
@@ -21,9 +20,5 @@ public class QueryHelper {
             strings.add(URLDecoder.decode(splitParams[1], StandardCharsets.UTF_8));
         }
         return params;
-    }
-
-    public static String encodeFormPair(String key, String value) {
-        return URLEncoder.encode(key, StandardCharsets.UTF_8) + "=" + URLEncoder.encode(value, StandardCharsets.UTF_8);
     }
 }

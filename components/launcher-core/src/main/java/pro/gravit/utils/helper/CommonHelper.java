@@ -4,48 +4,17 @@ import com.google.gson.*;
 import pro.gravit.utils.command.CommandException;
 import pro.gravit.utils.launch.LaunchOptions;
 
-import javax.script.ScriptEngine;
 import java.lang.reflect.Type;
 import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public final class CommonHelper {
 
     private CommonHelper() {
     }
 
-    public static String low(String s) {
-        return s.toLowerCase(Locale.US);
-    }
-
-    public static boolean multiMatches(Pattern[] pattern, String from) {
-        for (Pattern p : pattern)
-            if (p.matcher(from).matches()) return true;
-        return false;
-    }
-
-    public static String multiReplace(Pattern[] pattern, String from, String replace) {
-        Matcher m;
-        String tmp = null;
-        for (Pattern p : pattern) {
-            m = p.matcher(from);
-            if (m.matches()) tmp = m.replaceAll(replace);
-        }
-        return tmp != null ? tmp : from;
-    }
-
-    @Deprecated
-    public static ScriptEngine newScriptEngine() {
-        throw new UnsupportedOperationException("ScriptEngine not supported");
-    }
-
     public static Thread newThread(String name, boolean daemon, Runnable runnable) {
-        Thread thread = new Thread(runnable);
-        thread.setDaemon(daemon);
-        if (name != null)
-            thread.setName(name);
-        return thread;
+        var builder = Thread.ofPlatform().daemon(daemon);
+        return name == null ? builder.unstarted(runnable) : builder.name(name).unstarted(runnable);
     }
 
     public static String replace(String source, String... params) {

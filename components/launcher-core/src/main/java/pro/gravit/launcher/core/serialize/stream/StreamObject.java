@@ -11,7 +11,7 @@ public abstract class StreamObject {
     /* public StreamObject(HInput input) */
 
     public final byte[] write() throws IOException {
-        try (ByteArrayOutputStream array = IOHelper.newByteArrayOutput()) {
+        try (ByteArrayOutputStream array = new ByteArrayOutputStream()) {
             try (HOutput output = new HOutput(array)) {
                 write(output);
             }
