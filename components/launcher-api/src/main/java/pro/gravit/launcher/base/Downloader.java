@@ -22,11 +22,9 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.security.cert.CertificateException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Queue;
+import java.util.*;
 import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
@@ -191,9 +189,23 @@ public class Downloader {
         CompletableFuture<Void> future = new CompletableFuture<>();
         AtomicInteger currentThreads = new AtomicInteger(threads);
         ConsumerObject consumerObject = new ConsumerObject();
+        Set<DownloadTask> taskSet = ConcurrentHashMap.newKeySet();
+        AtomicBoolean canceled = new AtomicBoolean();
+        Runnable cancelEarly = () -> {
+            canceled.set(true);
+            for(var e : taskSet) {
+                try {
+                    e.cancel();
+                } catch (Throwable ignored) {
+                }
+            }
+        };
         Consumer<HttpResponse<Path>> next = e -> {
             if (callback != null && e != null) {
                 callback.onComplete(e.body());
+            }
+            if(canceled.get()) {
+                return;
             }
             SizedFile file = queue.poll();
             if (file == null) {
@@ -203,14 +215,19 @@ public class Downloader {
             }
             try {
                 DownloadTask task = sendAsync(file, baseUri, targetDir, callback);
+                taskSet.add(task);
                 task.completableFuture.thenCompose((res) -> {
                     if(res.statusCode() < 200 || res.statusCode() >= 300) {
                         return CompletableFuture.failedFuture(new IOException(String.format("Failed to download %s: code %d",
                                 file.urlPath != null ? file.urlPath /* TODO: baseUri */ : file.filePath, res.statusCode())));
                     }
                     return CompletableFuture.completedFuture(res);
+                }).thenApply(x -> {
+                    taskSet.remove(task);
+                    return x;
                 }).thenAccept(consumerObject.next).exceptionally(ec -> {
                     future.completeExceptionally(ec);
+                    cancelEarly.run();
                     return null;
                 });
             } catch (Exception exception) {
