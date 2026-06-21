@@ -12,6 +12,10 @@ public class BackendSettings extends UserSettings {
     @LauncherNetworkAPI
     public AuthorizationData auth;
     @LauncherNetworkAPI
+    public Map<String, AuthorizationData> auths = new HashMap<>();
+    @LauncherNetworkAPI
+    public String authId;
+    @LauncherNetworkAPI
     public Map<UUID, ProfileSettingsImpl> settings = new HashMap<>();
     public static class AuthorizationData {
         @LauncherNetworkAPI

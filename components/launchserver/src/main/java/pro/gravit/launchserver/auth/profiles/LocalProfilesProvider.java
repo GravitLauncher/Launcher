@@ -31,6 +31,7 @@ public class LocalProfilesProvider extends ProfilesProvider implements Reconfigu
     public String cacheFile = ".updates-cache";
     public String updatesDir = "updates";
     public boolean cacheUpdates = true;
+    public boolean allowUnauthorizedProfilesAccess = false;
     private transient volatile Map<String, HashedDir> updatesDirMap;
     private transient volatile Map<UUID, LocalProfile> profilesMap;
 
@@ -83,7 +84,7 @@ public class LocalProfilesProvider extends ProfilesProvider implements Reconfigu
         if(client == null) {
             return new HashSet<>(profilesMap.values());
         }
-        if(!client.isAuth) {
+        if(!client.isAuth && !allowUnauthorizedProfilesAccess) {
             return new HashSet<>();
         }
         Set<UncompletedProfile> profiles = new HashSet<>();

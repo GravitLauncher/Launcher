@@ -43,10 +43,7 @@ import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
@@ -158,6 +155,14 @@ public class LauncherBackendImpl implements LauncherBackendAPI, TextureUploadExt
                     }
                 }));
             }
+            if(backendSettings.authId != null) {
+                for(var e : authMethods) {
+                    if(backendSettings.authId.equals(e.getName())) {
+                        selectAuthMethod(e);
+                        break;
+                    }
+                }
+            }
             return new LauncherInitData(authMethods);
         }, executorService);
     }
@@ -166,25 +171,36 @@ public class LauncherBackendImpl implements LauncherBackendAPI, TextureUploadExt
         return backendSettings.auth.toToken();
     }
 
+    @Override
     public AuthMethod getAuthMethod() {
         return authMethod;
     }
 
     @Override
     public void selectAuthMethod(AuthMethod method) {
+        AuthMethod oldAuthMethod = this.authMethod;
         this.authMethod = method;
+        if(this.backendSettings.auths.containsKey(method.getName())) {
+            this.backendSettings.auth = this.backendSettings.auths.get(method.getName());
+        } else if(oldAuthMethod != null) {
+            this.backendSettings.auth = null;
+        }
+        this.backendSettings.authId = method.getName();
         LauncherAPIHolder.changeAuthId(method.getName());
     }
 
     @Override
     public CompletableFuture<SelfUser> tryAuthorize() {
         if(this.authMethod == null) {
+            logger.error("Trying to call tryAuthorize() before select Auth method");
             return CompletableFuture.failedFuture(new LauncherBackendException("This method call not allowed before select authMethod"));
         }
         if(backendSettings.auth == null) {
+            logger.error("Trying to call tryAuthorize() - auth data not found");
             return CompletableFuture.failedFuture(new LauncherBackendException("Auth data not found"));
         }
         if(backendSettings.auth.expireIn > 0 && LocalDateTime.ofEpochSecond(backendSettings.auth.expireIn, 0, ZoneOffset.UTC).isBefore(LocalDateTime.now(ZoneOffset.UTC))) {
+            logger.debug("tryAuthorize() - need refresh token");
             return LauncherAPIHolder.auth().refreshToken(backendSettings.auth.refreshToken).thenCompose((response) -> {
                 setAuthToken(response);
                 return LauncherAPIHolder.auth().restore(backendSettings.auth.accessToken, true);
@@ -207,6 +223,9 @@ public class LauncherBackendImpl implements LauncherBackendAPI, TextureUploadExt
             backendSettings.auth.expireIn = 0;
         } else {
             backendSettings.auth.expireIn = LocalDateTime.now().plusSeconds(authToken.getExpire()).toEpochSecond(ZoneOffset.UTC);
+        }
+        if(authMethod != null) {
+            backendSettings.auths.put(authMethod.getName(), backendSettings.auth);
         }
     }
 
@@ -260,6 +279,9 @@ public class LauncherBackendImpl implements LauncherBackendAPI, TextureUploadExt
     public CompletableFuture<Void> userExit() {
         return LauncherAPIHolder.auth().exit().thenAccept((e) -> {
             backendSettings.auth = null;
+            if(authMethod != null) {
+                backendSettings.auths.remove(authMethod.getName());
+            }
             this.selfUser = null;
             permissions = new ClientPermissions();
             callback.onExit();

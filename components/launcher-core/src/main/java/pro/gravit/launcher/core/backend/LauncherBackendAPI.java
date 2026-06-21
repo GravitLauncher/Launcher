@@ -21,6 +21,7 @@ public interface LauncherBackendAPI {
     void setCallback(MainCallback callback);
     CompletableFuture<LauncherInitData> init();
     void selectAuthMethod(AuthMethod method);
+    AuthMethod getAuthMethod();
     CompletableFuture<SelfUser> tryAuthorize();
     CompletableFuture<SelfUser> authorize(String login, AuthMethodPassword password);
     CompletableFuture<Void> userExit();

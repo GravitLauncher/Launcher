@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 import pro.gravit.launcher.base.ClientPermissions;
 import pro.gravit.launcher.base.HttpHelper;
 import pro.gravit.launcher.base.Launcher;
+import pro.gravit.launcher.base.request.auth.password.AuthOAuthPassword;
 import pro.gravit.launcher.core.api.features.AuthFeatureAPI;
 import pro.gravit.launcher.core.api.features.CoreFeatureAPI;
 import pro.gravit.launcher.core.api.features.UserFeatureAPI;
@@ -15,7 +16,6 @@ import pro.gravit.launcher.core.api.method.AuthMethodPassword;
 import pro.gravit.launcher.core.api.method.details.AuthDeviceFlowDetails;
 import pro.gravit.launcher.core.api.method.details.AuthWebDetails;
 import pro.gravit.launcher.core.api.method.password.AuthDeviceCodePassword;
-import pro.gravit.launcher.core.api.method.password.AuthOAuthPassword;
 import pro.gravit.launcher.core.api.model.SelfUser;
 import pro.gravit.launcher.core.api.model.Texture;
 import pro.gravit.launcher.core.api.model.User;
@@ -108,6 +108,7 @@ public class RequestMicrosoftAPIImpl implements CoreFeatureAPI, AuthFeatureAPI, 
                 .thenCompose(token -> getMinecraftTokenByMicrosoftToken(token.access_token())
                         .thenCompose(minecraftToken -> getUserSessionByOAuthAccessToken(minecraftToken.access_token())
                                 .thenApply(user -> {
+                                    logger.debug("Microsoft auth finished access {} refresh {} expire in {}", minecraftToken.access_token(), token.refresh_token(), minecraftToken.expires_in());
                                     MicrosoftAuthData authData = new MicrosoftAuthData(minecraftToken.access_token(), token.refresh_token(), minecraftToken.expires_in());
                                     authDataRef.set(authData);
                                     userRef.set(user);
@@ -117,9 +118,11 @@ public class RequestMicrosoftAPIImpl implements CoreFeatureAPI, AuthFeatureAPI, 
 
     @Override
     public CompletableFuture<AuthToken> refreshToken(String refreshToken) {
+        logger.debug("Microsoft auth trying to refresh token {}", refreshToken);
         return sendMicrosoftOAuthRefreshTokenRequest(refreshToken)
                 .thenCompose(token -> getMinecraftTokenByMicrosoftToken(token.access_token())
                         .thenApply(minecraftToken -> {
+                            logger.debug("Microsoft auth refreshed token access {} refresh {} expire in {}", minecraftToken.access_token(), token.refresh_token(), minecraftToken.expires_in());
                             MicrosoftAuthData authData = new MicrosoftAuthData(minecraftToken.access_token(), token.refresh_token(), minecraftToken.expires_in());
                             authDataRef.set(authData);
                             userRef.set(null);
@@ -129,6 +132,7 @@ public class RequestMicrosoftAPIImpl implements CoreFeatureAPI, AuthFeatureAPI, 
 
     @Override
     public CompletableFuture<SelfUser> restore(String accessToken, boolean fetchUser) {
+        logger.debug("Microsoft auth trying to restore access token {}", accessToken);
         MicrosoftAuthData authData = new MicrosoftAuthData(accessToken, null, 0);
         authDataRef.set(authData);
         userRef.set(null);
