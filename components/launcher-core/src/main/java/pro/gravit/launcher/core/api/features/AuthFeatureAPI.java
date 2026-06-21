@@ -10,6 +10,9 @@ public interface AuthFeatureAPI extends FeatureAPI {
     CompletableFuture<AuthResponse> auth(String login, AuthMethodPassword password);
     CompletableFuture<AuthToken> refreshToken(String refreshToken);
     CompletableFuture<SelfUser> restore(String accessToken, boolean fetchUser);
+    default CompletableFuture<SelfUser> restoreFromExternal(AuthResponse external, boolean fetchUser) {
+        return CompletableFuture.completedFuture(null);
+    }
     CompletableFuture<Void> exit();
 
     record AuthResponse(SelfUser user, AuthToken authToken) {}

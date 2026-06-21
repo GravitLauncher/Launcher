@@ -227,24 +227,43 @@ public class LauncherAPIInitializer {
         @Override
         public CompletableFuture<AuthResponse> auth(String login, pro.gravit.launcher.core.api.method.AuthMethodPassword password) {
             return microsoft.auth(login, password).thenCompose(response ->
-                    base.restore(response.authToken().getAccessToken(), true)
+                    base.restoreFromExternal(response, true)
                             .thenApply(user -> new AuthResponse(user == null ? response.user() : user, response.authToken())));
         }
 
         @Override
         public CompletableFuture<AuthToken> refreshToken(String refreshToken) {
             return microsoft.refreshToken(refreshToken).thenCompose(token ->
-                    base.restore(token.getAccessToken(), false).thenApply(user -> token));
+                    base.restoreFromExternal(new AuthResponse(null, token), false).thenApply(user -> token));
         }
 
         @Override
         public CompletableFuture<SelfUser> restore(String accessToken, boolean fetchUser) {
-            return base.restore(accessToken, fetchUser);
+            return microsoft.restore(accessToken, fetchUser).thenCompose(token ->
+                    base.restoreFromExternal(new AuthResponse(null, new MicrosiftBridgedRestoreAuthToken(accessToken)), false).thenApply(user -> token));
         }
 
         @Override
         public CompletableFuture<Void> exit() {
             return base.exit().thenCompose(result -> microsoft.exit());
+        }
+
+        public record MicrosiftBridgedRestoreAuthToken(String token) implements AuthToken {
+
+            @Override
+            public String getAccessToken() {
+                return token;
+            }
+
+            @Override
+            public String getRefreshToken() {
+                return null;
+            }
+
+            @Override
+            public long getExpire() {
+                return 0;
+            }
         }
     }
 }
