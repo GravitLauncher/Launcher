@@ -76,7 +76,7 @@ public class DebugMain {
         if(DebugProperties.OFFLINE_MODE) {
             flags.add(LauncherAPIInitializer.Flag.OFFLINE_MODE);
         }
-        LauncherAPIInitializer.initialize(LauncherEngine.modulesManager, DebugProperties.ADDRESS, List.of());
+        LauncherAPIInitializer.initialize(LauncherEngine.modulesManager, DebugProperties.ADDRESS, flags);
         LauncherAPIHolder.changeAuthId(DebugProperties.AUTH_ID);
     }
 

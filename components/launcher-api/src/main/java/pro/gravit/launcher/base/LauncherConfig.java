@@ -71,6 +71,16 @@ public final class LauncherConfig extends StreamObject {
     public String ecdsaBuildPublicKey;
     @LauncherInject("launcher.useHttpApi")
     public boolean useHttpApi;
+    @LauncherInject("launcher.api.mode")
+    public String launcherApiMode;
+    @LauncherInject("launcher.api.offlineOnConnectionFail")
+    public boolean launcherApiOfflineOnConnectionFail;
+    @LauncherInject("launcher.api.microsoft.enabled")
+    public boolean launcherApiMicrosoftEnabled;
+    @LauncherInject("launcher.api.microsoft.clientId")
+    public String launcherApiMicrosoftClientId;
+    @LauncherInject("launcher.api.microsoft.clientSecret")
+    public String launcherApiMicrosoftClientSecret;
 
     private static class ModernModulesClass {
         @LauncherInject("launcher.modules")

@@ -247,6 +247,27 @@ public final class LaunchServerConfig {
         public boolean forceUseCustomJava;
         public int memoryLimit = 256;
         public boolean experimentalDevOnlyHttpApi;
+        public LauncherApiConf api = new LauncherApiConf();
+    }
+
+    public static class LauncherApiConf {
+        public Mode mode = Mode.AUTO;
+        public boolean offlineOnConnectionFail = true;
+        public MicrosoftConf microsoft = new MicrosoftConf();
+
+        public enum Mode {
+            AUTO,
+            WEBSOCKET,
+            HTTP,
+            MICROSOFT,
+            OFFLINE
+        }
+    }
+
+    public static class MicrosoftConf {
+        public boolean enabled;
+        public String clientId = "d772766b-19b4-4f69-b353-989f890c5d3b";
+        public String clientSecret;
     }
 
     public static class NettyConfig {

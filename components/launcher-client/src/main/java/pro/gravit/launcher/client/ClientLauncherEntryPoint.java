@@ -126,7 +126,7 @@ public class ClientLauncherEntryPoint {
         // Start client with WatchService monitoring
         var config = Launcher.getConfig();
         config.apply();
-        LauncherAPIInitializer.initialize(modulesManager, config.address, List.of());
+        LauncherAPIInitializer.initialize(modulesManager, config, List.of());
         LauncherAPIHolder.changeAuthId(params.authId);
         if(LauncherAPIInitializer.isHttpAddress(config.address)) {
             LauncherAPIHolder.auth().restore(params.oauth.accessToken, false).get();

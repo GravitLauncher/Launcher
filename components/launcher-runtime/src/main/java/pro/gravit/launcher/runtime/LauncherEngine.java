@@ -188,7 +188,7 @@ public class LauncherEngine {
         if (runtimeProvider == null) runtimeProvider = basicRuntimeProvider.getConstructor().newInstance();
         runtimeProvider.init(clientInstance);
         //runtimeProvider.preLoad();
-        LauncherAPIInitializer.initialize(modulesManager, config.address, List.of(LauncherAPIInitializer.Flag.ENABLE_AUTO_REFRESH));
+        LauncherAPIInitializer.initialize(modulesManager, config, List.of(LauncherAPIInitializer.Flag.ENABLE_AUTO_REFRESH));
         //
         Objects.requireNonNull(args, "args");
         if (started.getAndSet(true))

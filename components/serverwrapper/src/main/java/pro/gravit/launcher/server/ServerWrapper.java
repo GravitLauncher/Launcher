@@ -16,16 +16,12 @@ import pro.gravit.launcher.base.profiles.ClientProfile;
 import pro.gravit.launcher.base.profiles.optional.actions.OptionalAction;
 import pro.gravit.launcher.base.profiles.optional.triggers.OptionalTrigger;
 import pro.gravit.launcher.base.request.Request;
-import pro.gravit.launcher.base.request.RequestCoreFeatureAPIImpl;
-import pro.gravit.launcher.base.request.RequestFeatureAPIImpl;
-import pro.gravit.launcher.base.request.RequestFeatureHttpAPIImpl;
 import pro.gravit.launcher.base.request.auth.AuthRequest;
 import pro.gravit.launcher.base.request.auth.GetAvailabilityAuthRequest;
 import pro.gravit.launcher.base.request.update.ProfilesRequest;
 import pro.gravit.launcher.base.request.websockets.StdWebSocketService;
-import pro.gravit.launcher.core.api.LauncherAPI;
 import pro.gravit.launcher.core.api.LauncherAPIHolder;
-import pro.gravit.launcher.core.api.features.*;
+import pro.gravit.launcher.client.LauncherAPIInitializer;
 import pro.gravit.launcher.server.authlib.InstallAuthlib;
 import pro.gravit.launcher.server.setup.ServerWrapperSetup;
 import pro.gravit.utils.helper.IOHelper;
@@ -77,8 +73,11 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
     }
 
     public void restore() throws Exception {
-        if(config.address.startsWith("http://") || config.address.startsWith("https://")) {
-            var selfUser = LauncherAPIHolder.get().auth().restore(config.oauth.accessToken, true).get();
+        if(config.extendedTokens != null) {
+            Request.addAllExtendedToken(config.extendedTokens);
+        }
+        if(config.oauth != null) {
+            var selfUser = LauncherAPIHolder.auth().restore(config.oauth.accessToken, true).get();
             if(selfUser != null) {
                 AuthService.uuid = selfUser.getUUID();
                 AuthService.username = selfUser.getUsername();
@@ -88,11 +87,8 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
             }
             return;
         }
-        if(config.oauth != null) {
-            Request.setOAuth(config.authId, config.oauth, config.oauthExpireTime);
-        }
-        if(config.extendedTokens != null) {
-            Request.addAllExtendedToken(config.extendedTokens);
+        if(config.address.startsWith("http://") || config.address.startsWith("https://")) {
+            return;
         }
         Request.RequestRestoreReport report = Request.restore(config.oauth != null, false, false);
         if(report.userInfo != null) {
@@ -141,20 +137,9 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
     public void connect() throws Exception {
         config.applyEnv();
         updateLauncherConfig();
-        if(config.address.startsWith("http://") || config.address.startsWith("https://")) {
-            RequestFeatureHttpAPIImpl impl = new RequestFeatureHttpAPIImpl(config.address);
-            LauncherAPIHolder.setCoreAPI(impl);
-            LauncherAPIHolder.setCreateApiFactory((authId) -> {
-                return new LauncherAPI(Map.of(
-                        AuthFeatureAPI.class, impl,
-                        UserFeatureAPI.class, impl,
-                        ProfileFeatureAPI.class, impl,
-                        TextureUploadFeatureAPI.class, impl,
-                        HardwareVerificationFeatureAPI.class, impl));
-            });
-            LauncherAPIHolder.changeAuthId(config.authId == null ? "std" : config.authId);
-        } else {
-            StdWebSocketService service = StdWebSocketService.initWebSockets(config.address).get();
+        LauncherAPIInitializer.initialize(null, Launcher.getConfig(), List.of());
+        LauncherAPIHolder.changeAuthId(config.authId == null ? "std" : config.authId);
+        if(!LauncherAPIInitializer.isHttpAddress(config.address) && Request.getRequestService() instanceof StdWebSocketService service) {
             service.reconnectCallback = () ->
             {
                 logger.debug("WebSocket connect closed. Try reconnect");
@@ -165,28 +150,6 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
                     logger.error("", e);
                 }
             };
-            Request.setRequestService(service);
-            LauncherAPIHolder.setCoreAPI(new RequestCoreFeatureAPIImpl(Request.getRequestService()));
-            LauncherAPIHolder.setCreateApiFactory((authId) -> {
-                var impl = new RequestFeatureAPIImpl(Request.getRequestService(), authId);
-                return new LauncherAPI(Map.of(
-                        AuthFeatureAPI.class, impl,
-                        UserFeatureAPI.class, impl,
-                        ProfileFeatureAPI.class, impl,
-                        TextureUploadFeatureAPI.class, impl,
-                        HardwareVerificationFeatureAPI.class, impl));
-            });
-            if(config.authId != null) {
-                LauncherAPIHolder.changeAuthId(config.authId);
-            } else {
-                var impl = new RequestFeatureAPIImpl(Request.getRequestService(), null);
-                LauncherAPIHolder.setApi(new LauncherAPI(Map.of(
-                        AuthFeatureAPI.class, impl,
-                        UserFeatureAPI.class, impl,
-                        ProfileFeatureAPI.class, impl,
-                        TextureUploadFeatureAPI.class, impl,
-                        HardwareVerificationFeatureAPI.class, impl)));
-            }
         }
 
         if (config.logFile != null) LogHelper.addOutput(IOHelper.newWriter(Paths.get(config.logFile), true));
@@ -344,6 +307,11 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
 
     public void updateLauncherConfig() {
         LauncherConfig cfg = new LauncherConfig(config.address, null, null, new HashMap<>(), "ServerWrapper");
+        cfg.launcherApiMode = config.apiMode == null ? null : config.apiMode.name();
+        cfg.launcherApiOfflineOnConnectionFail = config.offlineOnConnectionFail;
+        cfg.launcherApiMicrosoftEnabled = config.microsoftAuthEnabled;
+        cfg.launcherApiMicrosoftClientId = config.microsoftClientId;
+        cfg.launcherApiMicrosoftClientSecret = config.microsoftClientSecret;
         Launcher.setConfig(cfg);
     }
 
@@ -389,6 +357,11 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
         public List<String> compatClasses;
         public List<String> loadNatives;
         public String authId;
+        public LauncherAPIInitializer.ApiMode apiMode = LauncherAPIInitializer.ApiMode.AUTO;
+        public boolean offlineOnConnectionFail = true;
+        public boolean microsoftAuthEnabled;
+        public String microsoftClientId;
+        public String microsoftClientSecret;
         public AuthRequestEvent.OAuthRequestEvent oauth;
         public long oauthExpireTime;
         public Map<String, Request.ExtendedToken> extendedTokens;
@@ -418,6 +391,11 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
             this.authId = applyEnvOrDefault("SERVERWRAPPER_AUTH_ID", this.authId);
             this.address = applyEnvOrDefault("SERVERWRAPPER_ADDRESS", this.address);
             this.serverName = applyEnvOrDefault("SERVERWRAPPER_SERVER_NAME", this.serverName);
+            this.apiMode = applyEnvOrDefault("SERVERWRAPPER_API_MODE", LauncherAPIInitializer.ApiMode::valueOf, this.apiMode);
+            this.offlineOnConnectionFail = applyEnvOrDefault("SERVERWRAPPER_OFFLINE_ON_CONNECTION_FAIL", Boolean::parseBoolean, this.offlineOnConnectionFail);
+            this.microsoftAuthEnabled = applyEnvOrDefault("SERVERWRAPPER_MICROSOFT_AUTH_ENABLED", Boolean::parseBoolean, this.microsoftAuthEnabled);
+            this.microsoftClientId = applyEnvOrDefault("SERVERWRAPPER_MICROSOFT_CLIENT_ID", this.microsoftClientId);
+            this.microsoftClientSecret = applyEnvOrDefault("SERVERWRAPPER_MICROSOFT_CLIENT_SECRET", this.microsoftClientSecret);
             this.encodedServerEcPublicKey = applyEnvOrDefault("SERVERWRAPPER_EC_PUBLIC_KEY", Base64.getUrlDecoder()::decode, null);
             this.encodedServerRsaPublicKey = applyEnvOrDefault("SERVERWRAPPER_RSA_PUBLIC_KEY", Base64.getUrlDecoder()::decode, null);
             {

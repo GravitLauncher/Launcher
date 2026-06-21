@@ -123,6 +123,11 @@ public class MainBuildTask implements LauncherBuildTask {
         }
         context.properties.put("launcher.certificatePinning", server.config.launcher.certificatePinning);
         context.properties.put("launcher.useHttpApi", server.config.launcher.experimentalDevOnlyHttpApi);
+        context.properties.put("launcher.api.mode", server.config.launcher.api.mode.name());
+        context.properties.put("launcher.api.offlineOnConnectionFail", server.config.launcher.api.offlineOnConnectionFail);
+        context.properties.put("launcher.api.microsoft.enabled", server.config.launcher.api.microsoft.enabled);
+        context.properties.put("launcher.api.microsoft.clientId", server.config.launcher.api.microsoft.clientId);
+        context.properties.put("launcher.api.microsoft.clientSecret", server.config.launcher.api.microsoft.clientSecret);
         String checkClientSecret = SecurityHelper.randomStringToken();
         context.pipelineContext.putProperty("checkClientSecret", checkClientSecret);
         String launcherSalt = SecurityHelper.randomStringToken();
