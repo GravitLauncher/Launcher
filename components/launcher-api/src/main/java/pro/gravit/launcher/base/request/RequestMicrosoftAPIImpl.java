@@ -1,6 +1,8 @@
 package pro.gravit.launcher.base.request;
 
 import com.google.gson.JsonElement;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import pro.gravit.launcher.base.ClientPermissions;
 import pro.gravit.launcher.base.HttpHelper;
 import pro.gravit.launcher.base.Launcher;
@@ -10,7 +12,9 @@ import pro.gravit.launcher.core.api.features.UserFeatureAPI;
 import pro.gravit.launcher.core.api.method.AuthMethod;
 import pro.gravit.launcher.core.api.method.AuthMethodDetails;
 import pro.gravit.launcher.core.api.method.AuthMethodPassword;
+import pro.gravit.launcher.core.api.method.details.AuthDeviceFlowDetails;
 import pro.gravit.launcher.core.api.method.details.AuthWebDetails;
+import pro.gravit.launcher.core.api.method.password.AuthDeviceCodePassword;
 import pro.gravit.launcher.core.api.method.password.AuthOAuthPassword;
 import pro.gravit.launcher.core.api.model.SelfUser;
 import pro.gravit.launcher.core.api.model.Texture;
@@ -41,6 +45,7 @@ import java.util.regex.Pattern;
 public class RequestMicrosoftAPIImpl implements CoreFeatureAPI, AuthFeatureAPI, UserFeatureAPI {
     private static final Pattern UUID_REGEX = Pattern.compile("(\\w{8})(\\w{4})(\\w{4})(\\w{4})(\\w{12})");
     private static final String MICROSOFT_SCOPE = "XboxLive.signin offline_access";
+    private static final Logger logger = LoggerFactory.getLogger(RequestMicrosoftAPIImpl.class);
     private final HttpClient client = HttpClient.newBuilder().build();
     private final String clientId;
     private final String clientSecret;
@@ -63,12 +68,13 @@ public class RequestMicrosoftAPIImpl implements CoreFeatureAPI, AuthFeatureAPI, 
 
     @Override
     public CompletableFuture<List<AuthMethod>> getAuthMethods() {
-        return sendMicrosoftDeviceCodeRequest(MICROSOFT_SCOPE).thenApply(device -> {
-            deviceCodeRef.set(device);
-            String url = device.verification_uri_complete() == null ? device.verification_uri() : device.verification_uri_complete();
-            String redirectMarker = "device:".concat(device.device_code()).concat(":").concat(device.user_code());
-            return List.of(new MicrosoftAuthMethod(new AuthWebDetails(url, redirectMarker, true)));
-        });
+        return CompletableFuture.completedFuture(List.of(new MicrosoftAuthMethod(new AuthDeviceFlowDetails("https://www.microsoft.com/link", () -> {
+            return sendMicrosoftDeviceCodeRequest(MICROSOFT_SCOPE).thenApply(device -> {
+                deviceCodeRef.set(device);
+                return new AuthDeviceFlowDetails.AuthDeviceFlowDetailsData(device.device_code, device.user_code);
+            });
+        }, true))));
+
     }
 
     @Override
@@ -94,10 +100,10 @@ public class RequestMicrosoftAPIImpl implements CoreFeatureAPI, AuthFeatureAPI, 
 
     @Override
     public CompletableFuture<AuthResponse> auth(String login, AuthMethodPassword password) {
-        if (!(password instanceof AuthOAuthPassword(String redirectUrl))) {
+        if (!(password instanceof AuthDeviceCodePassword(String deviceCode))) {
             return CompletableFuture.failedFuture(new RequestException("Microsoft auth requires OAuth password"));
         }
-        String deviceCode = getDeviceCode(redirectUrl);
+        logger.debug("Microsoft auth found device code {}", deviceCode);
         return tryGetDeviceToken(deviceCode)
                 .thenCompose(token -> getMinecraftTokenByMicrosoftToken(token.access_token())
                         .thenCompose(minecraftToken -> getUserSessionByOAuthAccessToken(minecraftToken.access_token())
@@ -342,10 +348,10 @@ public class RequestMicrosoftAPIImpl implements CoreFeatureAPI, AuthFeatureAPI, 
         return HttpHelper.sendAsync(client, builder.build(), new MojangErrorHandler<>(clazz)).thenApply(HttpHelper.HttpOptional::getOrThrow);
     }
 
-    public record MicrosoftAuthMethod(AuthWebDetails webDetails) implements AuthMethod {
+    public record MicrosoftAuthMethod(AuthDeviceFlowDetails details) implements AuthMethod {
         @Override
         public List<AuthMethodDetails> getDetails() {
-            return List.of(webDetails);
+            return List.of(details);
         }
 
         @Override
