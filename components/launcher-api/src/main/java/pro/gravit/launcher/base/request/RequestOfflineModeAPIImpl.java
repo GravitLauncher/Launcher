@@ -11,6 +11,7 @@ import pro.gravit.launcher.core.api.model.Texture;
 import pro.gravit.launcher.core.api.model.User;
 import pro.gravit.launcher.core.api.model.UserPermissions;
 
+import java.nio.file.Path;
 import java.security.PublicKey;
 import java.util.List;
 import java.util.Map;
@@ -18,9 +19,20 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Function;
 
 public class RequestOfflineModeAPIImpl implements CoreFeatureAPI, AuthFeatureAPI, UserFeatureAPI, ProfileFeatureAPI, HardwareVerificationFeatureAPI {
-    private AtomicReference<SelfUser> userRef = new AtomicReference<>();
+    private final AtomicReference<SelfUser> userRef = new AtomicReference<>();
+    private final AtomicReference<List<ClientProfile>> profiles = new AtomicReference<>();
+    private final AtomicReference<Function<String, CompletableFuture<UpdateInfo>>> updateProvider = new AtomicReference<>();
+
+    public void setOfflineProfiles(List<ClientProfile> profiles) {
+        this.profiles.set(profiles);
+    }
+
+    public void setOfflineUpdateProvider(Function<String, CompletableFuture<UpdateInfo>> updateProvider) {
+        this.updateProvider.set(updateProvider);
+    }
 
     @Override
     public CompletableFuture<List<AuthMethod>> getAuthMethods() {
@@ -96,7 +108,8 @@ public class RequestOfflineModeAPIImpl implements CoreFeatureAPI, AuthFeatureAPI
 
     @Override
     public CompletableFuture<List<ClientProfile>> getProfiles() {
-        return CompletableFuture.completedFuture(List.of());
+        var result = profiles.get();
+        return CompletableFuture.completedFuture(result == null ? List.of() : result);
     }
 
     @Override
@@ -106,7 +119,11 @@ public class RequestOfflineModeAPIImpl implements CoreFeatureAPI, AuthFeatureAPI
 
     @Override
     public CompletableFuture<UpdateInfo> fetchUpdateInfo(String dirName) {
-        return CompletableFuture.failedFuture(new RequestException("Offline mode not supported this"));
+        var provider = updateProvider.get();
+        if(provider == null) {
+            return CompletableFuture.failedFuture(new RequestException("Offline mode not supported this"));
+        }
+        return provider.apply(dirName);
     }
 
     @Override

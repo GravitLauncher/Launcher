@@ -5,7 +5,11 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.event.Level;
 import pro.gravit.launcher.base.ClientPermissions;
 import pro.gravit.launcher.base.Launcher;
+import pro.gravit.launcher.base.config.JsonConfigurable;
+import pro.gravit.launcher.base.config.SimpleConfigurable;
 import pro.gravit.launcher.base.profiles.ClientProfile;
+import pro.gravit.launcher.base.request.RequestException;
+import pro.gravit.launcher.base.request.RequestOfflineModeAPIImpl;
 import pro.gravit.launcher.base.vfs.Vfs;
 import pro.gravit.launcher.base.vfs.directory.FileVfsDirectory;
 import pro.gravit.launcher.base.vfs.file.CachedVfsFile;
@@ -22,6 +26,7 @@ import pro.gravit.launcher.core.backend.UserSettings;
 import pro.gravit.launcher.core.backend.exceptions.LauncherBackendException;
 import pro.gravit.launcher.core.backend.extensions.Extension;
 import pro.gravit.launcher.core.backend.extensions.TextureUploadExtension;
+import pro.gravit.launcher.core.hasher.HashedDir;
 import pro.gravit.launcher.runtime.NewLauncherSettings;
 import pro.gravit.launcher.runtime.client.DirBridge;
 import pro.gravit.launcher.runtime.client.ServerPinger;
@@ -33,6 +38,7 @@ import pro.gravit.utils.helper.*;
 
 import java.io.*;
 import java.net.URI;
+import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
@@ -63,6 +69,7 @@ public class LauncherBackendImpl implements LauncherBackendAPI, TextureUploadExt
     private SettingsManager settingsManager;
     private NewLauncherSettings allSettings;
     private BackendSettings backendSettings;
+    private OfflineModeStorageData offlineModeStorageData;
     // Hardware
     private volatile ECKeyHolder ecKeyHolder;
     // Data
@@ -73,6 +80,7 @@ public class LauncherBackendImpl implements LauncherBackendAPI, TextureUploadExt
     private volatile CompletableFuture<List<Java>> availableJavasFuture;
     private volatile CompletableFuture<Void> processHardwareFuture;
     private volatile Path vfsRootPath;
+    private volatile JsonConfigurable<OfflineModeStorageData> offlineModeStorageDataJsonConfigurable;
     private final Map<UUID, CompletableFuture<ServerPingInfo>> pingFutures = new ConcurrentHashMap<>();
 
     @Override
@@ -90,6 +98,24 @@ public class LauncherBackendImpl implements LauncherBackendAPI, TextureUploadExt
         settingsManager = new SettingsManager();
         settingsManager.generateConfigIfNotExists();
         settingsManager.loadConfig();
+        offlineModeStorageDataJsonConfigurable = new JsonConfigurable<>(OfflineModeStorageData.class, DirBridge.dir.resolve("profiles.json")) {
+            @Override
+            public OfflineModeStorageData getConfig() {
+                return offlineModeStorageData;
+            }
+
+            @Override
+            public void setConfig(OfflineModeStorageData config) {
+                offlineModeStorageData = config;
+            }
+
+            @Override
+            public OfflineModeStorageData getDefaultConfig() {
+                return new OfflineModeStorageData();
+            }
+        };
+        offlineModeStorageDataJsonConfigurable.generateConfigIfNotExists();
+        offlineModeStorageDataJsonConfigurable.loadConfig();
         allSettings = settingsManager.getConfig();
         backendSettings = (BackendSettings) getUserSettings("backend", (k) -> new BackendSettings());
         permissions = new ClientPermissions();
@@ -187,6 +213,31 @@ public class LauncherBackendImpl implements LauncherBackendAPI, TextureUploadExt
     private void onAuthorize(SelfUser selfUser) {
         this.selfUser = selfUser;
         permissions = selfUser.getPermissions();
+        if(LauncherAPIHolder.auth() instanceof RequestOfflineModeAPIImpl impl && offlineModeStorageData != null && offlineModeStorageData.profiles != null) {
+            impl.setOfflineProfiles(new ArrayList<>(offlineModeStorageData.profiles));
+            impl.setOfflineUpdateProvider((dirName) -> CompletableFuture.supplyAsync(() -> {
+                Path path = DirBridge.dirUpdates.resolve(dirName);
+                if(Files.notExists(path)) {
+                    throw new RequestException(String.format("Dir '%s' not found", path));
+                }
+                try {
+                    HashedDir dir = new HashedDir(path, null, false, true);
+                    return new ProfileFeatureAPI.UpdateInfo() {
+                        @Override
+                        public HashedDir getHashedDir() {
+                            return dir;
+                        }
+
+                        @Override
+                        public String getUrl() {
+                            return "";
+                        }
+                    };
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }));
+        }
         callback.onAuthorize(selfUser);
         if(processHardwareFuture == null) {
             processHardwareFuture = processHardware();
@@ -237,6 +288,9 @@ public class LauncherBackendImpl implements LauncherBackendAPI, TextureUploadExt
                 continue;
             }
             e.getValue().initAfterGson(profile, this);
+        }
+        if(offlineModeStorageData != null) {
+            offlineModeStorageData.profiles = profiles.stream().map(e -> (ClientProfile) e).toList();
         }
     }
 
@@ -504,6 +558,13 @@ public class LauncherBackendImpl implements LauncherBackendAPI, TextureUploadExt
                 settingsManager.saveConfig();
             } catch (IOException e) {
                 logger.error("Config not saved", e);
+            }
+            try {
+                if(offlineModeStorageDataJsonConfigurable != null) {
+                    offlineModeStorageDataJsonConfigurable.saveConfig();
+                }
+            } catch (IOException e) {
+                logger.error("OfflineConfig not saved", e);
             }
         }
     }
