@@ -165,7 +165,7 @@ public final class ServerPinger {
             if (statusPacketID != 0x0)
                 throw new IOException("Illegal status packet ID: " + statusPacketID);
             response = packetInput.readString(PACKET_LENGTH);
-            logger.info("Ping response (modern): '{}'", response);
+            logger.info("Ping response (modern): '{}'", sanitizePingResponse(response));
         }
 
         // Parse JSON response
@@ -212,6 +212,25 @@ public final class ServerPinger {
 
             // We're done
             return cache;
+        }
+    }
+    private static String sanitizePingResponse(String response) {
+        try {
+            JsonElement element = JsonParser.parseString(response);
+            if (!element.isJsonObject()) return response;
+            JsonObject object = element.getAsJsonObject();
+            if (object.has("favicon")) {
+                object.addProperty("favicon", "<skip>");
+            }
+            if (object.has("players")) {
+                JsonObject players = object.getAsJsonObject("players");
+                if (players.has("sample")) {
+                    players.remove("sample");
+                }
+            }
+            return object.toString();
+        } catch (Exception e) {
+            return "<unparseable>";
         }
     }
 
