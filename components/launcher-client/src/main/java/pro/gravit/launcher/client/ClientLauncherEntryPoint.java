@@ -103,18 +103,8 @@ public class ClientLauncherEntryPoint {
         Launcher.profile = profile;
         AuthService.profile = profile;
         clientParams = params;
-        if (params.oauth != null) {
-            logger.info("Using OAuth");
-            if (params.oauthExpiredTime != 0) {
-                Request.setOAuth(params.authId, params.oauth, params.oauthExpiredTime);
-            } else {
-                Request.setOAuth(params.authId, params.oauth);
-            }
-            if (params.extendedTokens != null) {
-                Request.addAllExtendedToken(params.extendedTokens);
-            }
-        } else if (params.session != null) {
-            throw new UnsupportedOperationException("Legacy session not supported");
+        if (params.extendedTokens != null) {
+            Request.addAllExtendedToken(params.extendedTokens);
         }
         modulesManager.invokeEvent(new ClientProcessInitPhase(params));
 
@@ -128,9 +118,7 @@ public class ClientLauncherEntryPoint {
         config.apply();
         LauncherAPIInitializer.initialize(modulesManager, config, List.of());
         LauncherAPIHolder.changeAuthId(params.authId);
-        if(LauncherAPIInitializer.isHttpAddress(config.address)) {
-            LauncherAPIHolder.auth().restore(params.oauth.accessToken, false).get();
-        }
+        LauncherAPIHolder.auth().restore(params.oauth.accessToken, false).get();
         logger.debug("Natives dir {}", params.nativesDir);
         ClientProfile.ClassLoaderConfig classLoaderConfig = profile.getClassLoaderConfig();
         LaunchOptions options = new LaunchOptions();

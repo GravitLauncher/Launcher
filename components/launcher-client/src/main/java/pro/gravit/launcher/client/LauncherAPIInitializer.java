@@ -168,7 +168,7 @@ public class LauncherAPIInitializer {
     }
 
     private static LauncherAPI mergeAuth(LauncherAPI base, RequestMicrosoftAPIImpl microsoft) {
-        return createApi(new MicrosoftAuthBridgeAPI(base.auth(), microsoft), base.user(), base.profile(),
+        return createApi(new MicrosoftAuthBridgeAPI(base.auth(), microsoft), microsoft, base.profile(),
                 base.get(TextureUploadFeatureAPI.class), base.get(HardwareVerificationFeatureAPI.class));
     }
 

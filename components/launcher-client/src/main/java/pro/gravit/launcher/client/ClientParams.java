@@ -48,8 +48,6 @@ public class ClientParams {
 
     //========
 
-    public UUID session;
-
     public AuthRequestEvent.OAuthRequestEvent oauth;
 
     public String authId;
