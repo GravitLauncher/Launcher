@@ -14,14 +14,14 @@ progressbar = "0.10.2"
 asm = "9.10.1"
 proguard = "7.9.1"
 # Database libraries
-hikari = "7.0.2"
+hikari = "7.1.0"
 postgresql = "42.7.11"
 mysql = "9.7.0"
 mariadb = "3.5.8"
 h2 = "2.4.240"
 totp = "1.7.1"
 # Modules libraries
-sentry = "8.43.0"
+sentry = "8.46.0"
 jbcrypt = "0.4"
 discord-game-sdk = "v1.0.0"
 
