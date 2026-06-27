@@ -33,7 +33,7 @@ public class HikariSQLSourceConfig implements SQLSourceConfig {
     // -------------------------------------------------------------------------
 
     /** Called once after deserialization. Safe to call multiple times. */
-    public void init() {
+    public synchronized void init() {
         if (initializeAtStart) {
             initPool();
         }
@@ -41,8 +41,9 @@ public class HikariSQLSourceConfig implements SQLSourceConfig {
 
     /** Closes the underlying connection pool if it has been opened. */
     @Override
-    public void close() {
+    public synchronized void close() {
         HikariDataSource ds = this.dataSource;
+        dataSource = null;
         if (ds != null && !ds.isClosed()) {
             ds.close();
         }
@@ -55,11 +56,11 @@ public class HikariSQLSourceConfig implements SQLSourceConfig {
     @Override
     public Connection getConnection() throws SQLException {
         HikariDataSource ds = dataSource;
-        if (ds == null) {
+        if (ds == null || ds.isClosed()) {
             // Double-checked locking – pool is created at most once.
             synchronized (this) {
                 ds = dataSource;
-                if (ds == null) {
+                if (ds == null || ds.isClosed()) {
                     initPool();
                     ds = dataSource;
                 }
@@ -77,7 +78,7 @@ public class HikariSQLSourceConfig implements SQLSourceConfig {
      * {@code synchronized} context or before any concurrent access.
      */
     private void initPool() {
-        if (dataSource != null) {
+        if (dataSource != null && !dataSource.isClosed()) {
             return; // already initialised
         }
 

@@ -64,8 +64,12 @@ public final class MySQLSourceConfig implements AutoCloseable, SQLSourceConfig {
 
     @Override
     public synchronized void close() {
-        if (hikari)
-            ((HikariDataSource) source).close();
+        DataSource ds = source;
+        source = null;
+        if (hikari && ds instanceof HikariDataSource hikariDataSource && !hikariDataSource.isClosed()) {
+            hikariDataSource.close();
+        }
+        hikari = false;
     }
 
 

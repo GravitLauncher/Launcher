@@ -38,9 +38,12 @@ public final class PostgreSQLSourceConfig implements AutoCloseable, SQLSourceCon
 
     @Override
     public synchronized void close() {
-        if (hikari) { // Shutdown hikari pool
-            ((HikariDataSource) source).close();
+        DataSource ds = source;
+        source = null;
+        if (hikari && ds instanceof HikariDataSource hikariDataSource && !hikariDataSource.isClosed()) { // Shutdown hikari pool
+            hikariDataSource.close();
         }
+        hikari = false;
     }
 
     public Connection getConnection() throws SQLException {

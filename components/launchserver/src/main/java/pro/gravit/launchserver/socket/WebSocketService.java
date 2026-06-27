@@ -41,9 +41,10 @@ import java.lang.reflect.Type;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
 
-public class WebSocketService {
+public class WebSocketService implements AutoCloseable {
     public static final ProviderMap<WebSocketServerResponse> providers = new ProviderMap<>();
     public final ChannelGroup channels;
     public final HookSet<WebSocketRequestContext> hookBeforeParsing = new HookSet<>();
@@ -144,6 +145,22 @@ public class WebSocketService {
         }
     }
 
+    @Override
+    public void close() {
+        if (executors == null) {
+            return;
+        }
+        executors.shutdown();
+        try {
+            if (!executors.awaitTermination(5, TimeUnit.SECONDS)) {
+                executors.shutdownNow();
+            }
+        } catch (InterruptedException e) {
+            executors.shutdownNow();
+            Thread.currentThread().interrupt();
+        }
+    }
+
     private void process(WebSocketServerResponse.ThreadSafeStatus safeStatus, Client client, String ip, WebSocketRequestContext context, WebSocketServerResponse response) {
         switch (safeStatus) {
             case NONE -> {
@@ -201,6 +218,9 @@ public class WebSocketService {
     }
 
     public void sendObject(Channel channel, Object obj) {
+        if (channel == null || !channel.isActive()) {
+            return;
+        }
         if(hookSend.hook(channel, obj)) {
             return;
         }
@@ -212,6 +232,9 @@ public class WebSocketService {
     }
 
     public void sendObject(Channel channel, Object obj, Type type) {
+        if (channel == null || !channel.isActive()) {
+            return;
+        }
         if(hookSend.hook(channel, obj)) {
             return;
         }
@@ -230,7 +253,8 @@ public class WebSocketService {
 
     public void sendObjectToUUID(UUID userUuid, Object obj, Type type) {
         for (Channel ch : channels) {
-            if (ch == null || ch.pipeline() == null) continue;
+            if (ch == null || !ch.isActive()) continue;
+            if (ch.pipeline() == null) continue;
             WebSocketFrameHandler wsHandler = ch.pipeline().get(WebSocketFrameHandler.class);
             if (wsHandler == null) continue;
             Client client = wsHandler.getClient();
@@ -306,6 +330,9 @@ public class WebSocketService {
     }
 
     public void sendObjectAndClose(ChannelHandlerContext ctx, Object obj) {
+        if (ctx == null || !ctx.channel().isActive()) {
+            return;
+        }
         if(hookSend.hook(ctx.channel(), obj)) {
             return;
         }
@@ -317,6 +344,9 @@ public class WebSocketService {
     }
 
     public void sendObjectAndClose(ChannelHandlerContext ctx, Object obj, Type type) {
+        if (ctx == null || !ctx.channel().isActive()) {
+            return;
+        }
         if(hookSend.hook(ctx.channel(), obj)) {
             return;
         }

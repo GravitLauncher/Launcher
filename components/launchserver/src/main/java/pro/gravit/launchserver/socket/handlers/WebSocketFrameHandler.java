@@ -52,7 +52,11 @@ public class WebSocketFrameHandler extends SimpleChannelInboundHandler<WebSocket
         client = new Client();
         Channel ch = ctx.channel();
         service.registerClient(ch);
-        future = ctx.executor().scheduleAtFixedRate(() -> ch.writeAndFlush(new PingWebSocketFrame(), ch.voidPromise()), 30L, 30L, TimeUnit.SECONDS);
+        future = ctx.executor().scheduleAtFixedRate(() -> {
+            if (ch.isActive()) {
+                ch.writeAndFlush(new PingWebSocketFrame(), ch.voidPromise());
+            }
+        }, 30L, 30L, TimeUnit.SECONDS);
     }
 
     @Override
@@ -99,6 +103,7 @@ public class WebSocketFrameHandler extends SimpleChannelInboundHandler<WebSocket
     @Override
     public void channelInactive(ChannelHandlerContext channelHandlerContext) throws Exception {
         if (future != null) future.cancel(true);
+        future = null;
         if (logger.isTraceEnabled()) {
             logger.trace("Client {} disconnected", IOHelper.getIP(channelHandlerContext.channel().remoteAddress()));
         }
