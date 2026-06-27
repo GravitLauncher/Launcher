@@ -281,6 +281,9 @@ public class JavaHelper {
         }
 
         @Override
+        public String getArchitecture() { return arch.name; }
+
+        @Override
         public Path getPath() {
             return jvmDir;
         }

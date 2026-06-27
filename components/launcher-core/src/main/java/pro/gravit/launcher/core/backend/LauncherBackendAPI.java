@@ -194,6 +194,7 @@ public interface LauncherBackendAPI {
 
     interface Java {
         int getMajorVersion();
+        String getArchitecture();
         Path getPath();
     }
 
