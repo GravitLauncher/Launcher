@@ -17,6 +17,8 @@ public interface LauncherModulesManager {
 
     LauncherModule getCoreModule();
 
+    EventBus getEventBus();
+
     default boolean containsModule(String name) {
         return getModule(name) != null;
     }

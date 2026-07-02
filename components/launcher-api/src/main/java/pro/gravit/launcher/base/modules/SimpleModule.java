@@ -51,9 +51,5 @@ public class SimpleModule extends LauncherModule {
         public  <T extends Event> boolean registerEvent(EventHandler<T> handle, Class<T> tClass) {
             return SimpleModule.this.registerEvent(handle, tClass);
         }
-
-        public final <T extends Event> void callEvent(T event) {
-            SimpleModule.this.callEvent(event);
-        }
     }
 }

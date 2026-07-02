@@ -8,7 +8,6 @@ import java.util.List;
 
 public abstract class LauncherModule {
     protected final LauncherModuleInfo moduleInfo;
-    private final List<EventEntity<? extends Event>> eventList = new ArrayList<>(4);
     protected LauncherModulesManager modulesManager;
     protected ModulesConfigManager modulesConfigManager;
     protected InitStatus initStatus = InitStatus.CREATED;
@@ -144,27 +143,8 @@ public abstract class LauncherModule {
      */
     protected <T extends Event> boolean registerEvent(EventHandler<T> handle, Class<T> tClass) {
         EventEntity<T> eventEntity = new EventEntity<>(handle, tClass);
-        eventList.add(eventEntity);
+        modulesManager.getEventBus().register(tClass, handle::event);
         return true;
-    }
-
-    /**
-     * Call the handler of the current module
-     *
-     * @param event event handled
-     * @param <T>   event type
-     */
-    @SuppressWarnings("unchecked")
-    public final <T extends Event> void callEvent(T event) {
-        Class<? extends Event> tClass = event.getClass();
-        for (EventEntity<? extends Event> entity : eventList) {
-
-            if (entity.clazz.isAssignableFrom(tClass)) {
-                //noinspection RedundantCast
-                ((EventEntity<T>) entity).handler.event(event);
-                if (event.isCancel()) return;
-            }
-        }
     }
 
     /**

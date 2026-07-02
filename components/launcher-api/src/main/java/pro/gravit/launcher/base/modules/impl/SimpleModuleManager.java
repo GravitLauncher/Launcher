@@ -38,6 +38,7 @@ public class SimpleModuleManager implements LauncherModulesManager {
     protected final Path modulesDir;
     protected final LauncherTrustManager trustManager;
     protected final ModulesClassLoader classLoader = createClassLoader();
+    protected final EventBus eventBus = new EventBus();
     protected LauncherInitContext initContext;
 
     protected ModulesClassLoader createClassLoader() {
@@ -74,6 +75,10 @@ public class SimpleModuleManager implements LauncherModulesManager {
         else {
             IOHelper.walk(dir, new ModulesVisitor(), true);
         }
+    }
+
+    public EventBus getEventBus() {
+        return eventBus;
     }
 
     public void initModules(LauncherInitContext initContext) {
@@ -266,10 +271,7 @@ public class SimpleModuleManager implements LauncherModulesManager {
 
     @Override
     public <T extends LauncherModule.Event> void invokeEvent(T event) {
-        for (LauncherModule module : modules) {
-            module.callEvent(event);
-            if (event.isCancel()) return;
-        }
+        eventBus.publish(event);
     }
 
     @Override
