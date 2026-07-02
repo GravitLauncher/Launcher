@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Map;
 
 public abstract class AbstractLimiter<T> extends Component implements Reconfigurable {
-    public final List<T> exclude = new ArrayList<>();
+    public List<T> exclude = new ArrayList<>();
     protected final transient Map<T, LimitEntry> map = new HashMap<>();
     private transient final Logger logger = LogManager.getLogger();
     public int rateLimit;

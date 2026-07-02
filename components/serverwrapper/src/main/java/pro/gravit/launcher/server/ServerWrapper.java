@@ -267,7 +267,7 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
                 break;
             default:
                 if(ServerAgent.isAgentStarted()) {
-                    launch = new BasicLaunch(ServerAgent.inst);
+                    launch = new pro.gravit.utils.launch.BasicLaunch(ServerAgent.inst);
                 } else {
                     launch = new BasicLaunch();
                 }

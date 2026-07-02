@@ -4,6 +4,7 @@ import oshi.SystemInfo;
 import oshi.hardware.*;
 import oshi.software.os.OperatingSystem;
 import pro.gravit.launcher.base.request.secure.HardwareReportRequest;
+import pro.gravit.launcher.core.api.LauncherAPIHelper;
 import pro.gravit.launcher.core.api.features.HardwareVerificationFeatureAPI;
 import pro.gravit.utils.helper.JVMHelper;
 
@@ -108,8 +109,8 @@ public class HWIDProvider {
 
     public HardwareVerificationFeatureAPI.HardwareStatisticData getStatisticData() {
         return new HardwareVerificationFeatureAPI.HardwareStatisticData(
-                JVMHelper.ARCH.toHardwareFeatureArch(JVMHelper.ARCH_TYPE),
-                JVMHelper.OS.toHardwareFeatureOs(JVMHelper.OS_TYPE),
+                LauncherAPIHelper.toHardwareFeatureArch(JVMHelper.ARCH_TYPE),
+                LauncherAPIHelper.toHardwareFeatureOs(JVMHelper.OS_TYPE),
                 getTotalMemory(),
                 getProcessorLogicalCount(),
                 getProcessorPhysicalCount(),

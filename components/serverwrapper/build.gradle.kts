@@ -22,6 +22,7 @@ tasks.jar {
 }
 
 val fatJar by tasks.registering(Jar::class) {
+    dependsOn(":components:launcher-utils:jar")
     dependsOn(":components:launcher-core:jar")
     dependsOn(":components:launcher-api:jar")
     dependsOn(":components:launcher-client:jar")
@@ -34,6 +35,7 @@ val fatJar by tasks.registering(Jar::class) {
 }
 
 val inlineJar by tasks.registering(Jar::class) {
+    dependsOn(":components:launcher-utils:jar")
     dependsOn(":components:launcher-core:jar")
     dependsOn(":components:launcher-api:jar")
     dependsOn(":components:launcher-client:jar")

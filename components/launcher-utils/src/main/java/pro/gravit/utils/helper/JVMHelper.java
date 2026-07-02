@@ -2,7 +2,6 @@ package pro.gravit.utils.helper;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import pro.gravit.launcher.core.api.features.HardwareVerificationFeatureAPI;
 
 import java.lang.invoke.MethodHandles;
 import java.lang.management.ManagementFactory;
@@ -132,15 +131,6 @@ public final class JVMHelper {
 
         public final String name;
 
-        public static HardwareVerificationFeatureAPI.Arch toHardwareFeatureArch(ARCH arch) {
-            return switch (arch) {
-                case X86 -> HardwareVerificationFeatureAPI.Arch.X86;
-                case X86_64 -> HardwareVerificationFeatureAPI.Arch.X86_64;
-                case ARM64 -> HardwareVerificationFeatureAPI.Arch.ARM64;
-                case ARM32 -> HardwareVerificationFeatureAPI.Arch.ARM32;
-            };
-        }
-
         ARCH(String name) {
             this.name = name;
         }
@@ -153,14 +143,6 @@ public final class JVMHelper {
 
         OS(String name) {
             this.name = name;
-        }
-
-        public static HardwareVerificationFeatureAPI.Os toHardwareFeatureOs(OS os) {
-            return switch (os) {
-                case MUSTDIE -> HardwareVerificationFeatureAPI.Os.WINDOWS;
-                case LINUX -> HardwareVerificationFeatureAPI.Os.LINUX;
-                case MACOSX -> HardwareVerificationFeatureAPI.Os.MACOS;
-            };
         }
 
         public static OS byName(String name) {

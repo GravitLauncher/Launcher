@@ -247,6 +247,7 @@ public final class LaunchServerConfig {
         public boolean forceUseCustomJava;
         public int memoryLimit = 256;
         public boolean experimentalDevOnlyHttpApi;
+        public boolean alwaysUseRelauncher;
         public LauncherApiConf api = new LauncherApiConf();
     }
 

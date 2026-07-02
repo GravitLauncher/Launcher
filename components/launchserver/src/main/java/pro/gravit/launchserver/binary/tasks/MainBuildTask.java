@@ -123,6 +123,7 @@ public class MainBuildTask implements LauncherBuildTask {
         }
         context.properties.put("launcher.certificatePinning", server.config.launcher.certificatePinning);
         context.properties.put("launcher.useHttpApi", server.config.launcher.experimentalDevOnlyHttpApi);
+        context.properties.put("launcher.alwaysUseRelauncher", server.config.launcher.alwaysUseRelauncher);
         context.properties.put("launcher.api.mode", server.config.launcher.api.mode.name());
         context.properties.put("launcher.api.offlineOnConnectionFail", server.config.launcher.api.offlineOnConnectionFail);
         context.properties.put("launcher.api.microsoft.enabled", server.config.launcher.api.microsoft.enabled);

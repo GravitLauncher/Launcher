@@ -9,7 +9,6 @@ repositories {
 }
 
 dependencies {
-    api(project(":components:launcher-utils"))
     api(libs.gson)
     compileOnly(libs.jline.terminal)
     compileOnly(libs.jline.reader)

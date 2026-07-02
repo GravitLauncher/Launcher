@@ -44,7 +44,6 @@ public class LegacyLaunch implements Launch {
         Thread.currentThread().setContextClassLoader(legacyClassLoader);
         Class<?> mainClazz = Class.forName(mainClass, true, legacyClassLoader);
         MethodHandle mainMethod = MethodHandles.lookup().findStatic(mainClazz, "main", MethodType.methodType(void.class, String[].class)).asFixedArity();
-        JVMHelper.fullGC();
         mainMethod.asFixedArity().invokeWithArguments((Object) args.toArray(new String[0]));
     }
 
@@ -100,7 +99,10 @@ public class LegacyLaunch implements Launch {
                 if(needTransform) {
                     String rawClassName = name.replace(".", "/").concat(".class");
                     try(InputStream input = getResourceAsStream(rawClassName)) {
-                        byte[] bytes = IOHelper.read(input);
+                        if(input == null) {
+                            throw new ClassNotFoundException(name);
+                        }
+                        byte[] bytes = input.readAllBytes();
                         for(ClassLoaderControl.ClassTransformer t : transformers) {
                             bytes = t.transform(null, name, null, bytes);
                         }

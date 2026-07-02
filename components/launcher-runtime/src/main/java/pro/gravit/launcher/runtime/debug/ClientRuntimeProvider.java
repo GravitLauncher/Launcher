@@ -84,7 +84,7 @@ public class ClientRuntimeProvider implements RuntimeProvider {
             Launch launch;
             switch (launchMode) {
                 case "basic": {
-                    launch = new BasicLaunch();
+                    launch = new pro.gravit.utils.launch.BasicLaunch();
                     break;
                 }
                 case "legacy": {

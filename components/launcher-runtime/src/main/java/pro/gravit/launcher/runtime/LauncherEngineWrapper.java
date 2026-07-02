@@ -2,9 +2,11 @@ package pro.gravit.launcher.runtime;
 
 import pro.gravit.launcher.base.Launcher;
 import pro.gravit.launcher.base.LauncherConfig;
+import pro.gravit.launcher.core.LauncherInject;
 import pro.gravit.launcher.core.LauncherNetworkAPI;
 import pro.gravit.launcher.start.ClientLauncherWrapper;
 import pro.gravit.utils.helper.IOHelper;
+import pro.gravit.utils.launch.ClassLoaderControl;
 import pro.gravit.utils.launch.LaunchOptions;
 import pro.gravit.utils.launch.ModuleLaunch;
 
@@ -18,6 +20,8 @@ import java.util.Map;
 @LauncherNetworkAPI
 public class LauncherEngineWrapper {
     private static final List<String> modules = new ArrayList<>();
+    @LauncherInject("launcher.alwaysUseRelauncher")
+    public static boolean alwaysUseRelauncher;
 
 
 
@@ -62,9 +66,10 @@ public class LauncherEngineWrapper {
         modules.add("javafx.controls");
         modules.add("javafx.media");
         modules.add("javafx.web");
+        modules.add("jdk.jsobject"); // https://bugs.openjdk.org/browse/JDK-8338249
     }
     public static void main(String[] args) throws Throwable {
-        if (!Boolean.getBoolean(ClientLauncherWrapper.WRAPPED_LAUNCH_PROPERTY)) {
+        if (alwaysUseRelauncher && !Boolean.getBoolean(ClientLauncherWrapper.WRAPPED_LAUNCH_PROPERTY)) {
             System.setProperty(ClientLauncherWrapper.BRIDGED_FROM_ENGINE_PROPERTY, "true");
             ClientLauncherWrapper.main(args);
             return;
@@ -77,14 +82,38 @@ public class LauncherEngineWrapper {
         List<Path> classpath = new ArrayList<>();
         classpath.add(IOHelper.getCodeSource(LauncherEngine.class));
         var libDirectory = Path.of(System.getProperty("java.home")).resolve("lib");
+        int failedModules = 0;
         for(var moduleName : modules) {
             var path = libDirectory.resolve(moduleName.concat(".jar"));
             if(Files.exists(path)) {
                 options.moduleConf.modules.add(moduleName);
                 options.moduleConf.modulePath.add(path.toAbsolutePath().toString());
+            } else {
+                failedModules++;
             }
         }
-        var control = launch.init(classpath, null, options);
+        ClassLoaderControl control;
+        try {
+            control = launch.init(classpath, null, options);
+            ModuleLayer.Controller controller = (ModuleLayer.Controller) control.getJava9ModuleController();
+            var javafxModule = controller.layer().findModule("javafx.base");
+            if(javafxModule.isEmpty()) {
+                // We probably failed to resolve javafx modules, try re-launch
+                if(!Boolean.getBoolean(ClientLauncherWrapper.WRAPPED_LAUNCH_PROPERTY)) {
+                    System.setProperty(ClientLauncherWrapper.BRIDGED_FROM_ENGINE_PROPERTY, "true");
+                    ClientLauncherWrapper.main(args);
+                    return;
+                }
+            }
+        } catch (Throwable e) {
+            // We probably failed to resolve javafx modules, try re-launch
+            if(!Boolean.getBoolean(ClientLauncherWrapper.WRAPPED_LAUNCH_PROPERTY)) {
+                System.setProperty(ClientLauncherWrapper.BRIDGED_FROM_ENGINE_PROPERTY, "true");
+                ClientLauncherWrapper.main(args);
+                return;
+            }
+            throw e;
+        }
         launch.launch(LauncherEngine.class.getName(), null, List.of(args));
     }
 }

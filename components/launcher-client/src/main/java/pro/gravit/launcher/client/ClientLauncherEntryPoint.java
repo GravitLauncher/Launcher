@@ -9,9 +9,7 @@ import pro.gravit.launcher.base.api.ClientService;
 import pro.gravit.launcher.base.api.KeyService;
 import pro.gravit.launcher.base.request.*;
 import pro.gravit.launcher.client.events.*;
-import pro.gravit.launcher.core.api.LauncherAPI;
 import pro.gravit.launcher.core.api.LauncherAPIHolder;
-import pro.gravit.launcher.core.api.features.*;
 import pro.gravit.launcher.core.hasher.FileNameMatcher;
 import pro.gravit.launcher.core.hasher.HashedDir;
 import pro.gravit.launcher.core.hasher.HashedEntry;
@@ -21,7 +19,6 @@ import pro.gravit.launcher.base.profiles.ClientProfileVersions;
 import pro.gravit.launcher.base.profiles.optional.actions.OptionalAction;
 import pro.gravit.launcher.base.profiles.optional.actions.OptionalActionClassPath;
 import pro.gravit.launcher.base.profiles.optional.actions.OptionalActionClientArgs;
-import pro.gravit.launcher.base.request.websockets.StdWebSocketService;
 import pro.gravit.launcher.core.serialize.HInput;
 import pro.gravit.launcher.client.utils.DirWatcher;
 import pro.gravit.utils.helper.*;
@@ -153,7 +150,7 @@ public class ClientLauncherEntryPoint {
             modulesManager.invokeEvent(new ClientProcessClassLoaderEvent(launch, classLoaderControl, profile));
             ClientService.baseURLs = classLoaderControl.getURLs();
         } else if (classLoaderConfig == ClientProfile.ClassLoaderConfig.SYSTEM_ARGS) {
-            launch = new BasicLaunch();
+            launch = new pro.gravit.utils.launch.BasicLaunch();
             System.setProperty("java.class.path", classpath.stream().map(Path::toString).collect(Collectors.joining(File.pathSeparator)));
             classLoaderControl = launch.init(classpath, params.nativesDir, options);
             ClientService.baseURLs = classpathURLs.toArray(new URL[0]);

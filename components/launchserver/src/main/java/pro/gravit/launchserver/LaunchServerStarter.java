@@ -48,7 +48,6 @@ public class LaunchServerStarter {
     private static final Logger logger = LogManager.getLogger();
 
     public static void main(String[] args) throws Exception {
-        JVMHelper.verifySystemProperties(LaunchServer.class, false);
         //LogHelper.addOutput(IOHelper.WORKING_DIR.resolve("LaunchServer.log"));
         LogHelper.printVersion("LaunchServer");
         LogHelper.printLicense("LaunchServer");
