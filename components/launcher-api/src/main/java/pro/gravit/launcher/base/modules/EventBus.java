@@ -91,11 +91,7 @@ public class EventBus {
             if (typeHandlers != null && !typeHandlers.isEmpty()) {
                 // CopyOnWriteArrayList allows lock-free concurrent iteration
                 for (var handler : typeHandlers) {
-                    try {
-                        handler.accept(event);
-                    } catch (Exception e) {
-                        handleException(e, event, handler);
-                    }
+                    handler.accept(event);
                 }
             }
         }
