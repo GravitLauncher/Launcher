@@ -25,6 +25,8 @@ public abstract class CommandHandler implements Runnable {
     }
 
     public void eval(String line, boolean bell) {
+        if (line.trim().isEmpty())
+            return;
         logger.info("Command '{}'", line);
         try {
             evalNative(line, bell);

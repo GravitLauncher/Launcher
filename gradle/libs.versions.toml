@@ -1,7 +1,7 @@
 [versions]
 kotlin = "2.3.21"
 gson = "2.14.0"
-jline = "4.2.0"
+jline = "4.3.1"
 jansi = "2.4.3"
 slf4j = "2.0.18"
 oshi = "7.2.1"
