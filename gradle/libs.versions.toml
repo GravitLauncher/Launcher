@@ -24,6 +24,7 @@ totp = "1.7.1"
 sentry = "8.46.0"
 jbcrypt = "0.4"
 discord-game-sdk = "v1.0.0"
+jmdns = '3.6.3'
 
 [libraries]
 gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
@@ -61,3 +62,4 @@ sentry = { module = "io.sentry:sentry", version.ref = "sentry"  }
 sentry-log4j2 = { module = "io.sentry:sentry-log4j2", version.ref = "sentry"  }
 jbcrypt = { module = "org.mindrot:jbcrypt", version.ref = "jbcrypt"  }
 discord-game-sdk = { module = "com.github.JnCrMx:discord-game-sdk4j", version.ref = "discord-game-sdk"  }
+jmdns = { module = "org.jmdns:jmdns", version.ref = "jmdns" }

@@ -52,7 +52,7 @@ public final class LauncherConfig extends StreamObject {
     @LauncherInject("runtimeconfig.runtimeEncryptKey")
     public final String runtimeEncryptKey;
     @LauncherInject("launcher.address")
-    public final String address;
+    public String address;
     @LauncherInject("runtimeconfig.secretKeyClient")
     public String secretKeyClient;
     @LauncherInject("runtimeconfig.unlockSecret")
