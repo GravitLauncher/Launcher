@@ -47,7 +47,7 @@ public class RequestFeatureHttpAPIImpl implements AuthFeatureAPI, UserFeatureAPI
 
     @Override
     public CompletableFuture<SelfUser> getCurrentUser() {
-        var accessToken = Optional.ofNullable(authDataRef.get()).map(e -> e.accessToken);
+        var accessToken = Optional.ofNullable(authDataRef.get()).map(e -> e.token);
         if(accessToken.isEmpty()) {
             return CompletableFuture.failedFuture(new RequestException("You are not authorized (currentuser)"));
         }
@@ -92,7 +92,7 @@ public class RequestFeatureHttpAPIImpl implements AuthFeatureAPI, UserFeatureAPI
         }
         var requestBuilder = HttpRequest.newBuilder()
                 .POST(HttpHelper.jsonBodyPublisher(new HttpAuthRequest(login, rawPassword, rawTotp)))
-                .uri(URI.create(baseUrl.concat("/auth/authorize")))
+                .uri(URI.create(baseUrl.concat("/auth/login")))
                 .header("Content-Type", "application/json");
         String launcherVerifyToken = launcherVerifyTokenRef.get();
         if(launcherVerifyToken != null) {
@@ -134,7 +134,7 @@ public class RequestFeatureHttpAPIImpl implements AuthFeatureAPI, UserFeatureAPI
 
     @Override
     public CompletableFuture<Void> exit() {
-        var accessToken = Optional.ofNullable(authDataRef.get()).map(e -> e.accessToken);
+        var accessToken = Optional.ofNullable(authDataRef.get()).map(e -> e.token);
         if(accessToken.isEmpty()) {
             return CompletableFuture.failedFuture(new RequestException("You are not authorized"));
         }
@@ -169,7 +169,7 @@ public class RequestFeatureHttpAPIImpl implements AuthFeatureAPI, UserFeatureAPI
 
     @Override
     public CompletableFuture<Void> joinServer(String username, String accessToken, String serverID) {
-        var accessToken0 = Optional.ofNullable(authDataRef.get()).map(e -> e.accessToken);
+        var accessToken0 = Optional.ofNullable(authDataRef.get()).map(e -> e.token);
         if(accessToken0.isEmpty()) {
             return CompletableFuture.failedFuture(new RequestException("You are not authorized"));
         }
@@ -184,7 +184,7 @@ public class RequestFeatureHttpAPIImpl implements AuthFeatureAPI, UserFeatureAPI
 
     @Override
     public CompletableFuture<Void> joinServer(UUID uuid, String accessToken, String serverID) {
-        var accessToken0 = Optional.ofNullable(authDataRef.get()).map(e -> e.accessToken);
+        var accessToken0 = Optional.ofNullable(authDataRef.get()).map(e -> e.token);
         if(accessToken0.isEmpty()) {
             return CompletableFuture.failedFuture(new RequestException("You are not authorized"));
         }
@@ -199,7 +199,7 @@ public class RequestFeatureHttpAPIImpl implements AuthFeatureAPI, UserFeatureAPI
 
     @Override
     public CompletableFuture<CheckServerResponse> checkServer(String username, String serverID, boolean extended) {
-        var accessToken = Optional.ofNullable(authDataRef.get()).map(e -> e.accessToken);
+        var accessToken = Optional.ofNullable(authDataRef.get()).map(e -> e.token);
         if(accessToken.isEmpty()) {
             return CompletableFuture.failedFuture(new RequestException("You are not authorized"));
         }
@@ -214,7 +214,7 @@ public class RequestFeatureHttpAPIImpl implements AuthFeatureAPI, UserFeatureAPI
 
     @Override
     public CompletableFuture<List<ClientProfile>> getProfiles() {
-        var accessToken0 = Optional.ofNullable(authDataRef.get()).map(e -> e.accessToken);
+        var accessToken0 = Optional.ofNullable(authDataRef.get()).map(e -> e.token);
         if(accessToken0.isEmpty()) {
             return CompletableFuture.failedFuture(new RequestException("You are not authorized"));
         }
@@ -235,7 +235,7 @@ public class RequestFeatureHttpAPIImpl implements AuthFeatureAPI, UserFeatureAPI
 
     @Override
     public CompletableFuture<UpdateInfo> fetchUpdateInfo(String dirName) {
-        var accessToken0 = Optional.ofNullable(authDataRef.get()).map(e -> e.accessToken);
+        var accessToken0 = Optional.ofNullable(authDataRef.get()).map(e -> e.token);
         if(accessToken0.isEmpty()) {
             return CompletableFuture.failedFuture(new RequestException("You are not authorized"));
         }
@@ -256,28 +256,27 @@ public class RequestFeatureHttpAPIImpl implements AuthFeatureAPI, UserFeatureAPI
     @Override
     public CompletableFuture<LauncherUpdateInfo> checkUpdates() {
         return HttpHelper.sendAsync(client, HttpRequest.newBuilder()
-                .GET()
+                .POST(HttpRequest.BodyPublishers.noBody())
                 .uri(URI.create(baseUrl.concat("/updates/prepare")))
-                .header("Content-Type", "application/json")
                 .build(), new HttpErrorHandler<>(HttpUpdatesPrepare.class)).thenCompose(result -> {
             var res = result.getOrThrow();
             try {
                 var privateKey = SecurityHelper.toPrivateECDSAKey(Base64.getDecoder().decode(Launcher.getConfig().ecdsaBuildPrivateKey));
                 var publicKey = SecurityHelper.toPublicECDSAKey(Base64.getDecoder().decode(Launcher.getConfig().ecdsaBuildPublicKey));
-                var signedData = SecurityHelper.sign(Base64.getDecoder().decode(result.result().data()), privateKey);
+                var signedData = SecurityHelper.sign(Base64.getDecoder().decode(result.result().challenge), privateKey);
                 return HttpHelper.sendAsync(client, HttpRequest.newBuilder()
                                 .POST(HttpHelper.jsonBodyPublisher(new HttpUpdatesCheck(
                                         Base64.getEncoder().encodeToString(signedData),
                                         Base64.getEncoder().encodeToString(publicKey.getEncoded()),
-                                        result.result().jwtToken())))
-                                .uri(URI.create(baseUrl.concat("/updates/check/"+ LauncherRequest.getUpdateVariant())))
+                                        result.result().token())))
+                                .uri(URI.create(baseUrl.concat("/updates/verify")))
                                 .header("Content-Type", "application/json")
                                 .build(), new HttpErrorHandler<>(HttpLauncherUpdateInfo.class))
                         .thenApply(HttpHelper.HttpOptional::getOrThrow)
                         .thenApply((httpLauncherUpdateInfo -> {
-                            launcherVerifyTokenRef.set(httpLauncherUpdateInfo.jwtToken());
-                            return new LauncherUpdateInfo(httpLauncherUpdateInfo.url, httpLauncherUpdateInfo.version,
-                                    httpLauncherUpdateInfo.available, httpLauncherUpdateInfo.required);
+                            launcherVerifyTokenRef.set(httpLauncherUpdateInfo.token());
+                            return new LauncherUpdateInfo(httpLauncherUpdateInfo.url, "1.0.0",
+                                    httpLauncherUpdateInfo.updateRequired(), httpLauncherUpdateInfo.updateRequired());
                         }));
             } catch (InvalidKeySpecException e) {
                 return CompletableFuture.failedFuture(e);
@@ -320,7 +319,7 @@ public class RequestFeatureHttpAPIImpl implements AuthFeatureAPI, UserFeatureAPI
 
     @Override
     public CompletableFuture<Texture> upload(String name, byte[] bytes, UploadSettings settings) {
-        var accessToken0 = Optional.ofNullable(authDataRef.get()).map(e -> e.accessToken);
+        var accessToken0 = Optional.ofNullable(authDataRef.get()).map(e -> e.token);
         if(accessToken0.isEmpty()) {
             return CompletableFuture.failedFuture(new RequestException("You are not authorized"));
         }
@@ -458,7 +457,7 @@ public class RequestFeatureHttpAPIImpl implements AuthFeatureAPI, UserFeatureAPI
     }
 
     public static class HttpAuthData implements AuthToken {
-        public String accessToken;
+        public String token;
         public String refreshToken;
         public long expireSeconds;
 
@@ -466,14 +465,14 @@ public class RequestFeatureHttpAPIImpl implements AuthFeatureAPI, UserFeatureAPI
         }
 
         public HttpAuthData(String accessToken, String refreshToken, long expireSeconds) {
-            this.accessToken = accessToken;
+            this.token = accessToken;
             this.refreshToken = refreshToken;
             this.expireSeconds = expireSeconds;
         }
 
         @Override
         public String getAccessToken() {
-            return accessToken;
+            return token;
         }
 
         @Override
@@ -483,7 +482,7 @@ public class RequestFeatureHttpAPIImpl implements AuthFeatureAPI, UserFeatureAPI
 
         @Override
         public long getExpire() {
-            return expireSeconds;
+            return 0;
         }
     }
 
@@ -503,13 +502,13 @@ public class RequestFeatureHttpAPIImpl implements AuthFeatureAPI, UserFeatureAPI
         }
     }
 
-    public record HttpLauncherUpdateInfo(String url, String version, boolean available, boolean required, String jwtToken) {
+    public record HttpLauncherUpdateInfo(String url, Boolean updateRequired, String token) {
     }
 
     public record ErrorResponse(String code, String error) {
     }
 
-    public record HttpAuthRequest(String login, String password, String totp) {
+    public record HttpAuthRequest(String username, String password, String totp) {
 
     }
 
@@ -529,9 +528,9 @@ public class RequestFeatureHttpAPIImpl implements AuthFeatureAPI, UserFeatureAPI
 
     }
 
-    public record HttpUpdatesPrepare(String data, String jwtToken) {}
+    public record HttpUpdatesPrepare(String challenge, String token) {}
 
-    public record HttpUpdatesCheck(String signedData, String publicKey, String jwtToken) {}
+    public record HttpUpdatesCheck(String signature, String publicKey, String token) {}
 
     public record HttpUpdateInfo(HashedDir dir, String baseUrl) implements UpdateInfo {
 
