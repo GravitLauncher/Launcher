@@ -6,7 +6,7 @@ jansi = "2.4.3"
 slf4j = "2.0.18"
 oshi = "7.2.1"
 # LaunchServer libraries
-log4j = "2.26.0"
+log4j = "2.26.1"
 netty = "4.2.14.Final"
 bouncycastle = "1.84"
 jjwt = "0.13.0"
