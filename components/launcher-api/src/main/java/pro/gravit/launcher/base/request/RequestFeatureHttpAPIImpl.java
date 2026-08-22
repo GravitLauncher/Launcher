@@ -29,6 +29,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.security.PublicKey;
+import java.security.SignatureException;
 import java.security.spec.InvalidKeySpecException;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -277,7 +278,8 @@ public class RequestFeatureHttpAPIImpl implements AuthFeatureAPI, UserFeatureAPI
             try {
                 var privateKey = SecurityHelper.toPrivateECDSAKey(Base64.getDecoder().decode(Launcher.getConfig().ecdsaBuildPrivateKey));
                 var publicKey = SecurityHelper.toPublicECDSAKey(Base64.getDecoder().decode(Launcher.getConfig().ecdsaBuildPublicKey));
-                var signedData = SecurityHelper.sign(Base64.getDecoder().decode(result.result().challenge), privateKey);
+                var signedData = SecurityHelper.sign(Base64.getDecoder().decode(res.challenge), privateKey);
+                SecurityHelper.verifySign(Base64.getDecoder().decode(res.challenge), signedData, publicKey); // Self check
                 return HttpHelper.sendAsync(client, HttpRequest.newBuilder()
                                 .POST(HttpHelper.jsonBodyPublisher(new HttpUpdatesCheck(
                                         Base64.getEncoder().encodeToString(signedData),
@@ -292,7 +294,7 @@ public class RequestFeatureHttpAPIImpl implements AuthFeatureAPI, UserFeatureAPI
                             return new LauncherUpdateInfo(httpLauncherUpdateInfo.url, "1.0.0",
                                     httpLauncherUpdateInfo.updateRequired(), httpLauncherUpdateInfo.updateRequired());
                         }));
-            } catch (InvalidKeySpecException e) {
+            } catch (InvalidKeySpecException | SignatureException e) {
                 return CompletableFuture.failedFuture(e);
             }
         });
