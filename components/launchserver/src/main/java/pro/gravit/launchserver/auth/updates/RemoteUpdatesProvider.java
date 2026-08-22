@@ -24,16 +24,19 @@ public class RemoteUpdatesProvider extends UpdatesProvider {
     public void pushUpdate(List<UpdateUploadInfo> files) throws IOException {
         for(var file : files) {
             String boundary = SecurityHelper.toHex(SecurityHelper.randomBytes(32));
-            String jsonOptions = Launcher.gsonManager.gson.toJson(file.secrets());
             byte[] preFileData;
             try(ByteArrayOutputStream output = new ByteArrayOutputStream(256)) {
                 output.write("--".getBytes(StandardCharsets.UTF_8));
                 output.write(boundary.getBytes(StandardCharsets.UTF_8));
-                output.write("\r\nContent-Disposition: form-data; name=\"secrets\"\r\nContent-Type: application/json\r\n\r\n".getBytes(StandardCharsets.UTF_8));
-                output.write(jsonOptions.getBytes(StandardCharsets.UTF_8));
+                output.write("\r\nContent-Disposition: form-data; name=\"publicKey\"; filename=\"public.key\"\r\nContent-Type: application/octet-stream\r\n\r\n".getBytes(StandardCharsets.UTF_8));
+                output.write(file.secrets().publicKey().getBytes(StandardCharsets.UTF_8));
                 output.write("\r\n--".getBytes(StandardCharsets.UTF_8));
                 output.write(boundary.getBytes(StandardCharsets.UTF_8));
-                output.write("\r\nContent-Disposition: form-data; name=\"file\"; filename=\"file\"\r\nContent-Type: image/png\r\n\r\n".getBytes(StandardCharsets.UTF_8));
+                output.write("\r\nContent-Disposition: form-data; name=\"privateKey\"; filename=\"private.key\"\r\nContent-Type: application/octet-stream\r\n\r\n".getBytes(StandardCharsets.UTF_8));
+                output.write(file.secrets().privateKey().getBytes(StandardCharsets.UTF_8));
+                output.write("\r\n--".getBytes(StandardCharsets.UTF_8));
+                output.write(boundary.getBytes(StandardCharsets.UTF_8));
+                output.write("\r\nContent-Disposition: form-data; name=\"file\"; filename=\"file\"\r\nContent-Type: application/octet-stream\r\n\r\n".getBytes(StandardCharsets.UTF_8));
                 preFileData = output.toByteArray();
             }
             byte[] postFileData;
@@ -46,7 +49,7 @@ public class RemoteUpdatesProvider extends UpdatesProvider {
             byte[] bytes = IOHelper.read(file.path());
             try {
                 var result = client.send(HttpRequest.newBuilder()
-                        .uri(URI.create(baseUrl.concat("/updates/upload/"+file.variant().toString())))
+                        .uri(URI.create(baseUrl.concat("/updates/upload?variant="+file.variant().toString())))
                         .POST(HttpRequest.BodyPublishers.concat(HttpRequest.BodyPublishers.ofByteArray(preFileData),
                                 HttpRequest.BodyPublishers.ofByteArray(bytes),
                                 HttpRequest.BodyPublishers.ofByteArray(postFileData)))

@@ -36,7 +36,7 @@ public class RemoteProfilesProvider extends ProfilesProvider {
         try {
             return HttpHelper.sendAsync(client, HttpRequest.newBuilder()
                             .POST(HttpHelper.jsonBodyPublisher(new HttpCreateProfileRequest(name, description, basic == null ? null : basic.getProfile())))
-                            .uri(URI.create(baseUrl.concat("/profile/new")))
+                            .uri(URI.create(baseUrl.concat("/cas/directories")))
                             .header("Content-Type", "application/json")
                             .header("Authorization", "Bearer "+accessToken)
                             .build(), new RequestFeatureHttpAPIImpl.HttpErrorHandler<>(HttpUncompletedProfile.class))
@@ -59,16 +59,7 @@ public class RemoteProfilesProvider extends ProfilesProvider {
 
     @Override
     public void delete(UncompletedProfile profile) {
-        try {
-            HttpHelper.sendAsync(client, HttpRequest.newBuilder()
-                            .DELETE()
-                            .uri(URI.create(baseUrl.concat("/profile/by/uuid/"+profile.getUuid())))
-                            .header("Authorization", "Bearer "+accessToken)
-                            .build(), new RequestFeatureHttpAPIImpl.HttpErrorHandler<>(Void.class))
-                    .thenApply(HttpHelper.HttpOptional::getOrThrow).get();
-        } catch (InterruptedException | ExecutionException e) {
-            throw new RuntimeException(e);
-        }
+        throw new UnsupportedOperationException("The new CAS API does not expose directory deletion");
     }
 
     @Override
@@ -76,7 +67,7 @@ public class RemoteProfilesProvider extends ProfilesProvider {
         try {
             return HttpHelper.sendAsync(client, HttpRequest.newBuilder()
                             .GET()
-                            .uri(URI.create(baseUrl.concat("/profile/list")))
+                            .uri(URI.create(baseUrl.concat("/cas/directories/list")))
                             .header("Authorization", "Bearer "+accessToken)
                             .build(), new RequestFeatureHttpAPIImpl.HttpErrorHandler<>(RequestFeatureHttpAPIImpl.HttpListProfilesResponse.class))
                     .thenApply(e -> e.getOrThrow().profiles().stream()
@@ -125,7 +116,7 @@ public class RemoteProfilesProvider extends ProfilesProvider {
     private CompletableFuture<HttpProfile> pushUpdateAsync(UncompletedProfile profile, ClientProfile clientProfile, HashedDir clientDir, HashedDir assetDir) {
         return HttpHelper.sendAsync(client, HttpRequest.newBuilder()
                         .POST(HttpHelper.jsonBodyPublisher(new HttpUpdateProfileRequest(clientProfile, clientDir, assetDir)))
-                        .uri(URI.create(baseUrl.concat("/profile/by/uuid/" + profile.getUuid() + "/pushupdate")))
+                        .uri(URI.create(baseUrl.concat("/cas/versions")))
                         .header("Content-Type", "application/json")
                         .header("Authorization", "Bearer " + accessToken)
                         .build(), new RequestFeatureHttpAPIImpl.HttpErrorHandler<>(HttpProfile.class))
@@ -195,7 +186,7 @@ public class RemoteProfilesProvider extends ProfilesProvider {
         try {
             return HttpHelper.sendAsync(client, HttpRequest.newBuilder()
                             .GET()
-                            .uri(URI.create(baseUrl.concat("/profile/unconnected/"+name)))
+                            .uri(URI.create(baseUrl.concat("/cas/versions/latest?directoryKey="+name+"&branchName=main")))
                             .header("Authorization", "Bearer "+accessToken)
                             .build(), new RequestFeatureHttpAPIImpl.HttpErrorHandler<>(HashedDir.class))
                     .thenApply(HttpHelper.HttpOptional::getOrThrow)
@@ -210,7 +201,7 @@ public class RemoteProfilesProvider extends ProfilesProvider {
         try {
             return HttpHelper.sendAsync(client, HttpRequest.newBuilder()
                             .GET()
-                            .uri(URI.create(baseUrl.concat("/profile/by/uuid/"+uuid)))
+                            .uri(URI.create(baseUrl.concat("/cas/versions/latest?directoryKey="+uuid+"&branchName=main")))
                             .header("Authorization", "Bearer "+accessToken)
                             .build(), new RequestFeatureHttpAPIImpl.HttpErrorHandler<>(HttpProfile.class))
                     .thenApply(HttpHelper.HttpOptional::getOrThrow)
@@ -225,7 +216,7 @@ public class RemoteProfilesProvider extends ProfilesProvider {
         try {
             return HttpHelper.sendAsync(client, HttpRequest.newBuilder()
                             .GET()
-                            .uri(URI.create(baseUrl.concat("/profile/by/name/"+name)))
+                            .uri(URI.create(baseUrl.concat("/cas/versions/latest?directoryKey="+name+"&branchName=main")))
                             .header("Authorization", "Bearer "+accessToken)
                             .build(), new RequestFeatureHttpAPIImpl.HttpErrorHandler<>(HttpProfile.class))
                     .thenApply(HttpHelper.HttpOptional::getOrThrow)
@@ -239,7 +230,7 @@ public class RemoteProfilesProvider extends ProfilesProvider {
         try {
             return HttpHelper.sendAsync(client, HttpRequest.newBuilder()
                             .POST(bodyPublisher)
-                            .uri(URI.create(baseUrl.concat("/profile/uploadfile")))
+                            .uri(URI.create(baseUrl.concat("/cas/upload")))
                             .header("Authorization", "Bearer "+accessToken)
                             .build(), new RequestFeatureHttpAPIImpl.HttpErrorHandler<>(HttpFileUploadResponse.class))
                     .thenApply(HttpHelper.HttpOptional::getOrThrow).get();
