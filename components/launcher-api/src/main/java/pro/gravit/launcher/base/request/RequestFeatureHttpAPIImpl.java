@@ -181,8 +181,13 @@ public class RequestFeatureHttpAPIImpl implements AuthFeatureAPI, UserFeatureAPI
         if(accessToken.isEmpty()) {
             return CompletableFuture.failedFuture(new RequestException("You are not authorized"));
         }
+        String refreshToken = Optional.ofNullable(authDataRef.get()).map(e -> e.refreshToken).orElse(null);
+        if (refreshToken == null || refreshToken.isEmpty()) {
+            authDataRef.set(null);
+            return CompletableFuture.completedFuture(null);
+        }
         return HttpHelper.sendAsync(client, HttpRequest.newBuilder()
-                .POST(HttpHelper.jsonBodyPublisher(new HttpRefreshRequest(Optional.ofNullable(authDataRef.get()).map(e -> e.refreshToken).orElse(""))))
+                .POST(HttpHelper.jsonBodyPublisher(new HttpRefreshRequest(refreshToken)))
                 .uri(URI.create(baseUrl.concat("/auth/logout")))
                 .header("Content-Type", "application/json")
                 .header("Authorization", "Bearer "+accessToken.get())
