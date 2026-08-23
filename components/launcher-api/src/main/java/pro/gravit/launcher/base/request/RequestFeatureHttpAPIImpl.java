@@ -217,11 +217,11 @@ public class RequestFeatureHttpAPIImpl implements AuthFeatureAPI, UserFeatureAPI
             return CompletableFuture.failedFuture(new RequestException("You are not authorized"));
         }
         return HttpHelper.sendAsync(client, HttpRequest.newBuilder()
-                        .POST(HttpHelper.jsonBodyPublisher(new HttpMinecraftJoinRequest(accessToken == null ? accessToken0.get() : accessToken, username, serverID)))
+                        .POST(HttpHelper.jsonBodyPublisher(new HttpMinecraftJoinRequest(accessToken == null || accessToken.isEmpty() ? accessToken0.get() : accessToken, username, serverID)))
                         .uri(URI.create(baseUrl.concat("/minecraft/sessionserver/session/minecraft/join")))
                         .header("Authorization", "Bearer "+accessToken0.get())
                         .header("Content-Type", "application/json")
-                        .build(), new HttpErrorHandler<>(HttpCheckServerResponse.class))
+                        .build(), RequestFeatureHttpAPIImpl::statusOnly)
                 .thenApply(HttpHelper.HttpOptional::getOrThrow).thenApply(e -> null);
     }
 
@@ -236,8 +236,16 @@ public class RequestFeatureHttpAPIImpl implements AuthFeatureAPI, UserFeatureAPI
                         .uri(URI.create(baseUrl.concat("/minecraft/sessionserver/session/minecraft/join")))
                         .header("Authorization", "Bearer "+accessToken0.get())
                         .header("Content-Type", "application/json")
-                        .build(), new HttpErrorHandler<>(HttpCheckServerResponse.class))
+                        .build(), RequestFeatureHttpAPIImpl::statusOnly)
                 .thenApply(HttpHelper.HttpOptional::getOrThrow).thenApply(e -> null);
+    }
+
+    private static HttpHelper.HttpOptional<Void, ErrorResponse> statusOnly(HttpResponse<InputStream> response) {
+        if (response.statusCode() >= 200 && response.statusCode() < 300) {
+            return new HttpHelper.HttpOptional<>(null, null, response.statusCode());
+        }
+        return new HttpHelper.HttpOptional<>(null,
+                new ErrorResponse("HTTP_" + response.statusCode(), "Join request failed"), response.statusCode());
     }
 
     @Override
