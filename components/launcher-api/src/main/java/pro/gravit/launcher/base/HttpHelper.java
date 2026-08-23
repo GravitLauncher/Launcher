@@ -1,8 +1,6 @@
 package pro.gravit.launcher.base;
 
 import com.google.gson.JsonElement;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import pro.gravit.launcher.base.request.RequestException;
 
 import java.io.IOException;
@@ -23,8 +21,6 @@ import java.util.concurrent.Flow;
 import java.util.function.Function;
 
 public final class HttpHelper {
-    private static final Logger logger = LoggerFactory.getLogger(HttpHelper.class);
-
     private HttpHelper() {
         throw new UnsupportedOperationException();
     }

@@ -1,10 +1,13 @@
 package pro.gravit.launcher.base.request;
 
 import com.google.gson.JsonElement;
+import com.google.gson.JsonArray;
 import pro.gravit.launcher.base.ClientPermissions;
 import pro.gravit.launcher.base.HttpHelper;
 import pro.gravit.launcher.base.Launcher;
 import pro.gravit.launcher.base.request.update.LauncherRequest;
+import pro.gravit.launcher.base.profiles.ClientProfile;
+import pro.gravit.launcher.base.profiles.ClientProfileBuilder;
 import pro.gravit.launcher.core.api.features.*;
 import pro.gravit.launcher.core.api.method.AuthMethod;
 import pro.gravit.launcher.core.api.method.AuthMethodDetails;
@@ -238,8 +241,53 @@ public class RequestFeatureHttpAPIImpl implements AuthFeatureAPI, UserFeatureAPI
                         .uri(URI.create(baseUrl.concat("/cas/directories/list")))
                         .header("Authorization", "Bearer "+accessToken0.get())
                         .header("Content-Type", "application/json")
-                        .build(), new HttpErrorHandler<>(HttpListProfilesResponse.class))
-                .thenApply(e -> new ArrayList<>(e.getOrThrow().profiles()));
+                        .build(), new HttpErrorHandler<>(JsonArray.class))
+                .thenCompose(e -> {
+                    Map<UUID, pro.gravit.launcher.base.profiles.ClientProfile> profiles = new LinkedHashMap<>();
+                    for (JsonElement element : e.getOrThrow()) {
+                        HttpCasDirectory directory = Launcher.gsonManager.gson.fromJson(element, HttpCasDirectory.class);
+                        HttpCasProfileMetadata metadata = Launcher.gsonManager.gson.fromJson(directory.metadata(), HttpCasProfileMetadata.class);
+                        pro.gravit.launcher.base.profiles.ClientProfile profile = new ClientProfileBuilder()
+                                .setTitle(metadata.name())
+                                .setInfo("")
+                                .setDir(directory.key())
+                                .setUuid(metadata.uuid())
+                                .createClientProfile();
+                        profiles.putIfAbsent(profile.getUUID(), profile);
+                    }
+                    List<CompletableFuture<pro.gravit.launcher.base.profiles.ClientProfile>> requests = new ArrayList<>();
+                    for (pro.gravit.launcher.base.profiles.ClientProfile fallback : profiles.values()) {
+                        requests.add(loadPublishedProfile(fallback, accessToken0.get()));
+                    }
+                    return CompletableFuture.allOf(requests.toArray(CompletableFuture[]::new))
+                            .thenApply(v -> requests.stream().map(CompletableFuture::join)
+                                    .map(profile -> (ClientProfile) profile).toList());
+                });
+    }
+
+    private CompletableFuture<pro.gravit.launcher.base.profiles.ClientProfile> loadPublishedProfile(pro.gravit.launcher.base.profiles.ClientProfile fallback, String token) {
+        String uri = baseUrl + "/cas/versions/latest?directoryKey="
+                + URLEncoder.encode(fallback.getDir(), StandardCharsets.UTF_8) + "&branchName=main";
+        return HttpHelper.sendAsync(client, HttpRequest.newBuilder().GET().uri(URI.create(uri))
+                        .header("Authorization", "Bearer " + token)
+                        .header("Content-Type", "application/json").build(), new HttpErrorHandler<>(HttpCasVersion.class))
+                .thenApply(response -> {
+                    if (response.result() == null || response.result().metadata() == null) return fallback;
+                    HttpCasVersionMetadata metadata = Launcher.gsonManager.gson.fromJson(response.result().metadata(), HttpCasVersionMetadata.class);
+                    if (metadata.profile() == null) return normalizeProfile(fallback);
+                    return normalizeProfile(new ClientProfileBuilder(metadata.profile())
+                            .setUuid(fallback.getUUID())
+                            .setDir(fallback.getDir())
+                            .createClientProfile());
+                })
+                .exceptionally(error -> normalizeProfile(fallback));
+    }
+
+    private pro.gravit.launcher.base.profiles.ClientProfile normalizeProfile(pro.gravit.launcher.base.profiles.ClientProfile profile) {
+        if (profile.getVersion() != null) return profile;
+        return new ClientProfileBuilder(profile)
+                .setVersion(pro.gravit.launcher.base.profiles.ClientProfile.Version.of("0"))
+                .createClientProfile();
     }
 
     @Override
@@ -256,11 +304,36 @@ public class RequestFeatureHttpAPIImpl implements AuthFeatureAPI, UserFeatureAPI
         }
         return HttpHelper.sendAsync(client, HttpRequest.newBuilder()
                         .GET()
-                        .uri(URI.create(baseUrl.concat(String.format("/cas/versions/latest?directoryKey=%s&branchName=%s", profileRef.get().getUUID(), URLEncoder.encode(dirName, StandardCharsets.UTF_8)))))
+                        .uri(URI.create(baseUrl.concat(String.format("/cas/versions/latest?directoryKey=%s&branchName=main",
+                                URLEncoder.encode(((pro.gravit.launcher.base.profiles.ClientProfile) profileRef.get()).getDir(), StandardCharsets.UTF_8)))))
                         .header("Authorization", "Bearer "+accessToken0.get())
-                        .header("Content-Type", "application/json")
-                        .build(), new HttpErrorHandler<>(HttpUpdateInfo.class))
-                .thenApply(HttpHelper.HttpOptional::getOrThrow);
+                .header("Content-Type", "application/json")
+                .build(), new HttpErrorHandler<>(HttpCasVersion.class))
+                .thenApply(HttpHelper.HttpOptional::getOrThrow)
+                .thenApply(version -> {
+                    String manifestRoot = dirName.toLowerCase(Locale.ROOT).contains("asset") ? "assets/" : "client/";
+                    HashedDir dir = toHashedDir(version.manifest(), manifestRoot);
+                    return new HttpUpdateInfo(dir, baseUrl);
+                });
+    }
+
+    private HashedDir toHashedDir(String manifest, String rootPrefix) {
+        HashedDir root = new HashedDir();
+        JsonElement parsed = Launcher.gsonManager.gson.fromJson(manifest, JsonElement.class);
+        JsonArray files = parsed.getAsJsonObject().getAsJsonArray("files");
+        for (JsonElement element : files) {
+            var file = element.getAsJsonObject();
+            String path = file.get("path").getAsString();
+            if (path.startsWith(rootPrefix)) {
+                path = path.substring(rootPrefix.length());
+            }
+            if (path.isEmpty()) continue;
+            long size = file.get("size").getAsLong();
+            String storageKey = file.get("url").getAsString();
+            var target = root.createParentDirectories(path);
+            target.parent.put(target.name, new pro.gravit.launcher.core.hasher.HashedFile(size, null, storageKey));
+        }
+        return root;
     }
 
     @Override
@@ -341,7 +414,7 @@ public class RequestFeatureHttpAPIImpl implements AuthFeatureAPI, UserFeatureAPI
         }
         String boundary = SecurityHelper.toHex(SecurityHelper.randomBytes(32));
         boolean cape = "CAPE".equalsIgnoreCase(name);
-        String variant = settings != null && settings.slim() ? "slim" : "default";
+        String variant = settings != null && settings.slim() ? "slim" : "classic";
         byte[] preFileData;
         try(ByteArrayOutputStream output = new ByteArrayOutputStream(256)) {
             output.write("--".getBytes(StandardCharsets.UTF_8));
@@ -373,14 +446,26 @@ public class RequestFeatureHttpAPIImpl implements AuthFeatureAPI, UserFeatureAPI
                 .build(), HttpResponse.BodyHandlers.ofByteArray()).thenCompose((response) -> {
             if(response.statusCode() >= 200 && response.statusCode() < 300) {
                 try (Reader reader = new InputStreamReader(new ByteArrayInputStream(response.body()))) {
-                    return CompletableFuture.completedFuture(Launcher.gsonManager.gson.fromJson(reader, RequestFeatureAPIImpl.UserTexture.class).toLauncherTexture());
+                    HttpMinecraftProfile profile = Launcher.gsonManager.gson.fromJson(reader, HttpMinecraftProfile.class);
+                    if (cape) {
+                        if (profile.capes == null || profile.capes.isEmpty()) {
+                            return CompletableFuture.failedFuture(new RequestException("Server returned no uploaded cape"));
+                        }
+                        var texture = profile.capes.get(profile.capes.size() - 1);
+                        return CompletableFuture.completedFuture(new pro.gravit.launcher.base.profiles.Texture(texture.url(), new byte[0], Map.of("alias", texture.alias())));
+                    }
+                    var texture = profile.skins.stream().filter(e -> variant.equalsIgnoreCase(e.variant())).findFirst()
+                            .orElseThrow(() -> new RequestException("Server returned no uploaded skin"));
+                    return CompletableFuture.completedFuture(new pro.gravit.launcher.base.profiles.Texture(texture.url(), new byte[0], Map.of("variant", texture.variant())));
                 } catch (Throwable e) {
                     return CompletableFuture.failedFuture(e);
                 }
             } else {
                 try(Reader reader = new InputStreamReader(new ByteArrayInputStream(response.body()))) {
-                    RequestFeatureAPIImpl.UploadError error = Launcher.gsonManager.gson.fromJson(reader, RequestFeatureAPIImpl.UploadError.class);
-                    return CompletableFuture.failedFuture(new RequestException(error.error()));
+                    String body = new String(response.body(), StandardCharsets.UTF_8);
+                    RequestFeatureAPIImpl.UploadError error = Launcher.gsonManager.gson.fromJson(body, RequestFeatureAPIImpl.UploadError.class);
+                    String message = error == null || error.error() == null ? body : error.error();
+                    return CompletableFuture.failedFuture(new RequestException("HTTP " + response.statusCode() + ": " + message));
                 } catch (Exception ex) {
                     return CompletableFuture.failedFuture(ex);
                 }
@@ -425,7 +510,7 @@ public class RequestFeatureHttpAPIImpl implements AuthFeatureAPI, UserFeatureAPI
 
         @Override
         public Set<String> getFeatures() {
-            return Set.of();
+            return Set.of(TextureUploadFeatureAPI.FEATURE_NAME);
         }
     }
 
@@ -468,8 +553,10 @@ public class RequestFeatureHttpAPIImpl implements AuthFeatureAPI, UserFeatureAPI
     public static class HttpMinecraftProfile {
         public String id, name;
         public List<HttpMinecraftSkin> skins = List.of();
+        public List<HttpMinecraftCape> capes = List.of();
     }
     public record HttpMinecraftSkin(String id, String state, String url, String variant) {}
+    public record HttpMinecraftCape(String id, String state, String url, String alias) {}
     public record HttpMinecraftSessionProfile(String id, String name, List<Object> properties) {}
 
     public static class HttpSelfUser extends HttpUser implements SelfUser {
@@ -550,9 +637,11 @@ public class RequestFeatureHttpAPIImpl implements AuthFeatureAPI, UserFeatureAPI
 
     }
 
-    public record HttpListProfilesResponse(List<pro.gravit.launcher.base.profiles.ClientProfile> profiles) {
+    public record HttpCasDirectory(long id, String key, String name, String metadata, String createdAt) {}
 
-    }
+    public record HttpCasProfileMetadata(UUID uuid, String name) {}
+
+    public record HttpCasVersionMetadata(pro.gravit.launcher.base.profiles.ClientProfile profile) {}
 
     public record HttpJoinServerByUuidRequest(String uuid, String serverID, String accessToken) {
 
@@ -574,6 +663,10 @@ public class RequestFeatureHttpAPIImpl implements AuthFeatureAPI, UserFeatureAPI
             return baseUrl;
         }
     }
+
+    public record HttpCasVersion(long id, long directoryId, String directoryKey, String branchName,
+                                 Long parentVersionId, String manifestHash, String manifest, String metadata,
+                                 String createdAt, Long createdBy, String message) {}
 
     public record HttpRefreshRequest(String refreshToken) {
 

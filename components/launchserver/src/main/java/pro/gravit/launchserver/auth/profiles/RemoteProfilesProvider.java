@@ -1,9 +1,12 @@
 package pro.gravit.launchserver.auth.profiles;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pro.gravit.launcher.base.Downloader;
 import pro.gravit.launcher.base.HttpHelper;
+import pro.gravit.launcher.base.Launcher;
 import pro.gravit.launcher.base.profiles.ClientProfile;
 import pro.gravit.launcher.base.profiles.ClientProfileBuilder;
 import pro.gravit.launcher.base.request.RequestFeatureHttpAPIImpl;
@@ -13,6 +16,7 @@ import pro.gravit.launcher.core.hasher.HashedFile;
 import pro.gravit.launchserver.command.Command;
 import pro.gravit.launchserver.socket.Client;
 import pro.gravit.utils.helper.IOHelper;
+import pro.gravit.utils.helper.SecurityHelper;
 
 import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
@@ -31,26 +35,32 @@ public class RemoteProfilesProvider extends ProfilesProvider {
     public String baseUrl = "PASTE BASE URL HERE";
     public String accessToken = "PASTE ACCESS TOKEN HERE";
     private final transient HttpClient client = HttpClient.newBuilder().build();
+    private final transient Map<String, HttpFileUploadResponse> uploadedBlobs = new HashMap<>();
     @Override
     public UncompletedProfile create(String name, String description, CompletedProfile basic) {
         try {
+            UUID uuid = UUID.nameUUIDFromBytes(name.getBytes(java.nio.charset.StandardCharsets.UTF_8));
             return HttpHelper.sendAsync(client, HttpRequest.newBuilder()
-                            .POST(HttpHelper.jsonBodyPublisher(new HttpCreateProfileRequest(name, description, basic == null ? null : basic.getProfile())))
+                            .POST(HttpHelper.jsonBodyPublisher(new CasCreateDirectoryRequest(uuid.toString(), name,
+                                    Launcher.gsonManager.gson.toJson(new CasProfileMetadata(uuid, name)))))
                             .uri(URI.create(baseUrl.concat("/cas/directories")))
                             .header("Content-Type", "application/json")
                             .header("Authorization", "Bearer "+accessToken)
-                            .build(), new RequestFeatureHttpAPIImpl.HttpErrorHandler<>(HttpUncompletedProfile.class))
+                            .build(), new RequestFeatureHttpAPIImpl.HttpErrorHandler<>(CasDirectoryResponse.class))
                     .thenApply(HttpHelper.HttpOptional::getOrThrow).thenCompose(result -> {
-                        if(basic == null && result.profile == null) {
+                        if(basic == null) {
+                            UUID profileUuid = Launcher.gsonManager.gson.fromJson(result.metadata(), CasProfileMetadata.class).uuid();
                             ClientProfile newClientProfile = new ClientProfileBuilder()
                                 .setTitle(name)
                                 .setInfo(description)
                                 .setDir(name)
-                                .setUuid(result.getUuid())
+                                .setUuid(profileUuid)
                                 .createClientProfile();
-                            return pushUpdateAsync(result, newClientProfile, null, null).thenApply(e -> result);
+                            return pushUpdateAsync(new HttpUncompletedProfile(profileUuid, newClientProfile), newClientProfile, null, null)
+                                    .thenApply(e -> (UncompletedProfile) new HttpUncompletedProfile(profileUuid, newClientProfile));
                         }
-                        return CompletableFuture.completedFuture(result);
+                        CasProfileMetadata metadata = Launcher.gsonManager.gson.fromJson(result.metadata(), CasProfileMetadata.class);
+                        return CompletableFuture.completedFuture((UncompletedProfile) new HttpUncompletedProfile(metadata.uuid(), basic.getProfile()));
                     }).get();
         } catch (InterruptedException | ExecutionException e) {
             throw new RuntimeException(e);
@@ -69,9 +79,13 @@ public class RemoteProfilesProvider extends ProfilesProvider {
                             .GET()
                             .uri(URI.create(baseUrl.concat("/cas/directories/list")))
                             .header("Authorization", "Bearer "+accessToken)
-                            .build(), new RequestFeatureHttpAPIImpl.HttpErrorHandler<>(RequestFeatureHttpAPIImpl.HttpListProfilesResponse.class))
+                            .build(), new RequestFeatureHttpAPIImpl.HttpErrorHandler<>(CasDirectoryListResponse.class))
                     .thenApply(e -> e.getOrThrow().profiles().stream()
-                            .map(es -> new HttpUncompletedProfile(es.getUUID(), es))
+                            .map(es -> {
+                                CasProfileMetadata metadata = Launcher.gsonManager.gson.fromJson(es.metadata(), CasProfileMetadata.class);
+                                return new HttpUncompletedProfile(metadata.uuid(), new ClientProfileBuilder()
+                                        .setTitle(metadata.name()).setInfo("").setDir(es.key()).setUuid(metadata.uuid()).createClientProfile());
+                            })
                             .map(x -> (UncompletedProfile) x)
                             .collect(Collectors.toSet()))
                     .get();
@@ -114,13 +128,57 @@ public class RemoteProfilesProvider extends ProfilesProvider {
     }
 
     private CompletableFuture<HttpProfile> pushUpdateAsync(UncompletedProfile profile, ClientProfile clientProfile, HashedDir clientDir, HashedDir assetDir) {
+        JsonArray files = new JsonArray();
+        appendManifest(files, "client", clientDir);
+        appendManifest(files, "assets", assetDir);
+        JsonObject manifestObject = new JsonObject();
+        manifestObject.add("files", files);
         return HttpHelper.sendAsync(client, HttpRequest.newBuilder()
-                        .POST(HttpHelper.jsonBodyPublisher(new HttpUpdateProfileRequest(clientProfile, clientDir, assetDir)))
+                        .POST(HttpHelper.jsonBodyPublisher(new CasPublishVersionRequest(profile.getUuid().toString(), "main", Launcher.gsonManager.gson.toJson(manifestObject),
+                                Launcher.gsonManager.gson.toJson(new HttpProfileMetadata(clientProfile, clientDir, assetDir)), null, null, null)))
                         .uri(URI.create(baseUrl.concat("/cas/versions")))
                         .header("Content-Type", "application/json")
                         .header("Authorization", "Bearer " + accessToken)
-                        .build(), new RequestFeatureHttpAPIImpl.HttpErrorHandler<>(HttpProfile.class))
-                .thenApply(HttpHelper.HttpOptional::getOrThrow);
+                        .build(), new RequestFeatureHttpAPIImpl.HttpErrorHandler<>(CasVersionResponse.class))
+                .thenApply(HttpHelper.HttpOptional::getOrThrow)
+                .thenApply(version -> new HttpProfile(clientProfile, clientDir == null ? new HashedDir() : clientDir, assetDir == null ? new HashedDir() : assetDir));
+    }
+
+    private void appendManifest(JsonArray files, String root, HashedDir dir) {
+        if (dir == null || dir.isEmpty()) {
+            return;
+        }
+        try {
+        dir.walk("/", (path, name, entry) -> {
+            if (entry instanceof HashedFile file) {
+                HttpFileUploadResponse blob = uploadedBlobs.get(file.url);
+                if (blob == null) {
+                    String url = file.url;
+                    String hash = url == null ? null : url.substring(url.lastIndexOf('/') + 1);
+                    if (hash != null && hash.matches("[0-9a-fA-F]{64}")) {
+                        String marker = "/blobs/";
+                        int markerIndex = url.indexOf(marker);
+                        String storageKey = markerIndex >= 0 ? url.substring(markerIndex + 1) : url;
+                        blob = new HttpFileUploadResponse("sha256:" + hash.toLowerCase(Locale.ROOT), "SHA-256", file.size(), storageKey, url);
+                    } else {
+                        throw new IllegalStateException("Missing CAS blob registration for " + file.url);
+                    }
+                }
+                JsonObject item = new JsonObject();
+                item.addProperty("path", root + "/" + path);
+                item.addProperty("hash", blob.hash());
+                item.addProperty("size", blob.sizeBytes());
+                item.addProperty("storageKey", blob.storageKey());
+                if (blob.url() != null) {
+                    item.addProperty("url", blob.url());
+                }
+                files.add(item);
+            }
+            return HashedDir.WalkAction.CONTINUE;
+        });
+        } catch (IOException e) {
+            throw new IllegalStateException("Failed to build CAS manifest", e);
+        }
     }
 
     @Override
@@ -226,15 +284,24 @@ public class RemoteProfilesProvider extends ProfilesProvider {
         }
     }
 
-    public HttpFileUploadResponse uploadFile(HttpRequest.BodyPublisher bodyPublisher) {
+    private HttpFileUploadResponse uploadFile(byte[] bytes) {
         try {
+            String boundary = SecurityHelper.toHex(SecurityHelper.randomBytes(16));
+            ByteArrayOutputStream multipart = new ByteArrayOutputStream();
+            multipart.write(("--" + boundary + "\r\nContent-Disposition: form-data; name=\"file\"; filename=\"file\"\r\nContent-Type: application/octet-stream\r\n\r\n").getBytes(java.nio.charset.StandardCharsets.UTF_8));
+            multipart.write(bytes);
+            multipart.write(("\r\n--" + boundary + "--\r\n").getBytes(java.nio.charset.StandardCharsets.UTF_8));
             return HttpHelper.sendAsync(client, HttpRequest.newBuilder()
-                            .POST(bodyPublisher)
+                            .POST(HttpRequest.BodyPublishers.ofByteArray(multipart.toByteArray()))
                             .uri(URI.create(baseUrl.concat("/cas/upload")))
                             .header("Authorization", "Bearer "+accessToken)
+                            .header("Content-Type", "multipart/form-data; boundary=\"" + boundary + "\"")
                             .build(), new RequestFeatureHttpAPIImpl.HttpErrorHandler<>(HttpFileUploadResponse.class))
-                    .thenApply(HttpHelper.HttpOptional::getOrThrow).get();
-        } catch (InterruptedException | ExecutionException e) {
+                    .thenApply(HttpHelper.HttpOptional::getOrThrow).thenApply(response -> {
+                        uploadedBlobs.put(response.storageKey(), response);
+                        return response;
+                    }).get();
+        } catch (InterruptedException | ExecutionException | IOException e) {
             throw new RuntimeException(e);
         }
     }
@@ -255,8 +322,8 @@ public class RemoteProfilesProvider extends ProfilesProvider {
                             input.transferTo(output);
                         }
                         byte[] bytes = output.toByteArray();
-                        var res = uploadFile(HttpRequest.BodyPublishers.ofByteArray(bytes));
-                        HashedFile file = new HashedFile(bytes, res.url());
+                        var res = uploadFile(bytes);
+                        HashedFile file = new HashedFile(bytes, res.url() == null ? res.storageKey() : res.url());
                         r.parent.put(r.name, file);
                     }
                 } else {
@@ -270,8 +337,8 @@ public class RemoteProfilesProvider extends ProfilesProvider {
                                     input.transferTo(output);
                                 }
                                 byte[] bytes = output.toByteArray();
-                                var res = uploadFile(HttpRequest.BodyPublishers.ofByteArray(bytes));
-                                HashedFile file = new HashedFile(bytes, res.url());
+                                var res = uploadFile(bytes);
+                                HashedFile file = new HashedFile(bytes, res.url() == null ? res.storageKey() : res.url());
                                 r.parent.put(name, file);
                             } catch (IOException e) {
                                 throw new RuntimeException(e);
@@ -293,17 +360,20 @@ public class RemoteProfilesProvider extends ProfilesProvider {
         }
     }
 
-    public record HttpFileUploadResponse(String url) {
+    public record HttpFileUploadResponse(String hash, String algorithm, long sizeBytes, String storageKey, String url) {
 
     }
 
-    public record HttpCreateProfileRequest(String name, String description, ClientProfile profile) {
+    public record CasPublishVersionRequest(String directoryKey, String branchName, String manifest, String metadata,
+                                           Long expectedParentVersionId, Long createdBy, String message) {}
+    public record CasVersionResponse(long id, long directoryId, String directoryKey, String branchName, Long parentVersionId,
+                                     String manifestHash, String manifest, String metadata, String createdAt, Long createdBy, String message) {}
+    public record HttpProfileMetadata(ClientProfile profile, HashedDir client, HashedDir assets) {}
 
-    }
-
-    public record HttpUpdateProfileRequest(ClientProfile profile, HashedDir clientDir, HashedDir assetDir) {
-
-    }
+    public record CasCreateDirectoryRequest(String key, String name, String metadata) {}
+    public record CasDirectoryResponse(long id, String key, String name, String metadata, String createdAt) {}
+    public record CasDirectoryListResponse(List<CasDirectoryResponse> profiles) {}
+    public record CasProfileMetadata(UUID uuid, String name) {}
 
     public record HttpUncompletedProfile(UUID uuid, ClientProfile profile) implements UncompletedProfile {
 
