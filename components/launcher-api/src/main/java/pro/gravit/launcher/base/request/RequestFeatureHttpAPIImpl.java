@@ -65,7 +65,32 @@ public class RequestFeatureHttpAPIImpl implements AuthFeatureAPI, UserFeatureAPI
     }
 
     private static HttpUser toUser(HttpLookupProfile profile) {
-        return new HttpUser(profile.name, UUID.fromString(profile.id.replaceFirst("(\\w{8})(\\w{4})(\\w{4})(\\w{4})(\\w{12})", "$1-$2-$3-$4-$5")), Map.of(), Map.of());
+        Map<String, pro.gravit.launcher.base.profiles.Texture> assets = new HashMap<>();
+        Map<String, String> properties = new HashMap<>();
+        for (HttpMinecraftSessionProperty property : profile.properties) {
+            properties.put(property.name(), property.value());
+            if (!"textures".equals(property.name())) continue;
+            try {
+                JsonElement textureData = Launcher.gsonManager.gson.fromJson(
+                        new String(Base64.getDecoder().decode(property.value()), StandardCharsets.UTF_8), JsonElement.class);
+                var textures = textureData.getAsJsonObject().getAsJsonObject("textures");
+                for (var entry : textures.entrySet()) {
+                    var texture = entry.getValue().getAsJsonObject();
+                    Map<String, String> metadata = new HashMap<>();
+                    if (texture.has("metadata")) {
+                        for (var meta : texture.getAsJsonObject("metadata").entrySet()) metadata.put(meta.getKey(), meta.getValue().getAsString());
+                    }
+                    String textureUrl = texture.get("url").getAsString();
+                    byte[] textureHash = texture.has("hash") && !texture.get("hash").isJsonNull()
+                            ? SecurityHelper.fromHex(texture.get("hash").getAsString()) : null;
+                    assets.put(entry.getKey(), new pro.gravit.launcher.base.profiles.Texture(
+                            textureUrl, textureHash, metadata));
+                }
+            } catch (RuntimeException ignored) {
+                // Preserve the raw property when texture payload decoding is unavailable.
+            }
+        }
+        return new HttpUser(profile.name, UUID.fromString(profile.id.replaceFirst("(\\w{8})(\\w{4})(\\w{4})(\\w{4})(\\w{12})", "$1-$2-$3-$4-$5")), assets, properties);
     }
 
     @Override
@@ -548,7 +573,15 @@ public class RequestFeatureHttpAPIImpl implements AuthFeatureAPI, UserFeatureAPI
     public static class HttpAccountUser {
         public String username;
     }
-    public record HttpLookupProfile(String id, String name) {}
+    public record HttpLookupProfile(String id, String name, List<HttpMinecraftSessionProperty> properties) {
+        public HttpLookupProfile(String id, String name) {
+            this(id, name, List.of());
+        }
+
+        public HttpLookupProfile {
+            properties = properties == null ? List.of() : properties;
+        }
+    }
     public record HttpMinecraftJoinRequest(String accessToken, String selectedProfile, String serverId) {}
     public static class HttpMinecraftProfile {
         public String id, name;
@@ -558,6 +591,7 @@ public class RequestFeatureHttpAPIImpl implements AuthFeatureAPI, UserFeatureAPI
     public record HttpMinecraftSkin(String id, String state, String url, String variant) {}
     public record HttpMinecraftCape(String id, String state, String url, String alias) {}
     public record HttpMinecraftSessionProfile(String id, String name, List<Object> properties) {}
+    public record HttpMinecraftSessionProperty(String name, String value, String signature) {}
 
     public static class HttpSelfUser extends HttpUser implements SelfUser {
 
