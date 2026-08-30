@@ -13,6 +13,7 @@ jjwt = "0.13.0"
 progressbar = "0.10.2"
 asm = "9.10.1"
 proguard = "7.9.1"
+r8 = "9.4.14"
 # Database libraries
 hikari = "7.1.0"
 postgresql = "42.7.13"
@@ -50,6 +51,7 @@ progressbar = { module = "me.tongfei:progressbar", version.ref = "progressbar" }
 asm = { module = "org.ow2.asm:asm", version.ref = "asm" }
 asm-tree = { module = "org.ow2.asm:asm-tree", version.ref = "asm" }
 proguard = { module = "com.guardsquare:proguard-base", version.ref = "proguard" }
+r8 = { module = "com.android.tools:r8", version.ref = "r8" }
 # Database libraries
 db-hikari = { module = "com.zaxxer:HikariCP", version.ref = "hikari" }
 db-postgresql = { module = "org.postgresql:postgresql", version.ref = "postgresql" }

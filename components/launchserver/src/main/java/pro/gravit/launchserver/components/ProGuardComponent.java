@@ -222,7 +222,7 @@ public class ProGuardComponent extends Component implements AutoCloseable, Recon
                                 .collect(Collectors.joining(File.pathSeparator))
                         );
                     }
-                    args.add("proguard.ProGuard");
+                    args.add("com.android.tools.r8.R8");
                     proguardConf.buildConfig(args, context.getLastest(), outputJar, jfxPath == null ? new Path[0] : new Path[]{jfxPath});
 
                     Process process = new ProcessBuilder()
@@ -288,26 +288,34 @@ public class ProGuardComponent extends Component implements AutoCloseable, Recon
 
         public void buildConfig(List<String> confStrs, Path inputJar, Path outputJar, Path[] jfxPath) {
             prepare(false);
-            if (component.mappings)
-                confStrs.add("-printmapping '" + mappings.toFile().getName() + "'");
-            confStrs.add("-obfuscationdictionary '" + words.toFile().getName() + "'");
-            confStrs.add("-injar '" + inputJar.toAbsolutePath() + "'");
-            confStrs.add("-outjar '" + outputJar.toAbsolutePath() + "'");
-            Collections.addAll(confStrs, JAVA9_OPTS);
+            confStrs.add("--classfile");
+            if (component.mappings) {
+                confStrs.add("--pg-map-output");
+                confStrs.add(mappings.toFile().getName());
+            }
+            confStrs.add("--output");
+            confStrs.add(outputJar.toAbsolutePath().toString());
+            String javaHome = System.getProperty("java.home");
+            confStrs.add("--lib");
+            confStrs.add(javaHome);
             if (jfxPath != null) {
                 for (Path path : jfxPath) {
-                    confStrs.add("-libraryjars '%s'".formatted(path.toAbsolutePath()));
+                    confStrs.add("--lib");
+                    confStrs.add(path.toAbsolutePath().toString());
                 }
             }
             ((JARLauncherBinary)srv.launcherBinaries.get(CoreFeatureAPI.UpdateVariant.JAR)).coreLibs.stream()
-                    .map(e -> "-libraryjars '" + e.toAbsolutePath() + "'")
+                    .flatMap(e -> Stream.of("--lib", e.toAbsolutePath().toString()))
                     .forEach(confStrs::add);
 
             ((JARLauncherBinary)srv.launcherBinaries.get(CoreFeatureAPI.UpdateVariant.JAR)).addonLibs.stream()
-                    .map(e -> "-libraryjars '" + e.toAbsolutePath() + "'")
+                    .flatMap(e -> Stream.of("--lib", e.toAbsolutePath().toString()))
                     .forEach(confStrs::add);
-            confStrs.add("-classobfuscationdictionary '" + words.toFile().getName() + "'");
-            confStrs.add("@".concat(config.toFile().getName()));
+            confStrs.add("--pg-conf");
+            confStrs.add(config.toFile().getName());
+            confStrs.add(inputJar.toAbsolutePath().toString());
+
+            logger.info("R8 run command {}", String.join(" ", confStrs));
         }
 
         private void genConfig(boolean force) throws IOException {

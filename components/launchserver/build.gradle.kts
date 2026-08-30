@@ -13,6 +13,9 @@ repositories {
     maven {
         url = uri("https://repo.clojars.org")
     }
+    maven {
+        url = uri("https://maven.google.com")
+    }
 }
 
 val launcherInside by configurations.creating {
@@ -49,7 +52,7 @@ dependencies {
     api(project(":components:launcher-api"))
     annotationProcessor(libs.log4j.core)
     launcherInside(project(mapOf("path" to ":components:launcher-runtime", "configuration" to "shadow")))
-    proguardLibrary(libs.proguard)
+    proguardLibrary(libs.r8)
 }
 tasks.withType<JavaCompile> {
     options.compilerArgs.addAll(listOf(

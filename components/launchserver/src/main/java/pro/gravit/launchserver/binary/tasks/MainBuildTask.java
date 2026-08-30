@@ -164,7 +164,7 @@ public class MainBuildTask implements LauncherBuildTask {
                 asmTransformer.transform(cn, classname, context);
                 continue;
             } else if (cn != null) {
-                writer = new SafeClassWriter(reader, 0);
+                writer = new SafeClassWriter(reader, ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS);
                 cn.accept(writer);
                 result = writer.toByteArray();
             }
@@ -175,7 +175,7 @@ public class MainBuildTask implements LauncherBuildTask {
             }
         }
         if (cn != null) {
-            writer = new SafeClassWriter(reader, 0);
+            writer = new SafeClassWriter(reader, ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS);
             cn.accept(writer);
             result = writer.toByteArray();
         }
