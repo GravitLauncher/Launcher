@@ -59,8 +59,15 @@ public class ProGuardComponent extends Component implements AutoCloseable, Recon
         return IOHelper.exists(path.resolve("java.base.jmod"));
     }
 
-    public static Path tryFindOpenJFXPath(Path jvmDir) {
-        String dirName = jvmDir.getFileName().toString();
+    public static List<Path> tryFindOpenJFXPath(Path jvmDir) throws IOException {
+        List<Path> paths = new ArrayList<>();
+        Path libDir = jvmDir.resolve("lib");
+        if(Files.exists(libDir)) {
+            try(Stream<Path> s = Files.list(libDir)) {
+                paths.addAll(s.filter(e -> e.getFileName().toString().startsWith("javafx.") && e.getFileName().toString().endsWith(".jar")).toList());
+            }
+        }
+        /*String dirName = jvmDir.getFileName().toString();
         Path parent = jvmDir.getParent();
         if (parent == null) return null;
         Path archJFXPath = parent.resolve(dirName.replace("openjdk", "openjfx")).resolve("jmods");
@@ -76,8 +83,8 @@ public class ProGuardComponent extends Component implements AutoCloseable, Recon
             if (Files.isDirectory(debianJfxPath)) {
                 return debianJfxPath;
             }
-        }
-        return null;
+        }*/
+        return paths;
     }
 
     @Override
@@ -198,18 +205,19 @@ public class ProGuardComponent extends Component implements AutoCloseable, Recon
         public Path process(PipelineContext context) throws IOException {
             Path outputJar = context.makeTempPath("proguard", "jar");
             if (component.enabled) {
-                if (!checkJMods(IOHelper.JVM_DIR.resolve("jmods"))) {
+                /*if (!checkJMods(IOHelper.JVM_DIR.resolve("jmods"))) {
                     throw new RuntimeException("Java path: %s is not JDK! Please install JDK".formatted(IOHelper.JVM_DIR));
-                }
-                Path jfxPath = tryFindOpenJFXPath(IOHelper.JVM_DIR);
-                if (checkFXJMods(IOHelper.JVM_DIR.resolve("jmods"))) {
+                }*/
+                List<Path> jfxPath = tryFindOpenJFXPath(IOHelper.JVM_DIR);
+                logger.trace("Found javafx in {}", String.join(",", jfxPath.stream().map(Path::toString).toList()));
+                /*if (checkFXJMods(IOHelper.JVM_DIR.resolve("jmods"))) {
                     logger.debug("JavaFX jmods resolved in JDK path");
                     jfxPath = null;
                 } else if (jfxPath != null && checkFXJMods(jfxPath)) {
                     logger.debug("JMods resolved in {}", jfxPath.toString());
                 } else {
                     throw new RuntimeException("JavaFX jmods not found. May be install OpenJFX?");
-                }
+                }*/
                 try {
                     List<String> args = new ArrayList<>();
                     args.add(IOHelper.resolveJavaBin(IOHelper.JVM_DIR).toAbsolutePath().toString());
@@ -223,7 +231,7 @@ public class ProGuardComponent extends Component implements AutoCloseable, Recon
                         );
                     }
                     args.add("com.android.tools.r8.R8");
-                    proguardConf.buildConfig(args, context.getLastest(), outputJar, jfxPath == null ? new Path[0] : new Path[]{jfxPath});
+                    proguardConf.buildConfig(args, context.getLastest(), outputJar, jfxPath);
 
                     Process process = new ProcessBuilder()
                             .command(args)
@@ -286,7 +294,7 @@ public class ProGuardComponent extends Component implements AutoCloseable, Recon
             return sb.toString();
         }
 
-        public void buildConfig(List<String> confStrs, Path inputJar, Path outputJar, Path[] jfxPath) {
+        public void buildConfig(List<String> confStrs, Path inputJar, Path outputJar, List<Path> jfxPath) {
             prepare(false);
             confStrs.add("--classfile");
             if (component.mappings) {
@@ -315,7 +323,7 @@ public class ProGuardComponent extends Component implements AutoCloseable, Recon
             confStrs.add(config.toFile().getName());
             confStrs.add(inputJar.toAbsolutePath().toString());
 
-            logger.info("R8 run command {}", String.join(" ", confStrs));
+            logger.trace("R8 run command {}", String.join(" ", confStrs));
         }
 
         private void genConfig(boolean force) throws IOException {
