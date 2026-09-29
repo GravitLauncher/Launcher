@@ -144,6 +144,10 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
 
         config.verify();
 
+        if(config.experimentalDevOnlyFeatures) {
+            logger.warn("Experimental features enabled. Be careful");
+        }
+
         // build hooks, anti-brutforce and other
         mirrorManager = new MirrorManager();
         reconfigurableManager = new ReconfigurableManager();
