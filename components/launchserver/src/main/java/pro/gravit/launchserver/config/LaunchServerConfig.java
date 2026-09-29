@@ -42,6 +42,7 @@ public final class LaunchServerConfig {
     public NettyConfig netty;
     public LauncherConf launcher;
     public JarSignerConf sign;
+    public boolean experimentalDevOnlyFeatures;
     private transient LaunchServer server = null;
     private transient AuthProviderPair authDefault;
 
