@@ -173,7 +173,7 @@ public class LaunchServerStarter {
         UpdatesProvider.registerProviders();
     }
 
-    private static void printExperimentalBranch() {
+    public static void printExperimentalBranch() {
         try(Reader reader = IOHelper.newReader(IOHelper.getResourceURL("experimental-build.json"))) {
             ExperimentalBuild info = Launcher.gsonManager.configGson.fromJson(reader, ExperimentalBuild.class);
             if(info.features == null || info.features.isEmpty()) {
@@ -323,7 +323,7 @@ public class LaunchServerStarter {
         }
     }
 
-    private static class BasicLaunchServerConfigManager implements LaunchServer.LaunchServerConfigManager {
+    public static class BasicLaunchServerConfigManager implements LaunchServer.LaunchServerConfigManager {
         private final Path configFile;
         private final Path modulesConfigFile;
         private final Gson modulesGson = new Gson();
