@@ -98,6 +98,10 @@ public interface LauncherBackendAPI {
 
     // Callbacks
 
+    enum NotificationType {
+        INFO, WARN, ERROR, OTHER
+    }
+
     class MainCallback {
         // On any request
         public void onChangeStatus(String status) {
@@ -114,6 +118,10 @@ public interface LauncherBackendAPI {
 
         public void onNotify(String header, String description) {
 
+        }
+
+        public void onNotify(String header, String description, NotificationType type) {
+            onNotify(header, description);
         }
 
         public void onExit() {
