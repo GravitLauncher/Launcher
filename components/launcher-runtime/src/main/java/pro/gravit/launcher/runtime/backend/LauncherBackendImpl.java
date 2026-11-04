@@ -7,9 +7,13 @@ import pro.gravit.launcher.base.ClientPermissions;
 import pro.gravit.launcher.base.Launcher;
 import pro.gravit.launcher.base.config.JsonConfigurable;
 import pro.gravit.launcher.base.config.SimpleConfigurable;
+import pro.gravit.launcher.base.events.NotificationEvent;
 import pro.gravit.launcher.base.profiles.ClientProfile;
+import pro.gravit.launcher.base.request.Request;
 import pro.gravit.launcher.base.request.RequestException;
 import pro.gravit.launcher.base.request.RequestOfflineModeAPIImpl;
+import pro.gravit.launcher.base.request.RequestService;
+import pro.gravit.launcher.base.request.WebSocketEvent;
 import pro.gravit.launcher.base.vfs.Vfs;
 import pro.gravit.launcher.base.vfs.directory.FileVfsDirectory;
 import pro.gravit.launcher.base.vfs.file.CachedVfsFile;
@@ -119,6 +123,35 @@ public class LauncherBackendImpl implements LauncherBackendAPI, TextureUploadExt
         ecKeyHolder = new ECKeyHolder();
         ecKeyHolder.readKeys();
         DirBridge.dirUpdates = DirBridge.defaultUpdatesDir;
+        RequestService requestService = Request.getRequestService();
+        if (requestService != null) {
+            requestService.registerEventHandler(new NotificationEventHandler());
+        }
+    }
+
+    private class NotificationEventHandler implements RequestService.EventHandler {
+        @Override
+        public <T extends WebSocketEvent> boolean eventHandle(T event) {
+            if (event instanceof NotificationEvent notification) {
+                MainCallback mainCallback = callback;
+                if (mainCallback != null) {
+                    mainCallback.onNotify(notification.head, notification.message, toNotificationType(notification.icon));
+                }
+            }
+            return false;
+        }
+    }
+
+    private static NotificationType toNotificationType(NotificationEvent.NotificationType icon) {
+        if (icon == null) {
+            return NotificationType.INFO;
+        }
+        return switch (icon) {
+            case INFO -> NotificationType.INFO;
+            case WARN -> NotificationType.WARN;
+            case ERROR -> NotificationType.ERROR;
+            case OTHER -> NotificationType.OTHER;
+        };
     }
 
     @Override
