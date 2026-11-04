@@ -222,7 +222,7 @@ public class LauncherBackendImpl implements LauncherBackendAPI, TextureUploadExt
         if(authToken.getExpire() <= 0) {
             backendSettings.auth.expireIn = 0;
         } else {
-            backendSettings.auth.expireIn = LocalDateTime.now().plusSeconds(authToken.getExpire()).toEpochSecond(ZoneOffset.UTC);
+            backendSettings.auth.expireIn = LocalDateTime.now(ZoneOffset.UTC).plusSeconds(authToken.getExpire()).toEpochSecond(ZoneOffset.UTC);
         }
         if(authMethod != null) {
             backendSettings.auths.put(authMethod.getName(), backendSettings.auth);
