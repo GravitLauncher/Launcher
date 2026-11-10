@@ -57,6 +57,8 @@ public class LauncherBackendImpl implements LauncherBackendAPI, TextureUploadExt
 
     private static final Logger logger =
             LoggerFactory.getLogger(LauncherBackendImpl.class);
+    /** How long before its expiry the access token is refreshed for a launch, to outlast the client's start. */
+    private static final long LAUNCH_TOKEN_MARGIN_SECONDS = 60;
 
     private final ClientDownloadImpl clientDownloadImpl = new ClientDownloadImpl(this);
     private volatile MainCallback callback;
@@ -340,7 +342,33 @@ public class LauncherBackendImpl implements LauncherBackendAPI, TextureUploadExt
 
     @Override
     public CompletableFuture<ReadyProfile> downloadProfile(ProfileFeatureAPI.ClientProfile profile, ClientProfileSettings settings, DownloadCallback callback) {
-        return clientDownloadImpl.downloadProfile((ClientProfile) profile, (ProfileSettingsImpl) settings, callback);
+        return clientDownloadImpl.downloadProfile((ClientProfile) profile, (ProfileSettingsImpl) settings, callback)
+                .thenCompose((readyProfile) -> refreshTokenBeforeLaunch().thenApply((v) -> readyProfile));
+    }
+
+    /**
+     * {@link ReadyProfileImpl#run} hands the stored access token to the client, and the client restores its
+     * session with it as is. {@link #tryAuthorize()} refreshes an expired token only when the launcher starts,
+     * so a launcher left open longer than the token lives used to start the client with an expired token, and
+     * the client stopped with auth.expiretoken. Refresh it here, once the files are in place, right before run.
+     */
+    private CompletableFuture<Void> refreshTokenBeforeLaunch() {
+        var auth = backendSettings.auth;
+        if(auth == null || auth.expireIn <= 0 || auth.refreshToken == null || LauncherAPIHolder.auth() instanceof RequestOfflineModeAPIImpl) {
+            return CompletableFuture.completedFuture(null);
+        }
+        var refreshFrom = LocalDateTime.ofEpochSecond(auth.expireIn, 0, ZoneOffset.UTC).minusSeconds(LAUNCH_TOKEN_MARGIN_SECONDS);
+        if(refreshFrom.isAfter(LocalDateTime.now(ZoneOffset.UTC))) {
+            return CompletableFuture.completedFuture(null);
+        }
+        logger.debug("downloadProfile() - access token expired or about to, refresh it before launch");
+        return LauncherAPIHolder.auth().refreshToken(auth.refreshToken).thenCompose((response) -> {
+            setAuthToken(response);
+            return LauncherAPIHolder.auth().restore(backendSettings.auth.accessToken, true);
+        }).thenAccept((user) -> {
+            this.selfUser = user;
+            permissions = user.getPermissions();
+        });
     }
 
     @Override
