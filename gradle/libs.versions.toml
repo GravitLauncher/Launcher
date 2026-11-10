@@ -17,7 +17,7 @@ proguard = "7.9.1"
 hikari = "7.1.0"
 postgresql = "42.7.13"
 mysql = "26.7.0"
-mariadb = "3.5.10"
+mariadb = "3.5.11"
 h2 = "2.4.240"
 totp = "1.7.1"
 # Modules libraries
