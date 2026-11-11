@@ -14,7 +14,7 @@ repositories {
     }
 }
 
-val optional by configurations.creating {
+val optional = configurations.create("optional") {
     isCanBeConsumed = false; isCanBeResolved = true;
 }
 
@@ -40,7 +40,7 @@ dependencies {
     optional(libs.oshi.common)
 }
 
-val copyLauncherLibs by tasks.registering(Copy::class) {
+val copyLauncherLibs = tasks.register("copyLauncherLibs", Copy::class) {
     from(optional.resolve())
     into(layout.buildDirectory.dir("launcher-libraries"))
 }

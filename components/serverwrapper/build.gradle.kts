@@ -21,7 +21,7 @@ tasks.jar {
     }
 }
 
-val fatJar by tasks.registering(Jar::class) {
+val fatJar = tasks.register("fatJar", Jar::class) {
     dependsOn(":components:launcher-utils:jar")
     dependsOn(":components:launcher-core:jar")
     dependsOn(":components:launcher-api:jar")
@@ -34,7 +34,7 @@ val fatJar by tasks.registering(Jar::class) {
     exclude("module-info.class", "META-INF/MANIFEST.SF")
 }
 
-val inlineJar by tasks.registering(Jar::class) {
+val inlineJar = tasks.register("inlineJar", Jar::class) {
     dependsOn(":components:launcher-utils:jar")
     dependsOn(":components:launcher-core:jar")
     dependsOn(":components:launcher-api:jar")
