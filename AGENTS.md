@@ -6,6 +6,7 @@
 - Follow existing project abstractions and module boundaries. Prefer extending the established design over duplicating behavior or bypassing abstractions.
 - Consider performance in hot paths and avoid unnecessary work, allocations, and I/O.
 - Apply security checks at trust boundaries: validate inputs, enforce authorization, and handle secrets and errors safely.
+- Do not create AI-generated documentation in the project directory.
 - If a change requires breaking compatibility, state that explicitly in its description and explain the impact. A breaking change can be preferable to a messy hack or abstraction bypass; use common sense and balance the tradeoffs.
 
 ## Build and verification
