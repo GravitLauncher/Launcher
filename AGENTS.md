@@ -116,6 +116,7 @@ Use this setup only when the user requests manual testing. Rebuild the distribut
 - Check that LaunchServer is not already running. Do not start it twice.
 - Do not run `--prepare` while a daemon is running. Send commands to the daemon instead.
 - If a file fails to download, or a download is very slow or times out, tell the user. The cause may be an internet connection, proxy, or blocked download site.
+- Submodules must be downloaded before run any gradle commands
 
 ## Commits and pull requests
 
