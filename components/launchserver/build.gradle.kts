@@ -15,11 +15,11 @@ repositories {
     }
 }
 
-val launcherInside by configurations.creating {
+val launcherInside = configurations.create("launcherInside") {
     isCanBeConsumed = false; isCanBeResolved = true
 }
 
-val proguardLibrary by configurations.creating {
+val proguardLibrary = configurations.create("proguardLibrary") {
     isCanBeConsumed = false; isCanBeResolved = true
 }
 
@@ -76,7 +76,7 @@ tasks.jar {
     }
 }
 
-val copyProguardLibs by tasks.registering(Copy::class) {
+val copyProguardLibs = tasks.register("copyProguardLibs", Copy::class) {
     from(proguardLibrary.resolve())
     into(layout.buildDirectory.dir("proguard-libraries"))
 }
