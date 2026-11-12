@@ -2,6 +2,7 @@ package pro.gravit.launchserver.auth.profiles;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.google.gson.reflect.TypeToken;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pro.gravit.launcher.base.Downloader;
@@ -306,6 +307,51 @@ public class RemoteProfilesProvider extends ProfilesProvider {
         }
     }
 
+    private List<HttpFileUploadResponse> uploadFiles(List<byte[]> files) {
+        List<HttpFileUploadResponse> responses = new ArrayList<>(files.size());
+        for (int offset = 0; offset < files.size(); offset += 10) {
+            List<byte[]> batch = files.subList(offset, Math.min(offset + 10, files.size()));
+            if (batch.size() == 1) {
+                responses.add(uploadFile(batch.get(0)));
+            } else {
+                responses.addAll(uploadBulkFiles(batch));
+            }
+        }
+        return responses;
+    }
+
+    private List<HttpFileUploadResponse> uploadBulkFiles(List<byte[]> files) {
+        try {
+            String boundary = SecurityHelper.toHex(SecurityHelper.randomBytes(16));
+            ByteArrayOutputStream multipart = new ByteArrayOutputStream();
+            for (byte[] bytes : files) {
+                multipart.write(("--" + boundary + "\r\nContent-Disposition: form-data; name=\"files\"; filename=\"file\"\r\nContent-Type: application/octet-stream\r\n\r\n").getBytes(java.nio.charset.StandardCharsets.UTF_8));
+                multipart.write(bytes);
+                multipart.write("\r\n".getBytes(java.nio.charset.StandardCharsets.UTF_8));
+            }
+            multipart.write(("--" + boundary + "--\r\n").getBytes(java.nio.charset.StandardCharsets.UTF_8));
+            return HttpHelper.sendAsync(client, HttpRequest.newBuilder()
+                            .POST(HttpRequest.BodyPublishers.ofByteArray(multipart.toByteArray()))
+                            .uri(URI.create(baseUrl.concat("/cas/upload/bulk")))
+                            .header("Authorization", "Bearer " + accessToken)
+                            .header("Content-Type", "multipart/form-data; boundary=\"" + boundary + "\"")
+                            .build(), new RequestFeatureHttpAPIImpl.HttpErrorHandler<>(JsonArray.class))
+                    .thenApply(HttpHelper.HttpOptional::getOrThrow)
+                    .thenApply(json -> Launcher.gsonManager.gson.fromJson(json,
+                            new TypeToken<List<HttpFileUploadResponse>>() {}.getType()))
+                    .thenApply(result -> {
+                        if (result.size() != files.size()) {
+                            throw new IllegalStateException("File upload returned " + result.size()
+                                    + " responses for " + files.size() + " files");
+                        }
+                        result.forEach(response -> uploadedBlobs.put(response.storageKey(), response));
+                        return result;
+                    }).get();
+        } catch (InterruptedException | ExecutionException | IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public void execute(HashedDir dir, List<ProfileAction> actions) throws IOException {
         for(var action : actions) {
             execute(dir, action);
@@ -329,23 +375,30 @@ public class RemoteProfilesProvider extends ProfilesProvider {
                 } else {
                     HashedDir srcDir = new HashedDir(Path.of(action.source()), null, true, true);
                     HashedDir.Diff diff = srcDir.diff(dir, null);
+                    List<PendingUpload> pending = new ArrayList<>();
                     diff.mismatch.walk("/", (HashedDir.WalkCallback) (path, name, entry) -> {
                         if(entry.getType() == HashedEntry.Type.FILE) {
-                            var r = dir.createParentDirectories(Path.of(action.target()).resolve(path).toString().replace('\\', '/'));
                             try(var output = new ByteArrayOutputStream()) {
                                 try(var input = IOHelper.newInput(Path.of(action.source()).resolve(path))) {
                                     input.transferTo(output);
                                 }
-                                byte[] bytes = output.toByteArray();
-                                var res = uploadFile(bytes);
-                                HashedFile file = new HashedFile(bytes, res.url() == null ? res.storageKey() : res.url());
-                                r.parent.put(name, file);
+                                pending.add(new PendingUpload(path, name, output.toByteArray()));
                             } catch (IOException e) {
                                 throw new RuntimeException(e);
                             }
                         }
                         return HashedDir.WalkAction.CONTINUE;
                     });
+                    List<HttpFileUploadResponse> responses = uploadFiles(pending.stream().map(PendingUpload::bytes).toList());
+                    if (responses.size() != pending.size()) {
+                        throw new IOException("File upload returned an unexpected number of responses");
+                    }
+                    for (int i = 0; i < pending.size(); i++) {
+                        PendingUpload upload = pending.get(i);
+                        var r = dir.createParentDirectories(Path.of(action.target()).resolve(upload.path()).toString().replace('\\', '/'));
+                        var res = responses.get(i);
+                        r.parent.put(upload.name(), new HashedFile(upload.bytes(), res.url() == null ? res.storageKey() : res.url()));
+                    }
                 }
             }
             case COPY -> {
@@ -359,6 +412,8 @@ public class RemoteProfilesProvider extends ProfilesProvider {
             }
         }
     }
+
+    private record PendingUpload(String path, String name, byte[] bytes) {}
 
     public record HttpFileUploadResponse(String hash, String algorithm, long sizeBytes, String storageKey, String url) {
 
