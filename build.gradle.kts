@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "com.gravitlauncher.launcher"
-version = "5.7.13"
+version = "5.8.0-SNAPSHOT"
 
 
 val myVersion = version
