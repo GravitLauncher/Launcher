@@ -335,9 +335,9 @@ public class RemoteProfilesProvider extends ProfilesProvider {
                             .uri(URI.create(baseUrl.concat("/cas/upload/bulk")))
                             .header("Authorization", "Bearer " + accessToken)
                             .header("Content-Type", "multipart/form-data; boundary=\"" + boundary + "\"")
-                            .build(), new RequestFeatureHttpAPIImpl.HttpErrorHandler<>(JsonArray.class))
-                    .thenApply(HttpHelper.HttpOptional::getOrThrow)
-                    .thenApply(json -> Launcher.gsonManager.gson.fromJson(json,
+                            .build(), new RequestFeatureHttpAPIImpl.HttpErrorHandler<JsonArray>(JsonArray.class))
+                    .thenApply(optional -> optional.getOrThrow())
+                    .thenApply(json -> Launcher.gsonManager.gson.<List<HttpFileUploadResponse>>fromJson(json,
                             new TypeToken<List<HttpFileUploadResponse>>() {}.getType()))
                     .thenApply(result -> {
                         if (result.size() != files.size()) {
