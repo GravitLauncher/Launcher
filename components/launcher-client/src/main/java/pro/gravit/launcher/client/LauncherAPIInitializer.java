@@ -31,7 +31,6 @@ public class LauncherAPIInitializer {
 
     public enum ApiMode {
         AUTO,
-        WEBSOCKET,
         HTTP,
         MICROSOFT,
         OFFLINE
@@ -54,14 +53,16 @@ public class LauncherAPIInitializer {
     public static void initialize(LauncherModulesManager modulesManager, String address, List<Flag> flags, Options options) throws Exception {
         ApiMode mode = resolveMode(address, flags, options);
         if(flags.contains(Flag.OFFLINE_MODE)) {
+            logger.info("Init offline mode (flag)");
             initOfflineMode();
         } else if(mode == ApiMode.OFFLINE) {
+            logger.info("Init offline mode (apiMode)");
             initOfflineMode();
         } else if(mode == ApiMode.MICROSOFT) {
+            logger.info("Init microsoft mode");
             initMicrosoftMode(address, flags, options);
-        } else if(mode == ApiMode.HTTP) {
-            initHttpMode(address, options);
-        } else if(isHttpAddress(address)) {
+        } else {
+            logger.info("Init http mode");
             initHttpMode(address, options);
         }
     }
@@ -85,7 +86,7 @@ public class LauncherAPIInitializer {
         if(options.mode() != ApiMode.AUTO) {
             return options.mode();
         }
-        return isHttpAddress(address) ? ApiMode.HTTP : ApiMode.WEBSOCKET;
+        return ApiMode.HTTP;
     }
 
     private static void initHttpMode(String address, Options options) {
