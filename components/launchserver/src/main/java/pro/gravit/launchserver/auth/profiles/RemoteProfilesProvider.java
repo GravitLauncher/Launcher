@@ -15,7 +15,6 @@ import pro.gravit.launcher.core.hasher.HashedDir;
 import pro.gravit.launcher.core.hasher.HashedEntry;
 import pro.gravit.launcher.core.hasher.HashedFile;
 import pro.gravit.launchserver.command.Command;
-import pro.gravit.launchserver.socket.Client;
 import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.SecurityHelper;
 
@@ -74,7 +73,7 @@ public class RemoteProfilesProvider extends ProfilesProvider {
     }
 
     @Override
-    public Set<UncompletedProfile> getProfiles(Client socketClient) {
+    public Set<UncompletedProfile> getProfiles() {
         try {
             return HttpHelper.sendAsync(client, HttpRequest.newBuilder()
                             .GET()

@@ -6,19 +6,12 @@ import org.apache.logging.log4j.Logger;
 import pro.gravit.launcher.base.Launcher;
 import pro.gravit.launcher.base.LauncherConfig;
 import pro.gravit.launchserver.LaunchServer;
-import pro.gravit.launchserver.auth.AuthProviderPair;
-import pro.gravit.launchserver.auth.core.RejectAuthCoreProvider;
 import pro.gravit.launchserver.auth.profiles.LocalProfilesProvider;
 import pro.gravit.launchserver.auth.profiles.ProfilesProvider;
-import pro.gravit.launchserver.auth.protect.ProtectHandler;
-import pro.gravit.launchserver.auth.protect.StdProtectHandler;
-import pro.gravit.launchserver.auth.texture.RequestTextureProvider;
 import pro.gravit.launchserver.auth.updates.LocalUpdatesProvider;
 import pro.gravit.launchserver.auth.updates.UpdatesProvider;
-import pro.gravit.launchserver.components.AuthLimiterComponent;
 import pro.gravit.launchserver.components.Component;
 import pro.gravit.launchserver.components.ProGuardComponent;
-import pro.gravit.launchserver.socket.NettyObjectFactory;
 
 import java.util.*;
 
@@ -33,9 +26,7 @@ public final class LaunchServerConfig {
     public String projectName;
     public String[] mirrors;
     public LauncherConfig.LauncherEnvironment env;
-    public Map<String, AuthProviderPair> auth;
     // Handlers & Providers
-    public ProtectHandler protectHandler;
     public Map<String, Component> components;
     public ProfilesProvider profilesProvider = new LocalProfilesProvider();
     public UpdatesProvider updatesProvider = new LocalUpdatesProvider();
@@ -44,25 +35,16 @@ public final class LaunchServerConfig {
     public JarSignerConf sign;
     public boolean experimentalDevOnlyFeatures;
     private transient LaunchServer server = null;
-    private transient AuthProviderPair authDefault;
 
     public static LaunchServerConfig getDefault(LaunchServer.LaunchServerEnv env) {
         LaunchServerConfig newConfig = new LaunchServerConfig();
         newConfig.mirrors = new String[]{"https://mirror.gravitlauncher.com/5.7.x/"};
         newConfig.env = LauncherConfig.LauncherEnvironment.STD;
-        newConfig.auth = new HashMap<>();
-        AuthProviderPair a = new AuthProviderPair(new RejectAuthCoreProvider(),
-                new RequestTextureProvider("http://example.com/skins/%username%.png", "http://example.com/cloaks/%username%.png")
-        );
-        a.displayName = "Default";
-        newConfig.auth.put("std", a);
-        newConfig.protectHandler = new StdProtectHandler();
 
         newConfig.netty = new NettyConfig();
         newConfig.netty.fileServerEnabled = true;
         newConfig.netty.binds = new NettyBindAddress[]{new NettyBindAddress("0.0.0.0", 9274)};
         newConfig.netty.performance = new NettyPerformanceConfig();
-        newConfig.netty.performance.mode = NettyObjectFactory.NettyFactoryMode.AUTO;
         newConfig.netty.performance.bossThread = 2;
         newConfig.netty.performance.workerThread = 8;
         newConfig.netty.performance.schedulerThread = 2;
@@ -76,10 +58,6 @@ public final class LaunchServerConfig {
         newConfig.sign = new JarSignerConf();
 
         newConfig.components = new HashMap<>();
-        AuthLimiterComponent authLimiterComponent = new AuthLimiterComponent();
-        authLimiterComponent.rateLimit = 3;
-        authLimiterComponent.rateLimitMillis = SECONDS.toMillis(8);
-        newConfig.components.put("authLimiter", authLimiterComponent);
         ProGuardComponent proGuardComponent = new ProGuardComponent();
         newConfig.components.put("proguard", proGuardComponent);
         newConfig.profilesProvider = new LocalProfilesProvider();
@@ -91,21 +69,6 @@ public final class LaunchServerConfig {
         this.server = server;
     }
 
-    public AuthProviderPair getAuthProviderPair(String name) {
-        return auth.get(name);
-    }
-
-    public AuthProviderPair getAuthProviderPair() {
-        if (authDefault != null) return authDefault;
-        for (AuthProviderPair pair : auth.values()) {
-            if (pair.isDefault) {
-                authDefault = pair;
-                return pair;
-            }
-        }
-        throw new IllegalStateException("Default AuthProviderPair not found");
-    }
-
     public void setProjectName(String projectName) {
         this.projectName = projectName;
     }
@@ -115,23 +78,6 @@ public final class LaunchServerConfig {
     }
 
     public void verify() {
-        if (auth == null || auth.isEmpty()) {
-            throw new NullPointerException("AuthProviderPair`s count should be at least one");
-        }
-
-        boolean isOneDefault = false;
-        for (AuthProviderPair pair : auth.values()) {
-            if (pair.isDefault) {
-                isOneDefault = true;
-                break;
-            }
-        }
-        if (protectHandler == null) {
-            throw new NullPointerException("ProtectHandler must not be null");
-        }
-        if (!isOneDefault) {
-            throw new IllegalStateException("No auth pairs declared by default.");
-        }
         if (env == null) {
             throw new NullPointerException("Env must not be null");
         }
@@ -154,13 +100,6 @@ public final class LaunchServerConfig {
 
     public void init(LaunchServer.ReloadType type) {
         Launcher.applyLauncherEnv(env);
-        for (Map.Entry<String, AuthProviderPair> provider : auth.entrySet()) {
-            provider.getValue().init(server, provider.getKey());
-        }
-        if (protectHandler != null) {
-            server.registerObject("protectHandler", protectHandler);
-            protectHandler.init(server);
-        }
         if(profilesProvider != null) {
             server.registerObject("profileProvider", profilesProvider);
             profilesProvider.init(server);
@@ -172,24 +111,11 @@ public final class LaunchServerConfig {
         if (components != null) {
             components.forEach((k, v) -> server.registerObject("component.".concat(k), v));
         }
-        if (!type.equals(LaunchServer.ReloadType.NO_AUTH)) {
-            for (AuthProviderPair pair : auth.values()) {
-                server.registerObject("auth.".concat(pair.name).concat(".core"), pair.core);
-                server.registerObject("auth.".concat(pair.name).concat(".texture"), pair.textureProvider);
-            }
-        }
         Arrays.stream(mirrors).forEach(server.mirrorManager::addMirror);
     }
 
     public void close(LaunchServer.ReloadType type) {
         try {
-            if (!type.equals(LaunchServer.ReloadType.NO_AUTH)) {
-                for (AuthProviderPair pair : auth.values()) {
-                    server.unregisterObject("auth.".concat(pair.name).concat(".core"), pair.core);
-                    server.unregisterObject("auth.".concat(pair.name).concat(".texture"), pair.textureProvider);
-                    pair.close();
-                }
-            }
             if (type.equals(LaunchServer.ReloadType.FULL)) {
                 components.forEach((k, component) -> {
                     server.unregisterObject("component.".concat(k), component);
@@ -204,10 +130,6 @@ public final class LaunchServerConfig {
             }
         } catch (Exception e) {
             logger.error(e);
-        }
-        if (protectHandler != null) {
-            server.unregisterObject("protectHandler", protectHandler);
-            protectHandler.close();
         }
         if(profilesProvider != null) {
             server.unregisterObject("profilesProvider", profilesProvider);
@@ -289,7 +211,6 @@ public final class LaunchServerConfig {
     }
 
     public static class NettyPerformanceConfig {
-        public NettyObjectFactory.NettyFactoryMode mode = NettyObjectFactory.NettyFactoryMode.AUTO;
         public int bossThread;
         public int workerThread;
         public int schedulerThread;

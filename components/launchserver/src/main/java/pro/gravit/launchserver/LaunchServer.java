@@ -5,8 +5,6 @@ import org.apache.logging.log4j.Logger;
 import pro.gravit.launcher.base.modules.events.ClosePhase;
 import pro.gravit.launcher.base.profiles.ClientProfile;
 import pro.gravit.launcher.core.api.features.CoreFeatureAPI;
-import pro.gravit.launchserver.auth.AuthProviderPair;
-import pro.gravit.launchserver.auth.core.RejectAuthCoreProvider;
 import pro.gravit.launchserver.auth.updates.UpdatesProvider;
 import pro.gravit.launchserver.binary.JARLauncherBinary;
 import pro.gravit.launchserver.binary.LauncherBinary;
@@ -16,13 +14,9 @@ import pro.gravit.launchserver.config.LauncherModulesConfig;
 import pro.gravit.launchserver.helper.SignHelper;
 import pro.gravit.launchserver.launchermodules.LauncherModuleLoader;
 import pro.gravit.launchserver.manangers.*;
-import pro.gravit.launchserver.manangers.hook.AuthHookManager;
 import pro.gravit.launchserver.modules.events.*;
 import pro.gravit.launchserver.modules.impl.LaunchServerModulesManager;
-import pro.gravit.launchserver.socket.Client;
 import pro.gravit.launchserver.socket.SocketCommandServer;
-import pro.gravit.launchserver.socket.handlers.NettyServerSocketHandler;
-import pro.gravit.launchserver.socket.response.auth.RestoreResponse;
 import pro.gravit.utils.command.Command;
 import pro.gravit.utils.command.CommandHandler;
 import pro.gravit.utils.command.SubCommand;
@@ -88,11 +82,9 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
      */
     public final Map<CoreFeatureAPI.UpdateVariant, LauncherBinary> launcherBinaries;
     // Server config
-    public final AuthHookManager authHookManager;
     public final LaunchServerModulesManager modulesManager;
     // Launcher binary
     public final MirrorManager mirrorManager;
-    public final AuthManager authManager;
     public final ReconfigurableManager reconfigurableManager;
     public final ConfigManager configManager;
     public final FeaturesManager featuresManager;
@@ -101,7 +93,6 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
     public final CertificateManager certificateManager;
     // Server
     public final CommandHandler commandHandler;
-    public final NettyServerSocketHandler nettyServerSocketHandler;
     public final SocketCommandServer socketCommandServer;
     public final ScheduledExecutorService service;
     public final AtomicBoolean started = new AtomicBoolean(false);
@@ -151,11 +142,8 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
         // build hooks, anti-brutforce and other
         mirrorManager = new MirrorManager();
         reconfigurableManager = new ReconfigurableManager();
-        authHookManager = new AuthHookManager();
         configManager = new ConfigManager();
         featuresManager = new FeaturesManager(this);
-        authManager = new AuthManager(this);
-        RestoreResponse.registerProviders(this);
 
         config.init(ReloadType.FULL);
         registerObject("launchServer", this);
@@ -179,7 +167,6 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
             logger.debug("Init components successful");
         }
         launcherModuleLoader.init();
-        nettyServerSocketHandler = new NettyServerSocketHandler(this);
         socketCommandServer = new SocketCommandServer(commandHandler, controlFile);
         if(config.sign.checkCertificateExpired) {
             checkCertificateExpired();
@@ -191,16 +178,9 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
 
     public void reload(ReloadType type) throws Exception {
         config.close(type);
-        Map<String, AuthProviderPair> pairs = null;
-        if (type.equals(ReloadType.NO_AUTH)) {
-            pairs = config.auth;
-        }
         logger.info("Reading LaunchServer config file");
         config = launchServerConfigManager.readConfig();
         config.setLaunchServer(this);
-        if (type.equals(ReloadType.NO_AUTH)) {
-            config.auth = pairs;
-        }
         config.verify();
         config.init(type);
         if (type.equals(ReloadType.FULL) && config.components != null) {
@@ -211,21 +191,6 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
                 v.init(this);
             });
             logger.debug("Init components successful");
-        }
-        if(!type.equals(ReloadType.NO_AUTH)) {
-            nettyServerSocketHandler.nettyServer.service.forEachActiveChannels((channel, wsHandler) -> {
-                Client client = wsHandler.getClient();
-                var lock = client.writeLock();
-                lock.lock();
-                try {
-                    if (client.auth_id == null) {
-                        return;
-                    }
-                    client.auth = config.getAuthProviderPair(client.auth_id);
-                } finally {
-                    lock.unlock();
-                }
-            });
         }
     }
 
@@ -255,22 +220,6 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
             }
         };
         commands.put("save", save);
-        LaunchServer instance = this;
-        SubCommand resetauth = new SubCommand("authId", "reset auth by id") {
-            @Override
-            public void invoke(String... args) throws Exception {
-                verifyArgs(args, 1);
-                AuthProviderPair pair = config.getAuthProviderPair(args[0]);
-                if (pair == null) {
-                    logger.error("Pair not found");
-                    return;
-                }
-                pair.core.close();
-                pair.core = new RejectAuthCoreProvider();
-                pair.core.init(instance, pair);
-            }
-        };
-        commands.put("resetauth", resetauth);
         return commands;
     }
 
@@ -347,8 +296,6 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
 
     public void close() throws Exception {
         service.shutdownNow();
-        logger.info("Close server socket");
-        nettyServerSocketHandler.close();
         // Close handlers & providers
         config.close(ReloadType.FULL);
         modulesManager.invokeEvent(new ClosePhase());
@@ -359,11 +306,6 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
     @Deprecated
     public void setProfiles(Set<ClientProfile> profilesList) {
         throw new UnsupportedOperationException();
-    }
-
-    public void rebindNettyServerSocket() {
-        nettyServerSocketHandler.close();
-        CommonHelper.newThread("Netty Server Socket Thread", false, nettyServerSocketHandler).start();
     }
 
     @Override
@@ -383,8 +325,6 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
             CommonHelper.newThread("Command Thread", true, commandHandler).start();
             CommonHelper.newThread("Socket Command Thread", true, socketCommandServer).start();
         }
-        if (config.netty != null)
-            rebindNettyServerSocket();
         try {
             //modulesManager.fullInitializedLaunchServer(this);
             modulesManager.invokeEvent(new LaunchServerFullInitEvent(this));
