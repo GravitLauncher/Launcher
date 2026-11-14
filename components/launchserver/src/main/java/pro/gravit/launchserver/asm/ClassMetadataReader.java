@@ -6,11 +6,16 @@ import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.Opcodes;
 import pro.gravit.utils.helper.IOHelper;
+import pro.gravit.utils.helper.JavaHelper;
 
 import java.io.Closeable;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.module.ModuleFinder;
+import java.lang.module.ModuleReader;
+import java.lang.module.ModuleReference;
+import java.nio.file.Path;
 import java.util.*;
 import java.util.jar.JarFile;
 
@@ -21,30 +26,45 @@ import java.util.jar.JarFile;
 public class ClassMetadataReader implements Closeable {
     private final Logger logger = LogManager.getLogger(ClassMetadataReader.class);
     private final List<JarFile> cp;
-    private final Map<String, Module> moduleClassFinder;
+    private final Map<String, ModuleReference> moduleClassFinder = new HashMap<>();
+    private final Map<ModuleReference, ModuleReader> moduleReaders = new HashMap<>();
 
     public ClassMetadataReader(List<JarFile> cp) {
+        this(cp, IOHelper.JVM_DIR);
+    }
+
+    ClassMetadataReader(List<JarFile> cp, Path javaHome) {
         this.cp = cp;
-        //var moduleLayer = ClassMetadataReader.class.getModule().getLayer() == null ? ModuleLayer.boot() : ClassMetadataReader.class.getModule().getLayer();
-        var moduleLayer = ModuleLayer.boot();
-        moduleClassFinder = collectModulePackages(moduleLayer);
+        ModuleFinder.ofSystem().findAll().forEach(this::collectModulePackages);
+        // JavaFX can be shipped as separate JARs in the JDK, outside the runtime image.
+        List<Path> modulePaths = new ArrayList<>();
+        for (String moduleName : JavaHelper.javaFxModules) {
+            Path modulePath = JavaHelper.tryFindModule(javaHome, moduleName);
+            if (modulePath != null) {
+                modulePaths.add(modulePath);
+            }
+        }
+        ModuleFinder.of(modulePaths.toArray(Path[]::new)).findAll().forEach(this::collectModulePackages);
+        var moduleLayer = ClassMetadataReader.class.getModule().getLayer();
+        collectLayerPackages(moduleLayer == null ? ModuleLayer.boot() : moduleLayer, new HashSet<>());
     }
 
     public ClassMetadataReader() {
-        this.cp = new ArrayList<>();
-        //var moduleLayer = ClassMetadataReader.class.getModule().getLayer() == null ? ModuleLayer.boot() : ClassMetadataReader.class.getModule().getLayer();
-        var moduleLayer = ModuleLayer.boot();
-        moduleClassFinder = collectModulePackages(moduleLayer);
+        this(new ArrayList<>());
     }
 
-    private Map<String, Module> collectModulePackages(ModuleLayer layer) {
-        var map = new HashMap<String, Module>();
-        for(var m : layer.modules()) {
-            for(var p : m.getPackages()) {
-                map.put(p, m);
-            }
+    private void collectModulePackages(ModuleReference module) {
+        for (var pkg : module.descriptor().packages()) {
+            moduleClassFinder.put(pkg, module);
         }
-        return map;
+    }
+
+    private void collectLayerPackages(ModuleLayer layer, Set<ModuleLayer> visited) {
+        if (!visited.add(layer)) return;
+        for (var parent : layer.parents()) {
+            collectLayerPackages(parent, visited);
+        }
+        layer.configuration().modules().forEach(module -> collectModulePackages(module.reference()));
     }
 
     public List<JarFile> getCp() {
@@ -77,24 +97,18 @@ public class ClassMetadataReader implements Closeable {
                 return bytes;
             }
         }
-        if(ClassMetadataReader.class.getModule().isNamed()) {
-            String pkg = getClassPackage(className).replace('/', '.');
-            var module = moduleClassFinder.get(pkg);
-            if(module != null) {
-                var cl = module.getClassLoader();
-                if(cl == null) {
-                    cl = ClassLoader.getPlatformClassLoader();
+        String pkg = getClassPackage(className).replace('/', '.');
+        var module = moduleClassFinder.get(pkg);
+        if (module != null) {
+            var reader = moduleReaders.get(module);
+            if (reader == null) {
+                reader = module.open();
+                moduleReaders.put(module, reader);
+            }
+            try (var stream = reader.open(className + ".class").orElse(null)) {
+                if (stream != null) {
+                    return IOHelper.read(stream);
                 }
-                var stream = cl.getResourceAsStream(className+".class");
-                if(stream != null) {
-                    try(stream) {
-                        return IOHelper.read(stream);
-                    }
-                } else {
-                    throw new FileNotFoundException("Class "+className + ".class");
-                }
-            } else {
-                throw new FileNotFoundException("Package "+pkg);
             }
         }
         var stream = ClassLoader.getSystemClassLoader().getResourceAsStream(className+".class");
@@ -148,6 +162,8 @@ public class ClassMetadataReader implements Closeable {
     public void close() {
         cp.forEach(IOHelper::close);
         cp.clear();
+        moduleReaders.values().forEach(IOHelper::close);
+        moduleReaders.clear();
     }
 
     private static class CheckSuperClassVisitor extends ClassVisitor {
