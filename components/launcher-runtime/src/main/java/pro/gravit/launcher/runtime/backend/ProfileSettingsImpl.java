@@ -14,6 +14,7 @@ import pro.gravit.utils.helper.JVMHelper;
 import pro.gravit.utils.helper.JavaHelper;
 
 import java.util.*;
+import java.nio.file.Path;
 import java.util.concurrent.ExecutionException;
 
 public class ProfileSettingsImpl implements LauncherBackendAPI.ClientProfileSettings {
@@ -199,6 +200,29 @@ public class ProfileSettingsImpl implements LauncherBackendAPI.ClientProfileSett
         }
         if(selectedJava != null) {
             saveJavaPath = selectedJava.getPath().toAbsolutePath().toString();
+        }
+    }
+
+    void remapJavaPath(Path oldRoot, Path newRoot) {
+        Path saved;
+        try {
+            saved = saveJavaPath == null ? null : Path.of(saveJavaPath).toAbsolutePath().normalize();
+        } catch (java.nio.file.InvalidPathException e) {
+            return;
+        }
+        JavaHelper.JavaVersion selected = selectedJava;
+        if (selected != null && selected.getPath() != null) {
+            Path selectedPath = selected.getPath().toAbsolutePath().normalize();
+            if (selectedPath.startsWith(oldRoot)) saved = selectedPath;
+        }
+        if (saved != null && saved.startsWith(oldRoot)) {
+            Path remapped = newRoot.resolve(oldRoot.relativize(saved));
+            saveJavaPath = remapped.toString();
+            if (selected != null && selected.getPath() != null
+                    && selected.getPath().toAbsolutePath().normalize().startsWith(oldRoot)) {
+                selectedJava = new JavaHelper.JavaVersion(remapped, selected.version, selected.build,
+                        selected.arch, selected.modules, selected.enabledJavaFX);
+            }
         }
     }
 

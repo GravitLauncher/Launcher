@@ -13,6 +13,7 @@ import java.net.URL;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class ResourceLayerImpl implements LauncherBackendAPI.ResourceLayer {
 
@@ -20,10 +21,13 @@ public class ResourceLayerImpl implements LauncherBackendAPI.ResourceLayer {
             LoggerFactory.getLogger(ResourceLayerImpl.class);
 
     private final Path vfsPath;
+    private final boolean mounted;
+    private final AtomicBoolean closed = new AtomicBoolean();
 
     public ResourceLayerImpl(Path basePath, List<Path> overlayList) {
         if(overlayList == null || overlayList.isEmpty()) {
             vfsPath = basePath;
+            mounted = false;
             return;
         }
         List<VfsDirectory> overlays = new ArrayList<>();
@@ -44,10 +48,17 @@ public class ResourceLayerImpl implements LauncherBackendAPI.ResourceLayer {
             }
         }
         Vfs.get().put(vfsPath, directory);
+        mounted = true;
     }
 
     @Override
     public URL getURL(Path path) throws IOException {
+        if (closed.get()) throw new IOException("Resource layer is closed");
         return Vfs.get().getURL(vfsPath.resolve(path));
+    }
+
+    @Override
+    public void close() {
+        if (closed.compareAndSet(false, true) && mounted) Vfs.get().remove(vfsPath);
     }
 }

@@ -67,6 +67,12 @@ public class Vfs {
         return current;
     }
 
+    public VfsEntry remove(Path path) {
+        VfsEntry parent = resolve(path.getParent());
+        if (parent instanceof SimpleVfsDirectory dir) return dir.remove(path.getFileName().toString());
+        return null;
+    }
+
     public void put(Path path, VfsEntry entry) {
         VfsEntry parent = resolve(path.getParent());
         if(parent == null) {

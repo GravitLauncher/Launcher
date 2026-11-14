@@ -66,47 +66,54 @@ public class ReadyProfileImpl implements LauncherBackendAPI.ReadyProfile {
 
     @Override
     public void run(LauncherBackendAPI.RunCallback callback) {
-        if(isAlive()) {
-            terminate();
+        backend.runtimeStarted();
+        boolean readerStarted = false;
+        try {
+            if(isAlive()) {
+                terminate();
+            }
+            this.callback = callback;
+            if(backend.hasPermission("launcher.debug.skipfilemonitor") && settings.hasFlag(LauncherBackendAPI.ClientProfileSettings.Flag.DEBUG_SKIP_FILE_MONITOR)) {
+                var builder = new ClientProfileBuilder(profile);
+                builder.setUpdate(new ArrayList<>());
+                builder.setUpdateVerify(new ArrayList<>());
+                builder.setUpdateExclusions(new ArrayList<>());
+                profile = builder.createClientProfile();
+            }
+            var java = settings.getSelectedJava();
+            if(java == null) {
+                java = settings.getRecommendedJava();
+            }
+            process = new ClientLauncherProcess(clientDir.path(), assetDir.path(), java, clientDir.path().resolve("resourcepacks"),
+                    profile, new PlayerProfile(backend.getSelfUser()), settings.view, backend.getSelfUser().getAccessToken(),
+                    clientDir.dir(), assetDir.dir(), javaDir == null ? null : javaDir.dir(),
+                    backend.getAuthToken().getAccessToken(), backend.getAuthMethod().getName());
+            process.params.ram = (int) (settings.getReservedMemoryBytes(LauncherBackendAPI.ClientProfileSettings.MemoryClass.TOTAL) >> 20);
+            if (process.params.ram > 0) {
+                process.jvmArgs.add("-Xms" + process.params.ram + 'M');
+                process.jvmArgs.add("-Xmx" + process.params.ram + 'M');
+            }
+            process.params.fullScreen = settings.hasFlag(LauncherBackendAPI.ClientProfileSettings.Flag.FULLSCREEN);
+            process.params.autoEnter = settings.hasFlag(LauncherBackendAPI.ClientProfileSettings.Flag.AUTO_ENTER);
+            if(JVMHelper.OS_TYPE == JVMHelper.OS.LINUX) {
+                process.params.lwjglGlfwWayland = settings.hasFlag(LauncherBackendAPI.ClientProfileSettings.Flag.LINUX_WAYLAND_SUPPORT);
+            }
+            if(process.params.profile.getClassLoaderConfig() == ClientProfile.ClassLoaderConfig.BRIDGE) {
+                writeParamsThread = new Thread(this::authlibServer);
+                writeParamsThread.setDaemon(true);
+                writeParamsThread.start();
+            } else {
+                writeParamsThread = new Thread(this::writeParams);
+                writeParamsThread.setDaemon(true);
+                writeParamsThread.start();
+            }
+            runThread = new Thread(this::readThread);
+            runThread.setDaemon(true);
+            runThread.start();
+            readerStarted = true;
+        } finally {
+            if (!readerStarted) backend.runtimeStopped();
         }
-        this.callback = callback;
-        if(backend.hasPermission("launcher.debug.skipfilemonitor") && settings.hasFlag(LauncherBackendAPI.ClientProfileSettings.Flag.DEBUG_SKIP_FILE_MONITOR)) {
-            var builder = new ClientProfileBuilder(profile);
-            builder.setUpdate(new ArrayList<>());
-            builder.setUpdateVerify(new ArrayList<>());
-            builder.setUpdateExclusions(new ArrayList<>());
-            profile = builder.createClientProfile();
-        }
-        var java = settings.getSelectedJava();
-        if(java == null) {
-            java = settings.getRecommendedJava();
-        }
-        process = new ClientLauncherProcess(clientDir.path(), assetDir.path(), java, clientDir.path().resolve("resourcepacks"),
-                profile, new PlayerProfile(backend.getSelfUser()), settings.view, backend.getSelfUser().getAccessToken(),
-                clientDir.dir(), assetDir.dir(), javaDir == null ? null : javaDir.dir(),
-                backend.getAuthToken().getAccessToken(), backend.getAuthMethod().getName());
-        process.params.ram = (int) (settings.getReservedMemoryBytes(LauncherBackendAPI.ClientProfileSettings.MemoryClass.TOTAL) >> 20);
-        if (process.params.ram > 0) {
-            process.jvmArgs.add("-Xms" + process.params.ram + 'M');
-            process.jvmArgs.add("-Xmx" + process.params.ram + 'M');
-        }
-        process.params.fullScreen = settings.hasFlag(LauncherBackendAPI.ClientProfileSettings.Flag.FULLSCREEN);
-        process.params.autoEnter = settings.hasFlag(LauncherBackendAPI.ClientProfileSettings.Flag.AUTO_ENTER);
-        if(JVMHelper.OS_TYPE == JVMHelper.OS.LINUX) {
-            process.params.lwjglGlfwWayland = settings.hasFlag(LauncherBackendAPI.ClientProfileSettings.Flag.LINUX_WAYLAND_SUPPORT);
-        }
-        if(process.params.profile.getClassLoaderConfig() == ClientProfile.ClassLoaderConfig.BRIDGE) {
-            writeParamsThread = new Thread(this::authlibServer);
-            writeParamsThread.setDaemon(true);
-            writeParamsThread.start();
-        } else {
-            writeParamsThread = new Thread(this::writeParams);
-            writeParamsThread.setDaemon(true);
-            writeParamsThread.start();
-        }
-        runThread = new Thread(this::readThread);
-        runThread.setDaemon(true);
-        runThread.start();
     }
 
     private void readThread() {
@@ -141,6 +148,7 @@ public class ReadyProfileImpl implements LauncherBackendAPI.ReadyProfile {
             }
             logger.debug("Start client {}", profile.getTitle());
             process.start(true);
+            callback.onStarted();
             logger.debug("Start watching client IO {}", profile.getTitle());
             readIOLoop();
             callback.onReadyToExit();
@@ -151,6 +159,7 @@ public class ReadyProfileImpl implements LauncherBackendAPI.ReadyProfile {
             logger.error("", e);
             terminate();
         } finally {
+            backend.runtimeStopped();
             if(onClose != null) {
                 onClose.run();
             }
@@ -171,10 +180,8 @@ public class ReadyProfileImpl implements LauncherBackendAPI.ReadyProfile {
             }
         } catch (EOFException ignored) {
         }
-        if (nativeProcess.isAlive()) {
-            int code = nativeProcess.waitFor();
-            callback.onFinished(code);
-        }
+        int code = nativeProcess.waitFor();
+        callback.onFinished(code);
     }
 
     public void terminate() {

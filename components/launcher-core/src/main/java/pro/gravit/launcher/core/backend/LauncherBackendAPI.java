@@ -31,6 +31,7 @@ public interface LauncherBackendAPI {
     CompletableFuture<ReadyProfile> downloadProfile(ProfileFeatureAPI.ClientProfile profile, ClientProfileSettings settings, DownloadCallback callback);
     // Tools
     CompletableFuture<byte[]> fetchTexture(Texture texture);
+    CompletableFuture<Void> relocateUpdatesDirectory(Path path);
     CompletableFuture<List<Java>> getAvailableJava();
     CompletableFuture<ServerPingInfo> pingServer(ProfileFeatureAPI.ClientProfile profile);
     CompletableFuture<ServerPingInfo> pingProfileServers(ProfileFeatureAPI.ClientProfile profile);
@@ -204,7 +205,11 @@ public interface LauncherBackendAPI {
         List<String> getPlayerNames();
     }
 
-    interface ResourceLayer {
+    interface ResourceLayer extends AutoCloseable {
         URL getURL(Path path) throws IOException;
+
+        @Override
+        default void close() {
+        }
     }
 }

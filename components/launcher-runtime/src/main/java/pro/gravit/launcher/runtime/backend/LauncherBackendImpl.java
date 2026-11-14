@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.event.Level;
 import pro.gravit.launcher.base.ClientPermissions;
+import pro.gravit.launcher.base.Downloader;
 import pro.gravit.launcher.base.Launcher;
 import pro.gravit.launcher.base.profiles.ClientProfile;
 import pro.gravit.launcher.base.request.RequestOfflineModeAPIImpl;
@@ -35,6 +36,7 @@ import pro.gravit.utils.helper.*;
 import java.io.*;
 import java.net.URI;
 import java.nio.file.NoSuchFileException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
@@ -75,9 +77,13 @@ public class LauncherBackendImpl implements LauncherBackendAPI, TextureUploadExt
     private volatile CompletableFuture<List<Java>> availableJavasFuture;
     private volatile CompletableFuture<Void> processHardwareFuture;
     private volatile Path vfsRootPath;
-    private final Map<UUID, CompletableFuture<ServerPingInfo>> pingFutures = new ConcurrentHashMap<>();
+    private record PingKey(UUID profileId, boolean aggregate) {}
+    private final Map<PingKey, CompletableFuture<ServerPingInfo>> pingFutures = new ConcurrentHashMap<>();
     private final ExecutorService pingExecutor = Executors.newVirtualThreadPerTaskExecutor();
     private final AtomicBoolean closed = new AtomicBoolean();
+    private final AtomicBoolean relocatingUpdates = new AtomicBoolean();
+    private final java.util.concurrent.atomic.AtomicInteger activeDownloads = new java.util.concurrent.atomic.AtomicInteger();
+    private final java.util.concurrent.atomic.AtomicInteger activeRuntimes = new java.util.concurrent.atomic.AtomicInteger();
     /** Invalidates asynchronous results when the user changes identity or exits. */
     private final AuthSessionService authSessionService = new AuthSessionService();
 
@@ -356,13 +362,17 @@ public class LauncherBackendImpl implements LauncherBackendAPI, TextureUploadExt
 
     @Override
     public CompletableFuture<ReadyProfile> downloadProfile(ProfileFeatureAPI.ClientProfile profile, ClientProfileSettings settings, DownloadCallback callback) {
+        synchronized (relocatingUpdates) {
+            if (relocatingUpdates.get()) return CompletableFuture.failedFuture(new IllegalStateException("Updates directory relocation is in progress"));
+            activeDownloads.incrementAndGet();
+        }
         long generation = authSessionService.current();
         return clientDownloadImpl.downloadProfile((ClientProfile) profile, (ProfileSettingsImpl) settings, callback)
                 .thenCompose(readyProfile -> refreshTokenBeforeLaunch(generation).thenApply(v -> readyProfile))
                 .thenApply(readyProfile -> {
                     if (!authSessionService.isCurrent(generation)) throw new LauncherBackendException("Authentication session changed");
                     return readyProfile;
-                });
+                }).whenComplete((value, error) -> activeDownloads.decrementAndGet());
     }
 
     /**
@@ -392,7 +402,142 @@ public class LauncherBackendImpl implements LauncherBackendAPI, TextureUploadExt
 
     @Override
     public CompletableFuture<byte[]> fetchTexture(Texture texture) {
-        return CompletableFuture.failedFuture(new UnsupportedOperationException());
+        try {
+            URI uri = URI.create(texture.getUrl());
+            String scheme = uri.getScheme();
+            if (!("https".equalsIgnoreCase(scheme) || "http".equalsIgnoreCase(scheme)) || uri.getHost() == null) {
+                return CompletableFuture.failedFuture(new IllegalArgumentException("Texture URL must use HTTP or HTTPS"));
+            }
+            var request = java.net.http.HttpRequest.newBuilder(uri).timeout(java.time.Duration.ofSeconds(15)).GET().build();
+            var client = Downloader.newHttpClientBuilder().connectTimeout(java.time.Duration.ofSeconds(10)).build();
+            var requestFuture = client.sendAsync(request, java.net.http.HttpResponse.BodyHandlers.ofInputStream());
+            var responseBody = new java.util.concurrent.atomic.AtomicReference<InputStream>();
+            var timedOutOrCancelled = new java.util.concurrent.atomic.AtomicBoolean();
+            var result = requestFuture.thenApplyAsync(response -> {
+                responseBody.set(response.body());
+                if (timedOutOrCancelled.get()) {
+                    try { response.body().close(); } catch (IOException ignored) { }
+                    throw new java.util.concurrent.CompletionException(new java.util.concurrent.CancellationException());
+                }
+                try (var input = response.body()) {
+                    if (response.statusCode() < 200 || response.statusCode() >= 300) throw new IOException("Texture request failed with HTTP " + response.statusCode());
+                    ByteArrayOutputStream output = new ByteArrayOutputStream();
+                    byte[] buffer = new byte[8192];
+                    int total = 0;
+                    for (int n; (n = input.read(buffer)) >= 0;) {
+                        total += n;
+                        if (total > 8 * 1024 * 1024) throw new IOException("Texture exceeds 8 MiB limit");
+                        output.write(buffer, 0, n);
+                    }
+                    return output.toByteArray();
+                } catch (IOException e) { throw new java.util.concurrent.CompletionException(e); }
+            }).orTimeout(15, java.util.concurrent.TimeUnit.SECONDS);
+            result.whenComplete((value, error) -> {
+                if (error != null) {
+                    timedOutOrCancelled.set(true);
+                    requestFuture.cancel(true);
+                    InputStream input = responseBody.get();
+                    if (input != null) try { input.close(); } catch (IOException ignored) { }
+                }
+                client.shutdown();
+            });
+            return result;
+        } catch (Throwable e) { return CompletableFuture.failedFuture(e); }
+    }
+
+    static void copyUpdatesDirectory(Path sourcePath, Path targetPath) throws IOException {
+        Path source = sourcePath.toAbsolutePath().normalize();
+        Path target = targetPath.toAbsolutePath().normalize();
+        if (source.equals(target) || source.startsWith(target) || target.startsWith(source)) {
+            throw new IllegalArgumentException("Updates directories cannot be equal or nested");
+        }
+        if (!Files.isDirectory(source)) throw new IOException("Updates directory does not exist: " + source);
+        if (Files.exists(target)) {
+            try (var entries = Files.list(target)) {
+                if (entries.findAny().isPresent()) throw new IOException("Target updates directory is not empty: " + target);
+            }
+        }
+        Path parent = target.getParent();
+        if (parent == null) throw new IOException("Target updates directory has no parent");
+        Files.createDirectories(parent);
+        Path staging = Files.createTempDirectory(parent, target.getFileName() + ".relocating-");
+        try {
+            Files.walkFileTree(source, new java.nio.file.SimpleFileVisitor<>() {
+                @Override public java.nio.file.FileVisitResult preVisitDirectory(Path dir, java.nio.file.attribute.BasicFileAttributes attrs) throws IOException {
+                    Files.createDirectories(staging.resolve(source.relativize(dir)));
+                    return java.nio.file.FileVisitResult.CONTINUE;
+                }
+                @Override public java.nio.file.FileVisitResult visitFile(Path file, java.nio.file.attribute.BasicFileAttributes attrs) throws IOException {
+                    Files.copy(file, staging.resolve(source.relativize(file)), java.nio.file.StandardCopyOption.COPY_ATTRIBUTES);
+                    return java.nio.file.FileVisitResult.CONTINUE;
+                }
+            });
+            if (Files.exists(target)) Files.delete(target);
+            try {
+                Files.move(staging, target, java.nio.file.StandardCopyOption.ATOMIC_MOVE);
+            } catch (java.nio.file.AtomicMoveNotSupportedException e) {
+                Files.move(staging, target);
+            }
+        } catch (IOException | RuntimeException | Error e) {
+            try { pro.gravit.utils.helper.IOHelper.deleteDir(staging, true); }
+            catch (IOException cleanupError) { e.addSuppressed(cleanupError); }
+            throw e;
+        }
+    }
+
+    void runtimeStarted() {
+        synchronized (relocatingUpdates) {
+            if (relocatingUpdates.get()) throw new IllegalStateException("Updates directory relocation is in progress");
+            activeRuntimes.incrementAndGet();
+        }
+    }
+
+    void runtimeStopped() { activeRuntimes.decrementAndGet(); }
+
+    public CompletableFuture<Void> relocateUpdatesDirectory(Path path) {
+        final Path source;
+        final Path target;
+        try {
+            source = DirBridge.dirUpdates.toAbsolutePath().normalize();
+            target = Objects.requireNonNull(path, "path").toAbsolutePath().normalize();
+            if (source.equals(target) || source.startsWith(target) || target.startsWith(source)) {
+                return CompletableFuture.failedFuture(new IllegalArgumentException("Updates directories cannot be equal or nested"));
+            }
+        } catch (Throwable e) {
+            return CompletableFuture.failedFuture(e);
+        }
+        synchronized (relocatingUpdates) {
+            if (activeDownloads.get() != 0 || activeRuntimes.get() != 0 || !relocatingUpdates.compareAndSet(false, true)) {
+                return CompletableFuture.failedFuture(new IllegalStateException("Updates directory is in use or relocation is already running"));
+            }
+        }
+        return CompletableFuture.runAsync(() -> {
+            try {
+                copyUpdatesDirectory(source, target);
+                DirBridge.dirUpdates = target;
+                synchronized (this) {
+                    availableJavas = null;
+                    availableJavasFuture = null;
+                }
+                if (backendSettings != null && backendSettings.settings != null) {
+                    try {
+                        for (ProfileSettingsImpl settings : backendSettings.settings.values()) settings.remapJavaPath(source, target);
+                        if (settingsManager != null) settingsManager.saveConfig();
+                    } catch (Throwable e) {
+                        logger.error("Updates directory moved to {}, but Java path settings could not be saved", target, e);
+                    }
+                }
+                try {
+                    pro.gravit.utils.helper.IOHelper.deleteDir(source, true);
+                } catch (IOException e) {
+                    logger.warn("Unable to remove old updates directory {} after relocation", source, e);
+                }
+            } catch (Throwable e) {
+                throw new java.util.concurrent.CompletionException(e);
+            } finally {
+                relocatingUpdates.set(false);
+            }
+        });
     }
 
     @Override
@@ -423,7 +568,8 @@ public class LauncherBackendImpl implements LauncherBackendAPI, TextureUploadExt
 
     @Override
     public CompletableFuture<ServerPingInfo> pingServer(ProfileFeatureAPI.ClientProfile profile) {
-        return pingFutures.computeIfAbsent(profile.getUUID(), (k) -> {
+        PingKey key = new PingKey(profile.getUUID(), false);
+        CompletableFuture<ServerPingInfo> future = pingFutures.computeIfAbsent(key, (k) -> {
             return CompletableFuture.supplyAsync(() -> {
                 try {
                     ServerPinger pinger = new ServerPinger((ClientProfile) profile);
@@ -433,11 +579,14 @@ public class LauncherBackendImpl implements LauncherBackendAPI, TextureUploadExt
                 }
             }, pingExecutor);
         });
+        future.whenComplete((value, error) -> pingFutures.remove(key, future));
+        return future;
     }
 
     @Override
     public CompletableFuture<ServerPingInfo> pingProfileServers(ProfileFeatureAPI.ClientProfile profile) {
-        return pingFutures.computeIfAbsent(profile.getUUID(), (k) -> {
+        PingKey key = new PingKey(profile.getUUID(), true);
+        CompletableFuture<ServerPingInfo> shared = pingFutures.computeIfAbsent(key, (k) -> {
             CompletableFuture<ServerPingInfo> future = new CompletableFuture<>();
             CompletableFuture.runAsync(() -> {
                 try {
@@ -518,6 +667,8 @@ public class LauncherBackendImpl implements LauncherBackendAPI, TextureUploadExt
             }, pingExecutor);
             return future;
         });
+        shared.whenComplete((value, error) -> pingFutures.remove(key, shared));
+        return shared;
     }
 
     private void clearPings() {
