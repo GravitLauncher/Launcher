@@ -3,7 +3,6 @@ package pro.gravit.launcher.runtime.utils;
 import oshi.SystemInfo;
 import oshi.hardware.*;
 import oshi.software.os.OperatingSystem;
-import pro.gravit.launcher.base.request.secure.HardwareReportRequest;
 import pro.gravit.launcher.core.api.LauncherAPIHelper;
 import pro.gravit.launcher.core.api.features.HardwareVerificationFeatureAPI;
 import pro.gravit.utils.helper.JVMHelper;
@@ -126,22 +125,5 @@ public class HWIDProvider {
                 getHWDiskID(),
                 getDisplayID()
         );
-    }
-
-    public HardwareReportRequest.HardwareInfo getHardwareInfo(boolean needSerial) {
-        HardwareReportRequest.HardwareInfo info = new HardwareReportRequest.HardwareInfo();
-        info.bitness = getBitness();
-        info.logicalProcessors = getProcessorLogicalCount();
-        info.physicalProcessors = getProcessorPhysicalCount();
-        info.processorMaxFreq = getProcessorMaxFreq();
-        info.totalMemory = getTotalMemory();
-        info.battery = isBattery();
-        info.graphicCard = getGraphicCardName();
-        if (needSerial) {
-            info.hwDiskId = getHWDiskID();
-            info.displayId = getDisplayID();
-            info.baseboardSerialNumber = getBaseboardSerialNumber();
-        }
-        return info;
     }
 }

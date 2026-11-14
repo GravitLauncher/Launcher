@@ -100,9 +100,6 @@ public class ClientLauncherEntryPoint {
         Launcher.profile = profile;
         AuthService.profile = profile;
         clientParams = params;
-        if (params.extendedTokens != null) {
-            Request.addAllExtendedToken(params.extendedTokens);
-        }
         modulesManager.invokeEvent(new ClientProcessInitPhase(params));
 
         Path clientDir = Paths.get(params.clientDir);
@@ -115,7 +112,7 @@ public class ClientLauncherEntryPoint {
         config.apply();
         LauncherAPIInitializer.initialize(modulesManager, config, List.of());
         LauncherAPIHolder.changeAuthId(params.authId);
-        LauncherAPIHolder.auth().restore(params.oauth.accessToken, false).get();
+        LauncherAPIHolder.auth().restore(params.remoteAccessToken, false).get();
         logger.debug("Natives dir {}", params.nativesDir);
         ClientProfile.ClassLoaderConfig classLoaderConfig = profile.getClassLoaderConfig();
         LaunchOptions options = new LaunchOptions();

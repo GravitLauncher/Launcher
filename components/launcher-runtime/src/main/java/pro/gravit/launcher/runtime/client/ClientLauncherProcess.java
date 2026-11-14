@@ -4,7 +4,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pro.gravit.launcher.base.Launcher;
 import pro.gravit.launcher.base.LauncherConfig;
-import pro.gravit.launcher.base.events.request.AuthRequestEvent;
 import pro.gravit.launcher.client.ClientLauncherEntryPoint;
 import pro.gravit.launcher.client.ClientParams;
 import pro.gravit.launcher.client.utils.MinecraftAuthlibBridge;
@@ -19,7 +18,6 @@ import pro.gravit.launcher.base.profiles.PlayerProfile;
 import pro.gravit.launcher.base.profiles.optional.OptionalView;
 import pro.gravit.launcher.base.profiles.optional.actions.OptionalAction;
 import pro.gravit.launcher.base.profiles.optional.actions.OptionalActionJvmArgs;
-import pro.gravit.launcher.base.request.Request;
 import pro.gravit.launcher.core.serialize.HOutput;
 import pro.gravit.utils.helper.*;
 
@@ -83,7 +81,7 @@ public class ClientLauncherProcess {
 
     public ClientLauncherProcess(Path clientDir, Path assetDir, JavaHelper.JavaVersion javaVersion, Path resourcePackDir,
                                  ClientProfile profile, PlayerProfile playerProfile, OptionalView view, String accessToken,
-                                 HashedDir clientHDir, HashedDir assetHDir, HashedDir jvmHDir, AuthRequestEvent.OAuthRequestEvent oAuthRequestEvent, String authId) {
+                                 HashedDir clientHDir, HashedDir assetHDir, HashedDir jvmHDir, String remoteAccessToken, String authId) {
         this.javaVersion = javaVersion;
         this.workDir = clientDir.toAbsolutePath();
         this.executeFile = IOHelper.resolveJavaBin(this.javaVersion.jvmDir);
@@ -92,7 +90,7 @@ public class ClientLauncherProcess {
         this.params.resourcePackDir = resourcePackDir.toAbsolutePath().toString();
         this.params.assetDir = assetDir.toAbsolutePath().toString();
         this.params.timestamp = System.currentTimeMillis();
-        this.params.oauth = oAuthRequestEvent;
+        this.params.remoteAccessToken = remoteAccessToken;
         this.params.authId = authId;
         Path nativesPath;
         if(profile.hasFlag(ClientProfile.CompatibilityFlags.LEGACY_NATIVES_DIR)) {
@@ -143,16 +141,6 @@ public class ClientLauncherProcess {
         this.systemClassPath.addAll(this.params.profile.getAlternativeClassPath());
         if (params.ram > 0) {
             this.jvmArgs.add("-Xmx" + params.ram + 'M');
-        }
-        if (this.params.oauth == null) {
-            this.params.oauth = Request.getOAuth();
-        }
-        if(this.params.authId == null) {
-            this.params.authId = Request.getAuthId();
-            this.params.oauthExpiredTime = Request.getTokenExpiredTime();
-        }
-        if(this.params.extendedTokens == null) {
-            this.params.extendedTokens = Request.getExtendedTokens();
         }
         LauncherEngine.modulesManager.invokeEvent(new ClientProcessBuilderCreateEvent(this));
     }

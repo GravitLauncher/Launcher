@@ -1,7 +1,5 @@
 package pro.gravit.launcher.client.api;
 
-import pro.gravit.launcher.base.events.NotificationEvent;
-
 import java.util.function.Consumer;
 
 public class DialogService {
@@ -34,7 +32,7 @@ public class DialogService {
         }
     }
 
-    public static void createNotification(NotificationEvent.NotificationType type, String head, String message) {
+    public static void createNotification(NotificationType type, String head, String message) {
         if (!isNotificationsAvailable()) {
             throw new UnsupportedOperationException("DialogService notifications implementation not available");
         }
@@ -72,6 +70,6 @@ public class DialogService {
     }
 
     public interface DialogServiceNotificationImplementation {
-        void createNotification(NotificationEvent.NotificationType type, String head, String message);
+        void createNotification(NotificationType type, String head, String message);
     }
 }

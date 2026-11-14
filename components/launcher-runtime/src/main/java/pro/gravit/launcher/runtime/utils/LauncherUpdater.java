@@ -3,7 +3,6 @@ package pro.gravit.launcher.runtime.utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pro.gravit.launcher.core.LauncherInject;
-import pro.gravit.launcher.base.request.update.LauncherRequest;
 import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.SecurityHelper;
 
@@ -38,9 +37,8 @@ public class LauncherUpdater {
 
     public static Path getLauncherPath() {
         Path pathToCore = IOHelper.getCodeSource(IOHelper.class);
-        Path pathToApi = IOHelper.getCodeSource(LauncherRequest.class);
         Path pathToSelf = IOHelper.getCodeSource(LauncherUpdater.class);
-        if (pathToCore.equals(pathToApi) && pathToCore.equals(pathToSelf)) {
+        if (pathToCore.equals(pathToSelf)) {
             return pathToCore;
         } else {
             throw new SecurityException("Found split-jar launcher");

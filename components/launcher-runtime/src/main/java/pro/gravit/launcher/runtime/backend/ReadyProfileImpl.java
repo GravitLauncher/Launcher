@@ -3,7 +3,6 @@ package pro.gravit.launcher.runtime.backend;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pro.gravit.launcher.base.Launcher;
-import pro.gravit.launcher.base.events.request.AuthRequestEvent;
 import pro.gravit.launcher.base.profiles.ClientProfile;
 import pro.gravit.launcher.base.profiles.ClientProfileBuilder;
 import pro.gravit.launcher.base.profiles.PlayerProfile;
@@ -85,7 +84,7 @@ public class ReadyProfileImpl implements LauncherBackendAPI.ReadyProfile {
         process = new ClientLauncherProcess(clientDir.path(), assetDir.path(), java, clientDir.path().resolve("resourcepacks"),
                 profile, new PlayerProfile(backend.getSelfUser()), settings.view, backend.getSelfUser().getAccessToken(),
                 clientDir.dir(), assetDir.dir(), javaDir == null ? null : javaDir.dir(),
-                new AuthRequestEvent.OAuthRequestEvent(backend.getAuthToken()), backend.getAuthMethod().getName());
+                backend.getAuthToken().getAccessToken(), backend.getAuthMethod().getName());
         process.params.ram = (int) (settings.getReservedMemoryBytes(LauncherBackendAPI.ClientProfileSettings.MemoryClass.TOTAL) >> 20);
         if (process.params.ram > 0) {
             process.jvmArgs.add("-Xms" + process.params.ram + 'M');

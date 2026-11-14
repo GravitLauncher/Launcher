@@ -5,8 +5,6 @@ import com.google.gson.JsonArray;
 import pro.gravit.launcher.base.ClientPermissions;
 import pro.gravit.launcher.base.HttpHelper;
 import pro.gravit.launcher.base.Launcher;
-import pro.gravit.launcher.base.request.update.LauncherRequest;
-import pro.gravit.launcher.base.profiles.ClientProfile;
 import pro.gravit.launcher.base.profiles.ClientProfileBuilder;
 import pro.gravit.launcher.core.api.features.*;
 import pro.gravit.launcher.core.api.method.AuthMethod;
@@ -501,7 +499,7 @@ public class RequestFeatureHttpAPIImpl implements AuthFeatureAPI, UserFeatureAPI
             } else {
                 try(Reader reader = new InputStreamReader(new ByteArrayInputStream(response.body()))) {
                     String body = new String(response.body(), StandardCharsets.UTF_8);
-                    RequestFeatureAPIImpl.UploadError error = Launcher.gsonManager.gson.fromJson(body, RequestFeatureAPIImpl.UploadError.class);
+                    UploadError error = Launcher.gsonManager.gson.fromJson(body, UploadError.class);
                     String message = error == null || error.error() == null ? body : error.error();
                     return CompletableFuture.failedFuture(new RequestException("HTTP " + response.statusCode() + ": " + message));
                 } catch (Exception ex) {

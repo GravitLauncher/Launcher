@@ -9,9 +9,6 @@ import pro.gravit.launcher.base.api.ClientService;
 import pro.gravit.launcher.core.api.model.UserPermissions;
 import pro.gravit.launcher.runtime.LauncherEngine;
 import pro.gravit.launcher.runtime.gui.RuntimeProvider;
-import pro.gravit.launcher.base.events.request.ProfilesRequestEvent;
-import pro.gravit.launcher.base.profiles.ClientProfile;
-import pro.gravit.launcher.base.request.update.ProfilesRequest;
 import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.launch.*;
 
@@ -58,16 +55,6 @@ public class ClientRuntimeProvider implements RuntimeProvider {
                 permissions = data.getPermissions();
                 username = data.getUsername();
                 uuid = data.getUUID().toString();
-            }
-            if(profileUUID != null) {
-                UUID profileUuid = java.util.UUID.fromString(profileUUID);
-                ProfilesRequest profiles = new ProfilesRequest();
-                ProfilesRequestEvent event = profiles.request();
-                for(ClientProfile profile : event.profiles) {
-                    if(profile.getUUID().equals(profileUuid)) {
-                        AuthService.profile = profile;
-                    }
-                }
             }
             if(username == null) {
                 username = "Player";

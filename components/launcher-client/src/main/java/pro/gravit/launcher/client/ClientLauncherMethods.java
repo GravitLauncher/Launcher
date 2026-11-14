@@ -3,22 +3,8 @@ package pro.gravit.launcher.client;
 import pro.gravit.launcher.base.Launcher;
 import pro.gravit.launcher.client.events.ClientExitPhase;
 import pro.gravit.launcher.core.LauncherTrustManager;
-import pro.gravit.launcher.base.events.request.*;
-import pro.gravit.launcher.base.modules.LauncherModulesManager;
-import pro.gravit.launcher.base.modules.events.OfflineModeEvent;
 import pro.gravit.launcher.base.profiles.optional.actions.OptionalAction;
 import pro.gravit.launcher.base.profiles.optional.triggers.OptionalTrigger;
-import pro.gravit.launcher.base.request.RequestException;
-import pro.gravit.launcher.base.request.RequestService;
-import pro.gravit.launcher.base.request.auth.*;
-import pro.gravit.launcher.base.request.auth.details.AuthLoginOnlyDetails;
-import pro.gravit.launcher.base.request.management.FeaturesRequest;
-import pro.gravit.launcher.base.request.secure.GetSecureLevelInfoRequest;
-import pro.gravit.launcher.base.request.secure.SecurityReportRequest;
-import pro.gravit.launcher.base.request.update.LauncherRequest;
-import pro.gravit.launcher.base.request.uuid.ProfileByUUIDRequest;
-import pro.gravit.launcher.base.request.uuid.ProfileByUsernameRequest;
-import pro.gravit.launcher.base.request.websockets.OfflineRequestService;
 import pro.gravit.launcher.client.utils.NativeJVMHalt;
 import pro.gravit.utils.helper.JVMHelper;
 
@@ -80,58 +66,9 @@ public class ClientLauncherMethods {
     }
 
     public static void initGson(ClientModuleManager moduleManager) {
-        AuthRequest.registerProviders();
-        GetAvailabilityAuthRequest.registerProviders();
         OptionalAction.registerProviders();
         OptionalTrigger.registerProviders();
         Launcher.gsonManager = new ClientGsonManager(moduleManager);
         Launcher.gsonManager.initGson();
-    }
-
-    public static RequestService initOffline(LauncherModulesManager modulesManager, ClientParams params) {
-        OfflineRequestService service = new OfflineRequestService();
-        applyBasicOfflineProcessors(service);
-        applyClientOfflineProcessors(service, params);
-        OfflineModeEvent event = new OfflineModeEvent(service);
-        modulesManager.invokeEvent(event);
-        return event.service;
-    }
-
-    public static void applyClientOfflineProcessors(OfflineRequestService service, ClientParams params) {
-        service.registerRequestProcessor(ProfileByUsernameRequest.class, (r) -> {
-            if (params.playerProfile.username.equals(r.username)) {
-                return new ProfileByUsernameRequestEvent(params.playerProfile);
-            }
-            throw new RequestException("User not found");
-        });
-        service.registerRequestProcessor(ProfileByUUIDRequest.class, (r) -> {
-            if (params.playerProfile.uuid.equals(r.uuid)) {
-                return new ProfileByUUIDRequestEvent(params.playerProfile);
-            }
-            throw new RequestException("User not found");
-        });
-    }
-
-
-
-    public static void applyBasicOfflineProcessors(OfflineRequestService service) {
-        service.registerRequestProcessor(LauncherRequest.class, (r) -> new LauncherRequestEvent(false, (String) null));
-        service.registerRequestProcessor(CheckServerRequest.class, (r) -> {
-            throw new RequestException("CheckServer disabled in offline mode");
-        });
-        service.registerRequestProcessor(GetAvailabilityAuthRequest.class, (r) -> {
-            List<GetAvailabilityAuthRequestEvent.AuthAvailabilityDetails> details = new ArrayList<>();
-            details.add(new AuthLoginOnlyDetails());
-            GetAvailabilityAuthRequestEvent.AuthAvailability authAvailability = new GetAvailabilityAuthRequestEvent.AuthAvailability(details, "offline", "Offline Mode", true, new HashSet<>());
-            List<GetAvailabilityAuthRequestEvent.AuthAvailability> list = new ArrayList<>(1);
-            list.add(authAvailability);
-            return new GetAvailabilityAuthRequestEvent(list);
-        });
-        service.registerRequestProcessor(JoinServerRequest.class, (r) -> new JoinServerRequestEvent(false));
-        service.registerRequestProcessor(ExitRequest.class, (r) -> new ExitRequestEvent(ExitRequestEvent.ExitReason.CLIENT));
-        service.registerRequestProcessor(SetProfileRequest.class, (r) -> new SetProfileRequestEvent(null));
-        service.registerRequestProcessor(FeaturesRequest.class, (r) -> new FeaturesRequestEvent());
-        service.registerRequestProcessor(GetSecureLevelInfoRequest.class, (r) -> new GetSecureLevelInfoRequestEvent(null, false));
-        service.registerRequestProcessor(SecurityReportRequest.class, (r) -> new SecurityReportRequestEvent(SecurityReportRequestEvent.ReportAction.NONE));
     }
 }

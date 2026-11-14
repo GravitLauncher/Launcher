@@ -9,8 +9,6 @@ import pro.gravit.launcher.core.LauncherTrustManager;
 import pro.gravit.launcher.base.modules.events.PreConfigPhase;
 import pro.gravit.launcher.base.profiles.optional.actions.OptionalAction;
 import pro.gravit.launcher.base.profiles.optional.triggers.OptionalTrigger;
-import pro.gravit.launcher.base.request.auth.AuthRequest;
-import pro.gravit.launcher.base.request.auth.GetAvailabilityAuthRequest;
 import pro.gravit.launcher.core.api.features.CoreFeatureAPI;
 import pro.gravit.launchserver.auth.profiles.ProfilesProvider;
 import pro.gravit.launchserver.auth.updates.LocalUpdatesProvider;
@@ -152,8 +150,6 @@ public class LaunchServerStarter {
 
     public static void registerAll() {
         Component.registerComponents();
-        AuthRequest.registerProviders();
-        GetAvailabilityAuthRequest.registerProviders();
         OptionalAction.registerProviders();
         OptionalTrigger.registerProviders();
         ProfilesProvider.registerProviders();

@@ -10,20 +10,12 @@ import pro.gravit.launcher.base.api.ClientService;
 import pro.gravit.launcher.base.api.ConfigService;
 import pro.gravit.launcher.base.api.KeyService;
 import pro.gravit.launcher.base.config.JsonConfigurable;
-import pro.gravit.launcher.base.events.request.AuthRequestEvent;
-import pro.gravit.launcher.base.events.request.ProfilesRequestEvent;
 import pro.gravit.launcher.base.profiles.ClientProfile;
 import pro.gravit.launcher.base.profiles.optional.actions.OptionalAction;
 import pro.gravit.launcher.base.profiles.optional.triggers.OptionalTrigger;
-import pro.gravit.launcher.base.request.Request;
-import pro.gravit.launcher.base.request.auth.AuthRequest;
-import pro.gravit.launcher.base.request.auth.GetAvailabilityAuthRequest;
-import pro.gravit.launcher.base.request.update.ProfilesRequest;
-import pro.gravit.launcher.base.request.websockets.StdWebSocketService;
 import pro.gravit.launcher.core.api.LauncherAPIHolder;
 import pro.gravit.launcher.client.LauncherAPIInitializer;
 import pro.gravit.launcher.server.authlib.InstallAuthlib;
-import pro.gravit.launcher.server.setup.ServerWrapperSetup;
 import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.LogHelper;
 import pro.gravit.utils.helper.SecurityHelper;
@@ -73,11 +65,8 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
     }
 
     public void restore() throws Exception {
-        if(config.extendedTokens != null) {
-            Request.addAllExtendedToken(config.extendedTokens);
-        }
-        if(config.oauth != null) {
-            var selfUser = LauncherAPIHolder.auth().restore(config.oauth.accessToken, true).get();
+        if(config.accessToken != null) {
+            var selfUser = LauncherAPIHolder.auth().restore(config.accessToken, true).get();
             if(selfUser != null) {
                 AuthService.uuid = selfUser.getUUID();
                 AuthService.username = selfUser.getUsername();
@@ -87,47 +76,14 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
             }
             return;
         }
-        if(config.address.startsWith("http://") || config.address.startsWith("https://")) {
-            return;
-        }
-        Request.RequestRestoreReport report = Request.restore(config.oauth != null, false, false);
-        if(report.userInfo != null) {
-            if(report.userInfo.playerProfile != null) {
-                AuthService.username = report.userInfo.playerProfile.username;
-                AuthService.uuid = report.userInfo.playerProfile.uuid;
-            }
-            AuthService.permissions = report.userInfo.permissions;
-        }
     }
 
     public void getProfiles() throws Exception {
-        ProfilesRequestEvent result = new ProfilesRequest().request();
-        for (ClientProfile p : result.profiles) {
-            logger.debug("Get profile: {}", p.getTitle());
-            boolean isFound = false;
-            for (ClientProfile.ServerProfile srv : p.getServers()) {
-                if (srv != null && srv.name.equals(config.serverName)) {
-                    this.serverProfile = srv;
-                    this.profile = p;
-                    Launcher.profile = p;
-                    AuthService.profile = p;
-                    logger.debug("Found profile: {}", Launcher.profile.getTitle());
-                    isFound = true;
-                    break;
-                }
-            }
-            if (isFound) break;
-        }
-        if (profile == null) {
-            logger.warn("Not connected to ServerProfile. May be serverName incorrect?");
-        }
     }
 
 
     public void initialize() throws Exception {
         initGson();
-        AuthRequest.registerProviders();
-        GetAvailabilityAuthRequest.registerProviders();
         OptionalAction.registerProviders();
         OptionalTrigger.registerProviders();
         logger.debug("Read ServerWrapperConfig.json");
@@ -139,18 +95,6 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
         updateLauncherConfig();
         LauncherAPIInitializer.initialize(null, Launcher.getConfig(), List.of());
         LauncherAPIHolder.changeAuthId(config.authId == null ? "std" : config.authId);
-        if(!LauncherAPIInitializer.isHttpAddress(config.address) && Request.getRequestService() instanceof StdWebSocketService service) {
-            service.reconnectCallback = () ->
-            {
-                logger.debug("WebSocket connect closed. Try reconnect");
-                try {
-                    Request.reconnect();
-                    getProfiles();
-                } catch (Exception e) {
-                    logger.error("", e);
-                }
-            };
-        }
 
         if (config.logFile != null) LogHelper.addOutput(IOHelper.newWriter(Paths.get(config.logFile), true));
         {
@@ -182,11 +126,6 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
 
     public void run(String... args) throws Throwable {
         initialize();
-        if (args.length > 0 && args[0].equalsIgnoreCase("setup") && !disableSetup) {
-            ServerWrapperSetup setup = new ServerWrapperSetup();
-            setup.run();
-            System.exit(0);
-        }
         if (args.length > 2 && args[0].equalsIgnoreCase("bridge") && !disableSetup) {
             ServerWrapperBridge bridge = new ServerWrapperBridge();
             connect();
@@ -225,10 +164,6 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
         }
         if (classname.isEmpty()) {
             logger.error("MainClass not found. Please set MainClass for ServerWrapper.json or first commandline argument");
-            System.exit(-1);
-        }
-        if(config.oauth == null && ( config.extendedTokens == null || config.extendedTokens.isEmpty())) {
-            logger.error("Auth not configured. Please use 'java -jar ServerWrapper.jar setup'");
             System.exit(-1);
         }
         if (config.autoloadLibraries) {
@@ -330,7 +265,6 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
         Config newConfig = new Config();
         newConfig.serverName = "";
         newConfig.mainclass = "";
-        newConfig.extendedTokens = new HashMap<>();
         newConfig.args = new ArrayList<>();
         newConfig.classpath = new ArrayList<>();
         newConfig.address = "";
@@ -362,9 +296,8 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
         public boolean microsoftAuthEnabled;
         public String microsoftClientId;
         public String microsoftClientSecret;
-        public AuthRequestEvent.OAuthRequestEvent oauth;
+        public String accessToken;
         public long oauthExpireTime;
-        public Map<String, Request.ExtendedToken> extendedTokens;
         public LauncherConfig.LauncherEnvironment env;
         public LaunchOptions.ModuleConf moduleConf = new LaunchOptions.ModuleConf();
 
@@ -401,16 +334,7 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
             {
                 String accessToken = System.getenv("SERVERWRAPPER_ACCESS_TOKEN");
                 if(accessToken != null) {
-                    this.oauth = new AuthRequestEvent.OAuthRequestEvent(accessToken, null, 0);
-                }
-            }
-            {
-                String token = System.getenv("SERVERWRAPPER_CHECK_SERVER_TOKEN");
-                if(token != null) {
-                    if(extendedTokens == null) {
-                        extendedTokens = new HashMap<>();
-                    }
-                    extendedTokens.put("checkServer", new Request.ExtendedToken(token, 0L));
+                    this.accessToken = accessToken;
                 }
             }
         }

@@ -1,14 +1,13 @@
 package pro.gravit.launcher.client;
 
 import pro.gravit.launcher.base.Launcher;
-import pro.gravit.launcher.base.events.request.AuthRequestEvent;
+import pro.gravit.launcher.core.api.model.SelfUser;
 import pro.gravit.launcher.core.hasher.HashedDir;
 import pro.gravit.launcher.base.profiles.ClientProfile;
 import pro.gravit.launcher.base.profiles.ClientProfileVersions;
 import pro.gravit.launcher.base.profiles.PlayerProfile;
 import pro.gravit.launcher.base.profiles.optional.actions.OptionalAction;
 import pro.gravit.launcher.base.profiles.optional.actions.OptionalActionClientArgs;
-import pro.gravit.launcher.base.request.Request;
 import pro.gravit.utils.Version;
 
 import java.util.*;
@@ -48,13 +47,11 @@ public class ClientParams {
 
     //========
 
-    public AuthRequestEvent.OAuthRequestEvent oauth;
+    public String remoteAccessToken;
 
     public String authId;
 
     public long oauthExpiredTime;
-
-    public Map<String, Request.ExtendedToken> extendedTokens;
 
     public boolean offlineMode;
 

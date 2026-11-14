@@ -6,11 +6,7 @@ import pro.gravit.launcher.base.Launcher;
 import pro.gravit.launcher.base.LauncherConfig;
 import pro.gravit.launcher.base.request.*;
 import pro.gravit.launcher.client.*;
-import pro.gravit.launcher.core.api.LauncherAPI;
-import pro.gravit.launcher.core.api.LauncherAPIHolder;
 import pro.gravit.launcher.core.api.features.*;
-import pro.gravit.launcher.core.backend.LauncherBackendAPIHolder;
-import pro.gravit.launcher.runtime.backend.LauncherBackendImpl;
 import pro.gravit.launcher.runtime.backend.LauncherBackendModule;
 import pro.gravit.launcher.runtime.client.*;
 import pro.gravit.launcher.runtime.client.events.ClientEngineInitPhase;
@@ -22,13 +18,9 @@ import pro.gravit.launcher.runtime.gui.RuntimeProvider;
 import pro.gravit.launcher.runtime.managers.ConsoleManager;
 import pro.gravit.launcher.client.utils.NativeJVMHalt;
 import pro.gravit.launcher.core.LauncherTrustManager;
-import pro.gravit.launcher.base.modules.events.OfflineModeEvent;
 import pro.gravit.launcher.base.modules.events.PreConfigPhase;
 import pro.gravit.launcher.base.profiles.optional.actions.OptionalAction;
 import pro.gravit.launcher.base.profiles.optional.triggers.OptionalTrigger;
-import pro.gravit.launcher.base.request.auth.*;
-import pro.gravit.launcher.base.request.websockets.OfflineRequestService;
-import pro.gravit.launcher.base.request.websockets.StdWebSocketService;
 import pro.gravit.launcher.start.RuntimeModuleManager;
 import pro.gravit.utils.helper.*;
 
@@ -149,8 +141,6 @@ public class LauncherEngine {
     }
 
     public static void initGson(RuntimeModuleManager modulesManager) {
-        AuthRequest.registerProviders();
-        GetAvailabilityAuthRequest.registerProviders();
         OptionalAction.registerProviders();
         OptionalTrigger.registerProviders();
         Launcher.gsonManager = new RuntimeGsonManager(modulesManager);
@@ -160,14 +150,6 @@ public class LauncherEngine {
     public static void verifyNoAgent() {
         if (JVMHelper.RUNTIME_MXBEAN.getInputArguments().stream().filter(e -> e != null && !e.isEmpty()).anyMatch(e -> e.contains("javaagent")))
             throw new SecurityException("JavaAgent found");
-    }
-
-    public static RequestService initOffline() {
-        OfflineRequestService service = new OfflineRequestService();
-        ClientLauncherMethods.applyBasicOfflineProcessors(service);
-        OfflineModeEvent event = new OfflineModeEvent(service);
-        modulesManager.invokeEvent(event);
-        return event.service;
     }
 
     public static LauncherEngine newInstance(boolean clientInstance) {

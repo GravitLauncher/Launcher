@@ -5,7 +5,6 @@ import org.slf4j.LoggerFactory;
 import pro.gravit.launcher.base.LauncherConfig;
 import pro.gravit.launcher.base.modules.LauncherModulesManager;
 import pro.gravit.launcher.base.request.*;
-import pro.gravit.launcher.base.request.websockets.StdWebSocketService;
 import pro.gravit.launcher.core.api.LauncherAPI;
 import pro.gravit.launcher.core.api.LauncherAPIHolder;
 import pro.gravit.launcher.core.api.features.*;
@@ -62,12 +61,8 @@ public class LauncherAPIInitializer {
             initMicrosoftMode(address, flags, options);
         } else if(mode == ApiMode.HTTP) {
             initHttpMode(address, options);
-        } else if(mode == ApiMode.WEBSOCKET) {
-            initWebSocketMode(address, flags, options);
         } else if(isHttpAddress(address)) {
             initHttpMode(address, options);
-        } else {
-            initWebSocketMode(address, flags, options);
         }
     }
 
@@ -93,43 +88,6 @@ public class LauncherAPIInitializer {
         return isHttpAddress(address) ? ApiMode.HTTP : ApiMode.WEBSOCKET;
     }
 
-    private static void initWebSocketMode(String address, List<Flag> flags, Options options) throws Exception {
-        StdWebSocketService service;
-        try {
-            service = StdWebSocketService.initWebSockets(address).get();
-        } catch (Throwable e) {
-            logger.error("Connection failed", e);
-            if (options.offlineOnConnectionFail()) {
-                initOfflineMode();
-            } else {
-                throw new RequestException("Connection failed", e);
-            }
-            return;
-        }
-        Request.setRequestService(service);
-        logger.debug("Restore sessions");
-        Request.restore(false, false, true);
-        service.registerEventHandler(new BasicLauncherEventHandler());
-        service.reconnectCallback = () ->
-        {
-            logger.debug("WebSocket connect closed. Try reconnect");
-            try {
-                Request.reconnect();
-            } catch (Exception e) {
-                logger.error("", e);
-                throw new RequestException("Connection failed", e);
-            }
-        };
-        if(flags.contains(Flag.ENABLE_AUTO_REFRESH)) {
-            Request.startAutoRefresh();
-        }
-        RequestCoreFeatureAPIImpl coreImpl = new RequestCoreFeatureAPIImpl(Request.getRequestService());
-        setupApi(coreImpl, (authId) -> {
-            var impl = new RequestFeatureAPIImpl(Request.getRequestService(), authId);
-            return createApi(impl, impl, impl, impl, impl);
-        }, options);
-    }
-
     private static void initHttpMode(String address, Options options) {
         RequestFeatureHttpAPIImpl impl = new RequestFeatureHttpAPIImpl(address);
         setupApi(impl, (authId) -> createApi(impl, impl, impl, impl, impl), options);
@@ -138,11 +96,7 @@ public class LauncherAPIInitializer {
     private static void initMicrosoftMode(String address, List<Flag> flags, Options options) throws Exception {
         Options microsoftOptions = new Options(ApiMode.AUTO, options.offlineOnConnectionFail(), true,
                 options.microsoftClientId(), options.microsoftClientSecret());
-        if (isHttpAddress(address)) {
-            initHttpMode(address, microsoftOptions);
-        } else {
-            initWebSocketMode(address, flags, microsoftOptions);
-        }
+        initHttpMode(address, microsoftOptions);
     }
 
     private static void initOfflineMode() {
