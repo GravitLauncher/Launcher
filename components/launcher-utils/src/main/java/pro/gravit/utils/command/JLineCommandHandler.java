@@ -1,6 +1,5 @@
 package pro.gravit.utils.command;
 
-import org.fusesource.jansi.Ansi;
 import org.jline.keymap.KeyMap;
 import org.jline.reader.*;
 import org.jline.reader.impl.history.DefaultHistory;
@@ -10,7 +9,6 @@ import org.jline.utils.InfoCmp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pro.gravit.utils.helper.IOHelper;
-import pro.gravit.utils.helper.JVMHelper;
 
 import java.io.IOException;
 import java.time.Instant;
@@ -18,8 +16,11 @@ import java.util.List;
 
 public class JLineCommandHandler extends CommandHandler {
     private static final Logger logger = LoggerFactory.getLogger(JLineCommandHandler.class);
-    private static Terminal terminal;
-    private static LineReader reader;
+    private Terminal terminal;
+    private LineReader reader;
+    private final Object readLock = new Object();
+    private final Object outputLock = new Object();
+    private volatile Thread readingThread;
 
     public JLineCommandHandler() throws IOException {
         super();
@@ -38,7 +39,9 @@ public class JLineCommandHandler extends CommandHandler {
                 public void add(Instant time, String line) {
                     if (line == null || line.trim().isEmpty()) return;
                     String lowerLine = line.toLowerCase().trim();
-                    if (lowerLine.contains("register") || lowerLine.contains("auth"))
+                    if (lowerLine.contains("register") || lowerLine.contains("auth")
+                            || lowerLine.contains("config") || lowerLine.contains("token")
+                            || lowerLine.contains("password") || lowerLine.contains("secret"))
                         return;
                     super.add(time, line);
                 }
@@ -66,36 +69,59 @@ public class JLineCommandHandler extends CommandHandler {
 
     @Override
     public void bell() {
-        terminal.puts(InfoCmp.Capability.bell);
+        synchronized (outputLock) {
+            if (!isStopRequested()) terminal.puts(InfoCmp.Capability.bell);
+        }
     }
 
     @Override
     public void clear() {
-        terminal.puts(InfoCmp.Capability.clear_screen);
+        synchronized (outputLock) {
+            if (!isStopRequested()) terminal.puts(InfoCmp.Capability.clear_screen);
+        }
     }
 
     @Override
     public String readLine() {
-        try {
-
-            return reader.readLine();
-        } catch (UserInterruptException e) {
-            if (reader.getBuffer().length() == 0) {
-                logger.info(new Ansi().bold().fgBright(Ansi.Color.YELLOW).a("Exit triggered by Ctrl+C. Cleaning up resources...").reset().toString());
-                JVMHelper.RUNTIME.exit(0);
-                return null;
-            } else {
-                return "";
-            }
-
-        } catch (EndOfFileException e) {
+        synchronized (readLock) {
+            readingThread = Thread.currentThread();
             try {
-                logger.info(new Ansi().bold().fgBright(Ansi.Color.YELLOW).a("Exit triggered by Ctrl+D. Cleaning up resources...").reset().toString());
-                terminal.close();
-            } catch (IOException ignored) {
+                if (isStopRequested()) return null;
+                return reader.readLine();
+            } catch (UserInterruptException e) {
+                if (isStopRequested()) return null;
+                if (reader.getBuffer().length() == 0) {
+                    logger.info("Exit triggered by Ctrl+C");
+                    return null;
+                }
+                return "";
+            } catch (EndOfFileException e) {
+                if (!isStopRequested()) logger.info("Exit triggered by Ctrl+D");
+                return null;
+            } finally {
+                readingThread = null;
             }
-            JVMHelper.RUNTIME.exit(0);
-            return null;
+        }
+    }
+
+    @Override
+    public void requestStop() {
+        super.requestStop();
+        Thread activeReader = readingThread;
+        if (activeReader != null && activeReader != Thread.currentThread()) activeReader.interrupt();
+    }
+
+    public void closeTerminal() throws IOException {
+        requestStop();
+        // JLine restores terminal state in readLine's finally block before this lock is released.
+        synchronized (readLock) {
+            synchronized (outputLock) {
+                if (terminal != null) {
+                    terminal.close();
+                    terminal = null;
+                    reader = null;
+                }
+            }
         }
     }
 

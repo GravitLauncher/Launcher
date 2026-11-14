@@ -7,7 +7,6 @@ import pro.gravit.launcher.base.profiles.ClientProfile;
 import pro.gravit.launcher.core.serialize.HInput;
 import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.JVMHelper;
-import pro.gravit.utils.helper.LogHelper;
 
 import java.io.IOException;
 import java.net.URL;
@@ -87,28 +86,6 @@ public final class Launcher {
 
     public static String toHash(UUID uuid) {
         return UUID_PATTERN.matcher(uuid.toString()).replaceAll("");
-    }
-
-    public static void applyLauncherEnv(LauncherConfig.LauncherEnvironment env) {
-        switch (env) {
-            case DEV:
-                LogHelper.setDevEnabled(true);
-                LogHelper.setStacktraceEnabled(true);
-                LogHelper.setDebugEnabled(true);
-                break;
-            case DEBUG:
-                LogHelper.setDebugEnabled(true);
-                LogHelper.setStacktraceEnabled(true);
-                break;
-            case STD:
-                LogHelper.setStacktraceEnabled(true);
-                break;
-            case PROD:
-                LogHelper.setStacktraceEnabled(false);
-                LogHelper.setDebugEnabled(false);
-                LogHelper.setDevEnabled(false);
-                break;
-        }
     }
 
     public static String makeSpecialGuardDirName(JVMHelper.ARCH arch, JVMHelper.OS os) {

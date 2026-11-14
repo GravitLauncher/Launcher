@@ -4,7 +4,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pro.gravit.utils.command.Command;
 import pro.gravit.utils.command.CommandHandler;
-import pro.gravit.utils.helper.LogHelper;
 
 public final class ClearCommand extends Command {
 
@@ -30,6 +29,6 @@ public final class ClearCommand extends Command {
     @Override
     public void invoke(String... args) throws Exception {
         handler.clear();
-        LogHelper.subInfo("Terminal cleared");
+        logger.info("Terminal cleared");
     }
 }

@@ -3,13 +3,8 @@ plugins {
     id("application")
 }
 
-java {
-    sourceCompatibility = JavaVersion.VERSION_21
-    targetCompatibility = JavaVersion.VERSION_21
-}
 
 repositories {
-    mavenCentral()
     maven {
         url = uri("https://repo.clojars.org")
     }
@@ -25,27 +20,15 @@ val proguardLibrary = configurations.create("proguardLibrary") {
 
 dependencies {
     api(libs.log4j.api)
-    api(libs.netty.codec.http)
     api(libs.bouncycastle.bcpkix)
-    api(libs.jjwt.api)
-    implementation(libs.jjwt.impl)
-    implementation(libs.jjwt.gson)
     implementation(libs.log4j.core)
     implementation(libs.log4j.slf4j.impl)
-    implementation(libs.netty.transport.epoll)
-    implementation(libs.netty.transport.io.uring)
     implementation(libs.progressbar)
     implementation(libs.asm)
     implementation(libs.asm.tree)
-    implementation(libs.db.hikari)
-    implementation(libs.db.postgresql)
-    implementation(libs.db.mysql)
-    implementation(libs.db.mariadb)
-    implementation(libs.db.h2)
     implementation(libs.jline.terminal)
     implementation(libs.jline.reader)
     implementation(libs.jansi)
-    implementation(libs.totp)
     api(project(":components:launcher-api"))
     annotationProcessor(libs.log4j.core)
     launcherInside(project(mapOf("path" to ":components:launcher-runtime", "configuration" to "shadow")))
@@ -77,7 +60,7 @@ tasks.jar {
 }
 
 val copyProguardLibs = tasks.register("copyProguardLibs", Copy::class) {
-    from(proguardLibrary.resolve())
+    from(proguardLibrary)
     into(layout.buildDirectory.dir("proguard-libraries"))
 }
 
@@ -98,9 +81,7 @@ application {
         "--add-opens",
         "java.base/java.lang.invoke=launchserver",
         "--enable-native-access",
-        "io.netty.common,org.fusesource.jansi",
-        "-Dlauncher.useSlf4j=true",
-        "-Dio.netty.noUnsafe=true"
+        "org.fusesource.jansi"
     )
 
     applicationDistribution.from(project(":components:launcher-runtime").tasks.named("copyLauncherLibs").map { it.outputs.files }) {
@@ -130,33 +111,6 @@ distributions {
             into("/")
         }
     }
-}
-
-tasks.distZip {
-    dependsOn(project(":components:serverwrapper").tasks["fatJar"],
-        project(":components:serverwrapper").tasks["shadowJar"],
-        project(":components:serverwrapper").tasks["inlineJar"],
-        project(":components:launcher-runtime").tasks["copyLauncherLibs"],
-        project(":modules").tasks["copyModules"],
-        copyProguardLibs)
-}
-
-tasks.distTar {
-    dependsOn(project(":components:serverwrapper").tasks["fatJar"],
-        project(":components:serverwrapper").tasks["shadowJar"],
-        project(":components:serverwrapper").tasks["inlineJar"],
-        project(":components:launcher-runtime").tasks["copyLauncherLibs"],
-        project(":modules").tasks["copyModules"],
-        copyProguardLibs)
-}
-
-tasks.installDist {
-    dependsOn(project(":components:serverwrapper").tasks["fatJar"],
-        project(":components:serverwrapper").tasks["shadowJar"],
-        project(":components:serverwrapper").tasks["inlineJar"],
-        project(":components:launcher-runtime").tasks["copyLauncherLibs"],
-        project(":modules").tasks["copyModules"],
-        copyProguardLibs)
 }
 
 tasks.assemble {

@@ -4,7 +4,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import pro.gravit.launcher.base.Launcher;
 import pro.gravit.launchserver.LaunchServer;
-import pro.gravit.launchserver.auth.profiles.ProfilesProvider;
+import pro.gravit.launchserver.profiles.ProfilesProvider;
 import pro.gravit.launchserver.command.Command;
 import pro.gravit.utils.helper.IOHelper;
 
@@ -31,7 +31,7 @@ public class GetProfileCommand extends Command {
 
     @Override
     public void invoke(String... args) throws Exception {
-        verifyArgs(args, 3);
+        verifyArgs(args, 2);
         ProfilesProvider.CompletedProfile profile;
         try {
             UUID uuid = UUID.fromString(args[0]);
@@ -48,10 +48,10 @@ public class GetProfileCommand extends Command {
                 Launcher.gsonManager.configGson.toJson(profile.getProfile(), writer);
             }
         }
-        if(!args[2].equals("null")) {
+        if(args.length > 2 && !args[2].equals("null")) {
             server.config.profilesProvider.download(profile, Map.of("", Path.of(args[2])), false);
         }
-        if(!args[3].equals("null")) {
+        if(args.length > 3 && !args[3].equals("null")) {
             server.config.profilesProvider.download(profile, Map.of("", Path.of(args[3])), true);
         }
     }

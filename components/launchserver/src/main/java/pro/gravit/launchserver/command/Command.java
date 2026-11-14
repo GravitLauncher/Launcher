@@ -77,7 +77,8 @@ public abstract class Command extends pro.gravit.utils.command.Command {
             @Override
             public void onFailed(Path path, Throwable e) {
                 logger.error("Failed to download {}: {}", path, e);
-                downloaderRef.get().cancel();
+                Downloader active = downloaderRef.get();
+                if (active != null) active.cancel();
             }
 
             @Override
@@ -86,16 +87,7 @@ public abstract class Command extends pro.gravit.utils.command.Command {
             }
         }, null, 32);
         downloaderRef.set(downloader);
-        downloader.getFuture().handle((v, e) -> {
-            CompletableFuture<Void> future = new CompletableFuture<>();
-            bar.close();
-            if (e != null) {
-                future.completeExceptionally(e);
-            } else {
-                future.complete(null);
-            }
-            return future;
-        });
+        downloader.getFuture().whenComplete((ignored, error) -> bar.close());
         return downloader;
     }
 }

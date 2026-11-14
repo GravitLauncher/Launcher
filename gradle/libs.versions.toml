@@ -7,19 +7,10 @@ slf4j = "2.0.18"
 oshi = "7.5.0"
 # LaunchServer libraries
 log4j = "2.26.1"
-netty = "4.2.17.Final"
 bouncycastle = "1.84"
-jjwt = "0.13.0"
 progressbar = "0.10.2"
 asm = "9.10.1"
 proguard = "7.9.1"
-# Database libraries
-hikari = "7.1.0"
-postgresql = "42.7.13"
-mysql = "26.7.0"
-mariadb = "3.5.10"
-h2 = "2.4.240"
-totp = "1.7.1"
 # Modules libraries
 sentry = "8.46.0"
 jbcrypt = "0.4"
@@ -39,24 +30,11 @@ oshi-common = { module = "com.github.oshi:oshi-common", version.ref = "oshi" }
 log4j-api = { module = "org.apache.logging.log4j:log4j-api", version.ref = "log4j" }
 log4j-core = { module = "org.apache.logging.log4j:log4j-core", version.ref = "log4j" }
 log4j-slf4j-impl = { module = "org.apache.logging.log4j:log4j-slf4j2-impl", version.ref = "log4j" }
-netty-codec-http = { module = "io.netty:netty-codec-http", version.ref = "netty" }
-netty-transport-epoll = { module = "io.netty:netty-transport-native-epoll", version.ref = "netty" }
-netty-transport-io-uring = { module = "io.netty:netty-transport-native-io_uring", version.ref = "netty" }
 bouncycastle-bcpkix = { module = "org.bouncycastle:bcpkix-jdk18on", version.ref = "bouncycastle" }
-jjwt-api = { module = "io.jsonwebtoken:jjwt-api", version.ref = "jjwt" }
-jjwt-impl = { module = "io.jsonwebtoken:jjwt-impl", version.ref = "jjwt" }
-jjwt-gson = { module = "io.jsonwebtoken:jjwt-gson", version.ref = "jjwt" }
 progressbar = { module = "me.tongfei:progressbar", version.ref = "progressbar" }
 asm = { module = "org.ow2.asm:asm", version.ref = "asm" }
 asm-tree = { module = "org.ow2.asm:asm-tree", version.ref = "asm" }
 proguard = { module = "com.guardsquare:proguard-base", version.ref = "proguard" }
-# Database libraries
-db-hikari = { module = "com.zaxxer:HikariCP", version.ref = "hikari" }
-db-postgresql = { module = "org.postgresql:postgresql", version.ref = "postgresql" }
-db-mysql = { module = "com.mysql:mysql-connector-j", version.ref = "mysql" }
-db-mariadb = { module = "org.mariadb.jdbc:mariadb-java-client", version.ref = "mariadb" }
-db-h2 = { module = "com.h2database:h2", version.ref = "h2" }
-totp = { module = "dev.samstevens.totp:totp", version.ref = "totp"  }
 # Modules libraries
 sentry = { module = "io.sentry:sentry", version.ref = "sentry"  }
 sentry-log4j2 = { module = "io.sentry:sentry-log4j2", version.ref = "sentry"  }

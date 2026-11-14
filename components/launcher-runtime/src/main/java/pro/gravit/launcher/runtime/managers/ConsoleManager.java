@@ -11,7 +11,6 @@ import pro.gravit.utils.command.CommandHandler;
 import pro.gravit.utils.command.JLineCommandHandler;
 import pro.gravit.utils.command.StdCommandHandler;
 import pro.gravit.utils.command.basic.ClearCommand;
-import pro.gravit.utils.command.basic.DebugCommand;
 import pro.gravit.utils.command.basic.GCCommand;
 import pro.gravit.utils.command.basic.HelpCommand;
 import pro.gravit.utils.helper.CommonHelper;
@@ -62,7 +61,6 @@ public class ConsoleManager {
         ClientUnlockConsoleEvent event = new ClientUnlockConsoleEvent(handler);
         LauncherEngine.modulesManager.invokeEvent(event);
         if (event.isCancel()) return false;
-        handler.registerCommand("debug", new DebugCommand());
         handler.unregisterCommand("unlock");
         isConsoleUnlock = true;
         return true;

@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 import pro.gravit.launcher.base.ClientPermissions;
 import pro.gravit.launcher.base.Launcher;
 import pro.gravit.launcher.base.LauncherConfig;
+import pro.gravit.launcher.base.ApiMode;
 import pro.gravit.launcher.base.api.AuthService;
 import pro.gravit.launcher.base.api.ClientService;
 import pro.gravit.launcher.base.api.ConfigService;
@@ -17,7 +18,7 @@ import pro.gravit.launcher.core.api.LauncherAPIHolder;
 import pro.gravit.launcher.client.LauncherAPIInitializer;
 import pro.gravit.launcher.server.authlib.InstallAuthlib;
 import pro.gravit.utils.helper.IOHelper;
-import pro.gravit.utils.helper.LogHelper;
+import pro.gravit.utils.helper.FormatHelper;
 import pro.gravit.utils.helper.SecurityHelper;
 import pro.gravit.utils.launch.*;
 
@@ -58,8 +59,8 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
     }
 
     public static void main(String... args) throws Throwable {
-        LogHelper.printVersion("ServerWrapper");
-        LogHelper.printLicense("ServerWrapper");
+        logger.info(FormatHelper.formatVersion("ServerWrapper"));
+        logger.info(FormatHelper.formatLicense("ServerWrapper"));
         ServerWrapper.wrapper = new ServerWrapper(ServerWrapper.Config.class, configFile);
         ServerWrapper.wrapper.run(args);
     }
@@ -90,13 +91,33 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
         loadConfig();
     }
 
+    @Override
+    public void loadConfig(com.google.gson.Gson gson, Path path) throws java.io.IOException {
+        if (generateConfigIfNotExists(path)) return;
+        try (var reader = IOHelper.newReader(path)) {
+            var json = com.google.gson.JsonParser.parseReader(reader).getAsJsonObject();
+            if (json.has("microsoftClientSecret")) {
+                throw new IllegalArgumentException("microsoftClientSecret was removed; Microsoft authentication uses a public client");
+            }
+            if (json.has("logFile")) {
+                throw new IllegalArgumentException("logFile was removed; configure logging through the SLF4J provider");
+            }
+            Config value = gson.fromJson(json, Config.class);
+            if (value == null || value.apiMode == null) {
+                throw new IllegalArgumentException("ServerWrapper configuration and apiMode must be valid; supported modes: AUTO, HTTP, MICROSOFT, OFFLINE");
+            }
+            setConfig(value);
+        } catch (IllegalArgumentException | IllegalStateException e) {
+            throw new java.io.IOException("Invalid ServerWrapper configuration at " + path + ": " + e.getMessage(), e);
+        }
+    }
+
     public void connect() throws Exception {
         config.applyEnv();
         updateLauncherConfig();
         LauncherAPIInitializer.initialize(null, Launcher.getConfig(), List.of());
         LauncherAPIHolder.changeAuthId(config.authId == null ? "std" : config.authId);
 
-        if (config.logFile != null) LogHelper.addOutput(IOHelper.newWriter(Paths.get(config.logFile), true));
         {
             restore();
             //getProfiles();
@@ -246,7 +267,6 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
         cfg.launcherApiOfflineOnConnectionFail = config.offlineOnConnectionFail;
         cfg.launcherApiMicrosoftEnabled = config.microsoftAuthEnabled;
         cfg.launcherApiMicrosoftClientId = config.microsoftClientId;
-        cfg.launcherApiMicrosoftClientSecret = config.microsoftClientSecret;
         Launcher.setConfig(cfg);
     }
 
@@ -280,7 +300,6 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
         public String address;
         public String serverName;
         public boolean autoloadLibraries;
-        public String logFile;
         public List<String> classpath;
         public ClientProfile.ClassLoaderConfig classLoaderConfig;
         public String librariesDir;
@@ -291,11 +310,10 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
         public List<String> compatClasses;
         public List<String> loadNatives;
         public String authId;
-        public LauncherAPIInitializer.ApiMode apiMode = LauncherAPIInitializer.ApiMode.AUTO;
+        public ApiMode apiMode = ApiMode.AUTO;
         public boolean offlineOnConnectionFail = true;
         public boolean microsoftAuthEnabled;
         public String microsoftClientId;
-        public String microsoftClientSecret;
         public String accessToken;
         public long oauthExpireTime;
         public LauncherConfig.LauncherEnvironment env;
@@ -324,11 +342,10 @@ public class ServerWrapper extends JsonConfigurable<ServerWrapper.Config> {
             this.authId = applyEnvOrDefault("SERVERWRAPPER_AUTH_ID", this.authId);
             this.address = applyEnvOrDefault("SERVERWRAPPER_ADDRESS", this.address);
             this.serverName = applyEnvOrDefault("SERVERWRAPPER_SERVER_NAME", this.serverName);
-            this.apiMode = applyEnvOrDefault("SERVERWRAPPER_API_MODE", LauncherAPIInitializer.ApiMode::valueOf, this.apiMode);
+            this.apiMode = applyEnvOrDefault("SERVERWRAPPER_API_MODE", ApiMode::valueOf, this.apiMode);
             this.offlineOnConnectionFail = applyEnvOrDefault("SERVERWRAPPER_OFFLINE_ON_CONNECTION_FAIL", Boolean::parseBoolean, this.offlineOnConnectionFail);
             this.microsoftAuthEnabled = applyEnvOrDefault("SERVERWRAPPER_MICROSOFT_AUTH_ENABLED", Boolean::parseBoolean, this.microsoftAuthEnabled);
             this.microsoftClientId = applyEnvOrDefault("SERVERWRAPPER_MICROSOFT_CLIENT_ID", this.microsoftClientId);
-            this.microsoftClientSecret = applyEnvOrDefault("SERVERWRAPPER_MICROSOFT_CLIENT_SECRET", this.microsoftClientSecret);
             this.encodedServerEcPublicKey = applyEnvOrDefault("SERVERWRAPPER_EC_PUBLIC_KEY", Base64.getUrlDecoder()::decode, null);
             this.encodedServerRsaPublicKey = applyEnvOrDefault("SERVERWRAPPER_RSA_PUBLIC_KEY", Base64.getUrlDecoder()::decode, null);
             {

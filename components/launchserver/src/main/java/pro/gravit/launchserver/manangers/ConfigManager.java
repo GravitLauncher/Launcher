@@ -3,7 +3,6 @@ package pro.gravit.launchserver.manangers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pro.gravit.launcher.base.config.JsonConfigurable;
-import pro.gravit.utils.helper.LogHelper;
 import pro.gravit.utils.helper.VerifyHelper;
 
 import java.io.IOException;
@@ -26,7 +25,7 @@ public class ConfigManager {
 
     public void printConfigurables() {
         logger.info("Print configurables");
-        CONFIGURABLE.forEach((k, v) -> LogHelper.subInfo(k));
+        CONFIGURABLE.forEach((k, v) -> logger.info(k));
         logger.info("Found {} configurables", CONFIGURABLE.size());
     }
 

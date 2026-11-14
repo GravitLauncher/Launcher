@@ -1,4 +1,4 @@
-package pro.gravit.launchserver.auth.updates;
+package pro.gravit.launchserver.distribution;
 
 import pro.gravit.launcher.core.api.features.CoreFeatureAPI;
 import pro.gravit.launchserver.LaunchServer;

@@ -4,7 +4,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import pro.gravit.launcher.core.api.features.CoreFeatureAPI;
 import pro.gravit.launchserver.LaunchServer;
-import pro.gravit.launchserver.auth.updates.UpdatesProvider;
+import pro.gravit.launchserver.distribution.UpdatesProvider;
 import pro.gravit.utils.helper.SecurityHelper;
 
 import java.io.IOException;

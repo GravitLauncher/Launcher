@@ -11,7 +11,7 @@ import pro.gravit.launcher.base.profiles.ClientProfileVersions;
 import pro.gravit.launcher.core.hasher.HashedDir;
 import pro.gravit.launchserver.HttpRequester;
 import pro.gravit.launchserver.LaunchServer;
-import pro.gravit.launchserver.auth.profiles.ProfilesProvider;
+import pro.gravit.launchserver.profiles.ProfilesProvider;
 import pro.gravit.launchserver.command.Command;
 import pro.gravit.launchserver.helper.AssetsDirHelper;
 import pro.gravit.launchserver.helper.MakeProfileHelper;

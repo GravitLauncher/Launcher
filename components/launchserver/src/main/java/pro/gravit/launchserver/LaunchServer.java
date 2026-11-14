@@ -3,9 +3,8 @@ package pro.gravit.launchserver;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import pro.gravit.launcher.base.modules.events.ClosePhase;
-import pro.gravit.launcher.base.profiles.ClientProfile;
 import pro.gravit.launcher.core.api.features.CoreFeatureAPI;
-import pro.gravit.launchserver.auth.updates.UpdatesProvider;
+import pro.gravit.launchserver.distribution.UpdatesProvider;
 import pro.gravit.launchserver.binary.JARLauncherBinary;
 import pro.gravit.launchserver.binary.LauncherBinary;
 import pro.gravit.launchserver.binary.PipelineContext;
@@ -16,13 +15,10 @@ import pro.gravit.launchserver.launchermodules.LauncherModuleLoader;
 import pro.gravit.launchserver.manangers.*;
 import pro.gravit.launchserver.modules.events.*;
 import pro.gravit.launchserver.modules.impl.LaunchServerModulesManager;
-import pro.gravit.launchserver.socket.SocketCommandServer;
 import pro.gravit.utils.command.Command;
 import pro.gravit.utils.command.CommandHandler;
 import pro.gravit.utils.command.SubCommand;
-import pro.gravit.utils.helper.CommonHelper;
 import pro.gravit.utils.helper.IOHelper;
-import pro.gravit.utils.helper.JVMHelper;
 import pro.gravit.utils.helper.SecurityHelper;
 
 import java.io.IOException;
@@ -31,6 +27,7 @@ import java.security.KeyStore;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -87,19 +84,19 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
     public final MirrorManager mirrorManager;
     public final ReconfigurableManager reconfigurableManager;
     public final ConfigManager configManager;
-    public final FeaturesManager featuresManager;
     public final KeyAgreementManager keyAgreementManager;
     // HWID ban + anti-brutforce
     public final CertificateManager certificateManager;
     // Server
     public final CommandHandler commandHandler;
-    public final SocketCommandServer socketCommandServer;
     public final ScheduledExecutorService service;
-    public final AtomicBoolean started = new AtomicBoolean(false);
+    private final AtomicBoolean started = new AtomicBoolean(false);
+    private final AtomicBoolean closed = new AtomicBoolean(false);
+    private final CountDownLatch termination = new CountDownLatch(1);
     public final LauncherModuleLoader launcherModuleLoader;
     private final Logger logger = LogManager.getLogger();
     public final int shardId;
-    public LaunchServerConfig config;
+    public volatile LaunchServerConfig config;
     public final LauncherModulesConfig modulesConfig;
 
     public LaunchServer(LaunchServerDirectories directories, LaunchServerEnv env, LaunchServerConfig config, LaunchServerConfigManager launchServerConfigManager, LaunchServerModulesManager modulesManager, KeyAgreementManager keyAgreementManager, CommandHandler commandHandler, CertificateManager certificateManager, int shardId, LauncherModulesConfig modulesConfig) throws IOException {
@@ -113,7 +110,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
         this.keyAgreementManager = keyAgreementManager;
         this.commandHandler = commandHandler;
         this.certificateManager = certificateManager;
-        this.service = Executors.newScheduledThreadPool(config.netty.performance.schedulerThread);
+        config.verify();
         launcherLibraries = directories.launcherLibrariesDir;
         launcherLibrariesCompile = directories.launcherLibrariesCompileDir;
         launcherPack = directories.launcherPackDir;
@@ -129,11 +126,6 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
 
         config.setLaunchServer(this);
 
-        modulesManager.invokeEvent(new NewLaunchServerInstanceEvent(this));
-
-        // Print keypair fingerprints
-
-        config.verify();
 
         if(config.experimentalDevOnlyFeatures) {
             logger.warn("Experimental features enabled. Be careful");
@@ -143,54 +135,72 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
         mirrorManager = new MirrorManager();
         reconfigurableManager = new ReconfigurableManager();
         configManager = new ConfigManager();
-        featuresManager = new FeaturesManager(this);
 
-        config.init(ReloadType.FULL);
-        registerObject("launchServer", this);
+        this.service = Executors.newScheduledThreadPool(config.scheduler.threads);
+        LauncherModuleLoader moduleLoader = null;
+        try {
+            modulesManager.invokeEvent(new NewLaunchServerInstanceEvent(this));
+            config.init(ReloadType.FULL);
+            registerObject("launchServer", this);
 
-        pro.gravit.launchserver.command.handler.CommandHandler.registerCommands(commandHandler, this);
+            pro.gravit.launchserver.command.handler.CommandHandler.registerCommands(commandHandler, this);
 
-        // init modules
-        modulesManager.invokeEvent(new LaunchServerInitPhase(this));
+            // init modules
+            modulesManager.invokeEvent(new LaunchServerInitPhase(this));
 
-        // Set launcher EXE binary
-        launcherBinaries = new HashMap<>();
-        collectBinary();
-        launcherModuleLoader = new LauncherModuleLoader(this);
-        if (config.components != null) {
-            logger.debug("Init components");
-            config.components.forEach((k, v) -> {
-                logger.debug("Init component {}", k);
-                v.setComponentName(k);
-                v.init(this);
-            });
-            logger.debug("Init components successful");
+            // Set launcher EXE binary
+            launcherBinaries = new HashMap<>();
+            collectBinary();
+            moduleLoader = new LauncherModuleLoader(this);
+            launcherModuleLoader = moduleLoader;
+            config.initComponents();
+            moduleLoader.init();
+            if(config.sign.checkCertificateExpired) {
+                checkCertificateExpired();
+                service.scheduleAtFixedRate(this::checkCertificateExpired, 24, 24, TimeUnit.HOURS);
+            }
+            // post init modules
+            modulesManager.invokeEvent(new LaunchServerPostInitPhase(this));
+        } catch (IOException | RuntimeException | Error failure) {
+            service.shutdownNow();
+            try { config.close(ReloadType.FULL); } catch (Throwable cleanup) { failure.addSuppressed(cleanup); }
+            try { mirrorManager.close(); } catch (Throwable cleanup) { failure.addSuppressed(cleanup); }
+            try { modulesManager.invokeEvent(new ClosePhase()); } catch (Throwable cleanup) { failure.addSuppressed(cleanup); }
+            if (moduleLoader != null) {
+                try { moduleLoader.close(); } catch (Throwable cleanup) { failure.addSuppressed(cleanup); }
+            }
+            try { modulesManager.close(); } catch (Throwable cleanup) { failure.addSuppressed(cleanup); }
+            throw failure;
         }
-        launcherModuleLoader.init();
-        socketCommandServer = new SocketCommandServer(commandHandler, controlFile);
-        if(config.sign.checkCertificateExpired) {
-            checkCertificateExpired();
-            service.scheduleAtFixedRate(this::checkCertificateExpired, 24, 24, TimeUnit.HOURS);
-        }
-        // post init modules
-        modulesManager.invokeEvent(new LaunchServerPostInitPhase(this));
     }
 
-    public void reload(ReloadType type) throws Exception {
-        config.close(type);
+    public synchronized void reload(ReloadType type) throws Exception {
+        if (closed.get()) throw new IllegalStateException("LaunchServer is closed");
         logger.info("Reading LaunchServer config file");
-        config = launchServerConfigManager.readConfig();
-        config.setLaunchServer(this);
-        config.verify();
-        config.init(type);
-        if (type.equals(ReloadType.FULL) && config.components != null) {
-            logger.debug("Init components");
-            config.components.forEach((k, v) -> {
-                logger.debug("Init component {}", k);
-                v.setComponentName(k);
-                v.init(this);
-            });
-            logger.debug("Init components successful");
+        LaunchServerConfig replacement = launchServerConfigManager.readConfig();
+        replacement.setLaunchServer(this);
+        replacement.verify();
+        if (replacement.scheduler.threads != config.scheduler.threads) {
+            throw new IllegalArgumentException("Changing scheduler.threads requires a restart");
+        }
+        if (replacement == config) return;
+        LaunchServerConfig previous = config;
+        if (type == ReloadType.NO_COMPONENTS) replacement.components = previous.components;
+        try {
+            previous.close(type);
+        } catch (Exception | Error failure) {
+            try { close(); } catch (Throwable cleanup) { failure.addSuppressed(cleanup); }
+            throw failure;
+        }
+        if (type == ReloadType.NO_COMPONENTS) replacement.inheritComponents(previous);
+        config = replacement;
+        mirrorManager.clear();
+        try {
+            config.init(type);
+            if (type == ReloadType.FULL) config.initComponents();
+        } catch (Exception | Error failure) {
+            try { close(); } catch (Throwable cleanup) { failure.addSuppressed(cleanup); }
+            throw failure;
         }
     }
 
@@ -207,7 +217,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
                 switch (args[0]) {
                     case "full" -> reload(ReloadType.FULL);
                     case "no_components" -> reload(ReloadType.NO_COMPONENTS);
-                    default -> reload(ReloadType.NO_AUTH);
+                    default -> throw new IllegalArgumentException("Reload type must be full or no_components");
                 }
             }
         };
@@ -264,7 +274,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
         }
     }
 
-    public void buildLauncherBinaries() throws IOException {
+    public synchronized void buildLauncherBinaries() throws IOException {
         List<PipelineContext> contexts = new ArrayList<>(2);
         try {
             List<UpdatesProvider.UpdateUploadInfo> list = new ArrayList<>(2);
@@ -294,45 +304,51 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
         }
     }
 
-    public void close() throws Exception {
+    @Override
+    public synchronized void close() throws Exception {
+        if (!closed.compareAndSet(false, true)) return;
+        commandHandler.requestStop();
+        Throwable failure = null;
         service.shutdownNow();
-        // Close handlers & providers
-        config.close(ReloadType.FULL);
-        modulesManager.invokeEvent(new ClosePhase());
-        // Print last message before death :(
+        try { config.close(ReloadType.FULL); } catch (Throwable e) { failure = e; }
+        try { mirrorManager.close(); } catch (Throwable e) {
+            if (failure == null) failure = e; else failure.addSuppressed(e);
+        }
+        try { modulesManager.invokeEvent(new ClosePhase()); } catch (Throwable e) {
+            if (failure == null) failure = e; else failure.addSuppressed(e);
+        }
+        try { launcherModuleLoader.close(); } catch (Throwable e) {
+            if (failure == null) failure = e; else failure.addSuppressed(e);
+        }
+        try { modulesManager.close(); } catch (Throwable e) {
+            if (failure == null) failure = e; else failure.addSuppressed(e);
+        }
+        termination.countDown();
         logger.info("LaunchServer stopped");
+        if (failure instanceof Exception exception) throw exception;
+        if (failure instanceof Error error) throw error;
+        if (failure != null) throw new IllegalStateException("LaunchServer shutdown failed", failure);
     }
 
-    @Deprecated
-    public void setProfiles(Set<ClientProfile> profilesList) {
-        throw new UnsupportedOperationException();
+    public synchronized void start() {
+        if (closed.get()) throw new IllegalStateException("LaunchServer is closed");
+        if (!started.compareAndSet(false, true)) throw new IllegalStateException("LaunchServer has already started");
+        try {
+            modulesManager.invokeEvent(new LaunchServerFullInitEvent(this));
+            logger.info("LaunchServer started");
+        } catch (RuntimeException | Error failure) {
+            try { close(); } catch (Exception cleanup) { failure.addSuppressed(cleanup); }
+            throw failure;
+        }
     }
 
     @Override
     public void run() {
-        if (started.getAndSet(true))
-            throw new IllegalStateException("LaunchServer has been already started");
+        start();
+    }
 
-        // Add shutdown hook, then start LaunchServer
-        if (!this.env.equals(LaunchServerEnv.TEST)) {
-            JVMHelper.RUNTIME.addShutdownHook(CommonHelper.newThread(null, false, () -> {
-                try {
-                    close();
-                } catch (Exception e) {
-                    logger.error("LaunchServer close error", e);
-                }
-            }));
-            CommonHelper.newThread("Command Thread", true, commandHandler).start();
-            CommonHelper.newThread("Socket Command Thread", true, socketCommandServer).start();
-        }
-        try {
-            //modulesManager.fullInitializedLaunchServer(this);
-            modulesManager.invokeEvent(new LaunchServerFullInitEvent(this));
-            logger.info("LaunchServer started");
-        } catch (Throwable e) {
-            logger.error("LaunchServer startup failed", e);
-            JVMHelper.RUNTIME.exit(-1);
-        }
+    public void awaitTermination() throws InterruptedException {
+        termination.await();
     }
 
     public void registerObject(String name, Object object) {
@@ -349,7 +365,6 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
 
 
     public enum ReloadType {
-        NO_AUTH,
         NO_COMPONENTS,
         FULL
     }

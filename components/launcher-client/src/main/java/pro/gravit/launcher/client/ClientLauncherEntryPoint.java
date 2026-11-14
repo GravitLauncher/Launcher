@@ -9,7 +9,6 @@ import pro.gravit.launcher.base.api.ClientService;
 import pro.gravit.launcher.base.api.KeyService;
 import pro.gravit.launcher.base.request.*;
 import pro.gravit.launcher.client.events.*;
-import pro.gravit.launcher.core.api.LauncherAPIHolder;
 import pro.gravit.launcher.core.hasher.FileNameMatcher;
 import pro.gravit.launcher.core.hasher.HashedDir;
 import pro.gravit.launcher.core.hasher.HashedEntry;
@@ -72,7 +71,7 @@ public class ClientLauncherEntryPoint {
         JVMHelper.verifySystemProperties(ClientLauncherEntryPoint.class, true);
         EnvHelper.checkDangerousParams();
         JVMHelper.checkStackTrace(ClientLauncherEntryPoint.class);
-        LogHelper.printVersion("Client Launcher");
+        logger.info(FormatHelper.formatVersion("Client Launcher"));
         ClientLauncherMethods.checkClass(ClientLauncherEntryPoint.class);
         try {
             realMain(args);
@@ -110,9 +109,7 @@ public class ClientLauncherEntryPoint {
         // Start client with WatchService monitoring
         var config = Launcher.getConfig();
         config.apply();
-        LauncherAPIInitializer.initialize(modulesManager, config, List.of());
-        LauncherAPIHolder.changeAuthId(params.authId);
-        LauncherAPIHolder.auth().restore(params.remoteAccessToken, false).get();
+        LauncherAPIInitializer.initializeClient(modulesManager, config, params);
         logger.debug("Natives dir {}", params.nativesDir);
         ClientProfile.ClassLoaderConfig classLoaderConfig = profile.getClassLoaderConfig();
         LaunchOptions options = new LaunchOptions();

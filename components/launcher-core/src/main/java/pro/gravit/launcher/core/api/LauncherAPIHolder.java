@@ -6,6 +6,9 @@ import pro.gravit.launcher.core.api.features.ProfileFeatureAPI;
 import pro.gravit.launcher.core.api.features.UserFeatureAPI;
 
 import java.util.Map;
+import java.util.Set;
+import java.util.Collections;
+import java.util.IdentityHashMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 
@@ -14,6 +17,29 @@ public final class LauncherAPIHolder {
     private static volatile LauncherAPI api;
     private static volatile Function<String, LauncherAPI> createApiFactory;
     private static final Map<String, LauncherAPI> map = new ConcurrentHashMap<>();
+
+    private static final Set<AutoCloseable> resources = Collections.newSetFromMap(new IdentityHashMap<>());
+
+    public static synchronized void registerResource(AutoCloseable resource) {
+        resources.add(resource);
+    }
+
+    /** Clears cached sessions and closes transports owned by this API configuration. */
+    public static synchronized void reset() {
+        coreAPI = null;
+        api = null;
+        createApiFactory = null;
+        map.clear();
+        RuntimeException failure = null;
+        for (AutoCloseable resource : resources) {
+            try { resource.close(); } catch (Exception e) {
+                if (failure == null) failure = new IllegalStateException("Failed to close launcher API transport", e);
+                else failure.addSuppressed(e);
+            }
+        }
+        resources.clear();
+        if (failure != null) throw failure;
+    }
 
     public static void setCoreAPI(CoreFeatureAPI coreAPI) {
         LauncherAPIHolder.coreAPI = coreAPI;

@@ -3,10 +3,6 @@ plugins {
     id("com.gradleup.shadow")
 }
 
-java {
-    sourceCompatibility = JavaVersion.VERSION_21
-    targetCompatibility = JavaVersion.VERSION_21
-}
 
 tasks.jar {
     manifest {
@@ -21,38 +17,33 @@ tasks.jar {
     }
 }
 
-val fatJar = tasks.register("fatJar", Jar::class) {
-    dependsOn(":components:launcher-utils:jar")
-    dependsOn(":components:launcher-core:jar")
-    dependsOn(":components:launcher-api:jar")
-    dependsOn(":components:launcher-client:jar")
-    from(project.configurations["runtimeClasspath"]
-        .map({ if (it.isDirectory) it else zipTree(it) }))
+val fatJar = tasks.register<com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar>("fatJar") {
+    configurations.set(listOf(project.configurations.runtimeClasspath.get()))
     from(sourceSets.main.get().output)
     archiveClassifier.set("all")
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     exclude("module-info.class", "META-INF/MANIFEST.SF")
+    manifest.from(tasks.jar.get().manifest)
 }
 
-val inlineJar = tasks.register("inlineJar", Jar::class) {
-    dependsOn(":components:launcher-utils:jar")
-    dependsOn(":components:launcher-core:jar")
-    dependsOn(":components:launcher-api:jar")
-    dependsOn(":components:launcher-client:jar")
-    from(project.configurations["runtimeClasspath"]
-        .map({ if (it.isDirectory) it else zipTree(it) }))
+tasks.named<com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar>("shadowJar") {
+    enabled = false
+}
+
+val inlineJar = tasks.register<com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar>("inlineJar") {
+    configurations.set(listOf(project.configurations.runtimeClasspath.get()))
     from(sourceSets.main.get().output)
     archiveClassifier.set("inline")
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-    exclude("module-info.class")
+    exclude("module-info.class", "META-INF/MANIFEST.SF")
     exclude("com/google/**")
     exclude("org/slf4j/**")
+    manifest.from(tasks.jar.get().manifest)
 }
 
 
 
 repositories {
-    mavenCentral()
     maven {
         url = uri("https://maven.gravitlauncher.com/")
     }

@@ -26,7 +26,7 @@
             </Filters>
         </File>
         <LogCollect name="logCollector">
-
+            <MarkerFilter marker="JANSI" onMatch="DENY" onMismatch="NEUTRAL"/>
         </LogCollect>
     </Appenders>
     <Loggers>

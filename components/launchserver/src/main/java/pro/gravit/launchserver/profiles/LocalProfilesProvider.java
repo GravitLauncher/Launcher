@@ -1,4 +1,4 @@
-package pro.gravit.launchserver.auth.profiles;
+package pro.gravit.launchserver.profiles;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -14,6 +14,7 @@ import pro.gravit.launchserver.modules.events.LaunchServerUpdatesSyncEvent;
 import pro.gravit.utils.command.Command;
 import pro.gravit.utils.command.SubCommand;
 import pro.gravit.utils.helper.IOHelper;
+import pro.gravit.utils.helper.ManagedPath;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -35,6 +36,11 @@ public class LocalProfilesProvider extends ProfilesProvider implements Reconfigu
     private transient volatile Map<UUID, LocalProfile> profilesMap;
 
     @Override
+    public Capabilities capabilities() {
+        return new Capabilities(EnumSet.allOf(ProfileAction.ProfileActionType.class), false);
+    }
+
+    @Override
     public UncompletedProfile create(String name, String description, CompletedProfile reference) {
         LocalProfile ref = (LocalProfile) reference;
         LocalProfile profile;
@@ -48,7 +54,14 @@ public class LocalProfilesProvider extends ProfilesProvider implements Reconfigu
             profile = new LocalProfile(newClientProfile, ref.clientDir, ref.assetDir);
             Path updatesDirPath = Path.of(updatesDir);
             try {
-                IOHelper.copy(updatesDirPath.resolve(ref.profile.getDir()), updatesDirPath.resolve(profile.profile.getDir()));
+                Path source = ManagedPath.resolve(updatesDirPath, ref.profile.getDir());
+                Path destination = ManagedPath.resolve(updatesDirPath, profile.profile.getDir());
+                if (source.equals(updatesDirPath.toAbsolutePath().normalize()) || destination.equals(updatesDirPath.toAbsolutePath().normalize())) {
+                    throw new IOException("Profile directory cannot be the managed updates root");
+                }
+                validateManagedTree(source);
+                validateManagedTreeIfPresent(destination);
+                IOHelper.copy(source, destination);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -68,11 +81,14 @@ public class LocalProfilesProvider extends ProfilesProvider implements Reconfigu
     @Override
     public void delete(UncompletedProfile profile) {
         LocalProfile p = (LocalProfile) profile;
-        profilesMap.remove(p.getUuid());
         try {
             Path updatesDirPath = Path.of(updatesDir);
-            IOHelper.deleteDir(updatesDirPath.resolve(p.profile.getDir()), true);
-            Files.delete(p.getConfigPath());
+            Path profileDir = ManagedPath.resolve(updatesDirPath, p.profile.getDir());
+            if (profileDir.equals(updatesDirPath.toAbsolutePath().normalize())) throw new IOException("Cannot delete the managed updates root");
+            Path configPath = validateConfigPath(p);
+            IOHelper.deleteDir(profileDir, true);
+            Files.delete(configPath);
+            profilesMap.remove(p.getUuid());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -91,8 +107,15 @@ public class LocalProfilesProvider extends ProfilesProvider implements Reconfigu
 
     @Override
     public CompletedProfile pushUpdate(UncompletedProfile profile, String tag, ClientProfile clientProfile, List<ProfileAction> assetActions, List<ProfileAction> clientActions, List<UpdateFlag> flags) throws IOException {
+        requireSupportedRevision(tag);
+        requireSupportedActions(assetActions);
+        requireSupportedActions(clientActions);
         Path updatesDirPath = Path.of(updatesDir);
         LocalProfile localProfile = (LocalProfile) profile;
+        Path assetRoot = ManagedPath.resolve(updatesDirPath, clientProfile.getAssetDir());
+        Path clientRoot = ManagedPath.resolve(updatesDirPath, clientProfile.getDir());
+        preflightActions(assetRoot, assetActions);
+        preflightActions(clientRoot, clientActions);
         if(localProfile.profile != null && localProfile.getUuid() != null) {
             clientProfile = new ClientProfileBuilder(clientProfile)
                     .setUuid(localProfile.getUuid())
@@ -100,7 +123,7 @@ public class LocalProfilesProvider extends ProfilesProvider implements Reconfigu
         }
         localProfile = new LocalProfile(clientProfile, localProfile.clientDir, localProfile.assetDir);
         localProfile.profile = clientProfile;
-        if(flags.contains(UpdateFlag.USE_DEFAULT_ASSETS)) {
+        if(flags != null && flags.contains(UpdateFlag.USE_DEFAULT_ASSETS)) {
             if(getUpdatesDir("assets") == null) {
                 Path assetDirPath = updatesDirPath.resolve("assets");
                 if(!Files.exists(assetDirPath)) {
@@ -112,12 +135,12 @@ public class LocalProfilesProvider extends ProfilesProvider implements Reconfigu
             }
         }
         if(assetActions != null && !assetActions.isEmpty()) {
-            Path assetDir = updatesDirPath.resolve(clientProfile.getAssetDir());
+            Path assetDir = ManagedPath.resolve(updatesDirPath, clientProfile.getAssetDir());
             execute(localProfile.assetDir, assetDir, assetActions);
             localProfile.assetDir = new HashedDir(assetDir, null, true, true);
         }
         if(clientActions != null && !clientActions.isEmpty()) {
-            Path clientDir = updatesDirPath.resolve(clientProfile.getDir());
+            Path clientDir = ManagedPath.resolve(updatesDirPath, clientProfile.getDir());
             execute(localProfile.clientDir, clientDir, clientActions);
             localProfile.clientDir = new HashedDir(clientDir, null, true, true);
         }
@@ -125,20 +148,103 @@ public class LocalProfilesProvider extends ProfilesProvider implements Reconfigu
         return localProfile;
     }
 
+    private static void preflightActions(Path root, List<ProfileAction> actions) throws IOException {
+        if (actions == null) return;
+        for (ProfileAction action : actions) {
+            if (action == null) throw new IOException("Profile actions must not contain null entries");
+            switch (action.type()) {
+                case UPLOAD -> {
+                    Path target = ManagedPath.resolve(root, action.target());
+                    if (action.source() != null) {
+                        Path source = Path.of(action.source());
+                        validateReadableSource(source);
+                        if (target.equals(root.toAbsolutePath().normalize()) && !Files.isDirectory(source)) {
+                            throw new IOException("A file upload requires a file name target");
+                        }
+                    } else {
+                        if (target.equals(root.toAbsolutePath().normalize())) throw new IOException("Stream uploads require a file name target");
+                        if (action.input() == null) throw new IOException("Upload action requires an input stream");
+                    }
+                }
+                case COPY, MOVE -> {
+                    ManagedPath.resolve(root, action.source());
+                    Path target = ManagedPath.resolve(root, action.target());
+                    if (target.equals(root.toAbsolutePath().normalize())) throw new IOException("Profile action target cannot be the managed directory root");
+                    Path source = ManagedPath.resolve(root, action.source());
+                    if (action.type() == ProfileAction.ProfileActionType.MOVE && source.equals(root.toAbsolutePath().normalize())) {
+                        throw new IOException("Cannot move the managed directory root");
+                    }
+                    if (!Files.exists(source) || !Files.isReadable(source)) throw new IOException("Profile action source is missing or unreadable: " + source);
+                    validateManagedTree(source);
+                    validateManagedTreeIfPresent(target);
+                    if (Files.isDirectory(source) && target.startsWith(source)) {
+                        throw new IOException("Cannot copy or move a managed directory into itself: " + source);
+                    }
+                }
+                case DELETE -> {
+                    Path target = ManagedPath.resolve(root, action.target());
+                    if (target.equals(root.toAbsolutePath().normalize())) throw new IOException("Cannot delete the managed directory root");
+                }
+            }
+        }
+    }
+
+    private static void validateReadableSource(Path source) throws IOException {
+        if (!Files.exists(source) || !Files.isReadable(source)) throw new IOException("Upload source is missing or unreadable: " + source);
+        if (Files.isDirectory(source)) {
+            try (var paths = Files.walk(source)) {
+                var iterator = paths.iterator();
+                while (iterator.hasNext()) {
+                    Path path = iterator.next();
+                    if (Files.isSymbolicLink(path)) throw new IOException("Symbolic links are not allowed in profile upload sources: " + path);
+                    if (!Files.isReadable(path)) throw new IOException("Upload source contains an unreadable path: " + path);
+                }
+            }
+        } else if (!Files.isRegularFile(source)) {
+            throw new IOException("Upload source must be a regular file or directory: " + source);
+        }
+    }
+
+    private static void validateManagedTreeIfPresent(Path path) throws IOException {
+        if (Files.exists(path)) validateManagedTree(path);
+    }
+
+    private static void validateManagedTree(Path root) throws IOException {
+        if (Files.isSymbolicLink(root)) throw new IOException("Symbolic links are not allowed in managed paths: " + root);
+        if (!Files.isDirectory(root)) return;
+        try (var paths = Files.walk(root)) {
+            var iterator = paths.iterator();
+            while (iterator.hasNext()) {
+                Path path = iterator.next();
+                if (Files.isSymbolicLink(path)) throw new IOException("Symbolic links are not allowed in managed paths: " + path);
+            }
+        }
+    }
+
     private void  pushProfileAndSave(LocalProfile localProfile) {
-        profilesMap.put(localProfile.getUuid(), localProfile);
-        try(Writer writer = IOHelper.newWriter(localProfile.getConfigPath())) {
+        try {
+            Path configPath = validateConfigPath(localProfile);
+            try (Writer writer = IOHelper.newWriter(configPath)) {
             Launcher.gsonManager.configGson.toJson(localProfile.profile, writer);
+            }
+            profilesMap.put(localProfile.getUuid(), localProfile);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
+    private Path validateConfigPath(LocalProfile profile) throws IOException {
+        Path root = Path.of(profilesDir).toAbsolutePath().normalize();
+        Path config = profile.getConfigPath().toAbsolutePath().normalize();
+        if (!config.startsWith(root)) throw new IOException("Profile config path escapes the managed profiles directory: " + config);
+        return ManagedPath.resolve(root, root.relativize(config).toString());
+    }
+
     @Override
     public void download(CompletedProfile profile, Map<String, Path> files, boolean assets) throws IOException {
-        Path sourceDir = Path.of(updatesDir).resolve(assets ? profile.getProfile().getAssetDir() : profile.getProfile().getDir());
+        Path sourceDir = ManagedPath.resolve(Path.of(updatesDir), assets ? profile.getProfile().getAssetDir() : profile.getProfile().getDir());
         for(var e : files.entrySet()) {
-            var source = sourceDir.resolve(e.getKey());
+            var source = ManagedPath.resolve(sourceDir, e.getKey());
             var target = e.getValue();
             IOHelper.createParentDirs(target);
             IOHelper.copy(source, target);
@@ -152,11 +258,13 @@ public class LocalProfilesProvider extends ProfilesProvider implements Reconfigu
 
     @Override
     public CompletedProfile get(UUID uuid, String tag) {
+        requireSupportedRevision(tag);
         return profilesMap.get(uuid);
     }
 
     @Override
     public CompletedProfile get(String name, String tag) {
+        requireSupportedRevision(tag);
         for(var p : profilesMap.values()) {
             if(p.getName() != null && p.getName().equals(name)) {
                 return p;
@@ -293,12 +401,12 @@ public class LocalProfilesProvider extends ProfilesProvider implements Reconfigu
     public static void execute(HashedDir dir, Path updatesDirPath, ProfileAction action) throws IOException {
         switch (action.type()) {
             case UPLOAD -> {
-                Path target = updatesDirPath.resolve(action.target());
+                Path target = ManagedPath.resolve(updatesDirPath, action.target());
                 if(action.source() == null) {
                     IOHelper.createParentDirs(target);
                     IOHelper.transfer(action.input().get(), target);
                 } else {
-                    Path source = Path.of(action.source());
+                    Path source = Path.of(action.source()).toAbsolutePath().normalize();
                     if(source.toAbsolutePath().equals(target.toAbsolutePath())) {
                         return;
                     }
@@ -312,8 +420,8 @@ public class LocalProfilesProvider extends ProfilesProvider implements Reconfigu
                 }
             }
             case COPY -> {
-                Path source = updatesDirPath.resolve(action.source());
-                Path target = updatesDirPath.resolve(action.target());
+                Path source = ManagedPath.resolve(updatesDirPath, action.source());
+                Path target = ManagedPath.resolve(updatesDirPath, action.target());
                 if(source.toAbsolutePath().equals(target.toAbsolutePath())) {
                     return;
                 }
@@ -321,8 +429,8 @@ public class LocalProfilesProvider extends ProfilesProvider implements Reconfigu
                 IOHelper.copy(source, target);
             }
             case MOVE -> {
-                Path source = updatesDirPath.resolve(action.source());
-                Path target = updatesDirPath.resolve(action.target());
+                Path source = ManagedPath.resolve(updatesDirPath, action.source());
+                Path target = ManagedPath.resolve(updatesDirPath, action.target());
                 if(source.toAbsolutePath().equals(target.toAbsolutePath())) {
                     return;
                 }
@@ -330,7 +438,7 @@ public class LocalProfilesProvider extends ProfilesProvider implements Reconfigu
                 IOHelper.move(source, target);
             }
             case DELETE -> {
-                Path target = updatesDirPath.resolve(action.target());
+                Path target = ManagedPath.resolve(updatesDirPath, action.target());
                 if(Files.isDirectory(target)) {
                     IOHelper.deleteDir(target, true);
                 }
@@ -375,7 +483,11 @@ public class LocalProfilesProvider extends ProfilesProvider implements Reconfigu
             this.profile = profile;
             this.clientDir = clientDir;
             this.assetDir = assetDir;
-            this.configPath = Path.of(profilesDir).resolve(profile.getDir().concat(".json"));
+            try {
+                this.configPath = ManagedPath.resolve(Path.of(profilesDir), profile.getDir().concat(".json"));
+            } catch (IOException e) {
+                throw new IllegalArgumentException("Invalid profile directory", e);
+            }
         }
 
         public LocalProfile(ClientProfile profile, HashedDir clientDir, HashedDir assetDir, Path configPath) {

@@ -1,6 +1,7 @@
 package pro.gravit.launcher.base.request;
 
 import pro.gravit.launcher.base.ClientPermissions;
+import pro.gravit.launcher.base.profiles.PlayerProfile;
 import pro.gravit.launcher.core.api.features.*;
 import pro.gravit.launcher.core.api.method.AuthMethod;
 import pro.gravit.launcher.core.api.method.AuthMethodDetails;
@@ -188,7 +189,7 @@ public class RequestOfflineModeAPIImpl implements CoreFeatureAPI, AuthFeatureAPI
 
         @Override
         public UUID getUUID() {
-            return UUID.fromString(login);
+            return PlayerProfile.offlineUUID(login);
         }
 
         @Override

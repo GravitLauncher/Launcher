@@ -40,24 +40,30 @@ import java.util.concurrent.CompletionException;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Pattern;
 
-public class RequestMicrosoftAPIImpl implements CoreFeatureAPI, AuthFeatureAPI, UserFeatureAPI {
+public class RequestMicrosoftAPIImpl implements CoreFeatureAPI, AuthFeatureAPI, UserFeatureAPI, AutoCloseable {
     private static final Pattern UUID_REGEX = Pattern.compile("(\\w{8})(\\w{4})(\\w{4})(\\w{4})(\\w{12})");
     private static final String MICROSOFT_SCOPE = "XboxLive.signin offline_access";
     private static final Logger logger = LoggerFactory.getLogger(RequestMicrosoftAPIImpl.class);
-    private final HttpClient client = HttpClient.newBuilder().build();
+    private final HttpClient client = HttpClient.newBuilder().connectTimeout(java.time.Duration.ofSeconds(10)).build();
     private final String clientId;
-    private final String clientSecret;
     private final AtomicReference<DeviceCodeResponse> deviceCodeRef = new AtomicReference<>();
     private final AtomicReference<MicrosoftAuthData> authDataRef = new AtomicReference<>();
     private final AtomicReference<MicrosoftUser> userRef = new AtomicReference<>();
 
-    public RequestMicrosoftAPIImpl() {
-        this("d772766b-19b4-4f69-b353-989f890c5d3b", null);
+    @Override
+    public void close() {
+        client.shutdownNow();
+        authDataRef.set(null);
+        deviceCodeRef.set(null);
+        userRef.set(null);
     }
 
-    public RequestMicrosoftAPIImpl(String clientId, String clientSecret) {
+    public RequestMicrosoftAPIImpl() {
+        this("d772766b-19b4-4f69-b353-989f890c5d3b");
+    }
+
+    public RequestMicrosoftAPIImpl(String clientId) {
         this.clientId = clientId;
-        this.clientSecret = clientSecret;
     }
 
     public static UUID getUUIDFromMojangHash(String hash) {
@@ -106,7 +112,7 @@ public class RequestMicrosoftAPIImpl implements CoreFeatureAPI, AuthFeatureAPI, 
                 .thenCompose(token -> getMinecraftTokenByMicrosoftToken(token.access_token())
                         .thenCompose(minecraftToken -> getUserSessionByOAuthAccessToken(minecraftToken.access_token())
                                 .thenApply(user -> {
-                                    logger.debug("Microsoft auth finished access {} refresh {} expire in {}", minecraftToken.access_token(), token.refresh_token(), minecraftToken.expires_in());
+                                    logger.debug("Microsoft authentication completed; token expires in {} seconds", minecraftToken.expires_in());
                                     MicrosoftAuthData authData = new MicrosoftAuthData(minecraftToken.access_token(), token.refresh_token(), minecraftToken.expires_in());
                                     authDataRef.set(authData);
                                     userRef.set(user);
@@ -116,11 +122,11 @@ public class RequestMicrosoftAPIImpl implements CoreFeatureAPI, AuthFeatureAPI, 
 
     @Override
     public CompletableFuture<AuthToken> refreshToken(String refreshToken) {
-        logger.debug("Microsoft auth trying to refresh token {}", refreshToken);
+        logger.debug("Refreshing Microsoft authentication");
         return sendMicrosoftOAuthRefreshTokenRequest(refreshToken)
                 .thenCompose(token -> getMinecraftTokenByMicrosoftToken(token.access_token())
                         .thenApply(minecraftToken -> {
-                            logger.debug("Microsoft auth refreshed token access {} refresh {} expire in {}", minecraftToken.access_token(), token.refresh_token(), minecraftToken.expires_in());
+                            logger.debug("Microsoft authentication refreshed; token expires in {} seconds", minecraftToken.expires_in());
                             MicrosoftAuthData authData = new MicrosoftAuthData(minecraftToken.access_token(), token.refresh_token(), minecraftToken.expires_in());
                             authDataRef.set(authData);
                             userRef.set(null);
@@ -130,7 +136,7 @@ public class RequestMicrosoftAPIImpl implements CoreFeatureAPI, AuthFeatureAPI, 
 
     @Override
     public CompletableFuture<SelfUser> restore(String accessToken, boolean fetchUser) {
-        logger.debug("Microsoft auth trying to restore access token {}", accessToken);
+        logger.debug("Restoring Microsoft authentication");
         MicrosoftAuthData authData = new MicrosoftAuthData(accessToken, null, 0);
         authDataRef.set(authData);
         userRef.set(null);
@@ -250,7 +256,7 @@ public class RequestMicrosoftAPIImpl implements CoreFeatureAPI, AuthFeatureAPI, 
     private CompletableFuture<DeviceCodeResponse> sendMicrosoftDeviceCodeRequest(String scope) {
         String body = "client_id=" + URLEncoder.encode(clientId, StandardCharsets.UTF_8)
                 + "&scope=" + URLEncoder.encode(scope, StandardCharsets.UTF_8);
-        HttpRequest request = HttpRequest.newBuilder()
+        HttpRequest request = HttpRequest.newBuilder().timeout(java.time.Duration.ofSeconds(60))
                 .uri(URI.create("https://login.microsoftonline.com/consumers/oauth2/v2.0/devicecode"))
                 .POST(HttpRequest.BodyPublishers.ofString(body))
                 .header("Content-Type", "application/x-www-form-urlencoded")
@@ -259,7 +265,7 @@ public class RequestMicrosoftAPIImpl implements CoreFeatureAPI, AuthFeatureAPI, 
     }
 
     private CompletableFuture<Void> checkMinecraftOwnership(String xstsToken) {
-        HttpRequest request = HttpRequest.newBuilder()
+        HttpRequest request = HttpRequest.newBuilder().timeout(java.time.Duration.ofSeconds(60))
                 .uri(URI.create("https://api.minecraftservices.com/entitlements/mcstore"))
                 .header("Authorization", "Bearer " + xstsToken)
                 .GET()
@@ -271,7 +277,7 @@ public class RequestMicrosoftAPIImpl implements CoreFeatureAPI, AuthFeatureAPI, 
         String body = "grant_type=urn:ietf:params:oauth:grant-type:device_code"
                 + "&device_code=" + URLEncoder.encode(deviceCode, StandardCharsets.UTF_8)
                 + "&client_id=" + URLEncoder.encode(clientId, StandardCharsets.UTF_8);
-        HttpRequest request = HttpRequest.newBuilder()
+        HttpRequest request = HttpRequest.newBuilder().timeout(java.time.Duration.ofSeconds(60))
                 .uri(URI.create("https://login.microsoftonline.com/consumers/oauth2/v2.0/token"))
                 .POST(HttpRequest.BodyPublishers.ofString(body))
                 .header("Content-Type", "application/x-www-form-urlencoded")
@@ -295,10 +301,9 @@ public class RequestMicrosoftAPIImpl implements CoreFeatureAPI, AuthFeatureAPI, 
 
     private CompletableFuture<MicrosoftOAuthTokenResponse> sendMicrosoftOAuthRefreshTokenRequest(String refreshToken) {
         String body = "client_id=" + URLEncoder.encode(clientId, StandardCharsets.UTF_8)
-                + (clientSecret == null ? "" : "&client_secret=" + URLEncoder.encode(clientSecret, StandardCharsets.UTF_8))
                 + "&refresh_token=" + URLEncoder.encode(refreshToken, StandardCharsets.UTF_8)
                 + "&grant_type=refresh_token";
-        HttpRequest request = HttpRequest.newBuilder()
+        HttpRequest request = HttpRequest.newBuilder().timeout(java.time.Duration.ofSeconds(60))
                 .uri(URI.create("https://login.microsoftonline.com/consumers/oauth2/v2.0/token"))
                 .POST(HttpRequest.BodyPublishers.ofString(body))
                 .header("Content-Type", "application/x-www-form-urlencoded")
@@ -307,7 +312,7 @@ public class RequestMicrosoftAPIImpl implements CoreFeatureAPI, AuthFeatureAPI, 
     }
 
     private CompletableFuture<MicrosoftXBoxLiveResponse> sendMicrosoftXBoxLiveRequest(String accessToken) {
-        HttpRequest request = HttpRequest.newBuilder()
+        HttpRequest request = HttpRequest.newBuilder().timeout(java.time.Duration.ofSeconds(60))
                 .uri(URI.create("https://user.auth.xboxlive.com/user/authenticate"))
                 .header("Content-Type", "application/json")
                 .header("Accept", "application/json")
@@ -317,7 +322,7 @@ public class RequestMicrosoftAPIImpl implements CoreFeatureAPI, AuthFeatureAPI, 
     }
 
     private CompletableFuture<MicrosoftXBoxLiveResponse> sendMicrosoftXSTSRequest(String xblToken) {
-        HttpRequest request = HttpRequest.newBuilder()
+        HttpRequest request = HttpRequest.newBuilder().timeout(java.time.Duration.ofSeconds(60))
                 .uri(URI.create("https://xsts.auth.xboxlive.com/xsts/authorize"))
                 .header("Content-Type", "application/json")
                 .header("Accept", "application/json")
@@ -327,7 +332,7 @@ public class RequestMicrosoftAPIImpl implements CoreFeatureAPI, AuthFeatureAPI, 
     }
 
     private CompletableFuture<MinecraftLoginWithXBoxResponse> sendMinecraftLoginWithXBoxRequest(String uhs, String xstsToken) {
-        HttpRequest request = HttpRequest.newBuilder()
+        HttpRequest request = HttpRequest.newBuilder().timeout(java.time.Duration.ofSeconds(60))
                 .uri(URI.create("https://api.minecraftservices.com/authentication/login_with_xbox"))
                 .header("Content-Type", "application/json")
                 .header("Accept", "application/json")
@@ -337,7 +342,7 @@ public class RequestMicrosoftAPIImpl implements CoreFeatureAPI, AuthFeatureAPI, 
     }
 
     private <T, V> CompletableFuture<T> sendMojangRequest(String method, String url, String accessToken, V body, Class<T> clazz) {
-        HttpRequest.Builder builder = HttpRequest.newBuilder()
+        HttpRequest.Builder builder = HttpRequest.newBuilder().timeout(java.time.Duration.ofSeconds(60))
                 .method(method, body == null ? HttpRequest.BodyPublishers.noBody() : HttpHelper.jsonBodyPublisher(body))
                 .uri(URI.create(url))
                 .header("Accept", "application/json");

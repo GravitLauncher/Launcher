@@ -15,6 +15,6 @@ public class CabinetStarterRunner implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
         server.modulesManager.fullInitializedLaunchServer(server);
-        server.run();
+        server.start();
     }
 }

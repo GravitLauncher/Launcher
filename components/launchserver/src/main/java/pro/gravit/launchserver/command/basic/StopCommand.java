@@ -2,7 +2,6 @@ package pro.gravit.launchserver.command.basic;
 
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.command.Command;
-import pro.gravit.utils.helper.JVMHelper;
 
 public final class StopCommand extends Command {
     public StopCommand(LaunchServer server) {
@@ -20,7 +19,7 @@ public final class StopCommand extends Command {
     }
 
     @Override
-    public void invoke(String... args) {
-        JVMHelper.RUNTIME.exit(0);
+    public void invoke(String... args) throws Exception {
+        server.close();
     }
 }

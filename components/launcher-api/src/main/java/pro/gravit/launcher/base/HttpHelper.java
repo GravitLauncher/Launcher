@@ -28,14 +28,33 @@ public final class HttpHelper {
     public static <T, E> HttpOptional<T, E> send(HttpClient client, HttpRequest request, HttpErrorHandler<T, E> handler) throws IOException {
         try {
             var response = client.send(request, HttpResponse.BodyHandlers.ofInputStream());
-            return handler.apply(response);
+            try (InputStream ignored = response.body()) {
+                return handler.apply(response);
+            }
         } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
             throw new IOException(e);
         }
     }
 
     public static <T, E> CompletableFuture<HttpOptional<T, E>> sendAsync(HttpClient client, HttpRequest request, HttpErrorHandler<T, E> handler) {
-        return client.sendAsync(request, HttpResponse.BodyHandlers.ofInputStream()).thenApply(handler::apply);
+        CompletableFuture<HttpResponse<InputStream>> responseFuture = client.sendAsync(request, HttpResponse.BodyHandlers.ofInputStream());
+        CompletableFuture<HttpOptional<T, E>> resultFuture = new CompletableFuture<>();
+        responseFuture.whenComplete((response, error) -> {
+            if (error != null) {
+                resultFuture.completeExceptionally(error);
+                return;
+            }
+            try (InputStream ignored = response.body()) {
+                resultFuture.complete(handler.apply(response));
+            } catch (Throwable e) {
+                resultFuture.completeExceptionally(e);
+            }
+        });
+        resultFuture.whenComplete((result, error) -> {
+            if (resultFuture.isCancelled()) responseFuture.cancel(true);
+        });
+        return resultFuture;
     }
 
     public static <T> HttpResponse.BodyHandler<T> ofJsonResult(Class<T> type) {
@@ -69,14 +88,14 @@ public final class HttpHelper {
                     .firstValue("Content-Type")
                     .orElse("unknown");
 
-            if (!contentType.toLowerCase(Locale.ROOT).contains("json")) {
-                throw new RuntimeException(
-                        "Expected a JSON response, but the server returned Content-Type '%s' (HTTP %d)."
-                                .formatted(contentType, response.statusCode())
-                );
-            }
-
-            try (Reader reader = new InputStreamReader(response.body(), StandardCharsets.UTF_8)) {
+            try (InputStream body = response.body()) {
+                if (!contentType.toLowerCase(Locale.ROOT).contains("json")) {
+                    throw new RuntimeException(
+                            "Expected a JSON response, but the server returned Content-Type '%s' (HTTP %d)."
+                                    .formatted(contentType, response.statusCode())
+                    );
+                }
+                Reader reader = new InputStreamReader(body, StandardCharsets.UTF_8);
                 JsonElement element = Launcher.gsonManager.gson.fromJson(reader, JsonElement.class);
                 return applyJson(element, response.statusCode());
             } catch (Exception e) {

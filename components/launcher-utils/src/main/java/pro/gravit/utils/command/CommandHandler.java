@@ -11,6 +11,8 @@ public abstract class CommandHandler implements Runnable {
     private static final Logger logger =
             LoggerFactory.getLogger(CommandHandler.class);
 
+    private volatile boolean stopRequested;
+
     protected final List<Category> categories;
     protected final CommandCategory baseCategory;
 
@@ -27,7 +29,7 @@ public abstract class CommandHandler implements Runnable {
     public void eval(String line, boolean bell) {
         if (line.trim().isEmpty())
             return;
-        logger.info("Command '{}'", line);
+        logger.info("Executing console command");
         try {
             evalNative(line, bell);
         } catch (Exception e) {
@@ -42,7 +44,7 @@ public abstract class CommandHandler implements Runnable {
         eval(args, bell);
     }
 
-    public void eval(String[] args, boolean bell) throws Exception {
+    public synchronized void eval(String[] args, boolean bell) throws Exception {
         if (args.length == 0)
             return;
 
@@ -52,7 +54,7 @@ public abstract class CommandHandler implements Runnable {
 
         // Bell if invocation took > 1s
         long endTime = System.currentTimeMillis();
-        if (bell && endTime - startTime >= 5000)
+        if (bell && !stopRequested && endTime - startTime >= 5000)
             bell();
     }
 
@@ -82,9 +84,20 @@ public abstract class CommandHandler implements Runnable {
      */
     public abstract String readLine() throws IOException;
 
+    public void requestStop() {
+        stopRequested = true;
+    }
+
+    protected final boolean isStopRequested() {
+        return stopRequested;
+    }
+
     private void readLoop() throws IOException {
-        for (String line = readLine(); line != null; line = readLine())
+        while (!stopRequested && !Thread.currentThread().isInterrupted()) {
+            String line = readLine();
+            if (line == null || stopRequested) return;
             eval(line, true);
+        }
     }
 
     public void registerCommand(String name, Command command) {

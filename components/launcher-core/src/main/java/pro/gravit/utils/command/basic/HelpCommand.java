@@ -2,15 +2,12 @@ package pro.gravit.utils.command.basic;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.fusesource.jansi.Ansi;
 import pro.gravit.utils.command.Command;
 import pro.gravit.utils.command.CommandException;
 import pro.gravit.utils.command.CommandHandler;
-import pro.gravit.utils.helper.LogHelper;
 
 import java.util.Arrays;
 import java.util.Map.Entry;
-import java.util.function.Supplier;
 
 public final class HelpCommand extends Command {
 
@@ -25,21 +22,7 @@ public final class HelpCommand extends Command {
 
     public static void printCommand(String name, Command command) {
         String args = command.getArgsDescription();
-        Supplier<String> plaintext = () -> String.format("%s %s - %s", name, args == null ? "[nothing]" : args, command.getUsageDescription());
-        Supplier<String> jansitext = () -> {
-            Ansi ansi = new Ansi();
-            ansi.fgBright(Ansi.Color.GREEN);
-            ansi.a(name + " ");
-            ansi.fgBright(Ansi.Color.CYAN);
-            ansi.a(args == null ? "[nothing]" : args);
-            ansi.reset();
-            ansi.a(" - ");
-            ansi.fgBright(Ansi.Color.YELLOW);
-            ansi.a(command.getUsageDescription());
-            ansi.reset();
-            return ansi.toString();
-        };
-        LogHelper.logJAnsi(LogHelper.Level.INFO, plaintext, jansitext, true);
+        logger.info("{} {} - {}", name, args == null ? "[nothing]" : args, command.getUsageDescription());
     }
 
     public static void printSubCommandsHelp(String base, Command command) {

@@ -18,7 +18,7 @@ import pro.gravit.launcher.runtime.managers.ConsoleManager;
 import pro.gravit.launcher.start.RuntimeModuleManager;
 import pro.gravit.launcher.base.modules.LauncherModule;
 import pro.gravit.launcher.base.modules.events.PreConfigPhase;
-import pro.gravit.utils.helper.LogHelper;
+import pro.gravit.utils.helper.FormatHelper;
 
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
@@ -35,8 +35,8 @@ public class DebugMain {
     public static final AtomicBoolean IS_DEBUG = new AtomicBoolean(false);
 
     public static void main(String[] args) throws Throwable {
-        LogHelper.printVersion("Launcher");
-        LogHelper.printLicense("Launcher");
+        logger.info(FormatHelper.formatVersion("Launcher"));
+        logger.info(FormatHelper.formatLicense("Launcher"));
         initialize();
         logger.debug("Initialization LauncherEngine");
         LauncherEngine instance = LauncherEngine.newInstance(false, ClientRuntimeProvider.class);
@@ -51,7 +51,6 @@ public class DebugMain {
         LauncherConfig config = new LauncherConfig(DebugProperties.ADDRESS, new HashMap<>(), DebugProperties.PROJECT_NAME, DebugProperties.ENV, new DebugLauncherTrustManager(DebugLauncherTrustManager.TrustDebugMode.TRUST_ALL));
         config.unlockSecret = DebugProperties.UNLOCK_SECRET;
         Launcher.setConfig(config);
-        Launcher.applyLauncherEnv(DebugProperties.ENV);
         config.apply();
         LauncherEngine.modulesManager = new RuntimeModuleManager();
         LauncherEngine.modulesManager.loadModule(new RuntimeLauncherCoreModule());

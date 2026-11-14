@@ -75,7 +75,6 @@ public class Main {
         options.moduleConf.modulePath.addAll(modulepath);
         options.moduleConf.modules.add("ALL-MODULE-PATH");
         options.moduleConf.enableNativeAccess.add("org.fusesource.jansi");
-        options.moduleConf.enableNativeAccess.add("io.netty.common");
         ClassLoaderControl control = launch.init(classpath, "natives", options);
         control.clearLauncherPackages();
         control.addLauncherPackage("pro.gravit.utils.launch");

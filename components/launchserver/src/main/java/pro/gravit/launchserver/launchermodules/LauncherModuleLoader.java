@@ -26,10 +26,11 @@ import java.util.*;
 import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 
-public class LauncherModuleLoader {
+public class LauncherModuleLoader implements AutoCloseable {
     public final List<ModuleEntity> launcherModules = new ArrayList<>();
     private final LaunchServer server;
     private volatile LauncherModuleClassLoader classLoader;
+    private volatile boolean closed;
     private transient final Logger logger = LogManager.getLogger();
 
     public LauncherModuleLoader(LaunchServer server) {
@@ -62,7 +63,8 @@ public class LauncherModuleLoader {
         }
     }
 
-    public void loadLauncherModules() throws IOException {
+    public synchronized void loadLauncherModules() throws IOException {
+        if (closed) throw new IllegalStateException("Launcher module loader is closed");
         launcherModules.clear();
         for(var e : server.modulesConfig.loadLauncherModules) {
             Path filePath = Path.of(e);
@@ -81,7 +83,8 @@ public class LauncherModuleLoader {
         }
     }
 
-    public boolean registerModule(Path file) throws IOException {
+    public synchronized boolean registerModule(Path file) throws IOException {
+        if (closed) throw new IllegalStateException("Launcher module loader is closed");
         Attributes attributes;
         try (JarFile f = new JarFile(file.toFile())) {
             attributes = f.getManifest().getMainAttributes();
@@ -139,6 +142,16 @@ public class LauncherModuleLoader {
 
     public void autoload(Path modulesDir) throws IOException {
         IOHelper.walk(modulesDir, new ModulesVisitor(), false);
+    }
+
+    @Override
+    public synchronized void close() throws IOException {
+        if (closed) return;
+        closed = true;
+        launcherModules.clear();
+        LauncherModuleClassLoader loader = classLoader;
+        classLoader = null;
+        if (loader != null) loader.close();
     }
 
     public void addClassFieldsToProperties(Map<String, Object> propertyMap, String prefix, Object object, Class<?> classOfObject) throws IllegalAccessException {

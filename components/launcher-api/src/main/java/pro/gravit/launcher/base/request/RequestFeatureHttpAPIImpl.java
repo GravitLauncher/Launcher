@@ -38,11 +38,11 @@ import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicReference;
 
-public class RequestFeatureHttpAPIImpl implements AuthFeatureAPI, UserFeatureAPI, ProfileFeatureAPI, CoreFeatureAPI, HardwareVerificationFeatureAPI,TextureUploadFeatureAPI {
+public class RequestFeatureHttpAPIImpl implements AuthFeatureAPI, UserFeatureAPI, ProfileFeatureAPI, CoreFeatureAPI, HardwareVerificationFeatureAPI,TextureUploadFeatureAPI, AutoCloseable {
     private static final Logger logger = LoggerFactory.getLogger(RequestFeatureHttpAPIImpl.class);
 
     private final String baseUrl;
-    private final HttpClient client = HttpClient.newBuilder().build();
+    private final HttpClient client = HttpClient.newBuilder().connectTimeout(java.time.Duration.ofSeconds(10)).build();
     private AtomicReference<HttpAuthData> authDataRef = new AtomicReference<>();
     private AtomicReference<ClientProfile> profileRef = new AtomicReference<>();
     private AtomicReference<String> launcherVerifyTokenRef = new AtomicReference<>();
@@ -51,9 +51,17 @@ public class RequestFeatureHttpAPIImpl implements AuthFeatureAPI, UserFeatureAPI
         this.baseUrl = baseUrl;
     }
 
+    @Override
+    public void close() {
+        client.shutdownNow();
+        authDataRef.set(null);
+        profileRef.set(null);
+        launcherVerifyTokenRef.set(null);
+    }
+
     private <T, E> CompletableFuture<HttpHelper.HttpOptional<T, E>> sendAsync(
             HttpRequest request, HttpHelper.HttpErrorHandler<T, E> handler) {
-        return sendHttpRequest(request, HttpResponse.BodyHandlers.ofInputStream()).thenApply(handler::apply);
+        return HttpHelper.sendAsync(client, request, handler);
     }
 
     private <T> CompletableFuture<HttpResponse<T>> sendHttpRequest(
@@ -69,7 +77,7 @@ public class RequestFeatureHttpAPIImpl implements AuthFeatureAPI, UserFeatureAPI
     }
 
     private CompletableFuture<SelfUser> getMinecraftProfile(String token, String accountName) {
-        return sendAsync(HttpRequest.newBuilder().GET()
+        return sendAsync(HttpRequest.newBuilder().timeout(java.time.Duration.ofSeconds(60)).GET()
                 .uri(URI.create(baseUrl.concat("/minecraft/profile")))
                 .header("Authorization", "Bearer "+token).build(), new HttpErrorHandler<>(HttpMinecraftProfile.class))
                 .thenApply(r -> {
@@ -118,7 +126,7 @@ public class RequestFeatureHttpAPIImpl implements AuthFeatureAPI, UserFeatureAPI
         if(accessToken.isEmpty()) {
             return CompletableFuture.failedFuture(new RequestException("You are not authorized (currentuser)"));
         }
-        return sendAsync(HttpRequest.newBuilder()
+        return sendAsync(HttpRequest.newBuilder().timeout(java.time.Duration.ofSeconds(60))
                 .GET()
                 .uri(URI.create(baseUrl.concat("/users/me")))
                 .header("Authorization", "Bearer "+accessToken.get())
@@ -152,7 +160,7 @@ public class RequestFeatureHttpAPIImpl implements AuthFeatureAPI, UserFeatureAPI
         } else {
             return CompletableFuture.failedFuture(new RequestException("Unknown password type"));
         }
-        var requestBuilder = HttpRequest.newBuilder()
+        var requestBuilder = HttpRequest.newBuilder().timeout(java.time.Duration.ofSeconds(60))
                 .POST(HttpHelper.jsonBodyPublisher(new HttpAuthRequest(login, rawPassword, rawTotp)))
                 .uri(URI.create(baseUrl.concat("/auth/login")))
                 .header("Content-Type", "application/json");
@@ -170,7 +178,7 @@ public class RequestFeatureHttpAPIImpl implements AuthFeatureAPI, UserFeatureAPI
 
     @Override
     public CompletableFuture<AuthToken> refreshToken(String refreshToken) {
-        HttpRequest.Builder builder = HttpRequest.newBuilder()
+        HttpRequest.Builder builder = HttpRequest.newBuilder().timeout(java.time.Duration.ofSeconds(60))
                 .POST(HttpHelper.jsonBodyPublisher(new HttpRefreshRequest(refreshToken)))
                 .uri(URI.create(baseUrl.concat("/auth/refresh")))
                 .header("Content-Type", "application/json");
@@ -205,7 +213,7 @@ public class RequestFeatureHttpAPIImpl implements AuthFeatureAPI, UserFeatureAPI
             authDataRef.set(null);
             return CompletableFuture.completedFuture(null);
         }
-        return sendAsync(HttpRequest.newBuilder()
+        return sendAsync(HttpRequest.newBuilder().timeout(java.time.Duration.ofSeconds(60))
                 .POST(HttpHelper.jsonBodyPublisher(new HttpRefreshRequest(refreshToken)))
                 .uri(URI.create(baseUrl.concat("/auth/logout")))
                 .header("Content-Type", "application/json")
@@ -218,7 +226,7 @@ public class RequestFeatureHttpAPIImpl implements AuthFeatureAPI, UserFeatureAPI
 
     @Override
     public CompletableFuture<User> getUserByUsername(String username) {
-        return sendAsync(HttpRequest.newBuilder()
+        return sendAsync(HttpRequest.newBuilder().timeout(java.time.Duration.ofSeconds(60))
                 .GET()
                 .uri(URI.create(baseUrl.concat("/minecraft/profile/lookup/name/").concat(URLEncoder.encode(username, StandardCharsets.UTF_8))))
                 .header("Content-Type", "application/json")
@@ -227,7 +235,7 @@ public class RequestFeatureHttpAPIImpl implements AuthFeatureAPI, UserFeatureAPI
 
     @Override
     public CompletableFuture<User> getUserByUUID(UUID uuid) {
-        return sendAsync(HttpRequest.newBuilder()
+        return sendAsync(HttpRequest.newBuilder().timeout(java.time.Duration.ofSeconds(60))
                 .GET()
                 .uri(URI.create(baseUrl.concat("/minecraft/profile/lookup/").concat(uuid.toString().replace("-", ""))))
                 .header("Content-Type", "application/json")
@@ -240,7 +248,7 @@ public class RequestFeatureHttpAPIImpl implements AuthFeatureAPI, UserFeatureAPI
         if(accessToken0.isEmpty()) {
             return CompletableFuture.failedFuture(new RequestException("You are not authorized"));
         }
-        return sendAsync(HttpRequest.newBuilder()
+        return sendAsync(HttpRequest.newBuilder().timeout(java.time.Duration.ofSeconds(60))
                         .POST(HttpHelper.jsonBodyPublisher(new HttpMinecraftJoinRequest(accessToken == null || accessToken.isEmpty() ? accessToken0.get() : accessToken, username, serverID)))
                         .uri(URI.create(baseUrl.concat("/minecraft/sessionserver/session/minecraft/join")))
                         .header("Authorization", "Bearer "+accessToken0.get())
@@ -255,7 +263,7 @@ public class RequestFeatureHttpAPIImpl implements AuthFeatureAPI, UserFeatureAPI
         if(accessToken0.isEmpty()) {
             return CompletableFuture.failedFuture(new RequestException("You are not authorized"));
         }
-        return sendAsync(HttpRequest.newBuilder()
+        return sendAsync(HttpRequest.newBuilder().timeout(java.time.Duration.ofSeconds(60))
                         .POST(HttpHelper.jsonBodyPublisher(new HttpMinecraftJoinRequest(accessToken == null ? accessToken0.get() : accessToken, uuid.toString().replace("-", ""), serverID)))
                         .uri(URI.create(baseUrl.concat("/minecraft/sessionserver/session/minecraft/join")))
                         .header("Authorization", "Bearer "+accessToken0.get())
@@ -278,7 +286,7 @@ public class RequestFeatureHttpAPIImpl implements AuthFeatureAPI, UserFeatureAPI
         if(accessToken.isEmpty()) {
             return CompletableFuture.failedFuture(new RequestException("You are not authorized"));
         }
-        return sendAsync(HttpRequest.newBuilder()
+        return sendAsync(HttpRequest.newBuilder().timeout(java.time.Duration.ofSeconds(60))
                         .GET()
                         .uri(URI.create(baseUrl.concat("/minecraft/sessionserver/session/minecraft/hasJoined?username=") + URLEncoder.encode(username, StandardCharsets.UTF_8) + "&serverId=" + URLEncoder.encode(serverID, StandardCharsets.UTF_8)))
                         .header("Authorization", "Bearer "+accessToken.get())
@@ -293,7 +301,7 @@ public class RequestFeatureHttpAPIImpl implements AuthFeatureAPI, UserFeatureAPI
         if(accessToken0.isEmpty()) {
             return CompletableFuture.failedFuture(new RequestException("You are not authorized"));
         }
-        return sendAsync(HttpRequest.newBuilder()
+        return sendAsync(HttpRequest.newBuilder().timeout(java.time.Duration.ofSeconds(60))
                         .GET()
                         .uri(URI.create(baseUrl.concat("/cas/directories/list")))
                         .header("Authorization", "Bearer "+accessToken0.get())
@@ -325,7 +333,7 @@ public class RequestFeatureHttpAPIImpl implements AuthFeatureAPI, UserFeatureAPI
     private CompletableFuture<pro.gravit.launcher.base.profiles.ClientProfile> loadPublishedProfile(pro.gravit.launcher.base.profiles.ClientProfile fallback, String token) {
         String uri = baseUrl + "/cas/versions/latest?directoryKey="
                 + URLEncoder.encode(fallback.getDir(), StandardCharsets.UTF_8) + "&branchName=main";
-        return sendAsync(HttpRequest.newBuilder().GET().uri(URI.create(uri))
+        return sendAsync(HttpRequest.newBuilder().timeout(java.time.Duration.ofSeconds(60)).GET().uri(URI.create(uri))
                         .header("Authorization", "Bearer " + token)
                         .header("Content-Type", "application/json").build(), new HttpErrorHandler<>(HttpCasVersion.class))
                 .thenApply(response -> {
@@ -358,7 +366,7 @@ public class RequestFeatureHttpAPIImpl implements AuthFeatureAPI, UserFeatureAPI
         if(accessToken0.isEmpty()) {
             return CompletableFuture.failedFuture(new RequestException("You are not authorized"));
         }
-        return sendAsync(HttpRequest.newBuilder()
+        return sendAsync(HttpRequest.newBuilder().timeout(java.time.Duration.ofSeconds(60))
                         .GET()
                         .uri(URI.create(baseUrl.concat(String.format("/cas/versions/latest?directoryKey=%s&branchName=main",
                                 URLEncoder.encode(((pro.gravit.launcher.base.profiles.ClientProfile) profileRef.get()).getDir(), StandardCharsets.UTF_8)))))
@@ -399,7 +407,7 @@ public class RequestFeatureHttpAPIImpl implements AuthFeatureAPI, UserFeatureAPI
 
     @Override
     public CompletableFuture<LauncherUpdateInfo> checkUpdates() {
-        return sendAsync(HttpRequest.newBuilder()
+        return sendAsync(HttpRequest.newBuilder().timeout(java.time.Duration.ofSeconds(60))
                 .POST(HttpRequest.BodyPublishers.noBody())
                 .uri(URI.create(baseUrl.concat("/updates/prepare")))
                 .build(), new HttpErrorHandler<>(HttpUpdatesPrepare.class)).thenCompose(result -> {
@@ -409,7 +417,7 @@ public class RequestFeatureHttpAPIImpl implements AuthFeatureAPI, UserFeatureAPI
                 var publicKey = SecurityHelper.toPublicECDSAKey(Base64.getDecoder().decode(Launcher.getConfig().ecdsaBuildPublicKey));
                 var signedData = SecurityHelper.sign(Base64.getDecoder().decode(res.challenge), privateKey);
                 SecurityHelper.verifySign(Base64.getDecoder().decode(res.challenge), signedData, publicKey); // Self check
-                return sendAsync(HttpRequest.newBuilder()
+                return sendAsync(HttpRequest.newBuilder().timeout(java.time.Duration.ofSeconds(60))
                                 .POST(HttpHelper.jsonBodyPublisher(new HttpUpdatesCheck(
                                         Base64.getEncoder().encodeToString(signedData),
                                         Base64.getEncoder().encodeToString(publicKey.getEncoded()),
@@ -489,7 +497,7 @@ public class RequestFeatureHttpAPIImpl implements AuthFeatureAPI, UserFeatureAPI
         } catch (IOException ex) {
             return CompletableFuture.failedFuture(ex);
         }
-        return sendHttpRequest(HttpRequest.newBuilder()
+        return sendHttpRequest(HttpRequest.newBuilder().timeout(java.time.Duration.ofSeconds(60))
                 .uri(URI.create(baseUrl.concat(cape
                         ? "/minecraft/profile/capes?alias=" + URLEncoder.encode(name, StandardCharsets.UTF_8)
                         : "/minecraft/profile/skins?variant=" + variant)))

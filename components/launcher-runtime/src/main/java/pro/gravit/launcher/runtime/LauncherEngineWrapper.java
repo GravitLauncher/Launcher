@@ -40,7 +40,7 @@ public class LauncherEngineWrapper {
             } else {
                 map.put("org.slf4j.simpleLogger.defaultLogLevel", "info");
             }
-            if(argsList.contains("--output")) {
+            if(argsList.contains("--output") || argsList.contains("--log-output")) {
                 map.put("org.slf4j.simpleLogger.logFile", "Launcher.log");
             } else {
                 map.put("org.slf4j.simpleLogger.logFile", "System.out");
@@ -52,7 +52,6 @@ public class LauncherEngineWrapper {
             map.put("org.slf4j.simpleLogger.showDateTime", "true");
             map.put("org.slf4j.simpleLogger.dateTimeFormat", "HH:mm:ss:SSS");
         }
-        map.put("launcher.useSlf4j", "true");
         for(var e : map.entrySet()) {
             System.setProperty(e.getKey(), e.getValue());
         }

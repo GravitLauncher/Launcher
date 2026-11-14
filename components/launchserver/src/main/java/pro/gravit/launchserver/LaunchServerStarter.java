@@ -3,6 +3,7 @@ package pro.gravit.launchserver;
 import com.google.gson.Gson;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.MarkerManager;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import pro.gravit.launcher.base.Launcher;
 import pro.gravit.launcher.core.LauncherTrustManager;
@@ -10,9 +11,9 @@ import pro.gravit.launcher.base.modules.events.PreConfigPhase;
 import pro.gravit.launcher.base.profiles.optional.actions.OptionalAction;
 import pro.gravit.launcher.base.profiles.optional.triggers.OptionalTrigger;
 import pro.gravit.launcher.core.api.features.CoreFeatureAPI;
-import pro.gravit.launchserver.auth.profiles.ProfilesProvider;
-import pro.gravit.launchserver.auth.updates.LocalUpdatesProvider;
-import pro.gravit.launchserver.auth.updates.UpdatesProvider;
+import pro.gravit.launchserver.profiles.ProfilesProvider;
+import pro.gravit.launchserver.distribution.LocalUpdatesProvider;
+import pro.gravit.launchserver.distribution.UpdatesProvider;
 import pro.gravit.launchserver.components.Component;
 import pro.gravit.launchserver.config.LaunchServerConfig;
 import pro.gravit.launchserver.config.LauncherModulesConfig;
@@ -23,7 +24,7 @@ import pro.gravit.utils.command.CommandHandler;
 import pro.gravit.utils.command.JLineCommandHandler;
 import pro.gravit.utils.command.StdCommandHandler;
 import pro.gravit.utils.helper.IOHelper;
-import pro.gravit.utils.helper.LogHelper;
+import pro.gravit.utils.helper.FormatHelper;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -39,9 +40,17 @@ public class LaunchServerStarter {
     private static final Logger logger = LogManager.getLogger();
 
     public static void main(String[] args) throws Exception {
-        //LogHelper.addOutput(IOHelper.WORKING_DIR.resolve("LaunchServer.log"));
-        LogHelper.printVersion("LaunchServer");
-        LogHelper.printLicense("LaunchServer");
+        if (FormatHelper.isAnsiEnabled()) {
+            var consoleMarker = MarkerManager.getMarker("JANSI");
+            var fileMarker = MarkerManager.getMarker("NOJANSI");
+            logger.info(consoleMarker, FormatHelper.ansiFormatVersion("LaunchServer"));
+            logger.info(fileMarker, FormatHelper.formatVersion("LaunchServer"));
+            logger.info(consoleMarker, FormatHelper.ansiFormatLicense("LaunchServer"));
+            logger.info(fileMarker, FormatHelper.formatLicense("LaunchServer"));
+        } else {
+            logger.info(FormatHelper.formatVersion("LaunchServer"));
+            logger.info(FormatHelper.formatLicense("LaunchServer"));
+        }
         Path dir = IOHelper.WORKING_DIR;
         Path configFile;
         try {
@@ -104,7 +113,7 @@ public class LaunchServerStarter {
         generateConfigIfNotExists(configFile, localCommandHandler, env);
         logger.info("Reading LaunchServer config file");
         try (BufferedReader reader = IOHelper.newReader(configFile)) {
-            config = Launcher.gsonManager.gson.fromJson(reader, LaunchServerConfig.class);
+            config = LaunchServerConfig.readConfig(reader);
         }
 
         LaunchServer.LaunchServerConfigManager launchServerConfigManager = new BasicLaunchServerConfigManager(configFile, modulesConfigFile);
@@ -132,14 +141,27 @@ public class LaunchServerStarter {
                 isRunCommand = false;
             }
         }
-        server.modulesManager.fullInitializedLaunchServer(server);
-        for(var cmd : runCommand) {
-            localCommandHandler.eval(cmd, false);
-        }
-        if (!isPrepareMode) {
-            server.run();
-        } else {
-            server.close();
+        try {
+            server.modulesManager.fullInitializedLaunchServer(server);
+            for(var cmd : runCommand) {
+                localCommandHandler.eval(cmd, false);
+            }
+            if (!isPrepareMode) {
+                new StandaloneLaunchServer(server).run();
+            } else {
+                server.close();
+            }
+        } catch (Throwable failure) {
+            try {
+                server.close();
+            } catch (Throwable closeFailure) {
+                failure.addSuppressed(closeFailure);
+            }
+            throw failure;
+        } finally {
+            if (localCommandHandler instanceof JLineCommandHandler terminal) {
+                try { terminal.closeTerminal(); } catch (IOException e) { logger.warn("Failed to close console terminal", e); }
+            }
         }
     }
 
@@ -231,7 +253,7 @@ public class LaunchServerStarter {
                 address = System.getProperty("launchserver.address", null);
             }
             if (address == null) {
-                System.out.println("External launchServer address:port (default: localhost:9274): ");
+                System.out.println("External HTTP server host[:port] (default: localhost:9274): ");
                 address = commandHandler.readLine();
             }
             String projectName = System.getenv("PROJECTNAME");
@@ -252,52 +274,24 @@ public class LaunchServerStarter {
             logger.error("ProjectName null. Using MineCraft");
             newConfig.projectName = "MineCraft";
         }
-        boolean usingHttps;
-        if(address.startsWith("ws://")) {
-            address = address.substring("ws://".length());
-            usingHttps = false;
-        } else if(address.startsWith("wss://")) {
-            address = address.substring("wss://".length());
-            usingHttps = true;
-        } else if(address.startsWith("http://")) {
-            address = address.substring("http://".length());
-            usingHttps = false;
-        } else if(address.startsWith("https://")) {
-            address = address.substring("https://".length());
-            usingHttps = true;
-        } else {
-            usingHttps = false;
+        if (!address.contains("://")) address = "http://" + address;
+        java.net.URI externalAddress = java.net.URI.create(address);
+        if (!("http".equalsIgnoreCase(externalAddress.getScheme()) || "https".equalsIgnoreCase(externalAddress.getScheme()))
+                || externalAddress.getHost() == null || externalAddress.getUserInfo() != null
+                || externalAddress.getQuery() != null || externalAddress.getFragment() != null) {
+            throw new IllegalArgumentException("ADDRESS must be an HTTP(S) URL for the external server");
         }
-        String portString = System.getenv("LISTEN_PORT");
-        if(portString == null) {
-            portString = System.getProperty("launchserver.listenport", null);
-        }
-        int port;
-        if(portString != null) {
-            port = Integer.parseInt(portString);
-        } else if(address.contains(":")) {
-            portString = address.substring(address.indexOf(':')+1);
-            try {
-                port = Integer.parseInt(portString);
-            } catch (NumberFormatException e) {
-                port = 9274;
-                logger.warn("Unknown port {}, using 9274", portString);
-            }
-        } else {
-            port = 9274;
-            logger.info("Address {} doesn't contains port (you want to use nginx?)", address);
-        }
-        newConfig.netty.address = (usingHttps ? "wss://" : "ws://") + address + "/api";
-        newConfig.netty.downloadURL = (usingHttps ? "https://" : "http://") + address + "/%dirname%/";
+        String baseAddress = externalAddress.toString().replaceAll("/+$", "");
+        newConfig.apiUrl = baseAddress + "/api";
+        newConfig.distributionUrl = baseAddress + "/%dirname%/";
         if(newConfig.updatesProvider instanceof LocalUpdatesProvider localUpdatesProvider) {
             localUpdatesProvider.binaryName = "Launcher";
             localUpdatesProvider.urls.put(CoreFeatureAPI.UpdateVariant.JAR,
-                    (usingHttps ? "https://" : "http://") + address + "/Launcher.jar");
+                    baseAddress + "/Launcher.jar");
             localUpdatesProvider.urls.put(CoreFeatureAPI.UpdateVariant.EXE_WINDOWS_X86_64,
-                    (usingHttps ? "https://" : "http://") + address + "/Launcher.exe");
+                    baseAddress + "/Launcher.exe");
 
         }
-        newConfig.netty.binds[0].port = port;
 
         // Write LaunchServer config
         logger.info("Writing LaunchServer config file");
@@ -320,7 +314,7 @@ public class LaunchServerStarter {
         public LaunchServerConfig readConfig() throws IOException {
             LaunchServerConfig config1;
             try (BufferedReader reader = IOHelper.newReader(configFile)) {
-                config1 = Launcher.gsonManager.gson.fromJson(reader, LaunchServerConfig.class);
+                config1 = LaunchServerConfig.readConfig(reader);
             }
             return config1;
         }

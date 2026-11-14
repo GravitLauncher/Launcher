@@ -110,11 +110,8 @@ public class LauncherEngine {
         EnvHelper.checkDangerousParams();
         //if(!LauncherAgent.isStarted()) throw new SecurityException("JavaAgent not set");
         verifyNoAgent();
-        if(contains(args, "--log-output") && Launcher.getConfig().environment != LauncherConfig.LauncherEnvironment.PROD) {
-            LogHelper.addOutput(Paths.get("Launcher.log"));
-        }
-        LogHelper.printVersion("Launcher");
-        LogHelper.printLicense("Launcher");
+        logger.info(FormatHelper.formatVersion("Launcher"));
+        logger.info(FormatHelper.formatLicense("Launcher"));
         LauncherEngine.checkClass(LauncherEngineWrapper.class);
         LauncherEngine.checkClass(LauncherEngine.class);
         LauncherEngine.checkClass(ClientLauncherEntryPoint.class);

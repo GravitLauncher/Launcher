@@ -3,6 +3,7 @@ package pro.gravit.launcher.client;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pro.gravit.launcher.base.LauncherConfig;
+import pro.gravit.launcher.base.ApiMode;
 import pro.gravit.launcher.base.modules.LauncherModulesManager;
 import pro.gravit.launcher.base.request.*;
 import pro.gravit.launcher.core.api.LauncherAPI;
@@ -14,6 +15,7 @@ import java.util.HashMap;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Locale;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 
@@ -29,41 +31,61 @@ public class LauncherAPIInitializer {
         ENABLE_AUTO_REFRESH
     }
 
-    public enum ApiMode {
-        AUTO,
-        HTTP,
-        MICROSOFT,
-        OFFLINE
+    public static void initializeClient(LauncherModulesManager modulesManager, LauncherConfig config, ClientParams params) throws Exception {
+        boolean offline = params.offlineMode || "offline".equals(params.authId);
+        initialize(modulesManager, config, offline ? List.of(Flag.OFFLINE_MODE) : List.of());
+        try {
+            boolean offlineApi = LauncherAPIHolder.core() instanceof RequestOfflineModeAPIImpl;
+            String authId = params.authId;
+            if (authId == null || authId.isBlank()) authId = offlineApi ? "offline" : "std";
+            LauncherAPIHolder.changeAuthId(authId);
+            String accessToken = params.remoteAccessToken;
+            if (offlineApi && (accessToken == null || accessToken.isBlank()) && params.playerProfile != null) {
+                accessToken = params.playerProfile.username;
+            }
+            if (accessToken == null || accessToken.isBlank()) {
+                throw new IllegalArgumentException("Client launch parameters must contain a remote access token");
+            }
+            LauncherAPIHolder.auth().restore(accessToken, false).get();
+            LauncherAPIHolder.profile().changeCurrentProfile(params.profile).get();
+        } catch (Exception | Error failure) {
+            try { LauncherAPIHolder.reset(); } catch (Exception cleanup) { failure.addSuppressed(cleanup); }
+            if (failure instanceof InterruptedException) Thread.currentThread().interrupt();
+            throw failure;
+        }
     }
 
     public static void initialize(LauncherModulesManager modulesManager, LauncherConfig config, List<Flag> flags) throws Exception {
         ApiMode mode = parseMode(config.launcherApiMode);
-        if (config.useHttpApi && mode == ApiMode.AUTO) {
-            mode = ApiMode.HTTP;
-        }
         initialize(modulesManager, config.address, flags, new Options(mode, config.launcherApiOfflineOnConnectionFail,
                 config.launcherApiMicrosoftEnabled || mode == ApiMode.MICROSOFT,
-                config.launcherApiMicrosoftClientId, config.launcherApiMicrosoftClientSecret));
+                config.launcherApiMicrosoftClientId));
     }
 
     public static void initialize(LauncherModulesManager modulesManager, String address, List<Flag> flags) throws Exception {
-        initialize(modulesManager, address, flags, new Options(ApiMode.AUTO, true, false, null, null));
+        initialize(modulesManager, address, flags, new Options(ApiMode.AUTO, true, false, null));
     }
 
     public static void initialize(LauncherModulesManager modulesManager, String address, List<Flag> flags, Options options) throws Exception {
         ApiMode mode = resolveMode(address, flags, options);
-        if(flags.contains(Flag.OFFLINE_MODE)) {
-            logger.info("Init offline mode (flag)");
-            initOfflineMode();
-        } else if(mode == ApiMode.OFFLINE) {
-            logger.info("Init offline mode (apiMode)");
-            initOfflineMode();
-        } else if(mode == ApiMode.MICROSOFT) {
-            logger.info("Init microsoft mode");
-            initMicrosoftMode(address, flags, options);
-        } else {
-            logger.info("Init http mode");
-            initHttpMode(address, options);
+        LauncherAPIHolder.reset();
+        try {
+            if(flags.contains(Flag.OFFLINE_MODE)) {
+                logger.info("Init offline mode (flag)");
+                initOfflineMode();
+            } else if(mode == ApiMode.OFFLINE) {
+                logger.info("Init offline mode (apiMode)");
+                initOfflineMode();
+            } else if(mode == ApiMode.MICROSOFT) {
+                logger.info("Init microsoft mode");
+                initMicrosoftMode(address, flags, options);
+            } else {
+                logger.info("Init http mode");
+                initHttpMode(address, options);
+            }
+        } catch (Exception | Error failure) {
+            try { LauncherAPIHolder.reset(); } catch (Exception cleanup) { failure.addSuppressed(cleanup); }
+            throw failure;
         }
     }
 
@@ -72,10 +94,9 @@ public class LauncherAPIInitializer {
             return ApiMode.AUTO;
         }
         try {
-            return ApiMode.valueOf(mode.toUpperCase());
+            return ApiMode.valueOf(mode.toUpperCase(Locale.ROOT));
         } catch (IllegalArgumentException ignored) {
-            logger.warn("Unknown launcher API mode '{}', fallback to AUTO", mode);
-            return ApiMode.AUTO;
+            throw new IllegalArgumentException("Unknown launcher API mode: " + mode);
         }
     }
 
@@ -91,12 +112,13 @@ public class LauncherAPIInitializer {
 
     private static void initHttpMode(String address, Options options) {
         RequestFeatureHttpAPIImpl impl = new RequestFeatureHttpAPIImpl(address);
+        LauncherAPIHolder.registerResource(impl);
         setupApi(impl, (authId) -> createApi(impl, impl, impl, impl, impl), options);
     }
 
     private static void initMicrosoftMode(String address, List<Flag> flags, Options options) throws Exception {
         Options microsoftOptions = new Options(ApiMode.AUTO, options.offlineOnConnectionFail(), true,
-                options.microsoftClientId(), options.microsoftClientSecret());
+                options.microsoftClientId());
         initHttpMode(address, microsoftOptions);
     }
 
@@ -113,13 +135,13 @@ public class LauncherAPIInitializer {
             return;
         }
         RequestMicrosoftAPIImpl microsoft = createMicrosoftApi(options);
+        LauncherAPIHolder.registerResource(microsoft);
         LauncherAPIHolder.setCoreAPI(new UnionCoreFeatureAPI(core, microsoft));
         LauncherAPIHolder.setCreateApiFactory((authId) -> isMicrosoftAuthId(authId) ? mergeAuth(baseFactory.apply(authId), microsoft) : baseFactory.apply(authId));
     }
 
     private static RequestMicrosoftAPIImpl createMicrosoftApi(Options options) {
-        return new RequestMicrosoftAPIImpl(options.microsoftClientId() == null ? "d772766b-19b4-4f69-b353-989f890c5d3b" : options.microsoftClientId(),
-                options.microsoftClientSecret());
+        return new RequestMicrosoftAPIImpl(options.microsoftClientId() == null ? "d772766b-19b4-4f69-b353-989f890c5d3b" : options.microsoftClientId());
     }
 
     private static LauncherAPI mergeAuth(LauncherAPI base, RequestMicrosoftAPIImpl microsoft) {
@@ -153,7 +175,7 @@ public class LauncherAPIInitializer {
     }
 
     public record Options(ApiMode mode, boolean offlineOnConnectionFail, boolean microsoftEnabled,
-                          String microsoftClientId, String microsoftClientSecret) {
+                          String microsoftClientId) {
     }
 
     private record UnionCoreFeatureAPI(CoreFeatureAPI base, CoreFeatureAPI microsoft) implements CoreFeatureAPI {

@@ -6,11 +6,13 @@ import pro.gravit.launcher.base.modules.impl.SimpleModuleManager;
 import pro.gravit.launchserver.LaunchServer;
 
 import java.nio.file.Path;
+import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
-public class LaunchServerModulesManager extends SimpleModuleManager {
+public class LaunchServerModulesManager extends SimpleModuleManager implements AutoCloseable {
     public final LaunchServerCoreModule coreModule;
+    private boolean closed;
 
     public LaunchServerModulesManager(Path modulesDir, Path configDir, LauncherTrustManager trustManager) {
         super(modulesDir, configDir, trustManager);
@@ -34,5 +36,12 @@ public class LaunchServerModulesManager extends SimpleModuleManager {
     @Override
     public LauncherModule getCoreModule() {
         return coreModule;
+    }
+
+    @Override
+    public synchronized void close() throws IOException {
+        if (closed) return;
+        closed = true;
+        classLoader.close();
     }
 }

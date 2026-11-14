@@ -13,14 +13,14 @@ import org.apache.logging.log4j.core.config.plugins.PluginFactory;
 import org.apache.logging.log4j.core.layout.PatternLayout;
 
 import java.io.Serializable;
-import java.util.HashSet;
+import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.Set;
 import java.util.function.Consumer;
 
 @Plugin(name = "LogCollect", category = "Core", elementType = "appender", printObject = true)
 public class LogAppender extends AbstractAppender {
     private static volatile LogAppender INSTANCE;
-    private final Set<Consumer<LogEvent>> set = new HashSet<>();
+    private final Set<Consumer<LogEvent>> set = new CopyOnWriteArraySet<>();
 
     public LogAppender(String name, Filter filter, Layout<? extends Serializable> layout, boolean ignoreExceptions, Property[] properties) {
         super(name, filter, layout, ignoreExceptions, properties);

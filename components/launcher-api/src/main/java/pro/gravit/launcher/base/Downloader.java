@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 import pro.gravit.launcher.core.CertificatePinningTrustManager;
 import pro.gravit.launcher.core.LauncherInject;
 import pro.gravit.utils.helper.IOHelper;
+import pro.gravit.utils.helper.ManagedPath;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocketFactory;
@@ -16,7 +17,11 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.ByteBuffer;
 import java.nio.file.Path;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
+import java.nio.file.AtomicMoveNotSupportedException;
 import java.nio.file.StandardOpenOption;
+import java.time.Duration;
 import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
@@ -29,7 +34,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
-public class Downloader {
+public class Downloader implements AutoCloseable {
 
     private static final Logger logger =
             LoggerFactory.getLogger(Downloader.class);
@@ -44,7 +49,11 @@ public class Downloader {
     private static volatile SSLContext sslContext;
     protected final HttpClient client;
     protected final ExecutorService executor;
+    private ExecutorService ownedExecutor;
     protected final Queue<DownloadTask> tasks = new ConcurrentLinkedDeque<>();
+    protected final Set<CompletableFuture<?>> requests = ConcurrentHashMap.newKeySet();
+    protected final AtomicBoolean canceled = new AtomicBoolean();
+    protected final AtomicBoolean closed = new AtomicBoolean();
     protected CompletableFuture<Void> future;
     protected Downloader(HttpClient client, ExecutorService executor) {
         this.client = client;
@@ -100,13 +109,8 @@ public class Downloader {
         }
         Downloader downloader = newDownloader(executor);
         downloader.future = downloader.downloadFile(uri, path);
-        if (closeExecutor) {
-            ExecutorService finalExecutor = executor;
-            downloader.future = downloader.future.thenAccept((e) -> finalExecutor.shutdownNow()).exceptionallyCompose((ex) -> {
-                finalExecutor.shutdownNow();
-                return CompletableFuture.failedFuture(ex);
-            });
-        }
+        if (closeExecutor) downloader.ownedExecutor = executor;
+        downloader.future = downloader.future.whenComplete((result, error) -> downloader.finish());
         return downloader;
     }
 
@@ -119,13 +123,8 @@ public class Downloader {
         }
         Downloader downloader = newDownloader(executor);
         downloader.future = downloader.downloadFiles(files, baseURL, targetDir, callback, executor, threads);
-        if (closeExecutor) {
-            ExecutorService finalExecutor = executor;
-            downloader.future = downloader.future.thenAccept((e) -> finalExecutor.shutdownNow()).exceptionallyCompose((ex) -> {
-                finalExecutor.shutdownNow();
-                return CompletableFuture.failedFuture(ex);
-            });
-        }
+        if (closeExecutor) downloader.ownedExecutor = executor;
+        downloader.future = downloader.future.whenComplete((result, error) -> downloader.finish());
         return downloader;
     }
 
@@ -140,16 +139,34 @@ public class Downloader {
     }
 
     public void cancel() {
+        canceled.set(true);
+        CompletableFuture<Void> downloadFuture = future;
+        if (downloadFuture != null && !downloadFuture.isDone()) downloadFuture.cancel(true);
         for (DownloadTask task : tasks) {
             if (!task.isCompleted()) {
                 task.cancel();
             }
         }
         tasks.clear();
+        for (CompletableFuture<?> request : requests) request.cancel(true);
+        requests.clear();
+        finish();
+    }
+
+    @Override
+    public void close() {
+        cancel();
+    }
+
+    private void finish() {
+        if (closed.compareAndSet(false, true)) {
+            client.shutdownNow();
+            if (ownedExecutor != null) ownedExecutor.shutdownNow();
+        }
     }
 
     public boolean isCanceled() {
-        return executor.isTerminated();
+        return canceled.get();
     }
 
     public CompletableFuture<Void> getFuture() {
@@ -157,30 +174,50 @@ public class Downloader {
     }
 
     public CompletableFuture<Void> downloadFile(URI uri, Path path) {
+        Path destination;
         try {
-            IOHelper.createParentDirs(path);
+            destination = validatedAbsoluteDestination(path);
+            IOHelper.createParentDirs(destination);
         } catch (IOException e) {
             return CompletableFuture.failedFuture(e);
         }
-        return client.sendAsync(HttpRequest.newBuilder()
+        Path temporary = destination.resolveSibling(destination.getFileName() + ".part-" + UUID.randomUUID());
+        CompletableFuture<HttpResponse<Path>> request = client.sendAsync(HttpRequest.newBuilder()
+                .timeout(Duration.ofMinutes(10))
                 .GET()
                 .uri(uri)
-                .build(), HttpResponse.BodyHandlers.ofFile(path, StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING)).thenCompose((t) -> {
-                    if(t.statusCode() < 200 || t.statusCode() >= 400) {
-                        return CompletableFuture.failedFuture(new IOException(String.format("Failed to download %s: code %d", uri.toString(), t.statusCode())));
-                    }
-                    return CompletableFuture.completedFuture(null);
+                .build(), HttpResponse.BodyHandlers.ofFile(temporary, StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING));
+        requests.add(request);
+        CompletableFuture<Void> result = request.thenAccept(response -> {
+            if (canceled.get()) throw new CancellationException("Download cancelled");
+            if(response.statusCode() < 200 || response.statusCode() >= 300) {
+                throw new CompletionException(new IOException(String.format("Failed to download %s: code %d", uri, response.statusCode())));
+            }
+            try {
+                moveAtomically(temporary, destination);
+            } catch (IOException e) {
+                throw new CompletionException(e);
+            }
+        }).whenComplete((ignored, error) -> {
+            requests.remove(request);
+            if (error != null) deleteQuietly(temporary);
         });
+        result.whenComplete((ignored, error) -> {
+            if (result.isCancelled()) request.cancel(true);
+        });
+        return result;
     }
 
     public CompletableFuture<Void> downloadFile(String url, Path path, DownloadCallback callback, ExecutorService executor) throws Exception {
-        return downloadFiles(new ArrayList<>(List.of(new SizedFile(url, path.getFileName().toString()))), null,
-                path.getParent(), callback, executor, 1);
+        Path destination = path.toAbsolutePath().normalize();
+        return downloadFiles(new ArrayList<>(List.of(new SizedFile(url, destination.getFileName().toString()))), null,
+                destination.getParent(), callback, executor, 1);
     }
 
     public CompletableFuture<Void> downloadFile(String url, Path path, long size, DownloadCallback callback, ExecutorService executor) throws Exception {
-        return downloadFiles(new ArrayList<>(List.of(new SizedFile(url, path.getFileName().toString(), size))), null,
-                path.getParent(), callback, executor, 1);
+        Path destination = path.toAbsolutePath().normalize();
+        return downloadFiles(new ArrayList<>(List.of(new SizedFile(url, destination.getFileName().toString(), size))), null,
+                destination.getParent(), callback, executor, 1);
     }
 
     public CompletableFuture<Void> downloadFiles(List<SizedFile> files, String baseURL, Path targetDir, DownloadCallback callback, ExecutorService executor, int threads) throws Exception {
@@ -192,7 +229,6 @@ public class Downloader {
         AtomicInteger currentThreads = new AtomicInteger(threads);
         ConsumerObject consumerObject = new ConsumerObject();
         Set<DownloadTask> taskSet = ConcurrentHashMap.newKeySet();
-        AtomicBoolean canceled = new AtomicBoolean();
         AtomicInteger failedFiles = new AtomicInteger();
         Runnable cancelEarly = () -> {
             canceled.set(true);
@@ -204,9 +240,6 @@ public class Downloader {
             }
         };
         Consumer<HttpResponse<Path>> next = e -> {
-            if (callback != null && e != null) {
-                callback.onComplete(e.body());
-            }
             if(canceled.get()) {
                 return;
             }
@@ -216,8 +249,10 @@ public class Downloader {
             }
             SizedFile file = queue.poll();
             if (file == null) {
-                if (currentThreads.decrementAndGet() == 0)
-                    future.complete(null);
+                if (currentThreads.decrementAndGet() == 0) {
+                    if (failedFiles.get() > 0) future.completeExceptionally(new IOException("Failed to download " + failedFiles.get() + " of " + files.size() + " files"));
+                    else future.complete(null);
+                }
                 return;
             }
             try {
@@ -234,7 +269,11 @@ public class Downloader {
                     return x;
                 }).exceptionally(ec -> {
                     if(callback != null) {
-                        callback.onFailed(targetDir.resolve(file.filePath), ec);
+                        try {
+                            callback.onFailed(targetDir.resolve(file.filePath), ec);
+                        } catch (Throwable callbackError) {
+                            logger.error("Download failure callback failed", callbackError);
+                        }
                     }
                     failedFiles.incrementAndGet();
                     if(failedFiles.get() >= files.size()) {
@@ -247,6 +286,9 @@ public class Downloader {
                 future.completeExceptionally(exception);
             }
         };
+        future.whenComplete((result, error) -> {
+            if (future.isCancelled() || error != null) cancelEarly.run();
+        });
         consumerObject.next = next;
         for (int i = 0; i < threads; ++i) {
             next.accept(null);
@@ -255,17 +297,78 @@ public class Downloader {
     }
 
     protected DownloadTask sendAsync(SizedFile file, URI baseUri, Path targetDir, DownloadCallback callback) throws Exception {
-        IOHelper.createParentDirs(targetDir.resolve(file.filePath));
-        ProgressTrackingBodyHandler<Path> bodyHandler = makeBodyHandler(targetDir.resolve(file.filePath), callback);
-        CompletableFuture<HttpResponse<Path>> future = client.sendAsync(makeHttpRequest(baseUri, file.urlPath), bodyHandler);
-        AtomicReference<DownloadTask> task = new AtomicReference<>(null);
-        task.set(new DownloadTask(bodyHandler, null /* fix NPE (future already completed) */));
-        tasks.add(task.get());
-        task.get().completableFuture = future.thenApply((e) -> {
-                    tasks.remove(task.get());
-                    return e;
+        Path destination = validatedDestination(targetDir, file.filePath);
+        IOHelper.createParentDirs(destination);
+        Path temporary = destination.resolveSibling(destination.getFileName() + ".part-" + UUID.randomUUID());
+        ProgressTrackingBodyHandler<Path> bodyHandler = makeBodyHandler(temporary, callback);
+        CompletableFuture<HttpResponse<Path>> request = client.sendAsync(makeHttpRequest(baseUri, file.urlPath), bodyHandler);
+        requests.add(request);
+        DownloadTask downloadTask = new DownloadTask(bodyHandler, null, temporary, request);
+        CompletableFuture<HttpResponse<Path>> future = request
+                .thenApply(response -> {
+                    if (canceled.get() || downloadTask.isCancelled()) throw new CancellationException("Download cancelled");
+                    if (response.statusCode() < 200 || response.statusCode() >= 300) {
+                        deleteQuietly(temporary);
+                        return response;
+                    }
+                    if (response.statusCode() >= 200 && response.statusCode() < 300) {
+                        try {
+                            if (file.size >= 0 && Files.size(temporary) != file.size) {
+                                throw new IOException("Downloaded size does not match expected size for " + file.filePath);
+                            }
+                            moveAtomically(temporary, destination);
+                            if (callback != null) {
+                                try {
+                                    callback.onComplete(destination);
+                                } catch (Throwable callbackError) {
+                                    logger.error("Download completion callback failed", callbackError);
+                                }
+                            }
+                        } catch (IOException e) {
+                            throw new CompletionException(e);
+                        }
+                    } else {
+                        deleteQuietly(temporary);
+                    }
+                    return response;
+                }).whenComplete((response, error) -> {
+                    requests.remove(request);
+                    if (error != null) deleteQuietly(temporary);
                 });
-        return task.get();
+        downloadTask.completableFuture = future.whenComplete((response, error) -> tasks.remove(downloadTask));
+        tasks.add(downloadTask);
+        if (downloadTask.isCompleted()) tasks.remove(downloadTask);
+        return downloadTask;
+    }
+
+    private static Path validatedDestination(Path targetDir, String filePath) throws IOException {
+        if (filePath == null || filePath.isBlank()) throw new IOException("Download destination must not be empty");
+        Path child = Path.of(filePath);
+        for (Path part : child) {
+            if (part.toString().equals("..")) throw new IOException("Parent traversal is not allowed in download destinations: " + filePath);
+        }
+        if (child.isAbsolute()) throw new IOException("Download-list destination must be relative to its target directory: " + filePath);
+        return ManagedPath.resolve(targetDir, filePath);
+    }
+
+    private static Path validatedAbsoluteDestination(Path path) throws IOException {
+        Path normalized = path.toAbsolutePath().normalize();
+        Path parent = normalized.getParent();
+        Path name = normalized.getFileName();
+        if (parent == null || name == null) throw new IOException("Invalid download destination: " + path);
+        return ManagedPath.resolve(parent, name.toString());
+    }
+
+    private static void moveAtomically(Path source, Path destination) throws IOException {
+        try {
+            Files.move(source, destination, StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING);
+        } catch (AtomicMoveNotSupportedException ignored) {
+            Files.move(source, destination, StandardCopyOption.REPLACE_EXISTING);
+        }
+    }
+
+    private static void deleteQuietly(Path path) {
+        try { Files.deleteIfExists(path); } catch (IOException ignored) { }
     }
 
     public static URI makeURI(URI baseUri, String filePath) throws URISyntaxException {
@@ -290,6 +393,7 @@ public class Downloader {
     protected HttpRequest makeHttpRequest(URI baseUri, String filePath) throws URISyntaxException {
         var uri = makeURI(baseUri, filePath);
         return HttpRequest.newBuilder()
+                .timeout(Duration.ofMinutes(10))
                 .GET()
                 .uri(uri)
                 .header("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/45.0.2454.85 Safari/537.36")
@@ -314,19 +418,41 @@ public class Downloader {
 
     public static class DownloadTask {
         public final ProgressTrackingBodyHandler<Path> bodyHandler;
+        private final Path temporary;
+        private final CompletableFuture<?> requestFuture;
+        private final AtomicBoolean cancelled = new AtomicBoolean();
         public CompletableFuture<HttpResponse<Path>> completableFuture;
 
         public DownloadTask(ProgressTrackingBodyHandler<Path> bodyHandler, CompletableFuture<HttpResponse<Path>> completableFuture) {
+            this(bodyHandler, completableFuture, null);
+        }
+
+        private DownloadTask(ProgressTrackingBodyHandler<Path> bodyHandler, CompletableFuture<HttpResponse<Path>> completableFuture, Path temporary) {
+            this(bodyHandler, completableFuture, temporary, null);
+        }
+
+        private DownloadTask(ProgressTrackingBodyHandler<Path> bodyHandler, CompletableFuture<HttpResponse<Path>> completableFuture, Path temporary, CompletableFuture<?> requestFuture) {
             this.bodyHandler = bodyHandler;
             this.completableFuture = completableFuture;
+            this.temporary = temporary;
+            this.requestFuture = requestFuture;
         }
 
         public boolean isCompleted() {
-            return completableFuture.isDone() | completableFuture.isCompletedExceptionally();
+            return completableFuture != null && (completableFuture.isDone() | completableFuture.isCompletedExceptionally());
+        }
+
+        public boolean isCancelled() {
+            return cancelled.get();
         }
 
         public void cancel() {
+            cancelled.set(true);
             bodyHandler.cancel();
+            CompletableFuture<HttpResponse<Path>> future = completableFuture;
+            if (future != null) future.cancel(true);
+            if (requestFuture != null) requestFuture.cancel(true);
+            if (temporary != null) deleteQuietly(temporary);
         }
     }
 

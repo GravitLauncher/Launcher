@@ -92,6 +92,7 @@ public class ClientLauncherProcess {
         this.params.timestamp = System.currentTimeMillis();
         this.params.remoteAccessToken = remoteAccessToken;
         this.params.authId = authId;
+        this.params.offlineMode = "offline".equals(authId);
         Path nativesPath;
         if(profile.hasFlag(ClientProfile.CompatibilityFlags.LEGACY_NATIVES_DIR)) {
             nativesPath = workDir.resolve("natives");
@@ -198,9 +199,9 @@ public class ClientLauncherProcess {
             }
         }
         if (Launcher.getConfig().environment != LauncherConfig.LauncherEnvironment.PROD) {
-            processArgs.add(JVMHelper.jvmProperty(LogHelper.DEV_PROPERTY, String.valueOf(true)));
-            processArgs.add(JVMHelper.jvmProperty(LogHelper.DEBUG_PROPERTY, String.valueOf(true)));
-            processArgs.add(JVMHelper.jvmProperty(LogHelper.STACKTRACE_PROPERTY, String.valueOf(true)));
+            processArgs.add(JVMHelper.jvmProperty("launcher.dev", String.valueOf(true)));
+            processArgs.add(JVMHelper.jvmProperty("launcher.debug", String.valueOf(true)));
+            processArgs.add(JVMHelper.jvmProperty("launcher.stacktrace", String.valueOf(true)));
         }
         if (useLegacyJavaClassPathProperty) {
             processArgs.add("-Djava.class.path=".concat(String.join(getPathSeparator(), systemClassPath)));
@@ -216,7 +217,7 @@ public class ClientLauncherProcess {
             }
         }
         if (true)
-            logger.debug("Commandline: {}", Arrays.toString(processArgs.toArray()));
+            logger.debug("Starting client process with {} arguments", processArgs.size());
         ProcessBuilder processBuilder = new ProcessBuilder(processArgs);
         EnvHelper.addEnv(processBuilder);
         if(JVMHelper.OS_TYPE == JVMHelper.OS.LINUX){

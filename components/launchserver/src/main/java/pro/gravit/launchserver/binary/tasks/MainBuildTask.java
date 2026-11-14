@@ -77,7 +77,7 @@ public class MainBuildTask implements LauncherBuildTask {
                 IOHelper.deleteDir(context.getRuntimeDir(), true);
             }
 
-            LauncherConfig launcherConfig = new LauncherConfig(server.config.netty.address, server.keyAgreementManager.ecdsaPublicKey, server.keyAgreementManager.rsaPublicKey, runtime, server.config.projectName);
+            LauncherConfig launcherConfig = new LauncherConfig(server.config.apiUrl, server.keyAgreementManager.ecdsaPublicKey, server.keyAgreementManager.rsaPublicKey, runtime, server.config.projectName);
             context.pushFile(Launcher.CONFIG_FILE, launcherConfig);
             postBuildHook.hook(context);
         }
@@ -107,7 +107,7 @@ public class MainBuildTask implements LauncherBuildTask {
 
     protected void initProps(BuildContext context) {
         context.properties.clear();
-        context.properties.put("launcher.address", server.config.netty.address);
+        context.properties.put("launcher.address", server.config.apiUrl);
         context.properties.put("launcher.projectName", server.config.projectName);
         context.properties.put("runtimeconfig.secretKeyClient", SecurityHelper.randomStringAESKey());
         context.properties.put("launcher.port", 32148 + SecurityHelper.newRandom().nextInt(512));
@@ -122,13 +122,11 @@ public class MainBuildTask implements LauncherBuildTask {
             context.properties.put("runtimeconfig.runtimeEncryptKey", runtimeEncryptKey);
         }
         context.properties.put("launcher.certificatePinning", server.config.launcher.certificatePinning);
-        context.properties.put("launcher.useHttpApi", server.config.launcher.experimentalDevOnlyHttpApi);
         context.properties.put("launcher.alwaysUseRelauncher", server.config.launcher.alwaysUseRelauncher);
         context.properties.put("launcher.api.mode", server.config.launcher.api.mode.name());
         context.properties.put("launcher.api.offlineOnConnectionFail", server.config.launcher.api.offlineOnConnectionFail);
         context.properties.put("launcher.api.microsoft.enabled", server.config.launcher.api.microsoft.enabled);
         context.properties.put("launcher.api.microsoft.clientId", server.config.launcher.api.microsoft.clientId);
-        context.properties.put("launcher.api.microsoft.clientSecret", server.config.launcher.api.microsoft.clientSecret);
         String checkClientSecret = SecurityHelper.randomStringToken();
         context.pipelineContext.putProperty("checkClientSecret", checkClientSecret);
         String launcherSalt = SecurityHelper.randomStringToken();

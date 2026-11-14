@@ -69,8 +69,6 @@ public final class LauncherConfig extends StreamObject {
     public String ecdsaBuildPrivateKey;
     @LauncherInject("launcher.build.publickey")
     public String ecdsaBuildPublicKey;
-    @LauncherInject("launcher.useHttpApi")
-    public boolean useHttpApi;
     @LauncherInject("launcher.api.mode")
     public String launcherApiMode;
     @LauncherInject("launcher.api.offlineOnConnectionFail")
@@ -79,8 +77,6 @@ public final class LauncherConfig extends StreamObject {
     public boolean launcherApiMicrosoftEnabled;
     @LauncherInject("launcher.api.microsoft.clientId")
     public String launcherApiMicrosoftClientId;
-    @LauncherInject("launcher.api.microsoft.clientSecret")
-    public String launcherApiMicrosoftClientSecret;
 
     private static class ModernModulesClass {
         @LauncherInject("launcher.modules")
@@ -106,7 +102,6 @@ public final class LauncherConfig extends StreamObject {
         }
         address = null;
         environment = LauncherEnvironment.STD;
-        Launcher.applyLauncherEnv(environment);
         // Read signed runtime
         int count = input.readLength(0);
         Map<String, byte[]> localResources = new HashMap<>(count);

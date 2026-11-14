@@ -41,8 +41,8 @@ public class ClientLauncherWrapper {
     }
 
     public static void main(String[] arguments) throws IOException, InterruptedException {
-        LogHelper.printVersion("Launcher");
-        LogHelper.printLicense("Launcher");
+        logger.info(FormatHelper.formatVersion("Launcher"));
+        logger.info(FormatHelper.formatLicense("Launcher"));
         if (!Boolean.getBoolean(BRIDGED_FROM_ENGINE_PROPERTY)) {
             JVMHelper.checkStackTrace(ClientLauncherWrapper.class);
         }
@@ -131,7 +131,7 @@ public class ClientLauncherWrapper {
         }
         args.add(context.mainClass);
         args.addAll(context.clientArgs);
-        logger.debug("Commandline: " + args);
+        logger.debug("Starting launcher process with {} arguments", args.size());
         context.processBuilder.command(args);
         Process process = context.processBuilder.start();
         if (!waitProcess) {

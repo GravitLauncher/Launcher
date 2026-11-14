@@ -41,7 +41,7 @@ public final class UnpackHelper {
                 if (entry.isDirectory())
                     continue; // Skip dirs
                 // Unpack file
-                IOHelper.transfer(input, target.resolve(IOHelper.toPath(entry.getName())));
+                IOHelper.transfer(input, ManagedPath.resolve(target, entry.getName()));
             }
         }
         return true;
@@ -58,7 +58,7 @@ public final class UnpackHelper {
                     if (entry.isDirectory())
                         continue; // Skip dirs
                     // Unpack file
-                    IOHelper.transfer(input, target.resolve(IOHelper.toPath(entry.getName())));
+                    IOHelper.transfer(input, ManagedPath.resolve(target, entry.getName()));
                 }
             }
         } catch (NoSuchFileException ignored) {

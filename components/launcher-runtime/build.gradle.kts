@@ -2,13 +2,8 @@ plugins {
     id("com.gradleup.shadow")
 }
 
-java {
-    sourceCompatibility = JavaVersion.VERSION_21
-    targetCompatibility = JavaVersion.VERSION_21
-}
 
 repositories {
-    mavenCentral()
     maven {
         url = uri("https://maven.gravitlauncher.com/")
     }
@@ -41,7 +36,7 @@ dependencies {
 }
 
 val copyLauncherLibs = tasks.register("copyLauncherLibs", Copy::class) {
-    from(optional.resolve())
+    from(optional)
     into(layout.buildDirectory.dir("launcher-libraries"))
 }
 

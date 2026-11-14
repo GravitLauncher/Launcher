@@ -3,8 +3,6 @@ plugins {
 }
 
 subprojects {
-    apply(plugin = "maven-publish")
-
     publishing {
         repositories {
             mavenLocal()

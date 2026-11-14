@@ -1,80 +1,37 @@
 package pro.gravit.utils.helper;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.fusesource.jansi.Ansi;
+import org.fusesource.jansi.AnsiConsole;
 import pro.gravit.utils.Version;
 
-/*
- * Nashorn when initializing LogHelper tries to initialize all methods available in it.
- * When trying to initialize rawAnsiFormat , it tries to find the org.fusesource.jansi.Ansi class
- * And naturally crashes with ClassNotFound
- * As a result, any call to LogHelper.* results in ClassNotFound org.fusesource.jansi.Ansi
- * Therefore, rawAnsiFormat is moved to a separate Helper
- */
-public class FormatHelper {
+public final class FormatHelper {
+    private FormatHelper() { }
 
-    private static final Logger logger =
-            LoggerFactory.getLogger(FormatHelper.class);
-
-    public static Ansi rawAnsiFormat(LogHelper.Level level, String dateTime, boolean sub) {
-        Ansi.Color levelColor;
-        boolean bright = level != LogHelper.Level.DEBUG;
-        levelColor = switch (level) {
-            case WARNING -> Ansi.Color.YELLOW;
-            case ERROR -> Ansi.Color.RED;
-            default -> // INFO, DEBUG, Unknown
-                    Ansi.Color.WHITE;
-        };
-
-        // Date-time
-        Ansi ansi = new Ansi();
-        ansi.fg(Ansi.Color.WHITE).a(dateTime);
-
-        // Level
-        ansi.fgBright(Ansi.Color.WHITE).a(" [").bold();
-        if (bright) {
-            ansi.fgBright(levelColor);
-        } else {
-            ansi.fg(levelColor);
-        }
-        ansi.a(level).boldOff().fgBright(Ansi.Color.WHITE).a("] ");
-
-        // Message
-        if (bright) {
-            ansi.fgBright(levelColor);
-        } else {
-            ansi.fg(levelColor);
-        }
-        if (sub) {
-            ansi.a(' ').a(Ansi.Attribute.ITALIC);
-        }
-
-        // Finish with reset code
-        return ansi;
+    public static boolean isAnsiEnabled() {
+        return !Boolean.getBoolean("launcher.noJAnsi") && AnsiSupport.AVAILABLE;
     }
 
     public static String ansiFormatVersion(String product) {
-        return new Ansi().bold(). // Setup
-                fgBright(Ansi.Color.MAGENTA).a("GravitLauncher "). // sashok724's
-                fgBright(Ansi.Color.BLUE).a("(fork sashok724's Launcher) ").
-                fgBright(Ansi.Color.CYAN).a(product). // Product
-                        fgBright(Ansi.Color.WHITE).a(" v").fgBright(Ansi.Color.BLUE).a(Version.getVersion().toString()). // Version
-                        fgBright(Ansi.Color.WHITE).a(" (build #").fgBright(Ansi.Color.RED).a(Version.getVersion().build).fgBright(Ansi.Color.WHITE).a(')'). // Build#
-                        reset().toString(); // To file
+        var version = Version.getVersion();
+        return new Ansi().bold()
+                .fgBright(Ansi.Color.MAGENTA).a("GravitLauncher ")
+                .fgBright(Ansi.Color.BLUE).a("(fork sashok724's Launcher) ")
+                .fgBright(Ansi.Color.CYAN).a(product)
+                .fgBright(Ansi.Color.WHITE).a(" v")
+                .fgBright(Ansi.Color.BLUE).a(version)
+                .fgBright(Ansi.Color.WHITE).a(" (build #")
+                .fgBright(Ansi.Color.RED).a(version.build)
+                .fgBright(Ansi.Color.WHITE).a(')')
+                .reset().toString();
     }
 
     public static String ansiFormatLicense(String product) {
-        return new Ansi().bold(). // Setup
-                fgBright(Ansi.Color.MAGENTA).a("License for "). // sashok724's
-                fgBright(Ansi.Color.CYAN).a(product). // Product
-                fgBright(Ansi.Color.WHITE).a(" GPLv3").fgBright(Ansi.Color.WHITE).a(". SourceCode: "). // Version
-                fgBright(Ansi.Color.YELLOW).a("https://github.com/GravitLauncher/Launcher").
-                reset().toString(); // To file
-    }
-
-    public static String rawFormat(LogHelper.Level level, String dateTime, boolean sub) {
-        return dateTime + " [" + level.name + (sub ? "]  " : "] ");
+        return new Ansi().bold()
+                .fgBright(Ansi.Color.MAGENTA).a("License for ")
+                .fgBright(Ansi.Color.CYAN).a(product)
+                .fgBright(Ansi.Color.WHITE).a(" GPLv3. SourceCode: ")
+                .fgBright(Ansi.Color.YELLOW).a("https://github.com/GravitLauncher/Launcher")
+                .reset().toString();
     }
 
     public static String formatVersion(String product) {
@@ -83,5 +40,18 @@ public class FormatHelper {
 
     public static String formatLicense(String product) {
         return String.format("License for %s GPLv3. SourceCode: https://github.com/GravitLauncher/Launcher", product);
+    }
+
+    private static final class AnsiSupport {
+        private static final boolean AVAILABLE = initialize();
+
+        private static boolean initialize() {
+            try {
+                AnsiConsole.systemInstall();
+                return true;
+            } catch (LinkageError | RuntimeException e) {
+                return false;
+            }
+        }
     }
 }

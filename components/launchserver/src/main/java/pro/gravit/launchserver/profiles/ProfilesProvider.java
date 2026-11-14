@@ -1,4 +1,4 @@
-package pro.gravit.launchserver.auth.profiles;
+package pro.gravit.launchserver.profiles;
 
 import pro.gravit.launcher.base.profiles.ClientProfile;
 import pro.gravit.launcher.core.hasher.HashedDir;
@@ -43,6 +43,28 @@ public abstract class ProfilesProvider {
     public abstract HashedDir getUnconnectedDirectory(String name);
     public abstract CompletedProfile get(UUID uuid, String tag);
     public abstract CompletedProfile get(String name, String tag);
+
+    /** Actions and revision forms accepted by this provider. */
+    public Capabilities capabilities() {
+        return new Capabilities(EnumSet.allOf(ProfileAction.ProfileActionType.class), true);
+    }
+
+    protected final void requireSupportedRevision(String tag) {
+        if (tag != null && !tag.isBlank() && !capabilities().namedRevisions() && !tag.equals("main")) {
+            throw new UnsupportedOperationException(getClass().getSimpleName() + " does not support named profile revisions: " + tag);
+        }
+    }
+
+    protected final void requireSupportedActions(List<ProfileAction> actions) {
+        if (actions == null) return;
+        for (ProfileAction action : actions) {
+            if (action == null) throw new IllegalArgumentException("Profile actions must not contain null entries");
+            if (!capabilities().actions().contains(action.type())) {
+                throw new UnsupportedOperationException(getClass().getSimpleName() + " does not support profile action " + action.type());
+            }
+        }
+    }
+
     public CompletedProfile get(UncompletedProfile profile) {
         if(profile == null) {
             return null;
@@ -83,5 +105,11 @@ public abstract class ProfilesProvider {
 
     public enum UpdateFlag {
         USE_DEFAULT_ASSETS, DELETE_SOURCE_FILES
+    }
+
+    public record Capabilities(Set<ProfileAction.ProfileActionType> actions, boolean namedRevisions) {
+        public Capabilities {
+            actions = actions.isEmpty() ? Set.of() : Collections.unmodifiableSet(EnumSet.copyOf(actions));
+        }
     }
 }

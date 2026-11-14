@@ -5,6 +5,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import pro.gravit.launcher.base.Launcher;
 import pro.gravit.utils.helper.IOHelper;
+import pro.gravit.utils.helper.ManagedPath;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -20,11 +21,21 @@ import java.util.Arrays;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-public class MirrorManager {
+public class MirrorManager implements AutoCloseable {
     protected final ArrayList<Mirror> list = new ArrayList<>();
     private transient final Logger logger = LogManager.getLogger();
     private transient final HttpClient client = HttpClient.newBuilder().build();
     private Mirror defaultMirror;
+
+    public void clear() {
+        list.clear();
+        defaultMirror = null;
+    }
+
+    @Override
+    public void close() {
+        client.shutdownNow();
+    }
 
     public void addMirror(String mirror) {
         Mirror m = new Mirror(mirror);
@@ -94,7 +105,10 @@ public class MirrorManager {
                             .uri(url.toURI())
                     .build(), HttpResponse.BodyHandlers.ofString());
             return Launcher.gsonManager.gson.fromJson(response.body(), JsonElement.class);
-        } catch (IOException | URISyntaxException | InterruptedException e) {
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new IOException("Mirror request interrupted", e);
+        } catch (IOException | URISyntaxException e) {
             logger.error("JsonRequest {} failed({}: {})", url.toString(), e.getClass().getName(), e.getMessage());
             return null;
         }
@@ -114,16 +128,16 @@ public class MirrorManager {
 
     private void downloadZip(URL url, Path dir) throws IOException {
         try (ZipInputStream input = IOHelper.newZipInput(url)) {
-            Files.createDirectory(dir);
+            Files.createDirectories(dir);
             for (ZipEntry entry = input.getNextEntry(); entry != null; entry = input.getNextEntry()) {
                 if (entry.isDirectory()) {
-                    Files.createDirectory(dir.resolve(IOHelper.toPath(entry.getName())));
+                    Files.createDirectories(ManagedPath.resolve(dir, entry.getName()));
                     continue;
                 }
                 // Unpack entry
                 String name = entry.getName();
                 logger.debug("Downloading file: '{}'", name);
-                IOHelper.transfer(input, dir.resolve(IOHelper.toPath(name)));
+                IOHelper.transfer(input, ManagedPath.resolve(dir, name));
             }
         }
     }

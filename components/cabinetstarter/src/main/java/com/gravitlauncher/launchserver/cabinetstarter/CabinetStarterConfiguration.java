@@ -17,10 +17,9 @@ import pro.gravit.launchserver.config.LauncherModulesConfig;
 import pro.gravit.launchserver.manangers.CertificateManager;
 import pro.gravit.launchserver.modules.impl.LaunchServerModulesManager;
 import pro.gravit.utils.command.CommandHandler;
-import pro.gravit.utils.command.JLineCommandHandler;
 import pro.gravit.utils.command.StdCommandHandler;
 import pro.gravit.utils.helper.IOHelper;
-import pro.gravit.utils.helper.LogHelper;
+import pro.gravit.utils.helper.FormatHelper;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -42,10 +41,10 @@ public class CabinetStarterConfiguration {
     }
 
 
-    @Bean
+    @Bean(destroyMethod = "close")
     public LaunchServer initializeLaunchServer() throws Exception {
-        LogHelper.printVersion("LaunchServer");
-        LogHelper.printLicense("LaunchServer");
+        logger.info(FormatHelper.formatVersion("LaunchServer"));
+        logger.info(FormatHelper.formatLicense("LaunchServer"));
         Path dir = IOHelper.WORKING_DIR;
         Path configFile;
         try {
@@ -92,22 +91,12 @@ public class CabinetStarterConfiguration {
         } else {
             configFile = dir.resolve("LaunchServer.json");
         }
-        CommandHandler localCommandHandler;
-        try {
-            Class.forName("org.jline.terminal.Terminal");
-
-            // JLine2 available
-            localCommandHandler = new JLineCommandHandler();
-            logger.info("JLine2 terminal enabled");
-        } catch (ClassNotFoundException ignored) {
-            localCommandHandler = new StdCommandHandler(true);
-            logger.warn("JLine2 isn't in classpath, using std");
-        }
+        CommandHandler localCommandHandler = new StdCommandHandler(false);
         modulesManager.invokeEvent(new PreConfigPhase());
         generateConfigIfNotExists(configFile, localCommandHandler, env);
         logger.info("Reading LaunchServer config file");
         try (BufferedReader reader = IOHelper.newReader(configFile)) {
-            config = Launcher.gsonManager.gson.fromJson(reader, LaunchServerConfig.class);
+            config = LaunchServerConfig.readConfig(reader);
         }
 
         LaunchServer.LaunchServerConfigManager launchServerConfigManager = new LaunchServerStarter.BasicLaunchServerConfigManager(configFile, modulesConfigFile);

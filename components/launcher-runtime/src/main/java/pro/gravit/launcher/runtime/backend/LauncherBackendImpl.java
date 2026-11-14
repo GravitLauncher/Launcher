@@ -5,10 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.event.Level;
 import pro.gravit.launcher.base.ClientPermissions;
 import pro.gravit.launcher.base.Launcher;
-import pro.gravit.launcher.base.config.JsonConfigurable;
-import pro.gravit.launcher.base.config.SimpleConfigurable;
 import pro.gravit.launcher.base.profiles.ClientProfile;
-import pro.gravit.launcher.base.request.RequestException;
 import pro.gravit.launcher.base.request.RequestOfflineModeAPIImpl;
 import pro.gravit.launcher.base.vfs.Vfs;
 import pro.gravit.launcher.base.vfs.directory.FileVfsDirectory;
@@ -26,7 +23,6 @@ import pro.gravit.launcher.core.backend.UserSettings;
 import pro.gravit.launcher.core.backend.exceptions.LauncherBackendException;
 import pro.gravit.launcher.core.backend.extensions.Extension;
 import pro.gravit.launcher.core.backend.extensions.TextureUploadExtension;
-import pro.gravit.launcher.core.hasher.HashedDir;
 import pro.gravit.launcher.runtime.NewLauncherSettings;
 import pro.gravit.launcher.runtime.client.DirBridge;
 import pro.gravit.launcher.runtime.client.ServerPinger;
@@ -38,7 +34,6 @@ import pro.gravit.utils.helper.*;
 
 import java.io.*;
 import java.net.URI;
-import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
@@ -48,12 +43,10 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
-public class LauncherBackendImpl implements LauncherBackendAPI, TextureUploadExtension {
+public class LauncherBackendImpl implements LauncherBackendAPI, TextureUploadExtension, AutoCloseable {
 
     private static final Logger logger =
             LoggerFactory.getLogger(LauncherBackendImpl.class);
@@ -61,6 +54,9 @@ public class LauncherBackendImpl implements LauncherBackendAPI, TextureUploadExt
     private static final long LAUNCH_TOKEN_MARGIN_SECONDS = 60;
 
     private final ClientDownloadImpl clientDownloadImpl = new ClientDownloadImpl(this);
+    private final JavaRuntimeService javaRuntimeService = new JavaRuntimeService(logger);
+    private final OfflineProfileService offlineProfileService = new OfflineProfileService(logger);
+    private final ProfileService profileService = new ProfileService();
     private volatile MainCallback callback;
     ExecutorService executorService;
     private volatile AuthMethod authMethod;
@@ -79,8 +75,11 @@ public class LauncherBackendImpl implements LauncherBackendAPI, TextureUploadExt
     private volatile CompletableFuture<List<Java>> availableJavasFuture;
     private volatile CompletableFuture<Void> processHardwareFuture;
     private volatile Path vfsRootPath;
-    private volatile JsonConfigurable<OfflineModeStorageData> offlineModeStorageDataJsonConfigurable;
     private final Map<UUID, CompletableFuture<ServerPingInfo>> pingFutures = new ConcurrentHashMap<>();
+    private final ExecutorService pingExecutor = Executors.newVirtualThreadPerTaskExecutor();
+    private final AtomicBoolean closed = new AtomicBoolean();
+    /** Invalidates asynchronous results when the user changes identity or exits. */
+    private final AuthSessionService authSessionService = new AuthSessionService();
 
     @Override
     public void setCallback(MainCallback callback) {
@@ -97,24 +96,8 @@ public class LauncherBackendImpl implements LauncherBackendAPI, TextureUploadExt
         settingsManager = new SettingsManager();
         settingsManager.generateConfigIfNotExists();
         settingsManager.loadConfig();
-        offlineModeStorageDataJsonConfigurable = new JsonConfigurable<>(OfflineModeStorageData.class, DirBridge.dir.resolve("profiles.json")) {
-            @Override
-            public OfflineModeStorageData getConfig() {
-                return offlineModeStorageData;
-            }
-
-            @Override
-            public void setConfig(OfflineModeStorageData config) {
-                offlineModeStorageData = config;
-            }
-
-            @Override
-            public OfflineModeStorageData getDefaultConfig() {
-                return new OfflineModeStorageData();
-            }
-        };
-        offlineModeStorageDataJsonConfigurable.generateConfigIfNotExists();
-        offlineModeStorageDataJsonConfigurable.loadConfig();
+        offlineProfileService.initialize(DirBridge.dir.resolve("profiles.json"));
+        offlineModeStorageData = offlineProfileService.storage();
         allSettings = settingsManager.getConfig();
         backendSettings = (BackendSettings) getUserSettings("backend", (k) -> new BackendSettings());
         permissions = new ClientPermissions();
@@ -180,40 +163,73 @@ public class LauncherBackendImpl implements LauncherBackendAPI, TextureUploadExt
 
     @Override
     public void selectAuthMethod(AuthMethod method) {
-        AuthMethod oldAuthMethod = this.authMethod;
-        this.authMethod = method;
-        if(this.backendSettings.auths.containsKey(method.getName())) {
-            this.backendSettings.auth = this.backendSettings.auths.get(method.getName());
-        } else if(oldAuthMethod != null) {
-            this.backendSettings.auth = null;
+        Objects.requireNonNull(method, "method");
+        synchronized (authSessionService.lock()) {
+            authSessionService.advance();
+            boolean wasAuthorized = selfUser != null;
+            AuthMethod oldAuthMethod = this.authMethod;
+            this.authMethod = method;
+            if(this.backendSettings.auths.containsKey(method.getName())) {
+                this.backendSettings.auth = this.backendSettings.auths.get(method.getName());
+            } else if(oldAuthMethod != null) {
+                this.backendSettings.auth = null;
+            }
+            this.selfUser = null;
+            this.permissions = new ClientPermissions();
+            this.profiles = null;
+            clearPings();
+            this.backendSettings.authId = method.getName();
+            if (wasAuthorized) callback.onExit();
         }
-        this.backendSettings.authId = method.getName();
         LauncherAPIHolder.changeAuthId(method.getName());
     }
 
     @Override
     public CompletableFuture<SelfUser> tryAuthorize() {
-        if(this.authMethod == null) {
-            logger.error("Trying to call tryAuthorize() before select Auth method");
-            return CompletableFuture.failedFuture(new LauncherBackendException("This method call not allowed before select authMethod"));
+        BackendSettings.AuthorizationData auth;
+        long generation;
+        synchronized (authSessionService.lock()) {
+            if(this.authMethod == null) {
+                logger.error("Trying to call tryAuthorize() before select Auth method");
+                return CompletableFuture.failedFuture(new LauncherBackendException("This method call not allowed before select authMethod"));
+            }
+            auth = backendSettings.auth;
+            if(auth == null) {
+                logger.error("Trying to call tryAuthorize() - auth data not found");
+                return CompletableFuture.failedFuture(new LauncherBackendException("Auth data not found"));
+            }
+            generation = authSessionService.current();
         }
-        if(backendSettings.auth == null) {
-            logger.error("Trying to call tryAuthorize() - auth data not found");
-            return CompletableFuture.failedFuture(new LauncherBackendException("Auth data not found"));
-        }
-        if(backendSettings.auth.expireIn > 0 && LocalDateTime.ofEpochSecond(backendSettings.auth.expireIn, 0, ZoneOffset.UTC).isBefore(LocalDateTime.now(ZoneOffset.UTC))) {
+        if(auth.expireIn > 0 && LocalDateTime.ofEpochSecond(auth.expireIn, 0, ZoneOffset.UTC).isBefore(LocalDateTime.now(ZoneOffset.UTC))) {
             logger.debug("tryAuthorize() - need refresh token");
-            return LauncherAPIHolder.auth().refreshToken(backendSettings.auth.refreshToken).thenCompose((response) -> {
-                setAuthToken(response);
-                return LauncherAPIHolder.auth().restore(backendSettings.auth.accessToken, true);
-            }).thenApply((user) -> {
-                onAuthorize(user);
-                return user;
-            });
+            return refreshAuth(generation).thenApply(user -> user);
         }
-        return LauncherAPIHolder.auth().restore(backendSettings.auth.accessToken, true).thenApply((user) -> {
-            onAuthorize(user);
+        return LauncherAPIHolder.auth().restore(auth.accessToken, true).thenApply((user) -> {
+            onAuthorize(generation, user);
             return user;
+        });
+    }
+
+    /** Shares a token refresh across concurrent authorize/launch requests. */
+    private CompletableFuture<SelfUser> refreshAuth(long generation) {
+        return authSessionService.singleFlight(generation, () -> {
+            var auth = backendSettings.auth;
+            if (auth == null || auth.refreshToken == null) {
+                return CompletableFuture.failedFuture(new LauncherBackendException("Refresh token not found"));
+            }
+            return LauncherAPIHolder.auth().refreshToken(auth.refreshToken)
+                    .thenCompose(response -> {
+                        String accessToken;
+                        synchronized (authSessionService.lock()) {
+                            if (!authSessionService.isCurrent(generation)) return CompletableFuture.failedFuture(new LauncherBackendException("Authentication session changed"));
+                            setAuthToken(response);
+                            accessToken = backendSettings.auth.accessToken;
+                        }
+                        return LauncherAPIHolder.auth().restore(accessToken, true);
+                    }).thenApply(user -> {
+                        onAuthorize(generation, user);
+                        return user;
+                    });
         });
     }
 
@@ -234,78 +250,76 @@ public class LauncherBackendImpl implements LauncherBackendAPI, TextureUploadExt
     private void onAuthorize(SelfUser selfUser) {
         this.selfUser = selfUser;
         permissions = selfUser.getPermissions();
-        if(LauncherAPIHolder.auth() instanceof RequestOfflineModeAPIImpl impl && offlineModeStorageData != null && offlineModeStorageData.profiles != null) {
-            impl.setOfflineProfiles(new ArrayList<>(offlineModeStorageData.profiles));
-            impl.setOfflineUpdateProvider((dirName) -> CompletableFuture.supplyAsync(() -> {
-                Path path = DirBridge.dirUpdates.resolve(dirName);
-                if(Files.notExists(path)) {
-                    throw new RequestException(String.format("Dir '%s' not found", path));
-                }
-                try {
-                    HashedDir dir = new HashedDir(path, null, false, true);
-                    return new ProfileFeatureAPI.UpdateInfo() {
-                        @Override
-                        public HashedDir getHashedDir() {
-                            return dir;
-                        }
-
-                        @Override
-                        public String getUrl() {
-                            return "";
-                        }
-                    };
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-            }));
-        }
+        if(LauncherAPIHolder.auth() instanceof RequestOfflineModeAPIImpl impl) offlineProfileService.configure(impl, offlineModeStorageData);
         callback.onAuthorize(selfUser);
         if(processHardwareFuture == null) {
             processHardwareFuture = processHardware();
         }
     }
 
+    private void onAuthorize(long generation, SelfUser user) {
+        synchronized (authSessionService.lock()) {
+            if (!authSessionService.isCurrent(generation)) throw new LauncherBackendException("Authentication session changed");
+            onAuthorize(user);
+        }
+    }
+
     @Override
     public CompletableFuture<SelfUser> authorize(String login, AuthMethodPassword password) {
-        if(this.authMethod == null) {
-            return CompletableFuture.failedFuture(new LauncherBackendException("This method call not allowed before select authMethod"));
+        long generation;
+        synchronized (authSessionService.lock()) {
+            if(this.authMethod == null) {
+                return CompletableFuture.failedFuture(new LauncherBackendException("This method call not allowed before select authMethod"));
+            }
+            generation = authSessionService.advance();
+            clearCurrentSession();
+            clearPings();
+            callback.onExit();
         }
         return LauncherAPIHolder.auth().auth(login, password).thenApply((response) -> {
-            setAuthToken(response.authToken());
-            onAuthorize(response.user());
+            synchronized (authSessionService.lock()) {
+                if (!authSessionService.isCurrent(generation)) throw new LauncherBackendException("Authentication session changed");
+                setAuthToken(response.authToken());
+                onAuthorize(response.user());
+            }
             return response.user();
         });
     }
 
     @Override
     public CompletableFuture<Void> userExit() {
-        return LauncherAPIHolder.auth().exit().thenAccept((e) -> {
-            backendSettings.auth = null;
-            if(authMethod != null) {
-                backendSettings.auths.remove(authMethod.getName());
-            }
-            this.selfUser = null;
-            permissions = new ClientPermissions();
+        synchronized (authSessionService.lock()) {
+            authSessionService.advance();
+            clearCurrentSession();
+            clearPings();
+            if(authMethod != null) backendSettings.auths.remove(authMethod.getName());
             callback.onExit();
-        });
+        }
+        return LauncherAPIHolder.auth().exit().thenAccept(e -> { });
+    }
+
+    private void clearCurrentSession() {
+        backendSettings.auth = null;
+        this.selfUser = null;
+        permissions = new ClientPermissions();
+        profiles = null;
     }
 
     @Override
     public CompletableFuture<List<ProfileFeatureAPI.ClientProfile>> fetchProfiles() {
+        long generation = authSessionService.current();
         return LauncherAPIHolder.profile().getProfiles().thenApply((profiles) -> {
-            onProfiles(profiles);
-            callback.onProfiles(profiles);
+            synchronized (authSessionService.lock()) {
+                if (!authSessionService.isCurrent(generation)) throw new LauncherBackendException("Authentication session changed");
+                onProfiles(profiles);
+                callback.onProfiles(profiles);
+            }
             return profiles;
         });
     }
 
     private void onProfiles(List<ProfileFeatureAPI.ClientProfile> profiles) {
-        this.profiles = profiles.stream().collect(Collectors.toMap(ProfileFeatureAPI.ClientProfile::getUUID, x -> x));
-        for(var e : this.profiles.values()) {
-            if(e instanceof ClientProfile cp) {
-                cp.updateOptionalGraph();
-            }
-        }
+        this.profiles = profileService.prepare(profiles);
         for(var e : backendSettings.settings.entrySet()) {
             ClientProfile profile = (ClientProfile) this.profiles.get(e.getKey());
             if(profile == null) {
@@ -314,7 +328,7 @@ public class LauncherBackendImpl implements LauncherBackendAPI, TextureUploadExt
             e.getValue().initAfterGson(profile, this);
         }
         if(offlineModeStorageData != null) {
-            offlineModeStorageData.profiles = profiles.stream().map(e -> (ClientProfile) e).toList();
+            offlineProfileService.updateProfiles(profiles);
         }
     }
 
@@ -342,8 +356,13 @@ public class LauncherBackendImpl implements LauncherBackendAPI, TextureUploadExt
 
     @Override
     public CompletableFuture<ReadyProfile> downloadProfile(ProfileFeatureAPI.ClientProfile profile, ClientProfileSettings settings, DownloadCallback callback) {
+        long generation = authSessionService.current();
         return clientDownloadImpl.downloadProfile((ClientProfile) profile, (ProfileSettingsImpl) settings, callback)
-                .thenCompose((readyProfile) -> refreshTokenBeforeLaunch().thenApply((v) -> readyProfile));
+                .thenCompose(readyProfile -> refreshTokenBeforeLaunch(generation).thenApply(v -> readyProfile))
+                .thenApply(readyProfile -> {
+                    if (!authSessionService.isCurrent(generation)) throw new LauncherBackendException("Authentication session changed");
+                    return readyProfile;
+                });
     }
 
     /**
@@ -352,8 +371,14 @@ public class LauncherBackendImpl implements LauncherBackendAPI, TextureUploadExt
      * so a launcher left open longer than the token lives used to start the client with an expired token, and
      * the client stopped with auth.expiretoken. Refresh it here, once the files are in place, right before run.
      */
-    private CompletableFuture<Void> refreshTokenBeforeLaunch() {
-        var auth = backendSettings.auth;
+    private CompletableFuture<Void> refreshTokenBeforeLaunch(long generation) {
+        BackendSettings.AuthorizationData auth;
+        synchronized (authSessionService.lock()) {
+            if (!authSessionService.isCurrent(generation)) {
+                return CompletableFuture.failedFuture(new LauncherBackendException("Authentication session changed"));
+            }
+            auth = backendSettings.auth;
+        }
         if(auth == null || auth.expireIn <= 0 || auth.refreshToken == null || LauncherAPIHolder.auth() instanceof RequestOfflineModeAPIImpl) {
             return CompletableFuture.completedFuture(null);
         }
@@ -362,13 +387,7 @@ public class LauncherBackendImpl implements LauncherBackendAPI, TextureUploadExt
             return CompletableFuture.completedFuture(null);
         }
         logger.debug("downloadProfile() - access token expired or about to, refresh it before launch");
-        return LauncherAPIHolder.auth().refreshToken(auth.refreshToken).thenCompose((response) -> {
-            setAuthToken(response);
-            return LauncherAPIHolder.auth().restore(backendSettings.auth.accessToken, true);
-        }).thenAccept((user) -> {
-            this.selfUser = user;
-            permissions = user.getPermissions();
-        });
+        return refreshAuth(generation).thenAccept(user -> { });
     }
 
     @Override
@@ -378,87 +397,41 @@ public class LauncherBackendImpl implements LauncherBackendAPI, TextureUploadExt
 
     @Override
     public CompletableFuture<List<Java>> getAvailableJava() {
-        if(availableJavas == null) {
+        synchronized (this) {
+            if (availableJavas != null) return CompletableFuture.completedFuture(availableJavas);
             if(availableJavasFuture == null) {
                 availableJavasFuture = CompletableFuture.supplyAsync(() -> {
-                    List<Java> javas = getCustomJava();
-                    if(!Launcher.getConfig().forceUseCustomJava || javas.isEmpty()) {
-                        javas.addAll(JavaHelper.findJava());
-                    }
-                    return javas;
-                }, executorService).thenApply(e -> {
+                    return javaRuntimeService.discover();
+                }, executorService).thenApply(List::copyOf).thenApply(e -> {
                     availableJavas = e;
                     return e;
+                }).whenComplete((value, error) -> {
+                    if (error != null) synchronized (LauncherBackendImpl.this) { availableJavasFuture = null; }
                 });
             }
             return availableJavasFuture;
         }
-        return CompletableFuture.completedFuture(availableJavas);
     }
 
-    private static final Pattern JAVA_VERSION_PATTERN = Pattern.compile(
-            "Java (?<version>.+) b(?<build>.+) (?<os>.+) (?<arch>.+) javafx (?<javafx>.+)");
-
     public List<Java> getCustomJava() {
-        List<Java> versions = new ArrayList<>();
-        if(Launcher.getConfig().customJavaDownload == null) {
-            return versions;
-        }
-        for (Map.Entry<String, String> entry : Launcher.getConfig().customJavaDownload.entrySet()) {
-            String javaDir = entry.getKey();
-            String javaVersionString = entry.getValue();
-            Matcher matcher = JAVA_VERSION_PATTERN.matcher(javaVersionString);
-            if (matcher.matches()) {
-                String os = matcher.group("os");
-                int version = Integer.parseInt(matcher.group("version"));
-                int build = Integer.parseInt(matcher.group("build"));
-                JVMHelper.ARCH arch = JVMHelper.ARCH.valueOf(matcher.group("arch"));
-                boolean javafx = Boolean.parseBoolean(matcher.group("javafx"));
-                if (!isArchAvailable(arch)) {
-                    continue;
-                }
-                if (!JVMHelper.OS_TYPE.name.equals(os)) {
-                    continue;
-                }
-                Path javaDirectory = DirBridge.dirUpdates.resolve(javaDir);
-                logger.debug("In-Launcher Java Version found: Java {} b{} {} javafx {}", version, build, arch.name, Boolean.toString(javafx));
-                JavaHelper.JavaVersion javaVersion = new JavaHelper.JavaVersion(javaDirectory, version, build,
-                        arch, javafx);
-                versions.add(javaVersion);
-            } else {
-                logger.warn("Java Version: {} does not match", javaVersionString);
-            }
-        }
-        return versions;
+        return javaRuntimeService.customRuntimes();
     }
 
     public boolean isArchAvailable(JVMHelper.ARCH arch) {
-        if (JVMHelper.ARCH_TYPE == arch) {
-            return true;
-        }
-        if (arch == JVMHelper.ARCH.X86_64 && JVMHelper.OS_TYPE == JVMHelper.OS.MUSTDIE
-                && ((JVMHelper.ARCH_TYPE == JVMHelper.ARCH.X86 && !JVMHelper.isJVMMatchesSystemArch())
-                || JVMHelper.ARCH_TYPE == JVMHelper.ARCH.ARM64)) {
-            return true;
-        }
-        return arch == JVMHelper.ARCH.X86_64
-                && JVMHelper.OS_TYPE == JVMHelper.OS.MACOSX
-                && JVMHelper.ARCH_TYPE == JVMHelper.ARCH.ARM64;
+        return javaRuntimeService.isArchAvailable(arch);
     }
 
     @Override
     public CompletableFuture<ServerPingInfo> pingServer(ProfileFeatureAPI.ClientProfile profile) {
         return pingFutures.computeIfAbsent(profile.getUUID(), (k) -> {
-            CompletableFuture<ServerPingInfo> future = new CompletableFuture<>();
-            Thread.ofVirtual().start(() -> {
+            return CompletableFuture.supplyAsync(() -> {
                 try {
                     ServerPinger pinger = new ServerPinger((ClientProfile) profile);
-                    future.complete(pinger.ping());
+                    return pinger.ping();
                 } catch (Throwable e) {
-                    future.completeExceptionally(e);
+                    throw new java.util.concurrent.CompletionException(e);
                 }
-            });
-            return future;
+            }, pingExecutor);
         });
     }
 
@@ -466,12 +439,19 @@ public class LauncherBackendImpl implements LauncherBackendAPI, TextureUploadExt
     public CompletableFuture<ServerPingInfo> pingProfileServers(ProfileFeatureAPI.ClientProfile profile) {
         return pingFutures.computeIfAbsent(profile.getUUID(), (k) -> {
             CompletableFuture<ServerPingInfo> future = new CompletableFuture<>();
-            Thread.ofVirtual().start(() -> {
+            CompletableFuture.runAsync(() -> {
                 try {
                     ClientProfile clientProfile = (ClientProfile) profile;
                     List<ClientProfile.ServerProfile> servers = clientProfile.getServers();
 
-                    if (servers == null || servers.isEmpty()) return;
+                    if (servers == null || servers.isEmpty()) {
+                        future.complete(new ServerPingInfo() {
+                            @Override public int getMaxOnline() { return 0; }
+                            @Override public int getOnline() { return 0; }
+                            @Override public List<String> getPlayerNames() { return List.of(); }
+                        });
+                        return;
+                    }
 
                     var serverPingFutures = servers.stream()
                             .map(server -> CompletableFuture.supplyAsync(() -> {
@@ -482,7 +462,7 @@ public class LauncherBackendImpl implements LauncherBackendAPI, TextureUploadExt
                                     logger.warn("Failed to ping server {}: {}", server.name, e.getMessage());
                                     return null;
                                 }
-                            }, Executors.newVirtualThreadPerTaskExecutor()))
+                            }, pingExecutor))
                             .toList();
 
                     CompletableFuture.allOf(serverPingFutures.toArray(new CompletableFuture[0]))
@@ -535,9 +515,14 @@ public class LauncherBackendImpl implements LauncherBackendAPI, TextureUploadExt
                 } catch (Throwable e) {
                     future.completeExceptionally(e);
                 }
-            });
+            }, pingExecutor);
             return future;
         });
+    }
+
+    private void clearPings() {
+        for (var future : pingFutures.values()) future.cancel(true);
+        pingFutures.clear();
     }
 
     @Override
@@ -562,7 +547,7 @@ public class LauncherBackendImpl implements LauncherBackendAPI, TextureUploadExt
 
     @Override
     public String getUsername() {
-        return selfUser == null ? "Player" : getUsername();
+        return selfUser == null ? "Player" : selfUser.getUsername();
     }
 
     @Override
@@ -600,6 +585,12 @@ public class LauncherBackendImpl implements LauncherBackendAPI, TextureUploadExt
 
     @Override
     public void shutdown() {
+        close();
+    }
+
+    private void shutdownResources() {
+        clearPings();
+        pingExecutor.shutdownNow();
         if (executorService != null) {
             executorService.shutdownNow();
         }
@@ -609,13 +600,24 @@ public class LauncherBackendImpl implements LauncherBackendAPI, TextureUploadExt
             } catch (IOException e) {
                 logger.error("Config not saved", e);
             }
-            try {
-                if(offlineModeStorageDataJsonConfigurable != null) {
-                    offlineModeStorageDataJsonConfigurable.saveConfig();
-                }
-            } catch (IOException e) {
-                logger.error("OfflineConfig not saved", e);
-            }
+            offlineProfileService.save();
+        }
+    }
+
+    @Override
+    public void close() {
+        if (!closed.compareAndSet(false, true)) return;
+        synchronized (authSessionService.lock()) {
+            authSessionService.advance();
+            selfUser = null;
+            permissions = new ClientPermissions();
+            profiles = null;
+            processHardwareFuture = null;
+        }
+        try {
+            shutdownResources();
+        } finally {
+            LauncherAPIHolder.reset();
         }
     }
 
@@ -630,17 +632,21 @@ public class LauncherBackendImpl implements LauncherBackendAPI, TextureUploadExt
     }
 
     public CompletableFuture<Void> processHardware() {
+        long generation = authSessionService.current();
         HardwareVerificationFeatureAPI featureAPI = LauncherAPIHolder.get().get(HardwareVerificationFeatureAPI.class);
         if(featureAPI == null) {
             return CompletableFuture.completedFuture(null);
         }
         return featureAPI.getSecurityInfo().thenCompose((response) -> {
+            if (!authSessionService.isCurrent(generation)) return CompletableFuture.failedFuture(new LauncherBackendException("Authentication session changed"));
             if(!response.isRequired()) {
                 return CompletableFuture.completedFuture(null);
             }
             byte[] signature = SecurityHelper.sign(response.getSignData(), ecKeyHolder.privateKey);
             return featureAPI.privateKeyVerification(ecKeyHolder.publicKey, signature);
         }).thenCompose((response) -> {
+            if (!authSessionService.isCurrent(generation)) return CompletableFuture.failedFuture(new LauncherBackendException("Authentication session changed"));
+            if (response == null) return CompletableFuture.completedFuture(null);
             switch (response.getHardwareCollectLevel()) {
                 case NONE -> {
                     return featureAPI.sendHardwareInfo(null, null);
