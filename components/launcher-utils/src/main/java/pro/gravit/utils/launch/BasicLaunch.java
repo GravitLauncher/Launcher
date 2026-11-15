@@ -77,6 +77,25 @@ public class BasicLaunch implements Launch {
         }
 
         @Override
+        public byte[] runTransformers(String moduleName, String className, byte[] bytes) {
+            return bytes;
+        }
+
+        @Override
+        public Class<?> defineClass(String name, byte[] b, int off, int len, ProtectionDomain protectionDomain) {
+            try {
+                return MethodHandles.lookup().defineClass(b);
+            } catch (IllegalAccessException | LinkageError e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        @Override
+        public boolean isNeedTransform(String moduleName, String name) {
+            return false;
+        }
+
+        @Override
         public void addURL(URL url) {
             if (instrumentation == null) {
                 throw new UnsupportedOperationException();

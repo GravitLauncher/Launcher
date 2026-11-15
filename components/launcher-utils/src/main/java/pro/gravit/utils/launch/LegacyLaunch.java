@@ -13,6 +13,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.Path;
+import java.security.ProtectionDomain;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -89,13 +90,7 @@ public class LegacyLaunch implements Launch {
                 }
             }
             if(name != null && !transformers.isEmpty()) {
-                boolean needTransform = false;
-                for(ClassLoaderControl.ClassTransformer t : transformers) {
-                    if(t.filter(null, name)) {
-                        needTransform = true;
-                        break;
-                    }
-                }
+                boolean needTransform = isNeedTransform(name);
                 if(needTransform) {
                     String rawClassName = name.replace(".", "/").concat(".class");
                     try(InputStream input = getResourceAsStream(rawClassName)) {
@@ -103,9 +98,7 @@ public class LegacyLaunch implements Launch {
                             throw new ClassNotFoundException(name);
                         }
                         byte[] bytes = input.readAllBytes();
-                        for(ClassLoaderControl.ClassTransformer t : transformers) {
-                            bytes = t.transform(null, name, null, bytes);
-                        }
+                        bytes = runTransformers(name, bytes);
                         clazz = defineClass(name, bytes, 0, bytes.length);
                     } catch (IOException e) {
                         throw new ClassNotFoundException(name, e);
@@ -121,6 +114,24 @@ public class LegacyLaunch implements Launch {
             } else {
                 throw new ClassNotFoundException(name);
             }
+        }
+
+        private boolean isNeedTransform(String name) {
+            boolean needTransform = false;
+            for(ClassLoaderControl.ClassTransformer t : transformers) {
+                if(t.filter(null, name)) {
+                    needTransform = true;
+                    break;
+                }
+            }
+            return needTransform;
+        }
+
+        private byte[] runTransformers(String name, byte[] bytes) {
+            for(ClassLoaderControl.ClassTransformer t : transformers) {
+                bytes = t.transform(null, name, null, bytes);
+            }
+            return bytes;
         }
 
         @Override
@@ -158,6 +169,21 @@ public class LegacyLaunch implements Launch {
             @Override
             public void addTransformer(ClassTransformer transformer) {
                 transformers.add(transformer);
+            }
+
+            @Override
+            public byte[] runTransformers(String moduleName, String className, byte[] bytes) {
+                return LegacyClassLoader.this.runTransformers(className, bytes);
+            }
+
+            @Override
+            public Class<?> defineClass(String name, byte[] b, int off, int len, ProtectionDomain protectionDomain) {
+                return LegacyClassLoader.this.defineClass(name, b, off, len, protectionDomain);
+            }
+
+            @Override
+            public boolean isNeedTransform(String moduleName, String name) {
+                return LegacyClassLoader.this.isNeedTransform(name);
             }
 
             @Override

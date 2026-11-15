@@ -21,6 +21,7 @@ import java.net.URLClassLoader;
 import java.nio.ByteBuffer;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.security.ProtectionDomain;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicReference;
@@ -372,13 +373,7 @@ public class ModuleLaunch implements Launch {
                 }
             }
             if(name != null && !transformers.isEmpty()) {
-                boolean needTransform = false;
-                for(ClassLoaderControl.ClassTransformer t : transformers) {
-                    if(t.filter(moduleName, name)) {
-                        needTransform = true;
-                        break;
-                    }
-                }
+                boolean needTransform = isNeedTransform(moduleName, name);
                 if(needTransform) {
                     String rawClassName = name.replace(".", "/").concat(".class");
                     try(InputStream input = getResourceAsStream(rawClassName)) {
@@ -414,6 +409,17 @@ public class ModuleLaunch implements Launch {
             } else {
                 return null;
             }
+        }
+
+        private boolean isNeedTransform(String moduleName, String name) {
+            boolean needTransform = false;
+            for(ClassLoaderControl.ClassTransformer t : transformers) {
+                if(t.filter(moduleName, name)) {
+                    needTransform = true;
+                    break;
+                }
+            }
+            return needTransform;
         }
 
         private byte[] transformClass(String moduleName, String name, byte[] bytes) {
@@ -461,6 +467,22 @@ public class ModuleLaunch implements Launch {
             @Override
             public void addTransformer(ClassTransformer transformer) {
                 transformers.add(transformer);
+            }
+
+            @Override
+            public byte[] runTransformers(String moduleName, String className, byte[] bytes) {
+                return ModuleClassLoader.this.transformClass(moduleName, className, bytes);
+            }
+
+            @Override
+            public Class<?> defineClass(String name, byte[] b, int off, int len,
+                                        ProtectionDomain protectionDomain) {
+                return ModuleClassLoader.this.defineClass(name, b, off, len, protectionDomain);
+            }
+
+            @Override
+            public boolean isNeedTransform(String moduleName, String name) {
+                return ModuleClassLoader.this.isNeedTransform(moduleName, name);
             }
 
             @Override

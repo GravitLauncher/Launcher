@@ -9,6 +9,12 @@ public interface ClassLoaderControl {
     void addLauncherPackage(String prefix);
     void clearLauncherPackages();
     void addTransformer(ClassTransformer transformer);
+    byte[] runTransformers(String moduleName, String className, byte[] bytes);
+
+    Class<?> defineClass(String name, byte[] b, int off, int len,
+                         ProtectionDomain protectionDomain);
+
+    boolean isNeedTransform(String moduleName, String name);
     void addURL(URL url);
     void addJar(Path path);
     URL[] getURLs();
