@@ -1,6 +1,5 @@
 package pro.gravit.launcher.runtime.backend;
 
-import oshi.SystemInfo;
 import pro.gravit.launcher.base.profiles.ClientProfile;
 import pro.gravit.launcher.base.profiles.optional.OptionalFile;
 import pro.gravit.launcher.base.profiles.optional.OptionalView;
@@ -64,8 +63,7 @@ public class ProfileSettingsImpl implements LauncherBackendAPI.ClientProfileSett
         try {
             return SystemMemory.getPhysicalMemorySize();
         } catch (Throwable e) {
-            SystemInfo systemInfo = new SystemInfo();
-            return systemInfo.getHardware().getMemory().getTotal();
+            return 1024*8;
         }
     }
 
