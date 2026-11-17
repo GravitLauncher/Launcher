@@ -7,12 +7,14 @@ import pro.gravit.launcher.core.LauncherTrustManager;
 import pro.gravit.launcher.core.api.features.CoreFeatureAPI;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.asm.InjectClassAcceptor;
+import pro.gravit.launchserver.binary.BuildContext;
 import pro.gravit.launchserver.binary.tasks.MainBuildTask;
 import pro.gravit.utils.helper.IOHelper;
 
 import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
+import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import java.lang.reflect.Field;
@@ -48,12 +50,31 @@ public class LauncherModuleLoader implements AutoCloseable {
                     buildContext.legacyClientModules.add(e.moduleMainClass);
                 }
                 buildContext.readerClassPath.add(new JarFile(e.path.toFile()));
+                try {
+                    if(e.moduleLaunchServerName != null) {
+                        Class<?> clazz = Class.forName(e.moduleLaunchServerName);
+                        clazz.getMethod("preBuild", LaunchServer.class, BuildContext.class, ModuleEntity.class).invoke(null, server, buildContext, e);
+                    }
+                } catch (Throwable ex) {
+                    logger.error("Failed to process module preBuild hook", ex);
+                }
             }
         });
         mainTask.postBuildHook.registerHook((buildContext) -> {
             for (ModuleEntity e : launcherModules) {
                 logger.debug("Put {} launcher module", e.path.toString());
-                buildContext.pushJarFile(e.path, (en) -> false, (en) -> true);
+                boolean isPushJarFile = true;
+                try {
+                    if(e.moduleLaunchServerName != null) {
+                        Class<?> clazz = Class.forName(e.moduleLaunchServerName);
+                        isPushJarFile = (Boolean) clazz.getMethod("postBuild", LaunchServer.class, BuildContext.class, ModuleEntity.class).invoke(null, server, buildContext, e);
+                    }
+                } catch (Throwable ex) {
+                    logger.error("Failed to process module postBuild hook", ex);
+                }
+                if(isPushJarFile) {
+                    buildContext.pushJarFile(e.path, (en) -> false, (en) -> true);
+                }
             }
         });
         try {
@@ -104,6 +125,7 @@ public class LauncherModuleLoader implements AutoCloseable {
         entity.moduleConfigClass = attributes.getValue("Module-Config-Class");
         String requiredModernJava = attributes.getValue("Required-Modern-Java");
         entity.modernModule = Boolean.parseBoolean(requiredModernJava);
+        entity.moduleLaunchServerName = attributes.getValue("Module-LaunchServer-Class");
         if (entity.moduleConfigClass != null) {
             entity.moduleConfigName = attributes.getValue("Module-Config-Name");
             if (entity.moduleConfigName == null) {
@@ -176,6 +198,7 @@ public class LauncherModuleLoader implements AutoCloseable {
         public String moduleMainClass;
         public String moduleConfigClass;
         public String moduleConfigName;
+        public String moduleLaunchServerName;
         public boolean modernModule;
         public Map<String, Object> propertyMap;
     }
