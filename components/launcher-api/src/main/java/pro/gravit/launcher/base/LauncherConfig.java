@@ -151,7 +151,7 @@ public final class LauncherConfig extends StreamObject {
     }
 
     public static void initModules(LauncherModulesManager modulesManager) {
-        if(JVMHelper.JVM_VERSION >= 17) {
+        if(JVMHelper.JVM_VERSION >= 25) {
             modulesClasses.addAll(ModernModulesClass.modulesClasses);
         }
         for (Class<?> clazz : modulesClasses)
