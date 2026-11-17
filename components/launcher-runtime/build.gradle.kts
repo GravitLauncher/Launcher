@@ -31,8 +31,6 @@ dependencies {
     api(project(":components:launcher-client"))
     api(project(":components:launcher-start"))
     optional(libs.slf4j.simple)
-    optional(libs.oshi.core)
-    optional(libs.oshi.common)
 }
 
 val copyLauncherLibs = tasks.register("copyLauncherLibs", Copy::class) {

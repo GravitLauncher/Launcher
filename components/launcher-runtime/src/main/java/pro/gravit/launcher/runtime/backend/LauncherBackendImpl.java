@@ -29,7 +29,6 @@ import pro.gravit.launcher.runtime.client.DirBridge;
 import pro.gravit.launcher.runtime.client.ServerPinger;
 import pro.gravit.launcher.runtime.debug.DebugMain;
 import pro.gravit.launcher.runtime.managers.SettingsManager;
-import pro.gravit.launcher.runtime.utils.HWIDProvider;
 import pro.gravit.launcher.runtime.utils.LauncherUpdater;
 import pro.gravit.utils.helper.*;
 
@@ -75,7 +74,6 @@ public class LauncherBackendImpl implements LauncherBackendAPI, TextureUploadExt
     private volatile SelfUser selfUser;
     private volatile List<Java> availableJavas;
     private volatile CompletableFuture<List<Java>> availableJavasFuture;
-    private volatile CompletableFuture<Void> processHardwareFuture;
     private volatile Path vfsRootPath;
     private record PingKey(UUID profileId, boolean aggregate) {}
     private final Map<PingKey, CompletableFuture<ServerPingInfo>> pingFutures = new ConcurrentHashMap<>();
@@ -258,9 +256,6 @@ public class LauncherBackendImpl implements LauncherBackendAPI, TextureUploadExt
         permissions = selfUser.getPermissions();
         if(LauncherAPIHolder.auth() instanceof RequestOfflineModeAPIImpl impl) offlineProfileService.configure(impl, offlineModeStorageData);
         callback.onAuthorize(selfUser);
-        if(processHardwareFuture == null) {
-            processHardwareFuture = processHardware();
-        }
     }
 
     private void onAuthorize(long generation, SelfUser user) {
@@ -763,7 +758,6 @@ public class LauncherBackendImpl implements LauncherBackendAPI, TextureUploadExt
             selfUser = null;
             permissions = new ClientPermissions();
             profiles = null;
-            processHardwareFuture = null;
         }
         try {
             shutdownResources();
@@ -780,39 +774,6 @@ public class LauncherBackendImpl implements LauncherBackendAPI, TextureUploadExt
     @Override
     public CompletableFuture<Texture> uploadTexture(String name, byte[] bytes, TextureUploadFeatureAPI.UploadSettings settings) {
         return LauncherAPIHolder.get().get(TextureUploadFeatureAPI.class).upload(name, bytes, settings);
-    }
-
-    public CompletableFuture<Void> processHardware() {
-        long generation = authSessionService.current();
-        HardwareVerificationFeatureAPI featureAPI = LauncherAPIHolder.get().get(HardwareVerificationFeatureAPI.class);
-        if(featureAPI == null) {
-            return CompletableFuture.completedFuture(null);
-        }
-        return featureAPI.getSecurityInfo().thenCompose((response) -> {
-            if (!authSessionService.isCurrent(generation)) return CompletableFuture.failedFuture(new LauncherBackendException("Authentication session changed"));
-            if(!response.isRequired()) {
-                return CompletableFuture.completedFuture(null);
-            }
-            byte[] signature = SecurityHelper.sign(response.getSignData(), ecKeyHolder.privateKey);
-            return featureAPI.privateKeyVerification(ecKeyHolder.publicKey, signature);
-        }).thenCompose((response) -> {
-            if (!authSessionService.isCurrent(generation)) return CompletableFuture.failedFuture(new LauncherBackendException("Authentication session changed"));
-            if (response == null) return CompletableFuture.completedFuture(null);
-            switch (response.getHardwareCollectLevel()) {
-                case NONE -> {
-                    return featureAPI.sendHardwareInfo(null, null);
-                }
-                case ONLY_STATISTIC -> {
-                    HWIDProvider hwidProvider = new HWIDProvider();
-                    return featureAPI.sendHardwareInfo(hwidProvider.getStatisticData(), null);
-                }
-                case ALL -> {
-                    HWIDProvider hwidProvider = new HWIDProvider();
-                    return featureAPI.sendHardwareInfo(hwidProvider.getStatisticData(), hwidProvider.getIdentifyData());
-                }
-            }
-            return CompletableFuture.failedFuture(new UnsupportedOperationException());
-        });
     }
 
     public Path initVfsDirectory() {
