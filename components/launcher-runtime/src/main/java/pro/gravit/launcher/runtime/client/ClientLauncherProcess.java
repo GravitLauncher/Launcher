@@ -76,12 +76,12 @@ public class ClientLauncherProcess {
     public ClientLauncherProcess(Path clientDir, Path assetDir, JavaHelper.JavaVersion javaVersion, Path resourcePackDir,
                                  ClientProfile profile, PlayerProfile playerProfile, OptionalView view, String accessToken,
                                  HashedDir clientHDir, HashedDir assetHDir, HashedDir jvmHDir) {
-        this(clientDir, assetDir, javaVersion, resourcePackDir, profile, playerProfile, view, accessToken, clientHDir, assetHDir, jvmHDir, null, null);
+        this(clientDir, assetDir, javaVersion, resourcePackDir, profile, playerProfile, view, accessToken, clientHDir, assetHDir, jvmHDir, null, null, null);
     }
 
     public ClientLauncherProcess(Path clientDir, Path assetDir, JavaHelper.JavaVersion javaVersion, Path resourcePackDir,
                                  ClientProfile profile, PlayerProfile playerProfile, OptionalView view, String accessToken,
-                                 HashedDir clientHDir, HashedDir assetHDir, HashedDir jvmHDir, String remoteAccessToken, String authId) {
+                                 HashedDir clientHDir, HashedDir assetHDir, HashedDir jvmHDir, String remoteAccessToken, String authId, Object restoreTempTokens) {
         this.javaVersion = javaVersion;
         this.workDir = clientDir.toAbsolutePath();
         this.executeFile = IOHelper.resolveJavaBin(this.javaVersion.jvmDir);
@@ -91,6 +91,7 @@ public class ClientLauncherProcess {
         this.params.assetDir = assetDir.toAbsolutePath().toString();
         this.params.timestamp = System.currentTimeMillis();
         this.params.remoteAccessToken = remoteAccessToken;
+        this.params.restoreTempTokens = restoreTempTokens == null ? null : Launcher.gsonManager.gson.toJsonTree(restoreTempTokens);
         this.params.authId = authId;
         this.params.offlineMode = "offline".equals(authId);
         Path nativesPath;

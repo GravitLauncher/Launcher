@@ -38,7 +38,7 @@ import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicReference;
 
-public class RequestFeatureHttpAPIImpl implements AuthFeatureAPI, UserFeatureAPI, ProfileFeatureAPI, CoreFeatureAPI, HardwareVerificationFeatureAPI,TextureUploadFeatureAPI, AutoCloseable {
+public class RequestFeatureHttpAPIImpl implements AuthFeatureAPI, UserFeatureAPI, ProfileFeatureAPI, CoreFeatureAPI, HardwareVerificationFeatureAPI, TextureUploadFeatureAPI, RestoreTempTokensFeatureAPI, AutoCloseable {
     private static final Logger logger = LoggerFactory.getLogger(RequestFeatureHttpAPIImpl.class);
 
     private final String baseUrl;
@@ -535,6 +535,26 @@ public class RequestFeatureHttpAPIImpl implements AuthFeatureAPI, UserFeatureAPI
                 }
             }
         });
+    }
+
+    public record HttpAPICollectObject(String launcherApiToken) {
+
+    }
+
+    @Override
+    public Object collectTempTokens() {
+        return new HttpAPICollectObject(launcherVerifyTokenRef.get());
+    }
+
+    @Override
+    public Class<?> getTempTokensObjectClass() {
+        return HttpAPICollectObject.class;
+    }
+
+    @Override
+    public void setTempTokens(Object o) {
+        HttpAPICollectObject ho = (HttpAPICollectObject) o;
+        launcherVerifyTokenRef.set(ho.launcherApiToken());
     }
 
     public record HttpTextureUploadInfo() implements TextureUploadInfo {

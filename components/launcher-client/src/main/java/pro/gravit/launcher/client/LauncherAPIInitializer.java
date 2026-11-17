@@ -2,6 +2,7 @@ package pro.gravit.launcher.client;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import pro.gravit.launcher.base.Launcher;
 import pro.gravit.launcher.base.LauncherConfig;
 import pro.gravit.launcher.base.ApiMode;
 import pro.gravit.launcher.base.modules.LauncherModulesManager;
@@ -45,6 +46,10 @@ public class LauncherAPIInitializer {
             }
             if (accessToken == null || accessToken.isBlank()) {
                 throw new IllegalArgumentException("Client launch parameters must contain a remote access token");
+            }
+            if(LauncherAPIHolder.get().restores() != null && params.restoreTempTokens != null) {
+                Object o = Launcher.gsonManager.gson.fromJson(params.restoreTempTokens, LauncherAPIHolder.get().restores().getTempTokensObjectClass());
+                LauncherAPIHolder.get().restores().setTempTokens(o);
             }
             LauncherAPIHolder.auth().restore(accessToken, false).get();
             LauncherAPIHolder.profile().changeCurrentProfile(params.profile).get();
@@ -158,6 +163,9 @@ public class LauncherAPIInitializer {
         Map<Class<? extends FeatureAPI>, FeatureAPI> map = new HashMap<>();
         if (auth != null) {
             map.put(AuthFeatureAPI.class, auth);
+            if(auth instanceof RestoreTempTokensFeatureAPI fa) {
+                map.put(RestoreTempTokensFeatureAPI.class, fa);
+            }
         }
         if (user != null) {
             map.put(UserFeatureAPI.class, user);

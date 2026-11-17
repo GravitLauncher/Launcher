@@ -1,9 +1,6 @@
 package pro.gravit.launcher.core.api;
 
-import pro.gravit.launcher.core.api.features.AuthFeatureAPI;
-import pro.gravit.launcher.core.api.features.FeatureAPI;
-import pro.gravit.launcher.core.api.features.ProfileFeatureAPI;
-import pro.gravit.launcher.core.api.features.UserFeatureAPI;
+import pro.gravit.launcher.core.api.features.*;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -25,6 +22,10 @@ public class LauncherAPI {
 
     public ProfileFeatureAPI profile() {
         return get(ProfileFeatureAPI.class);
+    }
+
+    public RestoreTempTokensFeatureAPI restores() {
+        return get(RestoreTempTokensFeatureAPI.class);
     }
 
     @SuppressWarnings("unchecked")

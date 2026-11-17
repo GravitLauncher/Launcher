@@ -8,6 +8,7 @@ import pro.gravit.launcher.base.profiles.ClientProfileBuilder;
 import pro.gravit.launcher.base.profiles.PlayerProfile;
 import pro.gravit.launcher.client.utils.DirWatcher;
 import pro.gravit.launcher.client.utils.MinecraftAuthlibBridge;
+import pro.gravit.launcher.core.api.LauncherAPIHolder;
 import pro.gravit.launcher.core.api.features.ProfileFeatureAPI;
 import pro.gravit.launcher.core.backend.LauncherBackendAPI;
 import pro.gravit.launcher.core.hasher.FileNameMatcher;
@@ -84,10 +85,14 @@ public class ReadyProfileImpl implements LauncherBackendAPI.ReadyProfile {
             if(java == null) {
                 java = settings.getRecommendedJava();
             }
+            Object restoreTempTokens = null;
+            if(LauncherAPIHolder.get().restores() != null) {
+                restoreTempTokens = LauncherAPIHolder.get().restores().collectTempTokens();
+            }
             process = new ClientLauncherProcess(clientDir.path(), assetDir.path(), java, clientDir.path().resolve("resourcepacks"),
                     profile, new PlayerProfile(backend.getSelfUser()), settings.view, backend.getSelfUser().getAccessToken(),
                     clientDir.dir(), assetDir.dir(), javaDir == null ? null : javaDir.dir(),
-                    backend.getAuthToken().getAccessToken(), backend.getAuthMethod().getName());
+                    backend.getAuthToken().getAccessToken(), backend.getAuthMethod().getName(), restoreTempTokens);
             process.params.ram = (int) (settings.getReservedMemoryBytes(LauncherBackendAPI.ClientProfileSettings.MemoryClass.TOTAL) >> 20);
             if (process.params.ram > 0) {
                 process.jvmArgs.add("-Xms" + process.params.ram + 'M');

@@ -1,5 +1,7 @@
 package pro.gravit.launcher.client;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import pro.gravit.launcher.base.Launcher;
 import pro.gravit.launcher.core.api.model.SelfUser;
 import pro.gravit.launcher.core.hasher.HashedDir;
@@ -52,6 +54,8 @@ public class ClientParams {
     public String authId;
 
     public long oauthExpiredTime;
+
+    public JsonElement restoreTempTokens;
 
     public boolean offlineMode;
 
