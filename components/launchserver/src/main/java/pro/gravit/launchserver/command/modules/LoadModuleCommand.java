@@ -49,10 +49,10 @@ public class LoadModuleCommand extends Command {
         if(!Files.exists(file)) {
             throw new FileNotFoundException(file.toString());
         }
-        if(Files.isDirectory(file)) {
+        if (Files.isDirectory(file)) {
             server.modulesManager.autoload(file);
-        } else {
-            server.modulesManager.loadModule(file);
+        } else if (server.modulesManager.loadModule(file) == null) {
+            throw new IOException("Module registration failed: " + file);
         }
         if(!server.modulesConfig.loadModules.contains(target)) {
             server.modulesConfig.loadModules.add(target);

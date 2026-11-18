@@ -37,7 +37,7 @@ public class SimpleModuleManager implements LauncherModulesManager {
     protected final ModulesConfigManager modulesConfigManager;
     protected final Path modulesDir;
     protected final LauncherTrustManager trustManager;
-    protected final ModulesClassLoader classLoader = createClassLoader();
+    protected final ModulesClassLoader classLoader;
     protected final EventBus eventBus = new EventBus();
     protected LauncherInitContext initContext;
 
@@ -46,13 +46,15 @@ public class SimpleModuleManager implements LauncherModulesManager {
     }
 
     public SimpleModuleManager(Path modulesDir, Path configDir) {
-        modulesConfigManager = new SimpleModulesConfigManager(configDir);
-        context = new SimpleModuleContext(this, modulesConfigManager);
-        this.modulesDir = modulesDir;
-        this.trustManager = null;
+        this(modulesDir, configDir, null);
     }
 
     public SimpleModuleManager(Path modulesDir, Path configDir, LauncherTrustManager trustManager) {
+        this(modulesDir, configDir, trustManager, true);
+    }
+
+    protected SimpleModuleManager(Path modulesDir, Path configDir, LauncherTrustManager trustManager, boolean fileLoading) {
+        classLoader = fileLoading ? createClassLoader() : null;
         modulesConfigManager = new SimpleModulesConfigManager(configDir);
         context = new SimpleModuleContext(this, modulesConfigManager);
         this.modulesDir = modulesDir;
@@ -94,9 +96,7 @@ public class SimpleModuleManager implements LauncherModulesManager {
                 if (!module.getInitStatus().equals(LauncherModule.InitStatus.INIT_WAIT)) continue;
                 if (checkDepend(module)) {
                     isAnyModuleLoad = true;
-                    module.setInitStatus(LauncherModule.InitStatus.INIT);
-                    module.init(initContext);
-                    module.setInitStatus(LauncherModule.InitStatus.FINISH);
+                    initializeModule(module, initContext);
                 }
             }
         }
@@ -104,14 +104,18 @@ public class SimpleModuleManager implements LauncherModulesManager {
             if (module.getInitStatus().equals(LauncherModule.InitStatus.INIT_WAIT)) {
                 LauncherModuleInfo info = module.getModuleInfo();
                 logger.warn("Module {} required {}. Cyclic dependencies?", info.name, Arrays.toString(info.dependencies));
-                module.setInitStatus(LauncherModule.InitStatus.INIT);
-                module.init(initContext);
-                module.setInitStatus(LauncherModule.InitStatus.FINISH);
+                initializeModule(module, initContext);
             } else if (module.getInitStatus().equals(LauncherModule.InitStatus.PRE_INIT_WAIT)) {
                 LauncherModuleInfo info = module.getModuleInfo();
                 logger.error("Module {} skip pre-init phase. This module NOT finish loading. Dependencies: {}", info.name, Arrays.toString(info.dependencies));
             }
         }
+    }
+
+    private void initializeModule(LauncherModule module, LauncherInitContext context) {
+        module.setInitStatus(LauncherModule.InitStatus.INIT);
+        module.init(context);
+        module.setInitStatus(LauncherModule.InitStatus.FINISH);
     }
 
     private boolean checkDepend(LauncherModule module) {
@@ -139,15 +143,14 @@ public class SimpleModuleManager implements LauncherModulesManager {
         module.setContext(context);
         module.preInit();
         if (initContext != null) {
-            module.setInitStatus(LauncherModule.InitStatus.INIT);
-            module.init(initContext);
-            module.setInitStatus(LauncherModule.InitStatus.FINISH);
+            initializeModule(module, initContext);
         }
         return module;
     }
 
     @Override
     public LauncherModule loadModule(Path file) throws IOException {
+        if (classLoader == null) throw new UnsupportedOperationException("Module JAR loading is disabled");
         try (JarFile f = new JarFile(file.toFile())) {
             String moduleClass = f.getManifest() != null ? f.getManifest().getMainAttributes().getValue("Module-Main-Class") : null;
             if (moduleClass == null) {
@@ -280,6 +283,7 @@ public class SimpleModuleManager implements LauncherModulesManager {
     }
 
     void addUrlToClassLoader(URL url) {
+        if (classLoader == null) throw new UnsupportedOperationException("Module JAR loading is disabled");
         classLoader.addURL(url);
     }
 

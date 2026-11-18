@@ -52,7 +52,7 @@ public class DebugMain {
         config.unlockSecret = DebugProperties.UNLOCK_SECRET;
         Launcher.setConfig(config);
         config.apply();
-        LauncherEngine.modulesManager = new RuntimeModuleManager();
+        LauncherEngine.modulesManager = new RuntimeModuleManager(true);
         LauncherEngine.modulesManager.loadModule(new RuntimeLauncherCoreModule());
         for (String moduleClassName : DebugProperties.MODULE_CLASSES) {
             if (moduleClassName.isEmpty()) continue;

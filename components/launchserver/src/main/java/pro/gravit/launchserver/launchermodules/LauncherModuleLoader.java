@@ -51,29 +51,13 @@ public class LauncherModuleLoader implements AutoCloseable {
                     buildContext.legacyClientModules.add(e.moduleMainClass);
                 }
                 buildContext.readerClassPath.add(new JarFile(e.path.toFile()));
-                try {
-                    if(e.moduleLaunchServerName != null) {
-                        Class<?> clazz = Class.forName(e.moduleLaunchServerName, true, classLoader);
-                        clazz.getMethod("preBuild", LaunchServer.class, BuildContext.class, ModuleEntity.class).invoke(null, server, buildContext, e);
-                    }
-                } catch (Throwable ex) {
-                    logger.error("Failed to process module preBuild hook", ex);
-                }
+                invokeBuildHook("preBuild", buildContext, e);
             }
         });
         mainTask.postBuildHook.registerHook((buildContext) -> {
             for (ModuleEntity e : launcherModules) {
                 logger.debug("Put {} launcher module", e.path.toString());
-                boolean isPushJarFile = true;
-                try {
-                    if(e.moduleLaunchServerName != null) {
-                        Class<?> clazz = Class.forName(e.moduleLaunchServerName, true, classLoader);
-                        isPushJarFile = (Boolean) clazz.getMethod("postBuild", LaunchServer.class, BuildContext.class, ModuleEntity.class).invoke(null, server, buildContext, e);
-                    }
-                } catch (Throwable ex) {
-                    logger.error("Failed to process module postBuild hook", ex);
-                }
-                if(isPushJarFile) {
+                if (invokeBuildHook("postBuild", buildContext, e)) {
                     buildContext.pushJarFile(e.path, (en) -> false, (en) -> true);
                 }
             }
@@ -82,6 +66,19 @@ public class LauncherModuleLoader implements AutoCloseable {
             loadLauncherModules();
         } catch (IOException e) {
             logger.error(e);
+        }
+    }
+
+    private boolean invokeBuildHook(String hook, BuildContext context, ModuleEntity module) {
+        if (module.moduleLaunchServerName == null) return true;
+        try {
+            Class<?> type = Class.forName(module.moduleLaunchServerName, true, classLoader);
+            Object result = type.getMethod(hook, LaunchServer.class, BuildContext.class, ModuleEntity.class)
+                    .invoke(null, server, context, module);
+            return hook.equals("preBuild") || (Boolean) result;
+        } catch (Throwable e) {
+            logger.error("Failed to process module {} hook", hook, e);
+            return true;
         }
     }
 
@@ -106,7 +103,8 @@ public class LauncherModuleLoader implements AutoCloseable {
         if (closed) throw new IllegalStateException("Launcher module loader is closed");
         Attributes attributes;
         try (JarFile f = new JarFile(file.toFile())) {
-            attributes = f.getManifest().getMainAttributes();
+            var manifest = f.getManifest();
+            attributes = manifest == null ? new Attributes() : manifest.getMainAttributes();
         }
         String mainClass = attributes.getValue("Module-Main-Class");
         if (mainClass == null) {

@@ -49,10 +49,10 @@ public class LoadLauncherModuleCommand extends Command {
         if(!Files.exists(file)) {
             throw new FileNotFoundException(file.toString());
         }
-        if(Files.isDirectory(file)) {
-            server.launcherModuleLoader.registerModule(file);
-        } else {
+        if (Files.isDirectory(file)) {
             server.launcherModuleLoader.autoload(file);
+        } else if (!server.launcherModuleLoader.registerModule(file)) {
+            throw new IOException("Module registration failed: " + file);
         }
         if(!server.modulesConfig.loadLauncherModules.contains(target)) {
             server.modulesConfig.loadLauncherModules.add(target);

@@ -1,3 +1,4 @@
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 
 plugins {
     id("com.gradleup.shadow")
@@ -17,31 +18,28 @@ tasks.jar {
     }
 }
 
-val fatJar = tasks.register<com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar>("fatJar") {
+fun ShadowJar.configureWrapperArchive() {
     configurations.set(listOf(project.configurations.runtimeClasspath.get()))
     from(sourceSets.main.get().output)
-    archiveClassifier.set("all")
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     exclude("module-info.class", "META-INF/MANIFEST.SF")
     manifest.from(tasks.jar.get().manifest)
 }
 
-tasks.named<com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar>("shadowJar") {
+val fatJar = tasks.register<ShadowJar>("fatJar") {
+    configureWrapperArchive()
+    archiveClassifier.set("all")
+}
+
+tasks.named<ShadowJar>("shadowJar") {
     enabled = false
 }
 
-val inlineJar = tasks.register<com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar>("inlineJar") {
-    configurations.set(listOf(project.configurations.runtimeClasspath.get()))
-    from(sourceSets.main.get().output)
+val inlineJar = tasks.register<ShadowJar>("inlineJar") {
+    configureWrapperArchive()
     archiveClassifier.set("inline")
-    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-    exclude("module-info.class", "META-INF/MANIFEST.SF")
-    exclude("com/google/**")
-    exclude("org/slf4j/**")
-    manifest.from(tasks.jar.get().manifest)
+    exclude("com/google/**", "org/slf4j/**")
 }
-
-
 
 repositories {
     maven {

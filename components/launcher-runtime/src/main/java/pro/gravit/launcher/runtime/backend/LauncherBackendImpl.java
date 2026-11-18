@@ -26,7 +26,6 @@ import pro.gravit.launcher.core.backend.extensions.Extension;
 import pro.gravit.launcher.core.backend.extensions.TextureUploadExtension;
 import pro.gravit.launcher.runtime.NewLauncherSettings;
 import pro.gravit.launcher.runtime.client.DirBridge;
-import pro.gravit.launcher.runtime.client.ServerPinger;
 import pro.gravit.launcher.runtime.debug.DebugMain;
 import pro.gravit.launcher.runtime.managers.SettingsManager;
 import pro.gravit.launcher.runtime.utils.LauncherUpdater;
@@ -41,7 +40,6 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -75,9 +73,7 @@ public class LauncherBackendImpl implements LauncherBackendAPI, TextureUploadExt
     private volatile List<Java> availableJavas;
     private volatile CompletableFuture<List<Java>> availableJavasFuture;
     private volatile Path vfsRootPath;
-    private record PingKey(UUID profileId, boolean aggregate) {}
-    private final Map<PingKey, CompletableFuture<ServerPingInfo>> pingFutures = new ConcurrentHashMap<>();
-    private final ExecutorService pingExecutor = Executors.newVirtualThreadPerTaskExecutor();
+    private final ServerPingService serverPings = new ServerPingService();
     private final AtomicBoolean closed = new AtomicBoolean();
     private final AtomicBoolean relocatingUpdates = new AtomicBoolean();
     private final java.util.concurrent.atomic.AtomicInteger activeDownloads = new java.util.concurrent.atomic.AtomicInteger();
@@ -181,7 +177,7 @@ public class LauncherBackendImpl implements LauncherBackendAPI, TextureUploadExt
             this.selfUser = null;
             this.permissions = new ClientPermissions();
             this.profiles = null;
-            clearPings();
+            serverPings.clear();
             this.backendSettings.authId = method.getName();
             if (wasAuthorized) callback.onExit();
         }
@@ -274,7 +270,7 @@ public class LauncherBackendImpl implements LauncherBackendAPI, TextureUploadExt
             }
             generation = authSessionService.advance();
             clearCurrentSession();
-            clearPings();
+            serverPings.clear();
             callback.onExit();
         }
         return LauncherAPIHolder.auth().auth(login, password).thenApply((response) -> {
@@ -292,7 +288,7 @@ public class LauncherBackendImpl implements LauncherBackendAPI, TextureUploadExt
         synchronized (authSessionService.lock()) {
             authSessionService.advance();
             clearCurrentSession();
-            clearPings();
+            serverPings.clear();
             if(authMethod != null) backendSettings.auths.remove(authMethod.getName());
             callback.onExit();
         }
@@ -563,112 +559,12 @@ public class LauncherBackendImpl implements LauncherBackendAPI, TextureUploadExt
 
     @Override
     public CompletableFuture<ServerPingInfo> pingServer(ProfileFeatureAPI.ClientProfile profile) {
-        PingKey key = new PingKey(profile.getUUID(), false);
-        CompletableFuture<ServerPingInfo> future = pingFutures.computeIfAbsent(key, (k) -> {
-            return CompletableFuture.supplyAsync(() -> {
-                try {
-                    ServerPinger pinger = new ServerPinger((ClientProfile) profile);
-                    return pinger.ping();
-                } catch (Throwable e) {
-                    throw new java.util.concurrent.CompletionException(e);
-                }
-            }, pingExecutor);
-        });
-        future.whenComplete((value, error) -> pingFutures.remove(key, future));
-        return future;
+        return serverPings.pingServer(profile);
     }
 
     @Override
     public CompletableFuture<ServerPingInfo> pingProfileServers(ProfileFeatureAPI.ClientProfile profile) {
-        PingKey key = new PingKey(profile.getUUID(), true);
-        CompletableFuture<ServerPingInfo> shared = pingFutures.computeIfAbsent(key, (k) -> {
-            CompletableFuture<ServerPingInfo> future = new CompletableFuture<>();
-            CompletableFuture.runAsync(() -> {
-                try {
-                    ClientProfile clientProfile = (ClientProfile) profile;
-                    List<ClientProfile.ServerProfile> servers = clientProfile.getServers();
-
-                    if (servers == null || servers.isEmpty()) {
-                        future.complete(new ServerPingInfo() {
-                            @Override public int getMaxOnline() { return 0; }
-                            @Override public int getOnline() { return 0; }
-                            @Override public List<String> getPlayerNames() { return List.of(); }
-                        });
-                        return;
-                    }
-
-                    var serverPingFutures = servers.stream()
-                            .map(server -> CompletableFuture.supplyAsync(() -> {
-                                try {
-                                    ServerPinger pinger = new ServerPinger(server, clientProfile.getVersion());
-                                    return pinger.ping();
-                                } catch (IOException e) {
-                                    logger.warn("Failed to ping server {}: {}", server.name, e.getMessage());
-                                    return null;
-                                }
-                            }, pingExecutor))
-                            .toList();
-
-                    CompletableFuture.allOf(serverPingFutures.toArray(new CompletableFuture[0]))
-                            .thenAccept(v -> {
-                                int totalOnline = 0;
-                                int totalMax = 0;
-                                boolean hasAnyResult = false;
-
-                                for (var pingFuture : serverPingFutures) {
-                                    try {
-                                        ServerPinger.Result result = pingFuture.get();
-                                        if (result != null) {
-                                            totalOnline += result.onlinePlayers;
-                                            totalMax += result.maxPlayers;
-                                            hasAnyResult = true;
-                                        }
-                                    } catch (Exception e) {
-                                        logger.warn("Failed to get ping result: {}", e.getMessage());
-                                    }
-                                }
-
-                                if (!hasAnyResult) {
-                                    future.completeExceptionally(new IOException("All servers are unavailable"));
-                                    return;
-                                }
-
-                                int finalOnline = totalOnline;
-                                int finalMax = totalMax;
-                                future.complete(new ServerPingInfo() {
-                                    @Override
-                                    public int getMaxOnline() {
-                                        return finalMax;
-                                    }
-
-                                    @Override
-                                    public int getOnline() {
-                                        return finalOnline;
-                                    }
-
-                                    @Override
-                                    public List<String> getPlayerNames() {
-                                        return List.of();
-                                    }
-                                });
-                            })
-                            .exceptionally(ex -> {
-                                future.completeExceptionally(ex);
-                                return null;
-                            });
-                } catch (Throwable e) {
-                    future.completeExceptionally(e);
-                }
-            }, pingExecutor);
-            return future;
-        });
-        shared.whenComplete((value, error) -> pingFutures.remove(key, shared));
-        return shared;
-    }
-
-    private void clearPings() {
-        for (var future : pingFutures.values()) future.cancel(true);
-        pingFutures.clear();
+        return serverPings.pingProfileServers(profile);
     }
 
     @Override
@@ -735,8 +631,7 @@ public class LauncherBackendImpl implements LauncherBackendAPI, TextureUploadExt
     }
 
     private void shutdownResources() {
-        clearPings();
-        pingExecutor.shutdownNow();
+        serverPings.close();
         if (executorService != null) {
             executorService.shutdownNow();
         }

@@ -19,7 +19,7 @@ public class ReloadLauncherModuleCommand extends Command {
 
     @Override
     public String getUsageDescription() {
-        return "";
+        return "Refresh launcher module metadata. Restart to load replacement hook or config classes.";
     }
 
     @Override

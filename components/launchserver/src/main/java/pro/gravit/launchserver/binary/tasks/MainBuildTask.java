@@ -51,8 +51,9 @@ public class MainBuildTask implements LauncherBuildTask {
     public Path process(PipelineContext pipelineContext) throws IOException {
         Path inputJar = pipelineContext.getLastest();
         Path outputJar = pipelineContext.makeTempPath("main", ".jar");
-        try (ZipOutputStream output = new ZipOutputStream(IOHelper.newOutput(outputJar))) {
-            BuildContext context = new BuildContext(pipelineContext, output, reader.getCp(), this, ((JARLauncherBinary)server.launcherBinaries.get(CoreFeatureAPI.UpdateVariant.JAR)).runtimeDir);
+        try (ClassMetadataReader buildReader = reader;
+             ZipOutputStream output = new ZipOutputStream(IOHelper.newOutput(outputJar))) {
+            BuildContext context = new BuildContext(pipelineContext, output, buildReader.getCp(), this, ((JARLauncherBinary)server.launcherBinaries.get(CoreFeatureAPI.UpdateVariant.JAR)).runtimeDir);
             initProps(context);
             preBuildHook.hook(context);
             context.properties.put("launcher.legacymodules", context.legacyClientModules.stream().map(e -> Type.getObjectType(e.replace('.', '/'))).collect(Collectors.toList()));
@@ -81,7 +82,6 @@ public class MainBuildTask implements LauncherBuildTask {
             context.pushFile(Launcher.CONFIG_FILE, launcherConfig);
             postBuildHook.hook(context);
         }
-        reader.close();
         return outputJar;
     }
 

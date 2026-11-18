@@ -85,23 +85,23 @@ application {
         "org.fusesource.jansi"
     )
 
-    applicationDistribution.from(project(":components:launcher-runtime").tasks.named("copyLauncherLibs").map { it.outputs.files }) {
+    applicationDistribution.from(project(":components:launcher-runtime").tasks.named<Copy>("copyLauncherLibs").map { it.outputs.files }) {
         into("launcher-libraries")
     }
 
-    applicationDistribution.from(tasks.named("copyProguardLibs").map { it.outputs.files }) {
+    applicationDistribution.from(copyProguardLibs.map { it.outputs.files }) {
         into("proguard-libraries")
     }
 
-    applicationDistribution.from(project(":modules").tasks.named("copyModules").map { it.outputs.files }) {
+    applicationDistribution.from(project(":modules").tasks.named<Sync>("copyModules").map { it.outputs.files }) {
         into("modules")
     }
 
-    applicationDistribution.from(project(":components:serverwrapper").tasks.named("fatJar").map { it.outputs.files }) {
+    applicationDistribution.from(project(":components:serverwrapper").tasks.named<Jar>("fatJar").flatMap { it.archiveFile }) {
         rename {"ServerWrapper.jar" }
     }
 
-    applicationDistribution.from(project(":components:serverwrapper").tasks.named("inlineJar").map { it.outputs.files }) {
+    applicationDistribution.from(project(":components:serverwrapper").tasks.named<Jar>("inlineJar").flatMap { it.archiveFile }) {
         rename { "ServerWrapperInline.jar" }
     }
 }
