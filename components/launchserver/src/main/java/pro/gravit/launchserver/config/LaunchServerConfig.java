@@ -45,7 +45,7 @@ public final class LaunchServerConfig {
 
     public static LaunchServerConfig getDefault(LaunchServer.LaunchServerEnv env) {
         LaunchServerConfig newConfig = new LaunchServerConfig();
-        newConfig.mirrors = new String[]{"https://mirror.gravitlauncher.com/5.7.x/"};
+        newConfig.mirrors = new String[]{"https://mirror.gravitlauncher.com/5.8.x/"};
         newConfig.env = LauncherConfig.LauncherEnvironment.STD;
 
         newConfig.profilesProvider = new RemoteProfilesProvider();
