@@ -52,7 +52,7 @@ public class LauncherModuleLoader implements AutoCloseable {
                 buildContext.readerClassPath.add(new JarFile(e.path.toFile()));
                 try {
                     if(e.moduleLaunchServerName != null) {
-                        Class<?> clazz = Class.forName(e.moduleLaunchServerName);
+                        Class<?> clazz = Class.forName(e.moduleLaunchServerName, true, classLoader);
                         clazz.getMethod("preBuild", LaunchServer.class, BuildContext.class, ModuleEntity.class).invoke(null, server, buildContext, e);
                     }
                 } catch (Throwable ex) {
@@ -66,7 +66,7 @@ public class LauncherModuleLoader implements AutoCloseable {
                 boolean isPushJarFile = true;
                 try {
                     if(e.moduleLaunchServerName != null) {
-                        Class<?> clazz = Class.forName(e.moduleLaunchServerName);
+                        Class<?> clazz = Class.forName(e.moduleLaunchServerName, true, classLoader);
                         isPushJarFile = (Boolean) clazz.getMethod("postBuild", LaunchServer.class, BuildContext.class, ModuleEntity.class).invoke(null, server, buildContext, e);
                     }
                 } catch (Throwable ex) {
