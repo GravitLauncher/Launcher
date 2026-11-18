@@ -1,6 +1,7 @@
 package pro.gravit.launchserver.profiles;
 
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.annotations.SerializedName;
 import com.google.gson.reflect.TypeToken;
@@ -75,7 +76,28 @@ public class RemoteProfilesProvider extends ProfilesProvider {
 
     @Override
     public void delete(UncompletedProfile profile) {
-        throw new UnsupportedOperationException("Remote CAS provider cannot delete directories; the configured CAS API has no delete endpoint");
+        String directoryKey = switch (profile) {
+            case HttpProfile completed -> completed.directoryKey();
+            case HttpUncompletedProfile uncompleted -> uncompleted.directoryKey();
+            default -> null;
+        };
+        if (directoryKey == null) {
+            directoryKey = profile.getUuid().toString();
+        }
+        var cas = cas();
+        try {
+            cas.sendAsync(cas.authorizedBuilder()
+                            .DELETE()
+                            .uri(cas.uri("/cas/directories", Map.of("directoryKey", directoryKey)))
+                            .build(), response -> new HttpHelper.HttpOptional<Void, Void>(null, null, response.statusCode()))
+                    .thenApply(HttpHelper.HttpOptional::getOrThrow)
+                    .get();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new IllegalStateException("Interrupted while deleting CAS profile", e);
+        } catch (ExecutionException e) {
+            throw new IllegalStateException("Failed to delete CAS profile", e.getCause());
+        }
     }
 
     @Override
@@ -84,13 +106,19 @@ public class RemoteProfilesProvider extends ProfilesProvider {
             return cas().sendAsync(cas().authorizedBuilder()
                             .GET()
                             .uri(cas().uri("/cas/directories/list", Map.of()))
-
-                            .build(), new RequestFeatureHttpAPIImpl.HttpErrorHandler<>(CasDirectoryListResponse.class))
-                    .thenApply(e -> e.getOrThrow().profiles().stream()
+                            .build(), new RequestFeatureHttpAPIImpl.HttpErrorHandler<>(JsonElement.class))
+                    .thenApply(e -> {
+                        JsonElement response = e.getOrThrow();
+                        if (response.isJsonArray()) {
+                            return Arrays.asList(Launcher.gsonManager.gson.fromJson(response, CasDirectoryResponse[].class));
+                        }
+                        return Launcher.gsonManager.gson.fromJson(response, CasDirectoryListResponse.class).profiles();
+                    })
+                    .thenApply(directories -> directories.stream()
                             .map(es -> {
                                 CasProfileMetadata metadata = Launcher.gsonManager.gson.fromJson(es.metadata(), CasProfileMetadata.class);
                                 return new HttpUncompletedProfile(metadata.uuid(), new ClientProfileBuilder()
-                                        .setTitle(metadata.name()).setInfo("").setDir(es.key()).setUuid(metadata.uuid()).createClientProfile());
+                                        .setTitle(metadata.name()).setInfo("").setDir(es.key()).setUuid(metadata.uuid()).createClientProfile(), es.key());
                             })
                             .map(x -> (UncompletedProfile) x)
                             .collect(Collectors.toSet()))
@@ -109,9 +137,9 @@ public class RemoteProfilesProvider extends ProfilesProvider {
         validateActions(assetActions);
         validateActions(clientActions);
         var prev = get(profile.getUuid(), tag);
-        if(prev != null && prev.getProfile() != null && (prev.getProfile().getUUID() == null || !prev.getProfile().getUUID().equals(prev.getUuid()))) {
+        if (!profile.getUuid().equals(clientProfile.getUUID())) {
             clientProfile = new ClientProfileBuilder(clientProfile)
-                    .setUuid(prev.getUuid())
+                    .setUuid(profile.getUuid())
                     .createClientProfile();
         }
         HashedDir clientDir = prev == null ? null : prev.getClientDir();
@@ -361,20 +389,7 @@ public class RemoteProfilesProvider extends ProfilesProvider {
     @Override
     public CompletedProfile get(UUID uuid, String tag) {
         requireSupportedRevision(tag);
-        try {
-            return cas().sendAsync(cas().authorizedBuilder()
-                            .GET()
-                            .uri(cas().uri("/cas/versions/latest", Map.of("directoryKey", uuid.toString(), "branchName", "main")))
-
-                            .build(), new RequestFeatureHttpAPIImpl.HttpErrorHandler<>(HttpProfile.class))
-                    .thenApply(response -> response.statusCode() == 404 ? null : response.getOrThrow())
-                    .get();
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            throw new IllegalStateException("Interrupted while reading CAS profile", e);
-        } catch (ExecutionException e) {
-            throw new IllegalStateException("Failed to read CAS profile", e.getCause() == null ? e : e.getCause());
-        }
+        return getLatestProfile(uuid.toString());
     }
 
     @Override
@@ -383,13 +398,24 @@ public class RemoteProfilesProvider extends ProfilesProvider {
         for (UncompletedProfile profile : getProfiles()) {
             if (Objects.equals(profile.getName(), name)) return get(profile.getUuid(), tag);
         }
+        return getLatestProfile(name);
+    }
+
+    private CompletedProfile getLatestProfile(String directoryKey) {
         try {
             return cas().sendAsync(cas().authorizedBuilder()
                             .GET()
-                            .uri(cas().uri("/cas/versions/latest", Map.of("directoryKey", name, "branchName", "main")))
+                            .uri(cas().uri("/cas/versions/latest", Map.of("directoryKey", directoryKey, "branchName", "main")))
 
-                            .build(), new RequestFeatureHttpAPIImpl.HttpErrorHandler<>(HttpProfile.class))
-                    .thenApply(response -> response.statusCode() == 404 ? null : response.getOrThrow())
+                            .build(), new RequestFeatureHttpAPIImpl.HttpErrorHandler<>(CasVersionResponse.class))
+                    .thenApply(response -> {
+                        if (response.statusCode() == 404) {
+                            return null;
+                        }
+                        HttpProfileMetadata metadata = Launcher.gsonManager.gson.fromJson(
+                                response.getOrThrow().metadata(), HttpProfileMetadata.class);
+                        return new HttpProfile(metadata.profile(), metadata.client(), metadata.assets(), directoryKey);
+                    })
                     .get();
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
@@ -621,7 +647,11 @@ public class RemoteProfilesProvider extends ProfilesProvider {
     public record CasDirectoryListResponse(List<CasDirectoryResponse> profiles) {}
     public record CasProfileMetadata(UUID uuid, String name) {}
 
-    public record HttpUncompletedProfile(UUID uuid, ClientProfile profile) implements UncompletedProfile {
+    public record HttpUncompletedProfile(UUID uuid, ClientProfile profile, String directoryKey) implements UncompletedProfile {
+
+        public HttpUncompletedProfile(UUID uuid, ClientProfile profile) {
+            this(uuid, profile, null);
+        }
 
         @Override
         public UUID getUuid() {
@@ -644,7 +674,11 @@ public class RemoteProfilesProvider extends ProfilesProvider {
         }
     }
 
-    public record HttpProfile(ClientProfile profile, HashedDir client, HashedDir assets) implements CompletedProfile {
+    public record HttpProfile(ClientProfile profile, HashedDir client, HashedDir assets, String directoryKey) implements CompletedProfile {
+
+        public HttpProfile(ClientProfile profile, HashedDir client, HashedDir assets) {
+            this(profile, client, assets, null);
+        }
 
         @Override
         public String getTag() {

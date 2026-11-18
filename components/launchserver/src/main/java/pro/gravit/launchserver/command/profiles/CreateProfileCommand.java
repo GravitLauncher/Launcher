@@ -15,6 +15,7 @@ import pro.gravit.launchserver.profiles.ProfilesProvider;
 import pro.gravit.launchserver.command.Command;
 import pro.gravit.launchserver.helper.AssetsDirHelper;
 import pro.gravit.launchserver.helper.MakeProfileHelper;
+import pro.gravit.utils.helper.IOHelper;
 
 import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
@@ -106,44 +107,38 @@ public class CreateProfileCommand extends Command {
 
     public static ProfilesProvider.CompletedProfile pushClientAndDownloadAssets(LaunchServer server, ClientProfile clientProfile, Path clientDir, boolean isDownloadAssets) throws Exception {
         var uncompleted = server.config.profilesProvider.create(clientProfile.getTitle(), "Description", null);
-        if(!isDownloadAssets) {
-            return server.config.profilesProvider.pushUpdate(uncompleted, null, clientProfile, null, List.of(
-                    ProfilesProvider.ProfileAction.upload(clientDir, "", true)
-            ), List.of(ProfilesProvider.UpdateFlag.USE_DEFAULT_ASSETS));
-        }
         var completed = server.config.profilesProvider.pushUpdate(uncompleted, null, clientProfile, null, List.of(
                 ProfilesProvider.ProfileAction.upload(clientDir, "", true)
         ), List.of(ProfilesProvider.UpdateFlag.USE_DEFAULT_ASSETS));
-        {
-            String assetIndexPath = String.format("indexes/%s.json", completed.getProfile().getAssetIndex());
-            HashedDir completedAssetDir = completed.getAssetDir();
-            if(completedAssetDir == null) {
-                completedAssetDir = new HashedDir();
-            }
-            if (!completedAssetDir.tryFindRecursive(assetIndexPath).isFound()) {
-                Path assetDir = server.createTempDirectory("assets");
-                HttpRequester requester = new HttpRequester();
-                var assetInfo = AssetsDirHelper.getAssetInfo(requester, completed.getProfile().getAssetIndex());
-                var toDownload = AssetsDirHelper.makeToDownloadFiles(assetInfo, completedAssetDir);
-                logger.info("Download assets {}", completed.getProfile().getAssetIndex());
-                Downloader downloader = downloadWithProgressBar(completed.getProfile().getAssetIndex(),
-                        toDownload, AssetsDirHelper.RESOURCES_DOWNLOAD_URL, assetDir);
-                downloader.getFuture().get();
-                byte[] assetIndexBytes = Launcher.gsonManager.configGson.toJson(assetInfo.assets()).getBytes(StandardCharsets.UTF_8);
-                completed = server.config.profilesProvider.pushUpdate(uncompleted, null, clientProfile, List.of(
-                        ProfilesProvider.ProfileAction.upload(() -> {
-                            return new ByteArrayInputStream(assetIndexBytes);
-                        }, assetIndexPath),
-                        ProfilesProvider.ProfileAction.upload(assetDir, "", true)
-                ), List.of(
-                        ProfilesProvider.ProfileAction.upload(clientDir, "", true)
-                ), List.of(ProfilesProvider.UpdateFlag.USE_DEFAULT_ASSETS));
-            } else {
-                completed = server.config.profilesProvider.pushUpdate(uncompleted, null, clientProfile, null, List.of(
-                        ProfilesProvider.ProfileAction.upload(clientDir, "", true)
-                ), List.of(ProfilesProvider.UpdateFlag.USE_DEFAULT_ASSETS));
-            }
+        if (!isDownloadAssets) {
+            return completed;
         }
-        return completed;
+
+        String assetIndexPath = String.format("indexes/%s.json", completed.getProfile().getAssetIndex());
+        HashedDir completedAssetDir = completed.getAssetDir();
+        if (completedAssetDir == null) {
+            completedAssetDir = new HashedDir();
+        }
+        if (completedAssetDir.tryFindRecursive(assetIndexPath).isFound()) {
+            return completed;
+        }
+
+        Path assetDir = server.createTempDirectory("assets");
+        try {
+            HttpRequester requester = new HttpRequester();
+            var assetInfo = AssetsDirHelper.getAssetInfo(requester, completed.getProfile().getAssetIndex());
+            var toDownload = AssetsDirHelper.makeToDownloadFiles(assetInfo, completedAssetDir);
+            logger.info("Download assets {}", completed.getProfile().getAssetIndex());
+            Downloader downloader = downloadWithProgressBar(completed.getProfile().getAssetIndex(),
+                    toDownload, AssetsDirHelper.RESOURCES_DOWNLOAD_URL, assetDir);
+            downloader.getFuture().get();
+            byte[] assetIndexBytes = Launcher.gsonManager.configGson.toJson(assetInfo.assets()).getBytes(StandardCharsets.UTF_8);
+            return server.config.profilesProvider.pushUpdate(uncompleted, null, completed.getProfile(), List.of(
+                    ProfilesProvider.ProfileAction.upload(() -> new ByteArrayInputStream(assetIndexBytes), assetIndexPath),
+                    ProfilesProvider.ProfileAction.upload(assetDir, "", false)
+            ), null, null);
+        } finally {
+            IOHelper.deleteDir(assetDir, true);
+        }
     }
 }
