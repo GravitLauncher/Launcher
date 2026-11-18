@@ -4,8 +4,15 @@ import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.command.Command;
 
 public final class StopCommand extends Command {
+    private final AutoCloseable shutdown;
+
     public StopCommand(LaunchServer server) {
+        this(server, server::close);
+    }
+
+    public StopCommand(LaunchServer server, AutoCloseable shutdown) {
         super(server);
+        this.shutdown = shutdown;
     }
 
     @Override
@@ -20,6 +27,6 @@ public final class StopCommand extends Command {
 
     @Override
     public void invoke(String... args) throws Exception {
-        server.close();
+        shutdown.close();
     }
 }

@@ -111,7 +111,7 @@ public class ClassMetadataReader implements Closeable {
                 }
             }
         }
-        var stream = ClassLoader.getSystemClassLoader().getResourceAsStream(className+".class");
+        var stream = ClassMetadataReader.class.getClassLoader().getResourceAsStream(className+".class");
         if(stream != null) {
             try(stream) {
                 return IOHelper.read(stream);

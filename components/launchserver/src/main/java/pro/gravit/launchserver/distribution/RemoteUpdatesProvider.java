@@ -69,8 +69,11 @@ public class RemoteUpdatesProvider extends UpdatesProvider {
                         .header("Accept", "application/json")
                         .build(), HttpResponse.BodyHandlers.ofInputStream());
                 if(result.statusCode() < 200 || result.statusCode() >= 300) {
-                    result.body().close();
-                    throw new IOException("Failed to upload new release " + file.variant() + " (HTTP " + result.statusCode() + ")");
+                    try (var body = result.body()) {
+                        throw new IOException("Failed to upload new release " + file.variant() + ": "
+                                + ProviderHttpClient.describeFailure(result, accessToken, file.secrets().privateKey(),
+                                file.secrets().publicKey()));
+                    }
                 } else {
                     LauncherArtifactUploaded r;
                     try(Reader reader = new InputStreamReader(result.body(), StandardCharsets.UTF_8)) {

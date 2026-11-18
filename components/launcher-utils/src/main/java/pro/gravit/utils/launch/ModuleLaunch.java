@@ -28,7 +28,9 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class ModuleLaunch implements Launch {
+public class ModuleLaunch implements Launch, AutoCloseable {
+
+    private final ClassLoader packageDelegate;
 
     private static final Logger logger =
             LoggerFactory.getLogger(ModuleLaunch.class);
@@ -51,6 +53,19 @@ public class ModuleLaunch implements Launch {
             mh = null;
         }
         ENABLE_NATIVE_ACCESS = mh;
+    }
+
+    public ModuleLaunch() {
+        this(ClassLoader.getSystemClassLoader());
+    }
+
+    public ModuleLaunch(ClassLoader packageDelegate) {
+        this.packageDelegate = Objects.requireNonNull(packageDelegate);
+    }
+
+    @Override
+    public void close() throws IOException {
+        if (moduleClassLoader != null) moduleClassLoader.close();
     }
 
     @Override
@@ -316,7 +331,6 @@ public class ModuleLaunch implements Launch {
     }
 
     private class ModuleClassLoader extends URLClassLoader {
-        private final ClassLoader SYSTEM_CLASS_LOADER = ClassLoader.getSystemClassLoader();
         private final List<ClassLoaderControl.ClassTransformer> transformers = new ArrayList<>();
         private final Map<String, Class<?>> classMap = new ConcurrentHashMap<>();
         private final Map<String, Module> packageToModule = new HashMap<>();
@@ -347,7 +361,7 @@ public class ModuleLaunch implements Launch {
             if(name != null && !disablePackageDelegateSupport) {
                 for(String pkg : packages) {
                     if(name.startsWith(pkg)) {
-                        return SYSTEM_CLASS_LOADER.loadClass(name);
+                        return packageDelegate.loadClass(name);
                     }
                 }
             }

@@ -18,6 +18,7 @@ import pro.gravit.launchserver.profiles.RemoteProfilesProvider;
 import java.io.Reader;
 import java.net.URI;
 import java.util.*;
+import java.util.regex.Pattern;
 
 public final class LaunchServerConfig {
     public static final String PROFILES_PROVIDER_OBJECT_ID = "profilesProvider";
@@ -82,6 +83,40 @@ public final class LaunchServerConfig {
                 remoteUpdates.accessToken = apiKey;
             }
         }
+    }
+
+    private static final Pattern SIGNED_JWT = Pattern.compile("[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+");
+
+    public boolean configureEmbeddedBackend(String apiUrl, String backendUrl, String apiKey) {
+        boolean changed = !apiUrl.equals(this.apiUrl);
+        this.apiUrl = apiUrl;
+        if (profilesProvider instanceof RemoteProfilesProvider remoteProfiles) {
+            changed |= !backendUrl.equals(remoteProfiles.baseUrl);
+            remoteProfiles.baseUrl = backendUrl;
+            String token = embeddedAccessToken(apiKey, remoteProfiles.accessToken);
+            changed |= !token.equals(remoteProfiles.accessToken);
+            remoteProfiles.accessToken = token;
+        }
+        if (updatesProvider instanceof RemoteUpdatesProvider remoteUpdates) {
+            changed |= !backendUrl.equals(remoteUpdates.baseUrl);
+            remoteUpdates.baseUrl = backendUrl;
+            String token = embeddedAccessToken(apiKey, remoteUpdates.accessToken);
+            changed |= !token.equals(remoteUpdates.accessToken);
+            remoteUpdates.accessToken = token;
+        }
+        return changed;
+    }
+
+    private static String embeddedAccessToken(String configured, String saved) {
+        String token = configured == null || configured.isBlank() ? saved : configured;
+        if (token == null || token.isBlank() || token.equals("PASTE API KEY HERE")) {
+            throw new IllegalStateException("Set cabinetstarter.api-key or cabinetstarter.api-key-file to a SimpleCabinet JWT with admin.cas.write");
+        }
+        token = token.strip();
+        if (!SIGNED_JWT.matcher(token).matches()) {
+            throw new IllegalArgumentException("Expected a raw SimpleCabinet JWT without a Bearer prefix or log output");
+        }
+        return token;
     }
 
     public static LaunchServerConfig readConfig(Reader reader) {

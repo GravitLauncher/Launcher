@@ -204,11 +204,7 @@ public class LaunchServerStarter {
             config = gson.fromJson(reader, LauncherModulesConfig.class);
         }
         for(var e : config.loadModules) {
-            Path filePath = Path.of(e);
-            if(!e.endsWith(".jar") && !Files.isDirectory(filePath)) {
-                // It is in-bundle module
-                filePath = allModulesDir.resolve(e+".jar");
-            }
+            Path filePath = LauncherModulesConfig.resolveModule(allModulesDir, e);
             if(!Files.exists(filePath)) {
                 logger.warn("Module {} not found", filePath);
                 continue;

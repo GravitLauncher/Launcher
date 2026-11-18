@@ -6,6 +6,7 @@ import pro.gravit.launcher.base.Launcher;
 import pro.gravit.launcher.core.LauncherTrustManager;
 import pro.gravit.launcher.core.api.features.CoreFeatureAPI;
 import pro.gravit.launchserver.LaunchServer;
+import pro.gravit.launchserver.config.LauncherModulesConfig;
 import pro.gravit.launchserver.asm.InjectClassAcceptor;
 import pro.gravit.launchserver.binary.BuildContext;
 import pro.gravit.launchserver.binary.tasks.MainBuildTask;
@@ -88,13 +89,10 @@ public class LauncherModuleLoader implements AutoCloseable {
         if (closed) throw new IllegalStateException("Launcher module loader is closed");
         launcherModules.clear();
         for(var e : server.modulesConfig.loadLauncherModules) {
-            Path filePath = Path.of(e);
-            if(!e.endsWith(".jar") && !Files.isDirectory(filePath)) {
-                // It is in-bundle module
-                filePath = server.modulesDir.resolve(e+".jar");
-            }
+            Path filePath = LauncherModulesConfig.resolveModule(server.modulesDir, e);
             if(!Files.exists(filePath)) {
                 logger.warn("Module {} not found", filePath);
+                continue;
             }
             if(Files.isDirectory(filePath)) {
                 autoload(filePath);

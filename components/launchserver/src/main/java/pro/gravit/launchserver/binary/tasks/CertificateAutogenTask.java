@@ -12,6 +12,7 @@ import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo;
 import org.bouncycastle.cert.X509CertificateHolder;
 import org.bouncycastle.cert.X509v3CertificateBuilder;
 import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.cms.CMSException;
 import org.bouncycastle.cms.CMSSignedDataGenerator;
 import org.bouncycastle.operator.ContentSigner;
@@ -72,7 +73,7 @@ public class CertificateAutogenTask implements LauncherBuildTask {
             JcaContentSignerBuilder csBuilder = new JcaContentSignerBuilder("SHA256WITHECDSA");
             ContentSigner signer = csBuilder.build(server.keyAgreementManager.ecdsaPrivateKey);
             bcCertificate = builder.build(signer);
-            certificate = new JcaX509CertificateConverter().setProvider("BC")
+            certificate = new JcaX509CertificateConverter().setProvider(new BouncyCastleProvider())
                     .getCertificate(bcCertificate);
             ArrayList<Certificate> chain = new ArrayList<>();
             chain.add(certificate);

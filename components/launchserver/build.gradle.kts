@@ -66,6 +66,7 @@ val copyProguardLibs = tasks.register("copyProguardLibs", Copy::class) {
 
 application {
     evaluationDependsOn(":modules")
+    evaluationDependsOn(":components:launcher-runtime")
     evaluationDependsOn(":components:serverwrapper")
 
     mainClass = "pro.gravit.launchserver.LaunchServerStarter"

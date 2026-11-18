@@ -5,6 +5,7 @@ import org.bouncycastle.cms.CMSException;
 import org.bouncycastle.cms.CMSSignedDataGenerator;
 import org.bouncycastle.cms.SignerInfoGenerator;
 import org.bouncycastle.cms.jcajce.JcaSignerInfoGeneratorBuilder;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.operator.ContentSigner;
 import org.bouncycastle.operator.DigestCalculatorProvider;
 import org.bouncycastle.operator.OperatorCreationException;
@@ -31,6 +32,8 @@ public class SignHelper {
 
     public static final OutputStream NULL = OutputStream.nullOutputStream();
     public static final String hashFunctionName = "SHA-256";
+
+    private static final Provider SIGNING_PROVIDER = new BouncyCastleProvider();
 
     private SignHelper() {
     }
@@ -75,9 +78,9 @@ public class SignHelper {
         Store certStore = new JcaCertStore(certChain);
         Certificate cert = keyStore.getCertificate(keyAlias);
         PrivateKey privateKey = (PrivateKey) keyStore.getKey(keyAlias, keyPassword != null ? keyPassword.toCharArray() : null);
-        ContentSigner signer = new JcaContentSignerBuilder(signAlgo).setProvider("BC").build(privateKey);
+        ContentSigner signer = new JcaContentSignerBuilder(signAlgo).setProvider(SIGNING_PROVIDER).build(privateKey);
         CMSSignedDataGenerator generator = new CMSSignedDataGenerator();
-        DigestCalculatorProvider dcp = new JcaDigestCalculatorProviderBuilder().setProvider("BC").build();
+        DigestCalculatorProvider dcp = new JcaDigestCalculatorProviderBuilder().setProvider(SIGNING_PROVIDER).build();
         SignerInfoGenerator sig = new JcaSignerInfoGeneratorBuilder(dcp).build(signer, (X509Certificate) cert);
         generator.addSignerInfoGenerator(sig);
         generator.addCertificates(certStore);
@@ -87,9 +90,9 @@ public class SignHelper {
     public static CMSSignedDataGenerator createSignedDataGenerator(PrivateKey privateKey, Certificate cert, List<Certificate> certChain, String signAlgo) throws OperatorCreationException, CertificateEncodingException, CMSException {
         @SuppressWarnings("rawtypes")
         Store certStore = new JcaCertStore(certChain);
-        ContentSigner signer = new JcaContentSignerBuilder(signAlgo).setProvider("BC").build(privateKey);
+        ContentSigner signer = new JcaContentSignerBuilder(signAlgo).setProvider(SIGNING_PROVIDER).build(privateKey);
         CMSSignedDataGenerator generator = new CMSSignedDataGenerator();
-        DigestCalculatorProvider dcp = new JcaDigestCalculatorProviderBuilder().setProvider("BC").build();
+        DigestCalculatorProvider dcp = new JcaDigestCalculatorProviderBuilder().setProvider(SIGNING_PROVIDER).build();
         SignerInfoGenerator sig = new JcaSignerInfoGeneratorBuilder(dcp).build(signer, (X509Certificate) cert);
         generator.addSignerInfoGenerator(sig);
         generator.addCertificates(certStore);
