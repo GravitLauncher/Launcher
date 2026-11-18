@@ -1,5 +1,6 @@
 package pro.gravit.launchserver.distribution;
 
+import com.google.gson.annotations.SerializedName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pro.gravit.launcher.base.Launcher;
@@ -18,7 +19,8 @@ import java.util.List;
 public class RemoteUpdatesProvider extends UpdatesProvider {
     private static final Logger log = LoggerFactory.getLogger(RemoteUpdatesProvider.class);
     public String baseUrl = "PASTE BASE URL HERE";
-    public String accessToken = "PASTE ACCESS TOKEN HERE";
+    @SerializedName(value = "apiKey", alternate = "accessToken")
+    public String accessToken = "PASTE API KEY HERE";
     private final transient ProviderHttpClient client = new ProviderHttpClient();
     @Override
     public void pushUpdate(List<UpdateUploadInfo> files) throws IOException {

@@ -10,9 +10,7 @@ import pro.gravit.launcher.core.LauncherTrustManager;
 import pro.gravit.launcher.base.modules.events.PreConfigPhase;
 import pro.gravit.launcher.base.profiles.optional.actions.OptionalAction;
 import pro.gravit.launcher.base.profiles.optional.triggers.OptionalTrigger;
-import pro.gravit.launcher.core.api.features.CoreFeatureAPI;
 import pro.gravit.launchserver.profiles.ProfilesProvider;
-import pro.gravit.launchserver.distribution.LocalUpdatesProvider;
 import pro.gravit.launchserver.distribution.UpdatesProvider;
 import pro.gravit.launchserver.components.Component;
 import pro.gravit.launchserver.config.LaunchServerConfig;
@@ -245,7 +243,7 @@ public class LaunchServerStarter {
         // Set server address
         String address;
         if (env.equals(LaunchServer.LaunchServerEnv.TEST)) {
-            address = "localhost";
+            address = "localhost:9274";
             newConfig.setProjectName("test");
         } else {
             address = System.getenv("ADDRESS");
@@ -282,16 +280,11 @@ public class LaunchServerStarter {
             throw new IllegalArgumentException("ADDRESS must be an HTTP(S) URL for the external server");
         }
         String baseAddress = externalAddress.toString().replaceAll("/+$", "");
-        newConfig.apiUrl = baseAddress + "/api";
-        newConfig.distributionUrl = baseAddress + "/%dirname%/";
-        if(newConfig.updatesProvider instanceof LocalUpdatesProvider localUpdatesProvider) {
-            localUpdatesProvider.binaryName = "Launcher";
-            localUpdatesProvider.urls.put(CoreFeatureAPI.UpdateVariant.JAR,
-                    baseAddress + "/Launcher.jar");
-            localUpdatesProvider.urls.put(CoreFeatureAPI.UpdateVariant.EXE_WINDOWS_X86_64,
-                    baseAddress + "/Launcher.exe");
-
+        String apiKey = System.getenv("API_KEY");
+        if (apiKey == null || apiKey.isBlank()) {
+            apiKey = System.getProperty("launchserver.apiKey");
         }
+        newConfig.configureExternalServer(baseAddress, apiKey);
 
         // Write LaunchServer config
         logger.info("Writing LaunchServer config file");

@@ -2,16 +2,18 @@ package pro.gravit.launchserver.config;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import pro.gravit.launcher.base.ApiMode;
 import pro.gravit.launcher.base.Launcher;
 import pro.gravit.launcher.base.LauncherConfig;
-import pro.gravit.launcher.base.ApiMode;
 import pro.gravit.launchserver.LaunchServer;
-import pro.gravit.launchserver.profiles.LocalProfilesProvider;
-import pro.gravit.launchserver.profiles.ProfilesProvider;
-import pro.gravit.launchserver.distribution.LocalUpdatesProvider;
-import pro.gravit.launchserver.distribution.UpdatesProvider;
 import pro.gravit.launchserver.components.Component;
 import pro.gravit.launchserver.components.ProGuardComponent;
+import pro.gravit.launchserver.distribution.LocalUpdatesProvider;
+import pro.gravit.launchserver.distribution.RemoteUpdatesProvider;
+import pro.gravit.launchserver.distribution.UpdatesProvider;
+import pro.gravit.launchserver.profiles.LocalProfilesProvider;
+import pro.gravit.launchserver.profiles.ProfilesProvider;
+import pro.gravit.launchserver.profiles.RemoteProfilesProvider;
 
 import java.io.Reader;
 import java.net.URI;
@@ -29,7 +31,6 @@ public final class LaunchServerConfig {
     public ProfilesProvider profilesProvider = new LocalProfilesProvider();
     public UpdatesProvider updatesProvider = new LocalUpdatesProvider();
     public String apiUrl;
-    public String distributionUrl;
     public SchedulerConfig scheduler;
     public LauncherConf launcher;
     public JarSignerConf sign;
@@ -47,8 +48,9 @@ public final class LaunchServerConfig {
         newConfig.mirrors = new String[]{"https://mirror.gravitlauncher.com/5.7.x/"};
         newConfig.env = LauncherConfig.LauncherEnvironment.STD;
 
-        newConfig.apiUrl = "http://localhost:9274/api";
-        newConfig.distributionUrl = "http://localhost:9274/%dirname%/";
+        newConfig.profilesProvider = new RemoteProfilesProvider();
+        newConfig.updatesProvider = new RemoteUpdatesProvider();
+        newConfig.configureExternalServer("http://localhost:9274", null);
         newConfig.scheduler = new SchedulerConfig();
 
         newConfig.launcher = new LauncherConf();
@@ -62,15 +64,30 @@ public final class LaunchServerConfig {
         newConfig.components = new HashMap<>();
         ProGuardComponent proGuardComponent = new ProGuardComponent();
         newConfig.components.put("proguard", proGuardComponent);
-        newConfig.profilesProvider = new LocalProfilesProvider();
-        newConfig.updatesProvider = new LocalUpdatesProvider();
         return newConfig;
+    }
+
+    public void configureExternalServer(String baseUrl, String apiKey) {
+        apiUrl = baseUrl + "/api";
+        boolean hasApiKey = apiKey != null && !apiKey.isBlank();
+        if (profilesProvider instanceof RemoteProfilesProvider remoteProfiles) {
+            remoteProfiles.baseUrl = baseUrl;
+            if (hasApiKey) {
+                remoteProfiles.accessToken = apiKey;
+            }
+        }
+        if (updatesProvider instanceof RemoteUpdatesProvider remoteUpdates) {
+            remoteUpdates.baseUrl = baseUrl;
+            if (hasApiKey) {
+                remoteUpdates.accessToken = apiKey;
+            }
+        }
     }
 
     public static LaunchServerConfig readConfig(Reader reader) {
         JsonObject json = JsonParser.parseReader(reader).getAsJsonObject();
         if (json.has("netty")) {
-            throw new IllegalStateException("This configuration uses the removed Netty server. Migrate netty.address to apiUrl and netty.downloadURL to distributionUrl, and configure the HTTP server separately.");
+            throw new IllegalStateException("This configuration uses the removed Netty server. Migrate netty.address to apiUrl and configure downloads on the external HTTP server.");
         }
         JsonObject launcher = objectAt(json, "launcher");
         if (launcher != null && launcher.has("experimentalDevOnlyHttpApi")) {
@@ -108,7 +125,6 @@ public final class LaunchServerConfig {
             throw new NullPointerException("Env must not be null");
         }
         verifyHttpUrl(apiUrl, "API URL");
-        verifyHttpUrl(distributionUrl, "Distribution URL");
         if (scheduler == null || scheduler.threads < 1) {
             throw new IllegalStateException("Scheduler threads must be positive");
         }
@@ -126,7 +142,7 @@ public final class LaunchServerConfig {
     private static void verifyHttpUrl(String value, String label) {
         if (value == null || value.isBlank()) throw new IllegalStateException(label + " must not be blank");
         try {
-            URI uri = URI.create(value.replace("%dirname%", "dirname"));
+            URI uri = URI.create(value);
             if (uri.getHost() == null || !("http".equalsIgnoreCase(uri.getScheme()) || "https".equalsIgnoreCase(uri.getScheme()))) {
                 throw new IllegalArgumentException();
             }

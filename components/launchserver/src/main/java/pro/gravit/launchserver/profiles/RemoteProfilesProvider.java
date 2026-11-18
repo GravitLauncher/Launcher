@@ -2,6 +2,7 @@ package pro.gravit.launchserver.profiles;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.google.gson.annotations.SerializedName;
 import com.google.gson.reflect.TypeToken;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,7 +33,8 @@ import java.util.stream.Collectors;
 public class RemoteProfilesProvider extends ProfilesProvider {
     private static final Logger log = LoggerFactory.getLogger(RemoteProfilesProvider.class);
     public String baseUrl = "PASTE BASE URL HERE";
-    public String accessToken = "PASTE ACCESS TOKEN HERE";
+    @SerializedName(value = "apiKey", alternate = "accessToken")
+    public String accessToken = "PASTE API KEY HERE";
     private final transient ProviderHttpClient client = new ProviderHttpClient();
     private CasHttpClient cas() { return new CasHttpClient(client, baseUrl, accessToken); }
     private final transient Map<String, HttpFileUploadResponse> uploadedBlobs = new java.util.concurrent.ConcurrentHashMap<>();
